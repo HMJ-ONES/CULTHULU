@@ -1,0 +1,28 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: sans-serif;
+  color: #ccc;
+}
+
+#ui {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  border-radius: 8px;
+  max-width: 300px;
+  pointer-events: none;
+}
+
+#ui h1 {
+  margin-top: 0;
+  color: #9f7fff;
+}
+
+#ui p {
+  font-size: 0.8rem;
+  line-height: 1.3rem;
+  margin: 0 0 8px 0;
+}
