@@ -1,28 +1,40 @@
-body {
+html, body {
   margin: 0;
+  padding: 0;
   overflow: hidden;
-  font-family: sans-serif;
-  color: #ccc;
+  background: #000;
+  touch-action: none; /* IMPORTANT: prevents browser gesture conflicts */
+  font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  color: rgba(255,255,255,0.85);
 }
 
 #ui {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 15px;
-  border-radius: 8px;
-  max-width: 300px;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  max-width: 320px;
   pointer-events: none;
 }
 
-#ui h1 {
-  margin-top: 0;
-  color: #9f7fff;
+.title {
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 0.3px;
 }
 
-#ui p {
-  font-size: 0.8rem;
-  line-height: 1.3rem;
-  margin: 0 0 8px 0;
+.hint {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  opacity: 0.9;
+}
+
+#stats {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.95;
 }
