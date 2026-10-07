@@ -31,6 +31,9 @@ struct Attack {
     float baseDamage = 10.0f;
     bool melee = true;
     float range = 2.0f;
+    // Wave 4: exertion-derived faction power multiplier (1.0 = none).
+    // The caller passes DerivedStats::combatPowerMult for its own faction.
+    float factionPowerMult = 1.0f;
 };
 
 // Tuning notes (creative liberty):
@@ -53,13 +56,15 @@ float resolveAttack(const Attack& atk, Entity& target,
 // Convenience wrapper: physical melee strike at the default range.
 float strikeMelee(uint64_t attackerId, EntityType attackerType, Entity& target,
                   float baseDamage, const BeliefSystem& beliefs,
-                  EventBus& bus, ActiveEffects& fx, EventType killedEvent);
+                  EventBus& bus, ActiveEffects& fx, EventType killedEvent,
+                  float factionPowerMult = 1.0f);
 
 // Resolve ranged spell damage, then apply crowd control through the active
 // effects system (demonstrating Magic-belief CC reduction).
 float castSpell(uint64_t casterId, EntityType casterType, Entity& target,
                 float baseDamage, DamageType damageType,
                 CCType cc, float ccSeconds, const BeliefSystem& beliefs,
-                EventBus& bus, ActiveEffects& fx, EventType killedEvent);
+                EventBus& bus, ActiveEffects& fx, EventType killedEvent,
+                float factionPowerMult = 1.0f);
 
 } // namespace cultulhu

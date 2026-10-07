@@ -1,10 +1,12 @@
 #include "dreams/DreamSystem.h"
 
 #include "beliefs/BeliefSystem.h"
+#include "beliefs/InteractionMatrix.h"
 #include "core/EventBus.h"
 #include "core/RNG.h"
 #include "cult/CultManager.h"
 #include "entities/Units.h"
+#include "exertion/ExertionSystem.h"
 
 namespace cultulhu {
 
@@ -50,9 +52,17 @@ float DreamSystem::update(double dt) {
                   static_cast<float>(dt);
 
     const bool chaos = beliefs_.isActive(Belief::Chaos);
+    // Wave 4 synergies (need the exertion hook; otherwise base behavior).
+    const bool nightmareSurge =
+        exertion_ && synergyActive(Belief::Dreams, Belief::Chaos,
+                                   exertion_->levels());
+    const bool martyrsVisions =
+        exertion_ && synergyActive(Belief::Sacrifice, Belief::Dreams,
+                                   exertion_->levels());
     for (uint64_t id : resting_) {
         // Dream-whispers convert distant civilians.
         float cp = convertChance_ * static_cast<float>(dt);
+        if (martyrsVisions) cp *= 1.5f; // Martyrs' Visions
         if (cp > 1.0f) cp = 1.0f;
         if (rng_.chance(cp)) {
             const uint64_t civ = picker_ ? picker_() : 0;
@@ -74,6 +84,7 @@ float DreamSystem::update(double dt) {
         // Nightmares: the cultist wakes up Lunatic.
         float np = nightmareChance_ * (chaos ? CHAOS_NIGHTMARE_MULT : 1.0f) *
                    static_cast<float>(dt);
+        if (nightmareSurge) np *= 2.0f; // Nightmare Surge (Dreams x Chaos)
         if (np > 1.0f) np = 1.0f;
         if (rng_.chance(np)) {
             for (size_t i = 0; i < cult_.size(); ++i) {

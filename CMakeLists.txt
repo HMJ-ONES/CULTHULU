@@ -29,8 +29,12 @@ target_link_libraries(cultulhu_tests_wave3 PRIVATE cultulhu)
 add_executable(cultulhu_tests_beta tests/tests_beta.cpp)
 target_link_libraries(cultulhu_tests_beta PRIVATE cultulhu)
 
+add_executable(cultulhu_tests_wave4 tests/tests_wave4.cpp)
+target_link_libraries(cultulhu_tests_wave4 PRIVATE cultulhu)
+
 enable_testing()
 add_test(NAME cultulhu_tests COMMAND cultulhu_tests)
 add_test(NAME cultulhu_tests_wave2 COMMAND cultulhu_tests_wave2)
 add_test(NAME cultulhu_tests_wave3 COMMAND cultulhu_tests_wave3)
 add_test(NAME cultulhu_tests_beta COMMAND cultulhu_tests_beta)
+add_test(NAME cultulhu_tests_wave4 COMMAND cultulhu_tests_wave4)
