@@ -92,7 +92,9 @@ void CommandSystem::publishIssuedResolved(DirectiveType d, CommandOutcome o,
     bus_.publish(issued);
 
     GameEvent resolved(EventType::DirectiveResolved);
-    resolved.tag = commandOutcomeName(o);
+    // Wave 4: tag carries "DirectiveName/OutcomeName" so the exertion
+    // pipeline can attribute obedience/failure to the right belief.
+    resolved.tag = std::string(directiveName(d)) + "/" + commandOutcomeName(o);
     resolved.amount = chance;
     bus_.publish(resolved);
 }

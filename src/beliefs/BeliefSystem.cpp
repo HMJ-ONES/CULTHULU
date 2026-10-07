@@ -91,6 +91,13 @@ void BeliefSystem::punishInfringer() {
     bus_.publish(e2);
 }
 
+// Wave 4: external fear injection (belief synergies, e.g. Dread Broods).
+void BeliefSystem::addFear(float amount) {
+    fear_ += amount;
+    if (fear_ > 100.0f) fear_ = 100.0f;
+    if (fear_ < 0.0f) fear_ = 0.0f;
+}
+
 void BeliefSystem::update(double dt) {
     double speed = isActive(Belief::Chaos) ? CHAOS_ADOPT_SPEED : 1.0;
     for (auto it = pending_.begin(); it != pending_.end();) {

@@ -19,7 +19,7 @@ cmake --build build
 cd build && ctest --output-on-failure
 ```
 
-Tests: 306 checks (87 v0.1 + 68 wave 2 + 70 wave 3 + 81 beta), 0 failures.
+Tests: 357 checks (87 v0.1 + 68 wave 2 + 70 wave 3 + 81 beta + 51 wave 4), 0 failures.
 
 ## Playable driver
 
@@ -202,6 +202,77 @@ logic is unaffected.
   place — volunteer dies, cultist revives at **25% HP**, **+20 power**.
 - Chaos lunatics: **0.0005** new lunatics per cultist per game-second;
   misbehave every **60s**; aligning one adds **+10** risk.
+
+## Wave 4: belief exertion & interactions
+
+Every belief now carries an **exertion (fervor) meter 0–100** (baseline 10,
+decays toward baseline at 0.5/s when neglected). Active beliefs accumulate
+at full rate; inactive beliefs still track at half rate, so swapping creeds
+mid-game has momentum. Exertion is fed by a data table
+(`src/exertion/ActionExertionTable.h`) — every game action feeds it:
+
+| Action | Exertion feed |
+|---|---|
+| Torture civilians/creatures | Torture +8, Fear +3 |
+| Torture captured enemies | Torture +5, Fear +2 |
+| Raid / raze district | Fear +10 (raid), +10 (razed), +6 (building destroyed) |
+| Successful breeding | Breeding +8 |
+| Feral rampage | Breeding +4, Fear +5 |
+| Explosion | Chaos +6 |
+| Punish infringers / brawl / desecrate / lunatic acts | Chaos +4/+3/+2/+3 |
+| Completed sacrifice ritual | Sacrifice +12 |
+| Interrupted sacrifice ritual | Sacrifice −5 |
+| Conversion (soul) | Conversion +6 |
+| Mass conversion (200s cd) | Conversion +10 |
+| Sermon / dream-whisper | Conversion +2/+1 |
+| Enemy cultist slain in war | War +6 |
+| Building auto-rebuilt / heal | Reconstruction +2/+1 |
+| Mimic kill / sprung trap / cursed artifact | Trickery +8/+6/+4 |
+| Sorcerer spell cast / necromancy | Magic +3/+10 |
+| Civilian slain / melee attack | Onslaught +3/+1 |
+| Cultist rests / prays / dream-whisper / nightmare | Dreams +2/+1/+1/+3 (nightmare also Chaos +2) |
+| Directive obeyed (Raid→Fear, Convert→Conversion, Sacrifice→Sacrifice, War→War, Defend→Reconstruction, Relic→Magic) | aligned belief +8 (partial +4) |
+| Directive refused / sparks insurrection | Chaos +4 / +8 |
+
+### Interaction matrix (12×12)
+
+When two beliefs both exceed **50 exertion** they interact:
+
+**Synergies** (amplify each other):
+| Pair | Name | Effect |
+|---|---|---|
+| Fear × Torture | Terror | power from torture/raid actions ×1.25 |
+| Dreams × Chaos | Nightmare Surge | lunatic-wake chance ×2 |
+| War × Onslaught | Blood Frenzy | combat power +0.15 |
+| Sacrifice × Magic | Dark Rites | necromancy power ×1.5 |
+| Conversion × Trickery | Infiltration | conversion chance +0.10 |
+| Breeding × Fear | Dread Broods | +0.8 fear/s passive |
+| War × Fear | Shock and Awe | raid power ×1.25 (stacks additively with Terror) |
+| Sacrifice × Dreams | Martyrs' Visions | dream-whisper conversion ×1.5 |
+| Magic × Dreams | Oneiromancy | ritual-caster conversion +0.05 |
+| Torture × Chaos | Cruelty Unbound | torture power ×1.25 (stacks additively) |
+
+**Conflicts** (each suppresses the other's exertion gains by half while both
+> 50; both > 70 fires a `BeliefTension` event + **+1.5** insurrection risk,
+60s cooldown per pair):
+| Pair | Name | Extra effect |
+|---|---|---|
+| Reconstruction × Onslaught | Ashes and Scaffolds | — |
+| Chaos × Conversion | Sabotage | conversion chance −0.10 |
+| Chaos × Sacrifice | Desecrated Rites | sacrifice power ×0.75 |
+| Reconstruction × War | Builders vs Warriors | — |
+| Torture × Sacrifice | Waste Not | — |
+
+### Derived stats (recomputed every tick)
+
+- **Combat power** = `1.0 + 0.004×(War+Onslaught) + 0.002×Magic + 0.15 (Blood Frenzy)` — multiplies all damage your faction deals (wired through `strikeMelee`/`castSpell` via the driver's `combatPowerMult`).
+- **Loyalty drift**/s = `0.01×(Sacrifice+Dreams+Conversion)/100 − 0.02×Chaos/100 − 0.015×risk` — applied to every living non-Converted cultist's devotion (clamped 0–100).
+- **Conversion chance** = `0.35 + 0.004×Conversion + 0.002×(Trickery+Magic) + 0.10 (Infiltration) − 0.10 (Sabotage)`, clamped **[0.05, 0.95]** — used by player-directed conversion actions/commands and by the new **ambient sorcerer conversion rituals** (`src/ai/RitualCaster`: sorcerers with ≥25 mana attempt to convert civilians within 200m every 45s).
+
+The `ExertionSystem` owns the unified power pipeline (event → existing
+belief power rules → synergy multipliers → `PowerSystem`), so the driver no
+longer duplicates it. `status` in the REPL now prints exertion levels and
+derived stats.
 
 ## Discrepancy notes (faithful to the doc)
 

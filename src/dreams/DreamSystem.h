@@ -10,6 +10,7 @@ class EventBus;
 class RNG;
 class BeliefSystem;
 class CultManager;
+class ExertionSystem; // wave 4: optional, for synergy-aware dream logic
 
 // Dreams belief (the 12th belief, chosen by the project owner): cultists need
 // rest. While resting they receive dream-visions from their entity.
@@ -59,10 +60,16 @@ private:
 
     std::set<uint64_t> resting_;
     std::function<uint64_t()> picker_;
+    const ExertionSystem* exertion_ = nullptr;
 
 public:
     // Night amplifies dream-visions (set from the free-roam day/night clock).
     void setNight(bool n) { night_ = n; }
+
+    // Wave 4: optional exertion hook. Enables the Nightmare Surge synergy
+    // (Dreams x Chaos: lunatic-wake chance doubled) and Martyrs' Visions
+    // (Sacrifice x Dreams: dream-whisper conversions empowered).
+    void setExertion(const ExertionSystem* ex) { exertion_ = ex; }
 };
 
 } // namespace cultulhu
