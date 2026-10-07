@@ -12,6 +12,7 @@
 #include "combat/Attacks.h"
 #include "combat/CrowdControl.h"
 #include "commands/CommandSystem.h"
+#include "commands/DirectiveExecutor.h"
 #include "core/EventBus.h"
 #include "core/GameClock.h"
 #include "core/RNG.h"
@@ -22,6 +23,7 @@
 #include "exertion/ExertionSystem.h"
 #include "modes/FreeRoamMode.h"
 #include "power/PowerSystem.h"
+#include "save/SaveSystem.h"
 
 #include <cmath>
 #include <iostream>
@@ -51,6 +53,62 @@ Belief beliefByName(const std::string& n) {
     return Belief::Count;
 }
 
+// Wave 5b: entity type ids in a save file are trusted only after this check.
+bool validEntityType(int t) {
+    return t >= static_cast<int>(EntityType::GreatOldOne) &&
+           t <= static_cast<int>(EntityType::Artifact);
+}
+
+// Wave 5b: rebuild a world entity from a save record. The avatar and
+// cultists are restored through BetaGame's own members instead.
+std::unique_ptr<Entity> entityFromRecord(const GameState::EntityRec& r) {
+    if (!validEntityType(r.type)) return nullptr;
+    const EntityType t = static_cast<EntityType>(r.type);
+    const float maxHp = r.maxHp > 0.0f ? r.maxHp : 100.0f;
+    std::unique_ptr<Entity> e;
+    switch (t) {
+        case EntityType::GreatOldOne:
+            e = std::make_unique<GreatOldOne>(r.faction, r.pos, maxHp);
+            break;
+        case EntityType::Cultist:
+            e = std::make_unique<Cultist>(r.faction, r.pos, maxHp);
+            break;
+        case EntityType::Civilian:
+            e = std::make_unique<Civilian>(r.pos, maxHp);
+            break;
+        case EntityType::Adventurer:
+            e = std::make_unique<Adventurer>(r.pos, maxHp);
+            break;
+        case EntityType::Creature:
+            e = std::make_unique<Creature>(r.faction, r.pos, "restored",
+                                           maxHp);
+            break;
+        case EntityType::Monstrosity:
+            e = std::make_unique<Monstrosity>(r.faction, r.pos, "restored",
+                                              false, maxHp);
+            break;
+        case EntityType::Mimic:
+            e = std::make_unique<Mimic>(r.faction, r.pos, maxHp);
+            break;
+        case EntityType::Sorcerer:
+            e = std::make_unique<Sorcerer>(r.faction, r.pos, maxHp);
+            break;
+        case EntityType::Building:
+            e = std::make_unique<Building>(r.faction, r.pos, maxHp);
+            break;
+        case EntityType::Relic:
+            e = std::make_unique<Relic>(r.pos, 0.0f);
+            break;
+        case EntityType::Artifact:
+            e = std::make_unique<Artifact>(r.pos, false);
+            break;
+        case EntityType::EldritchAvatar:
+            return nullptr; // restored through BetaGame::avatar
+    }
+    if (e) e->revive(r.hp); // restores hp; 0 hp stays dead
+    return e;
+}
+
 } // namespace
 
 struct BetaGame {
@@ -66,6 +124,9 @@ struct BetaGame {
     CameraSystem camera;
     EldritchAvatar avatar{FACTION_CTHULHU, Vec3{0, 0, 0}, power};
     CommandSystem commands{bus, rng, beliefs, cult};
+    // Wave 5b: live follow-through for obeyed directives. Spawns operations
+    // off DirectiveResolved and ticks them in tickSecond().
+    DirectiveExecutor executor{bus, rng, cult};
     AmbientDirector ambient{bus, rng, beliefs, cult, 30.0};
     // Wave 4: belief exertion owns the unified power pipeline (see
     // ExertionSystem). Must come after bus/beliefs/power/cult/rng.
@@ -93,6 +154,14 @@ struct BetaGame {
         bus.subscribe(EventType::DirectiveResolved, [](const GameEvent& e) {
             std::cout << "[directive] " << e.tag
                       << " (obedience was " << e.amount << ")\n";
+        });
+        bus.subscribe(EventType::DirectiveProgress, [](const GameEvent& e) {
+            std::cout << "[directive] " << e.tag << " "
+                      << static_cast<int>(e.amount * 100.0f + 0.5f)
+                      << "%\n";
+        });
+        bus.subscribe(EventType::DirectiveCompleted, [](const GameEvent& e) {
+            std::cout << "[directive] " << e.tag << " completed\n";
         });
         bus.subscribe(EventType::DreamWhisper, [](const GameEvent& e) {
             std::cout << "[dream] a distant civilian stirs in their sleep "
@@ -155,6 +224,9 @@ struct BetaGame {
         rituals.setSorcerers(sorcs);
         rituals.setCivilians(civs);
         rituals.update(1.0);
+        // Wave 5b: directive follow-through operations tick here; their
+        // events feed the exertion/power pipeline like any other events.
+        executor.update(1.0);
         freeroam.update(1.0);
         fx.tick(1.0);
         avatarAnim.update(1.0);
@@ -210,6 +282,8 @@ struct BetaGame {
         std::cout << "cultists: " << cult.size()
                   << "  resting: " << dreams.restingCount()
                   << "  ambient acts: " << ambient.actionsPerformed() << "\n";
+        std::cout << "directive ops: " << executor.activeCount() << " active"
+                  << (executor.defenseActive() ? " (DEFENDING)" : "") << "\n";
         for (size_t i = 0; i < cult.size(); ++i) {
             const Cultist& c = cult.at(i);
             std::cout << "  [" << i << "] id=" << c.id()
@@ -240,6 +314,64 @@ struct BetaGame {
         return n;
     }
 
+    // Wave 5b: snapshot the beta game into a SaveSystem GameState.
+    GameState buildSaveState() {
+        GameState s;
+        s.clockTime = clock.now();
+        s.power = power.value();
+        s.activeBeliefs = beliefs.active();
+        s.insurrectionRisk = cult.insurrectionRisk();
+        auto rec = [](const Entity& e) {
+            GameState::EntityRec r;
+            r.id = e.id();
+            r.type = static_cast<int>(e.type());
+            r.faction = e.faction();
+            r.pos = e.position();
+            r.hp = e.hp();
+            r.maxHp = e.maxHp();
+            return r;
+        };
+        s.entities.push_back(rec(avatar));
+        for (size_t i = 0; i < cult.size(); ++i)
+            s.entities.push_back(rec(cult.at(i)));
+        for (const auto& e : world) s.entities.push_back(rec(*e));
+        return s;
+    }
+
+    // Wave 5b: restore a snapshot. Beta limitations: entity AI state is NOT
+    // restored — rest/anim state, cultist devotion, sorcerer mana, relic
+    // amplifiers, monstrosity species/feral flags, mimic disguise, building
+    // rebuild progress, and ambient/ritual timers all reset to defaults;
+    // respawned entities get fresh ids.
+    void applySaveState(const GameState& s) {
+        clock.reset();
+        clock.advance(s.clockTime);
+        power.set(s.power);
+        beliefs.restoreActive(s.activeBeliefs);
+        cult.addRisk(s.insurrectionRisk - cult.insurrectionRisk());
+        cult.clear();
+        world.clear();
+        bool avatarSeen = false;
+        for (const auto& r : s.entities) {
+            if (!validEntityType(r.type)) continue;
+            const EntityType t = static_cast<EntityType>(r.type);
+            if (t == EntityType::EldritchAvatar && !avatarSeen) {
+                avatarSeen = true;
+                avatar.setPosition(r.pos);
+                avatar.revive(r.hp);
+                continue;
+            }
+            if (t == EntityType::Cultist) {
+                Cultist& c = cult.recruit();
+                c.setPosition(r.pos);
+                c.revive(r.hp);
+                continue;
+            }
+            auto e = entityFromRecord(r);
+            if (e) world.push_back(std::move(e));
+        }
+    }
+
     void printHelp() {
         std::cout <<
             "commands:\n"
@@ -254,6 +386,8 @@ struct BetaGame {
             "  attack                              melee the nearest target\n"
             "  cast <fireball|fear>                sorcerer spell + CC\n"
             "  tick <n>                            advance n game-seconds\n"
+            "  save <file>                         save game to file\n"
+            "  load <file>                         load game from file\n"
             "  status                              dump game state\n"
             "  help | quit\n";
     }
@@ -487,6 +621,42 @@ int main() {
             std::cout << "t+" << n << "s  power " << before << " -> "
                       << g.power.value() << "  (" << g.freeroam.hourOfDay()
                       << "h)\n";
+            continue;
+        }
+
+        if (cmd == "save") {
+            std::string file; in >> file;
+            if (file.empty()) {
+                std::cout << "usage: save <file>\n";
+                continue;
+            }
+            GameState s = g.buildSaveState();
+            if (SaveSystem::save(s, file))
+                std::cout << "saved t=" << s.clockTime << "s power="
+                          << s.power << " beliefs=" << s.activeBeliefs.size()
+                          << " " << s.entities.size() << " entities -> "
+                          << file << "\n";
+            else
+                std::cout << "save failed: " << file << "\n";
+            continue;
+        }
+
+        if (cmd == "load") {
+            std::string file; in >> file;
+            if (file.empty()) {
+                std::cout << "usage: load <file>\n";
+                continue;
+            }
+            GameState s;
+            if (!SaveSystem::load(file, s)) {
+                std::cout << "load failed: " << file << "\n";
+                continue;
+            }
+            g.applySaveState(s);
+            std::cout << "loaded " << file << ": t=" << s.clockTime
+                      << "s power=" << s.power << " beliefs="
+                      << s.activeBeliefs.size() << " entities="
+                      << s.entities.size() << "\n";
             continue;
         }
 
