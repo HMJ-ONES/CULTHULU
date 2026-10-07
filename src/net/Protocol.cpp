@@ -110,5 +110,70 @@ float fieldFloat(const Message& m, const std::string& key, float dflt) {
     try { return std::stof(it->second); } catch (...) { return dflt; }
 }
 
+// ---------------- PlayerKda ----------------
+
+namespace {
+
+std::string cleanKdaName(const std::string& n) {
+    // ',' would break the eK field split; ';' and '=' are stripped by
+    // encodeFields anyway but removing them here keeps the contract
+    // explicit and shared with decode.
+    std::string out;
+    for (char c : n) {
+        if (c == ',' || c == ';' || c == '=') continue;
+        out.push_back(c);
+    }
+    return out;
+}
+
+} // namespace
+
+Message encodePlayerKda(const std::vector<KdaEntry>& entries) {
+    Message m{MsgType::PlayerKda, {}};
+    m.fields["n"] = std::to_string(entries.size());
+    for (size_t i = 0; i < entries.size(); ++i) {
+        const auto& e = entries[i];
+        m.fields["e" + std::to_string(i)] =
+            std::to_string(e.playerIdx) + "," +
+            std::to_string(e.row.kills) + "," +
+            std::to_string(e.row.deaths) + "," +
+            std::to_string(e.row.assists) + "," +
+            cleanKdaName(e.row.name);
+    }
+    return m;
+}
+
+bool decodePlayerKda(const Message& m, std::vector<KdaEntry>& out) {
+    if (m.type != MsgType::PlayerKda) return false;
+    int n = fieldInt(m, "n", 0);
+    out.clear();
+    for (int i = 0; i < n; ++i) {
+        const std::string s = fieldStr(m, "e" + std::to_string(i));
+        // "playerIdx,kills,deaths,assists,name" — exactly 5 parts; name
+        // commas were stripped at encode, so a plain split is safe.
+        std::vector<std::string> parts;
+        size_t j = 0;
+        while (j <= s.size()) {
+            size_t c = s.find(',', j);
+            parts.push_back(s.substr(j, c == std::string::npos ? c : c - j));
+            if (c == std::string::npos) break;
+            j = c + 1;
+        }
+        if (parts.size() != 5) continue;
+        KdaEntry e;
+        try {
+            e.playerIdx = static_cast<uint32_t>(std::stoul(parts[0]));
+            e.row.kills = std::stoi(parts[1]);
+            e.row.deaths = std::stoi(parts[2]);
+            e.row.assists = std::stoi(parts[3]);
+            e.row.name = parts[4];
+        } catch (...) {
+            continue;
+        }
+        out.push_back(std::move(e));
+    }
+    return true;
+}
+
 } // namespace net
 } // namespace cultulhu

@@ -49,6 +49,10 @@ std::string AnimationStateMachine::mixamoClipName(AnimationState state) {
         case AnimationState::Stunned: return "Stunned";
         case AnimationState::Death:   return "Death";
         case AnimationState::Channel: return "Channel";
+        case AnimationState::CastWave: return "MindControlWave";
+        case AnimationState::Levitate: return "LevitateHold";
+        case AnimationState::Launch:  return "PsychicLaunch";
+        case AnimationState::Levitated: return "Levitated";
         case AnimationState::Count:   return "";
     }
     return "";

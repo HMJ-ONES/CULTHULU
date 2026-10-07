@@ -18,7 +18,8 @@ enum class EntityType {
     Sorcerer,
     Building,
     Relic,
-    Artifact
+    Artifact,
+    Altar // wave 7: ritual site entity (appended last; keep it last)
 };
 
 using FactionId = int;
