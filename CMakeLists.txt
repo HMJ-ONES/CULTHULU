@@ -41,6 +41,21 @@ target_link_libraries(cultulhu_tests_wave5b PRIVATE cultulhu)
 add_executable(cultulhu_tests_net tests/tests_net.cpp)
 target_link_libraries(cultulhu_tests_net PRIVATE cultulhu)
 
+add_executable(cultulhu_tests_wave7a tests/tests_wave7a.cpp)
+target_link_libraries(cultulhu_tests_wave7a PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave7b tests/tests_wave7b.cpp)
+target_link_libraries(cultulhu_tests_wave7b PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave7c tests/tests_wave7c.cpp)
+target_link_libraries(cultulhu_tests_wave7c PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave7d tests/tests_wave7d.cpp)
+target_link_libraries(cultulhu_tests_wave7d PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave7e tests/tests_wave7e.cpp)
+target_link_libraries(cultulhu_tests_wave7e PRIVATE cultulhu)
+
 enable_testing()
 add_test(NAME cultulhu_tests COMMAND cultulhu_tests)
 add_test(NAME cultulhu_tests_wave2 COMMAND cultulhu_tests_wave2)
@@ -50,3 +65,8 @@ add_test(NAME cultulhu_tests_wave4 COMMAND cultulhu_tests_wave4)
 add_test(NAME cultulhu_tests_anim COMMAND cultulhu_tests_anim)
 add_test(NAME cultulhu_tests_wave5b COMMAND cultulhu_tests_wave5b)
 add_test(NAME cultulhu_tests_net COMMAND cultulhu_tests_net)
+add_test(NAME cultulhu_tests_wave7a COMMAND cultulhu_tests_wave7a)
+add_test(NAME cultulhu_tests_wave7b COMMAND cultulhu_tests_wave7b)
+add_test(NAME cultulhu_tests_wave7c COMMAND cultulhu_tests_wave7c)
+add_test(NAME cultulhu_tests_wave7d COMMAND cultulhu_tests_wave7d)
+add_test(NAME cultulhu_tests_wave7e COMMAND cultulhu_tests_wave7e)

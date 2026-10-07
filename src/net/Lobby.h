@@ -32,9 +32,15 @@ struct LobbyPlayer {
     std::string name;
     bool ready = false;
     int team = -1;  // 0 or 1
+    // Kill/death/assist tallies shown in the roster. Updated by the host
+    // via HostLobby::updateKda(); they ride along in PlayerList broadcasts
+    // ("id,name,ready,team,kills,deaths,assists").
+    int kills = 0;
+    int deaths = 0;
+    int assists = 0;
 };
 
-// "1,Alice,1,0" helpers shared by both sides.
+// "1,Alice,1,0,3,1,2" helpers shared by both sides.
 std::string encodeLobbyPlayer(const LobbyPlayer& p);
 bool decodeLobbyPlayer(const std::string& s, LobbyPlayer& out);
 
@@ -55,6 +61,11 @@ public:
 
     void sendChatAll(const std::string& from, const std::string& text);
     std::vector<std::string> drainChat();
+
+    // Update one player's KDA tallies and rebroadcast the roster so every
+    // lobby screen (and later the pre-game sheet) shows fresh standings.
+    // The game calls this from the PlayerStatsTracker on the host.
+    void updateKda(uint32_t id, int kills, int deaths, int assists);
 
     // Hand accepted sockets to the gameplay netcode. Lobby stays usable
     // for chat/updates only until game start; call once.
