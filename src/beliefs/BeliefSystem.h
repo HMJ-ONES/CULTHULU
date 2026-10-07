@@ -74,6 +74,11 @@ public:
     void addFear(float amount);
     double adoptionRemaining(Belief b) const; // -1 if not pending
 
+    // Save/load support: replace the active belief set wholesale. No
+    // adoption timer, no events; pending adoptions are dropped and fear is
+    // reset. Invalid entries are skipped; capped at MAX_ACTIVE.
+    void restoreActive(const std::vector<Belief>& beliefs);
+
 private:
     struct Pending {
         Belief belief;

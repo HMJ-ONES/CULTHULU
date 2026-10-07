@@ -28,6 +28,13 @@ void CultManager::dismissDead() {
     }
 }
 
+void CultManager::clear() {
+    cultists_.clear();
+    campaignActive_ = false;
+    campaignTarget_ = 0;
+    campaignRemaining_ = 0.0;
+}
+
 bool CultManager::denyDeath(Cultist& dying) {
     if (dying.faction() != FACTION_CTHULHU || dying.alive()) return false;
 

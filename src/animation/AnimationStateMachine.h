@@ -53,7 +53,7 @@ public:
     // Useful when binding downloaded Mixamo packs without renaming.
     static std::string mixamoClipName(AnimationState state);
 
-    void requestState(AnimationState s);
+    void requestState(AnimationState s, double blendSeconds = 0.25);
     void update(double dt);
 
     AnimationState currentState() const { return state_; }
@@ -62,9 +62,30 @@ public:
     std::string currentClipName() const;
     bool proceduralFallback() const { return !hasClip(state_); }
 
+    // Pose of the current clip at timeInState(). Blend-aware: during a
+    // transition this returns sampleBlendedPose().
+    Pose currentPose() const;
+    // Pose lerped between the previous clip's pose and the new clip's pose,
+    // weighted by blendT() smoothed with smoothstep. Outside a blend this
+    // equals the current clip's pose.
+    Pose sampleBlendedPose() const;
+    // 0 at the start of a transition, 1 when the blend has finished.
+    double blendT() const { return blendActive_ ? blendT_ : 1.0; }
+    bool blending() const { return blendActive_; }
+
 private:
     AnimationState state_ = AnimationState::Idle;
     double timeInState_ = 0.0;
+
+    // Blend state: previous clip keeps playing while the new one fades in.
+    bool blendActive_ = false;
+    double blendT_ = 1.0;
+    double blendDuration_ = 0.25;
+    double prevTime_ = 0.0;
+    bool hasPrevClip_ = false;
+    AnimationClip prevClip_;
+
+    void transitionTo(AnimationState s, double blendSeconds);
 
     struct StateHash {
         size_t operator()(AnimationState s) const noexcept {

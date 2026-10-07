@@ -274,6 +274,117 @@ belief power rules → synergy multipliers → `PowerSystem`), so the driver no
 longer duplicates it. `status` in the REPL now prints exertion levels and
 derived stats.
 
+## Wave 5: animation pipeline
+
+The core's animation system (`src/animation/`) is engine-agnostic: it produces
+**poses** (bone name → position + euler-degree rotation) that the Unreal
+binding later retargets onto real skeletons. Everything below works headless,
+so the game is fully playable with zero art assets.
+
+### Data model
+- `BoneTrack`: one bone's keyframes (`Keyframe{time, pos, rotEuler}` in
+  degrees), sampled with linear interpolation and end clamping.
+- `AnimationClip`: name, duration, loop flag, source path, plus
+  `tracks` (bone name → `BoneTrack`). `sampleAt(t)` returns a full `Pose`,
+  wrapping `t` for looping clips and clamping for one-shots.
+- `AnimationStateMachine`: binds one clip per `AnimationState`
+  (Idle/Walk/Run/Attack/Cast/Stunned/Death/Channel). `requestState(s,
+  blendSeconds=0.25)` cross-fades between clips; `sampleBlendedPose()` lerps
+  the old and new poses with a smoothstepped blend factor while `update(dt)`
+  keeps both clips advancing. Death is terminal, Stunned interrupts anything
+  but Death, and Attack/Cast/Channel auto-return to Idle when their clip
+  finishes. States with no clip bound use the runtime procedural fallback, so
+  unbound states never crash the game.
+
+### Procedural generators
+`ProceduralClips.h` synthesizes sinusoidal clips for the generic humanoid rig
+(`humanoidBones()`: hips, spine, head, upperArmL/R, lowerArmL/R, upperLegL/R,
+lowerLegL/R):
+- `makeWalk()` — 1.0 s loop: legs swing opposite phase, arms counter-swing,
+  hips bob twice per cycle.
+- `makeRun()` — 0.6 s loop: wider swing, bent elbows, forward lean.
+- `makeIdle()` — 2.0 s loop: breathing, arm sway, slow head look.
+- `makeAttackSwing()` — 0.8 s one-shot: overhead wind-up → strike → recover.
+- `makeDeath()` — 1.2 s one-shot: stagger, topple sideways, crumple.
+`bindProceduralFallbacks(machine)` fills any unbound state (Idle/Walk/Run/
+Attack/Death) without overwriting hand-bound clips.
+
+### FBX import hook
+`FbxClipImporter` is an abstract interface — the core never links an FBX SDK.
+A future engine-side/tools implementation should: parse bone curves from the
+FBX, map node names through `RigDefinition` (exact match, then the
+retarget-profile rename table), resample to keyframes in euler degrees, and
+persist each clip via `ClipSerializer` (see the 6-step TODO block in
+`src/animation/FbxClipImporter.h`).
+
+### `assets/animations/` layout
+Imported or hand-tuned clips live here as `.canim` text files, one clip per
+file, in a readable line format:
+```
+CLIP "Walking" 1.000000000 1
+TRACK hips 13
+KEY 0.000000000 0.000000000 1.000000000 0.000000000 0.000000000 0.000000000 0.000000000
+...
+```
+`ClipSerializer::save/load` round-trips them exactly; the game loads `.canim`
+files at runtime with no SDK dependency. Procedural clips are generated in
+code and never need files, but can be dumped here for inspection.
+
+### Mixamo naming
+`AnimationStateMachine::mixamoClipName(state)` maps each state to its standard
+Mixamo pack name (Walk → `"Walking"`, Run → `"Running"`, Attack →
+`"SwordAndShieldSlash"`, Cast → `"Spellcast"`, …), so Mixamo packs downloaded
+from mixamo.com bind with zero renaming: import each FBX through the hook
+above, name the clip with `mixamoClipName(state)`, save to
+`assets/animations/`, and `bindClip` it.
+
+## Directive executor
+
+Issuing a directive (`command <raid|war|convert|sacrifice|defend|relic>`) only
+decides obedience. When the cult obeys, the **DirectiveExecutor**
+(`src/commands/DirectiveExecutor.h`) spawns a live operation that plays the
+directive out over game time. It subscribes to `DirectiveResolved` and parses
+the `"DirectiveName/OutcomeName"` tag; `Refused` and `SparksInsurrection`
+spawn nothing. At most 4 operations run concurrently (extras are refused with
+a log line).
+
+Operations and their event flow (all through the EventBus, so the
+exertion/power pipeline reacts automatically — there is no parallel power
+path; `PartiallyObeyed` halves magnitudes and durations):
+
+| Directive | Operation | Ticks | Events per tick | Completion |
+|---|---|---|---|---|
+| GoToWar | WarOperation | 8 × 5s | `EnemyCultistSlain` (1–3, enemy faction) | `DirectiveCompleted` |
+| RaidCity | RaidOperation | 10 × 5s | `RaidPerformed` (destruction 0.1–0.3) | `DirectiveCompleted` |
+| ConvertCampaign | ConvertOperation | 6 × 5s | `ConversionPerformed` (1–2 souls) | `DirectiveCompleted` |
+| MassSacrifice | SacrificeOperation | 6 × 5s (30s ritual) | 5%/tick interruption | `SacrificeCompleted`, or `SacrificeInterrupted` |
+| Defend | DefendOperation | 6 × 10s (60s) | progress only | `DirectiveCompleted` |
+| GatherRelic | RelicOperation | 6 × 5s (travel) | progress only | 60% → `ArtifactTriggered` (tag `"relic"`), else nothing |
+
+Every tick publishes `DirectiveProgress` (tag = directive name, amount =
+0..1); natural completion publishes `DirectiveCompleted`. The Defend
+operation emits no gameplay buff itself — `DirectiveExecutor::defenseActive()`
+returns true while any Defend op is live, and the game layer applies whatever
+buff it wants (e.g. halve incoming damage) for that window.
+
+Note: `CommandSystem` still applies its instant effects on Obeyed (e.g. an
+immediate `RaidPerformed(0.4)` for raids, `startConversionCampaign` for
+converts) alongside the new follow-through operation — initial strike plus
+sustained operation.
+
+### Driver save/load
+
+- `save <file>` — snapshots clock time, power, active beliefs, insurrection
+  risk, and all entities (avatar + cultists + world entities) via SaveSystem.
+- `load <file>` — restores them: clock/power/beliefs/risk are set directly
+  (beliefs restore wholesale, no adoption timer) and the entity list is
+  respawned.
+
+Beta limitations: entity AI state is not restored — rest/anim state, cultist
+devotion, sorcerer mana, relic amplifiers, monstrosity species/feral flags,
+mimic disguise, building rebuild progress, and ambient/ritual timers all
+reset to defaults; respawned entities get fresh ids.
+
 ## Discrepancy notes (faithful to the doc)
 
 - The doc said "12 beliefs" but listed 11. The 12th — **Dreams** — was chosen
@@ -297,8 +408,15 @@ derived stats.
   engine-agnostic and bind at the edges.
 - **Networking**: authoritative server sim using this core; replicate
   `GameEvent`s to clients.
+- **Wave 5** (done): animation clip data model (bone tracks/keyframes/poses),
+  `.canim` text serialization, procedural Walk/Run/Idle/Attack/Death
+  generators, crossfade blending in the state machine, FBX importer hook
+  interface, directive follow-through executor (live operations per directive
+  with progress/completion events), driver `save`/`load` commands.
 - **Animation pipeline**: Mixamo auto-rig + animation library / Blender
   Python (`bpy`) scripted animation generation on player-supplied rigged
-  FBX models; retarget into engine Animation Blueprints.
-- **Content**: per-entity tuning, full 5v5 matchmaking flow, save/load in
-  the driver, more ambient variety and directive types.
+  FBX models; retarget into engine Animation Blueprints. (Core-side data
+  model, procedural clips, `.canim` format, and FBX hook are done —
+  `assets/animations/` is the drop point.)
+- **Content**: per-entity tuning, full 5v5 matchmaking flow, more ambient
+  variety and directive types. (Driver save/load done.)
