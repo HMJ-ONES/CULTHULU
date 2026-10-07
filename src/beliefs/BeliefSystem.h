@@ -70,6 +70,8 @@ public:
     float conversionVulnerability() const; // Conversion: cultists easier to steal
 
     float fearLevel() const { return fear_; } // 0..100
+    // Wave 4: external fear injection (e.g. Dread Broods synergy). Clamped.
+    void addFear(float amount);
     double adoptionRemaining(Belief b) const; // -1 if not pending
 
 private:

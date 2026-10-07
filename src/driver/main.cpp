@@ -3,6 +3,7 @@
 // this with real rendering later; all game logic lives in the core library.
 
 #include "ai/AmbientBehavior.h"
+#include "ai/RitualCaster.h"
 #include "animation/AnimationStateMachine.h"
 #include "assets/AssetManager.h"
 #include "beliefs/BeliefSystem.h"
@@ -18,6 +19,7 @@
 #include "dreams/DreamSystem.h"
 #include "entities/Structures.h"
 #include "entities/Units.h"
+#include "exertion/ExertionSystem.h"
 #include "modes/FreeRoamMode.h"
 #include "power/PowerSystem.h"
 
@@ -65,6 +67,10 @@ struct BetaGame {
     EldritchAvatar avatar{FACTION_CTHULHU, Vec3{0, 0, 0}, power};
     CommandSystem commands{bus, rng, beliefs, cult};
     AmbientDirector ambient{bus, rng, beliefs, cult, 30.0};
+    // Wave 4: belief exertion owns the unified power pipeline (see
+    // ExertionSystem). Must come after bus/beliefs/power/cult/rng.
+    ExertionSystem exertion{bus, beliefs, power, cult, rng};
+    RitualCaster rituals{bus, rng, beliefs, exertion, 45.0};
     ActiveEffects fx;
     AssetManager assets;
     AnimationStateMachine avatarAnim;
@@ -73,15 +79,10 @@ struct BetaGame {
     std::vector<std::unique_ptr<Entity>> world;
 
     BetaGame() {
-        // Every gameplay event flows through BeliefSystem into Cthulhu's
-        // power (the established power pipeline).
-        for (int i = 0; i < static_cast<int>(EventType::Count); ++i) {
-            bus.subscribe(static_cast<EventType>(i),
-                          [this](const GameEvent& e) {
-                              power.add(beliefs.onEvent(e));
-                          });
-        }
-        // Narration for the notable moments.
+        // The exertion system now owns the power pipeline (event -> belief
+        // power rules -> synergy multipliers -> PowerSystem). Narration for
+        // the notable moments.
+        dreams.setExertion(&exertion);
         bus.subscribe(EventType::Revolt, [](const GameEvent&) {
             std::cout << "\n!! THE CULT REVOLTS !!\n";
         });
@@ -139,6 +140,21 @@ struct BetaGame {
         lunatics.update(1.0);
         ambient.setHourOfDay(freeroam.hourOfDay());
         ambient.update(1.0);
+        // Wave 4: exertion decay, derived stats, loyalty drift, tensions.
+        exertion.update(1.0);
+        // Wave 4: ambient sorcerer conversion rituals.
+        std::vector<Sorcerer*> sorcs;
+        std::vector<Civilian*> civs;
+        for (const auto& e : world) {
+            if (auto* s = dynamic_cast<Sorcerer*>(e.get()))
+                sorcs.push_back(s);
+            if (auto* c = dynamic_cast<Civilian*>(e.get()))
+                civs.push_back(c);
+        }
+        for (const auto& c : freeroam.civilians()) civs.push_back(c.get());
+        rituals.setSorcerers(sorcs);
+        rituals.setCivilians(civs);
+        rituals.update(1.0);
         freeroam.update(1.0);
         fx.tick(1.0);
         avatarAnim.update(1.0);
@@ -181,6 +197,16 @@ struct BetaGame {
         for (Belief b : beliefs.active()) std::cout << " " << beliefName(b);
         std::cout << "\nrisk: " << cult.insurrectionRisk()
                   << "  fear: " << beliefs.fearLevel() << "\n";
+        std::cout << "exertion:";
+        for (int i = 0; i < static_cast<int>(Belief::Count); ++i) {
+            Belief b = static_cast<Belief>(i);
+            std::cout << " " << beliefName(b) << "="
+                      << static_cast<int>(exertion.exertion(b));
+        }
+        std::cout << "\n  combatPower x" << exertion.stats().combatPowerMult
+                  << "  loyaltyDrift " << exertion.stats().loyaltyDriftPerSec
+                  << "/s  convertChance "
+                  << exertion.stats().conversionChance << "\n";
         std::cout << "cultists: " << cult.size()
                   << "  resting: " << dreams.restingCount()
                   << "  ambient acts: " << ambient.actionsPerformed() << "\n";
@@ -414,7 +440,8 @@ int main() {
             g.avatarAnim.requestState(AnimationState::Attack);
             float dmg = strikeMelee(g.avatar.id(), EntityType::EldritchAvatar,
                                     *t, 40.0f, g.beliefs, g.bus, g.fx,
-                                    EventType::CivilianSlain);
+                                    EventType::CivilianSlain,
+                                    g.exertion.stats().combatPowerMult);
             std::cout << "struck for " << dmg << " (target hp " << t->hp()
                       << ")\n";
             g.tickSecond();
@@ -432,13 +459,15 @@ int main() {
                 dmg = castSpell(g.avatar.id(), EntityType::Sorcerer, *t,
                                 20.0f, DamageType::Shadow, CCType::Fear, 4.0f,
                                 g.beliefs, g.bus, g.fx,
-                                EventType::CivilianSlain);
+                                EventType::CivilianSlain,
+                                g.exertion.stats().combatPowerMult);
                 std::cout << "fear cast for " << dmg << "\n";
             } else if (spell == "fireball") {
                 dmg = castSpell(g.avatar.id(), EntityType::Sorcerer, *t,
                                 35.0f, DamageType::Fire, CCType::Stun, 3.0f,
                                 g.beliefs, g.bus, g.fx,
-                                EventType::CivilianSlain);
+                                EventType::CivilianSlain,
+                                g.exertion.stats().combatPowerMult);
                 std::cout << "fireball for " << dmg << "\n";
             } else {
                 std::cout << "usage: cast <fireball|fear>\n";

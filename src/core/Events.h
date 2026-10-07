@@ -91,6 +91,9 @@ enum class EventType {
     DreamWhisper,          // a distant civilian stirred by dream-whispers
     Nightmare,             // sourceId = cultist who woke Lunatic
 
+    // Belief exertion (wave 4): two conflicting beliefs both burning hot.
+    BeliefTension,         // tag = "A vs B"; amount = tension level 0..1
+
     // Crowd control
     CCApplied,             // tag = CC type name; amount = duration seconds
 
@@ -103,7 +106,7 @@ enum class EventType {
 
     // Eldritch directives
     DirectiveIssued,       // tag = directive name; amount = obedience chance
-    DirectiveResolved,     // tag = outcome name; amount = obedience chance
+    DirectiveResolved,     // tag = "DirectiveName/OutcomeName"; amount = obedience chance
 
     Count
 };
