@@ -29,6 +29,9 @@ namespace net {
 
 constexpr double kInputHz = 30.0;
 constexpr double kSnapshotHz = 20.0;
+// KDA standings change rarely: broadcast them at 1 Hz when a provider is
+// set, so the Tab overlay stays fresh without spamming the tunnel.
+constexpr double kKdaHz = 1.0;
 
 // buttons bitmask: bit0 = attack, bit1 = cast, bit2 = jump/interact.
 struct ClientInput {
@@ -60,6 +63,13 @@ public:
 
     using SnapshotProvider = std::function<std::vector<SnapshotEntity>()>;
 
+    // The game calls this once (or whenever) with a provider that returns
+    // the current KDA standings; NetHost broadcasts them as PlayerKda at
+    // kKdaHz inside poll(). Typical provider: wraps a PlayerStatsTracker
+    // (see net/PlayerStats.h) and tags each row with its player index.
+    using KdaProvider = std::function<std::vector<KdaEntry>()>;
+    void setKdaProvider(KdaProvider p) { kdaProvider_ = std::move(p); }
+
     // Broadcasts snapshots at kSnapshotHz; collects client inputs.
     // Call often (every driver tick). Dead clients are dropped.
     void poll(double nowSeconds, SnapshotProvider provide);
@@ -81,6 +91,8 @@ private:
     std::map<size_t, ClientInput> inputs_;
     uint32_t tick_ = 0;
     double lastSnap_ = -1e9;
+    KdaProvider kdaProvider_;
+    double lastKda_ = -1e9;
 };
 
 // Client side: owns the lobby socket after StartGame.
@@ -96,6 +108,9 @@ public:
     const std::map<uint32_t, SnapshotEntity>& entities() const {
         return entities_;
     }
+    // Latest KDA standings received from the host (empty until the first
+    // PlayerKda arrives); powers the client's Tab stats overlay.
+    const std::vector<KdaEntry>& kda() const { return kda_; }
     uint32_t lastTick() const { return lastTick_; }
     bool connected() const { return alive_; }
 
@@ -103,6 +118,7 @@ private:
     TcpSocket sock_;
     MessageReader reader_;
     std::map<uint32_t, SnapshotEntity> entities_;
+    std::vector<KdaEntry> kda_;
     uint32_t lastTick_ = 0;
     uint32_t seq_ = 0;
     double lastInput_ = -1e9;
