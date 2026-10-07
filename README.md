@@ -33,7 +33,14 @@ headless right now:
 Commands: `move n/s/e/w`, `camera fp|tp`, `look`, `spawn <cultist|civilian|`
 `monstrosity|sorcerer>`, `belief <name> [replace <old>]`, `beliefs`,
 `rest <i>`, `command <raid|war|convert|sacrifice|defend|relic>`,
-`attack`, `cast <fireball|fear>`, `tick <n>`, `status`, `help`, `quit`.
+`attack`, `cast <fireball|fear>`, `tick <n>`, `save <file>`,
+`load <file>`, `myip`, `discover`, `host`, `join`, `ready`, `players`,
+`startgame`, `chat`, `netent`, `leave`,
+`build <wall|barracks|watchtower|trap|portal|altar>`,
+`menu [cultist|location|enemy|altar]`, `combo`, `chars`,
+`addchar <folder>`, `validate <id>`, `kda`, `interact`, `jump`,
+`sprint <on|off>`, `rmb <press|move|launch|release|stun>`, `status`,
+`help`, `quit`.
 
 The beta starts in free roam at night with the Dreams and Conversion beliefs
 adopted, 3 cultists, and a sorcerer attendant.
@@ -444,6 +451,309 @@ Driver command reference: `myip`, `discover [secs]`, `host <port> [name]`,
   case and still validates the beacon protocol).
 - The host's PC does all the simulating — a weak host means a laggy
   game for everyone. No dedicated server also means no 24/7 lobbies.
+
+## Wave 7: world, controls & characters
+
+Player-facing input, a radial command menu, melee combos, a plug-and-play
+character framework (Cthulhu Avatar as the template), his Wave of
+Domination RMB kit, world zones, procedural dungeons/caves, altars,
+buildings, construction AI, and per-player KDA for the Tab stats overlay.
+
+### Full controls (owner's bindings)
+
+`src/input/InputManager.h` is the abstract input model: the engine fills
+an `InputState` per frame (held/pressed/released edges per key) and calls
+`update(state, dt)`. No OS calls, no wall clock — timestamps use
+accumulated game time.
+
+| Binding      | Behaviour                                                       |
+|--------------|-----------------------------------------------------------------|
+| WASD         | `moveVector()`: XZ-plane movement, diagonals normalized to 1    |
+| Space        | jump — `jumpPressed()` with 0.15 s jump buffer + 0.12 s coyote time; `setGrounded()` is engine-filled |
+| Shift        | sprint — drains the stamina gauge 18/s; exhaustion blocks sprint until regen passes 30/100 |
+| Q / F / R    | ability slots 0/1/2: `bindAbility(id, cooldown)`; `abilityFired(i)` is true on the frame a ready slot triggers |
+| E            | interact — `findInteractable(pos, candidates)`: nearest `Interactable` (Altar / Captive / Relic / Door) within 3.0 units |
+| Tab          | edge-toggles `statsOverlayVisible()` (see the stats overlay below) |
+| Alt + LMB    | `altLeftClick()` edge — the engine opens the radial command menu at `menuRequestPos()` |
+| LMB          | melee attack / combo-chain input: `lmbHeld()`, `lmbLastClickTime()` feeds the combo tracker |
+| RMB          | heavy / ranged attack — a per-character state machine (see Wave of Domination) |
+
+Driver demos: `jump` (buffer + coyote), `sprint <on|off>`
+(drain/regen/exhausted), `interact`, `menu`, `combo`, `rmb`.
+
+### Command menu (Alt + left-click)
+
+`src/ui/CommandMenu.h` is UI-agnostic: it builds the button data model
+(which buttons, enabled or not, and why), dispatches the chosen action,
+and offers `renderText()` — an ASCII radial listing for driver testing.
+The Alt+left-click trigger itself is an engine concern
+(`InputManager::altLeftClick()`).
+
+What the click landed on (`MenuContext::Kind`) selects the button set:
+
+| Context      | Buttons                                                        |
+|--------------|----------------------------------------------------------------|
+| Own cultist  | Follow, AttackTarget, SacrificeOrder, ConvertOrder             |
+| Location     | MoveTo, RaidAt, BuildAltarAt, ScoutAt                           |
+| Enemy        | AttackTarget, CaptureOrder                                     |
+| Altar        | RitualSacrifice, RitualConvert, RitualNecromancy               |
+| Captive      | SacrificeOrder, ConvertOrder                                   |
+
+Every menu ends with Cancel. Buttons are disabled with a human-readable
+reason, driven by a `GameStateSummary` the engine fills in before calling
+`generateMenu()` (the menu does no world queries itself):
+
+- no commandable cultists → every order button disabled;
+- an altar already nearby → BuildAltarAt disabled;
+- no captives held → RitualSacrifice disabled;
+- rituals disrupted → all three ritual buttons disabled;
+- too many live directive operations → RaidAt disabled.
+
+Dispatch mapping: RaidAt → whole-cult `RaidCity` directive; AttackTarget
+on an enemy → `GoToWar` plus a per-unit attack order; ConvertOrder /
+RitualConvert → `ConvertCampaign`; RitualSacrifice → `MassSacrifice`
+(obedience roll + `DirectiveExecutor` follow-through happen
+automatically). The per-unit orders (Follow, MoveTo, CaptureOrder,
+SacrificeOrder, BuildAltarAt, BuildAt, ScoutAt, RitualNecromancy) are
+queued in `issuedOrders()` for the engine binding to consume and clear.
+
+### Melee combos
+
+`src/combat/Combos.h`: `ComboTracker` advances on LMB press edges fed
+with explicit game-time timestamps (`onLmbClick(ts)`); `update(ts)`
+resets on timeout. `currentStage()` is 0 when inactive, else the 1-based
+stage. Each `ComboStage` carries the `animState` name to play (matches
+`animationStateName()`), a `damageMult` (the caller multiplies it into
+the existing damage pipeline), and an optional `ccType`/`ccSeconds`
+(names match `ccTypeName()`; empty = none).
+
+Default `basic_flurry` (1.2 s chain window):
+
+1. jab — ×1.00, no CC
+2. sweeping strike — ×1.15, Slow 1.0 s
+3. heavy slam — ×1.50, Stun 0.75 s
+
+Clicks arriving past the window reset to stage 1; a click on the final
+stage starts a fresh chain.
+
+### Character authoring: add a character in 5 minutes
+
+No code changes needed. Drop a folder in `assets/characters/` and the
+game picks it up at startup (`CharacterPackageLoader::scanAndLoad`;
+driver `chars` lists them, `addchar <folder>` hot-loads one at runtime,
+`validate <id>` prints the check report):
+
+```
+assets/characters/<name>/
+  character.def   # required: stats, ability kit, RMB, passive
+  model.fbx       # optional: rigged model (logic-only without it)
+  rig.map         # optional: "engine_bone = fbx_bone" lines
+  bones.list      # optional: one FBX bone name per line (lets the
+                  #           auto-mapper run before the FBX importer lands)
+  animations/     # optional: .canim clips
+```
+
+`assets/characters/cthulhu_avatar/` is the worked template — copy the
+folder, rename it, edit the values.
+
+#### character.def field reference
+
+Top-level: `id` (required, usually matches the folder), `display_name`,
+`flavor`, `max_hp`, `move_speed`, `max_stamina`, `melee_combo`,
+`rmb_ability` (optional state-machine kit id, e.g. `wave_of_domination`).
+
+`[q]` / `[f]` / `[r]` ability sections: `id`, `name`, `flavor`,
+`cooldown`, `stamina_cost`, `mana_cost`, `effect` (kind string the engine
+binds: `aoe_damage`, `fear_aura`, `summon`, `buff`, ...), `power`,
+`range`.
+
+`[rightclick]`: `kind` (`MeleeHeavy` | `MindControl` | `AcidSpit` |
+`EldritchGrasp`), `name`, `damage_mult`, `range`, `cc` (optional CC type
+name), `cc_seconds`. If `rmb_ability` names a registered kit (see
+`createRmbAbility()`), the kit's state machine drives RMB and these
+numbers are the fallback.
+
+`[passive]`: `id`, `desc` (behavior hook; the engine binds it).
+
+Lines starting with `#` are comments; unknown keys are ignored so future
+fields don't break old files.
+
+The C++-side data model is `CharacterDef` (`src/characters/`):
+`SpellDef` (Q/F/R kit), `HeavyAttackDef` (right-click numbers),
+`rmbAbilityId` (optional state-machine kit), `meleeComboId` (forward
+reference into the combo system), `passiveId`/`passiveDesc` (hooks).
+`CharacterRegistry` stores them by string id; duplicate or empty ids are
+rejected so two definitions can never fight over one key. Baseline tuning
+to measure against: cultist 100 HP, civilian 50 HP, stock melee hit 10
+(see `combat/Attacks.h` tuning notes).
+
+The Cthulhu Avatar (`"Cthulhu, the Dreaming God"`, id `cthulhu_avatar`):
+500 HP / 6.0 m/s / 100 stamina; Q "Tentacle Slam" (aoe_damage, 120 power,
+8 m, 8 s cd, 25 stam); F "Nightmare Veil" (fear_aura, 4 s fear, 12 m,
+15 s cd, 35 stam); R "Call of the Deep" (summon, power 4, 20 m, 45 s cd,
+50 stam); combo `eldritch_flurry`; RMB `wave_of_domination`; passive
+`dreamers_presence`.
+
+#### Rig mapping
+
+The engine expects an 11-bone humanoid rig: `hips, spine, head`,
+`upperArmL/R`, `lowerArmL/R`, `upperLegL/R`, `lowerLegL/R`. The
+auto-mapper matches FBX bone names case-insensitively with alias tables
+for Mixamo (`mixamorig:LeftArm` → `upperArmL`), Blender Rigify
+(`upper_arm.L` → `upperArmL`, `thigh.L` → `upperLegL`) and generic DCC
+names (`pelvis` → `hips`). Every bone gets a confidence score (1.0 exact,
+0.9 alias); unmatched bones are reported, never silently dropped. An
+explicit `rig.map` overrides auto-mapping.
+
+#### What happens when pieces are missing
+
+The validator (`CharacterValidator`) reports loudly but the game always
+runs:
+
+| Missing              | Behavior                                             |
+|----------------------|------------------------------------------------------|
+| `model.fbx`          | "model slot empty": logic-only, no visuals           |
+| `animations/`        | procedural fallback for walk, run, idle, attack...   |
+| `rig.map`            | auto-map with reported confidence (needs a bone list)|
+| unknown `rmb_ability`| falls back to the `[rightclick]` numbers             |
+| bad `character.def`  | package skipped with the reason logged               |
+
+Note: register the Cthulhu Avatar from exactly one source — the package
+scan is the recommended one. If the code also registers
+`makeCthulhuAvatar()`, the scan reports a duplicate id.
+
+### Wave of Domination (Cthulhu Avatar RMB)
+
+Per-character right-click kits are state machines implementing
+`RmbAbility` (`src/characters/abilities/RmbAbility.h`): the game feeds
+input edges (RMB press/release, mouse move, LMB) plus a world snapshot
+(`RmbContext`), and the ability drives positions, CC, damage and events.
+New characters register kits in `createRmbAbility()` and name the kit in
+`CharacterDef.rmbAbilityId`. "Wave of Domination" is the reference
+implementation and the template for how RMB kits should feel.
+
+State machine: Ready →(RMB)→ Wave →(victims caught)→ Hold →(LMB)→
+Flying, or →(RMB released)→ dropped. Cooldown 7 s starts on cast.
+
+- **Wave**: mind-control wavefront travels forward 25 m at 12 m/s, 4 m
+  wide. Catches civilians, adventurers and cultists of any faith except
+  Chaos. Chaos-aligned lunatics are immune (madness shields the mind);
+  feral monstrosities are immune (mindless). Max 5 victims.
+- **Hold** (RMB held): victims levitate at an anchor 3 m in front of
+  Cthulhu, 2 m up, + mouse swing offset (smoothed, max 6 m). Victims are
+  immobilized while held.
+- **Slam**: a swung victim intersecting a building (2.5 m) or another
+  entity (1.2 m) deals 150 damage and the victim dies.
+- **Launch** (LMB while held): all victims hurled forward at 30 m/s; on
+  impact they deal 300 damage (2× slam) and die; victims that fly 40 m
+  without hitting anything drop and survive.
+- **Drop** (RMB released): victims land gently and live with a 1 s stun
+  stagger — unless dropped from above 8 m, in which case the fall kills.
+- **Direct stun** (RMB with an explicit cursor target): that entity is
+  Stunned 2.5 s instead, on the same 7 s cooldown.
+- **Kills** from slam/launch/falls emit `CivilianSlain`, feeding Onslaught
+  exertion through the existing pipeline.
+
+Tuning table (all from the `k*` constants in `WaveOfDomination.h`):
+
+| Parameter | Value |
+|---|---|
+| Cooldown | 7.0 s (from cast) |
+| Wave range / speed | 25 m / 12 m/s |
+| Wave half-width | 2.0 m (4 m wide wavefront) |
+| Max victims | 5 |
+| Anchor | 3 m forward, 2 m up; swing max 6 m |
+| Slam damage | 150 |
+| Launch damage / speed / max distance | 300 (2×) / 30 m/s / 40 m |
+| Building / entity hit radius | 2.5 m / 1.2 m |
+| Lethal drop height | 8.0 m |
+| Gentle-drop stagger | 1.0 s Stun |
+| Direct stun | 2.5 s Stun |
+
+Driver: `rmb press` (casts; drops a demo civilian in the wave path when
+empty), `rmb move <dx> <dy>`, `rmb launch`, `rmb release`,
+`rmb stun [entity-id]`.
+
+### World: zones, dungeons, altars, buildings, construction AI
+
+- **`Zone`** (`src/world/Zone.h`): named rectangular region built from a
+  plain `ZoneDef` (name, bounds, spawn points, ambient params, relic
+  spots). Data-driven — a future loader can fill `ZoneDef` without
+  touching the class. Helpers: `contains()`, `center()`,
+  `randomPoint(rng)`, `randomRelicSpot(rng)`. **`WorldMap`**: named
+  collection of zones + `zoneAt(pos)`; zones may overlap and the first in
+  insertion order wins, so list specific zones before general ones.
+- **`DungeonInstance`** (`src/world/Dungeon.h`): seeded procedural layout
+  on a 48×48 tile grid (`#` wall, `.` floor, `E` entrance), 4.0 world
+  units per cell. Algorithm: rejection-sample up to 12 non-overlapping
+  rooms (4–10 cells), then join consecutive rooms with L-shaped corridors
+  (random elbow order). Same seed → identical layout. **`CaveInstance`**:
+  organic variant — drunkard's-walk tunnels from the center plus stamped
+  circular chambers. The caller creates the entrance entity and links it
+  with `setEntranceEntity()`; entities move between the surface roster
+  and the inside roster with `registerSurfaceEntity()` / `enter(id)` /
+  `exit(id)` (each emits `DungeonEntered` / `DungeonExited`).
+  `relicSpots()` gives world-space relic positions at room centers past
+  the entrance; `setBossId(id)` + `onEntityDied(id)` complete the dungeon
+  (`DungeonCompleted`) when the boss dies.
+- **`Altar : public Building`** (`src/entities/Structures.h`) with the
+  entity type fixed up to `EntityType::Altar`, so altars inherit
+  damage/destruction/Reconstruction auto-rebuild while remaining a
+  distinct entity kind. Tiers 1–3 (`upgrade()` clamps);
+  `ritualPowerMult()` = 1.0x / 1.5x / 2.0x. Captive bookkeeping for the
+  later escort layer: `assignCaptive(id)` / `unassignCaptive(id)` /
+  `assignedCaptives()`.
+- **`BuildingType`** (`Altar, Barracks, Wall, Watchtower, Trap, Portal`)
+  with per-type default HP: Altar 800, Barracks 1500, Wall 2500,
+  Watchtower 600, Trap 300, Portal 1200. `Building` gained a typed ctor
+  `(faction, pos, type, maxHp = 0)`; the legacy ctor is untouched.
+- **`ConstructionSite`**: progress 0..1 advancing linearly with builder
+  count (n builders = n× speed; one builder finishes in 120 s; zero
+  builders stall). `complete()` hands back the finished `Building` (a
+  real `Altar` for altar targets), `nullptr` for repair sites and on
+  repeat calls. Driver: `build <type>` starts a site at the avatar; `tick`
+  advances it; finished sites spawn into the world.
+- **`BuilderAI`** (`src/ai/BuilderAI.h`): idle, loyal-enough cultists
+  (alive, `Loyal` state, devotion ≥ 40) autonomously start and assist
+  builds near their settlement. What gets built is weighted by belief
+  exertion (≥ 50 counts as high): War → Walls/Barracks, Magic → Altars,
+  Breeding → Portals, Trickery → Traps, Reconstruction → repairs. New
+  orders appear ~every 20 s (±25% jitter) while idle labor exists (max 3
+  active sites per settlement, 4 builders per site). Reconstruction-high
+  + damaged friendly buildings → repair orders jump the queue. New
+  construction halts when insurrection risk ≥ 70. Emits `BuildStarted` /
+  `BuildProgress` (throttled to 10% steps) / `BuildCompleted`.
+
+### KDA & the Tab stats overlay
+
+`PlayerStatsTracker` (`src/net/PlayerStats.h`): the host feeds it damage
+and kill events (`setPlayerName`, `recordDamage(dealerIdx, entityId,
+amount, now)`, `recordKill(killerIdx, victimIdx[, entityId, now])`) and
+`rows()` returns `net::KdaRow` {name, kills, deaths, assists} snapshots in
+player-index order. Assist rule: every *other* player who damaged the
+victim's entity within the last 10 s gets exactly one assist per kill;
+the killer never self-assists; the 2-arg `recordKill` records
+kill/death only (e.g. environmental deaths). Driver: `kda` runs a scripted
+demo.
+
+Net integration: new `MsgType::PlayerKda`, broadcast at 1 Hz alongside the
+20 Hz snapshots (`NetHost::setKdaProvider()`; no provider = no KDA
+traffic); clients read the latest standings via `NetClient::kda()`; the
+lobby roster carries kills/deaths/assists (`HostLobby::updateKda`).
+
+`StatsPanel::gather()` (`src/ui/StatsPanel.h`) fills a pure-data
+`StatsData` struct for the Tab overlay (the engine renders it): roster
+headcount by cultist state, total kills, Cthulhu's power (0..1000),
+insurrection risk (0..100), the 12 belief-exertion gauges (0..100), and
+the per-player KDA table.
+
+### Tests
+
+Wave 7 adds the `cultulhu_tests_wave7*` suites (zones, dungeons/caves,
+altars, buildings, construction sites, builder AI, command menu, input
+model, combos, stats panel, character packages, validation, RMB
+abilities, KDA): all passing alongside the earlier waves (13/13 ctest
+suites green).
 
 ## Discrepancy notes (faithful to the doc)
 

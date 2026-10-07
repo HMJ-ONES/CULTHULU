@@ -112,17 +112,32 @@ void NetHost::poll(double now, SnapshotProvider provide) {
         }
     }
     // 2) Broadcast snapshot at kSnapshotHz.
-    if (now - lastSnap_ < 1.0 / kSnapshotHz) return;
-    lastSnap_ = now;
-    ++tick_;
-    auto bytes = encode(encodeSnapshot(tick_, provide()));
-    for (size_t i = 0; i < clients_.size(); ++i) {
-        Client& c = clients_[i];
-        if (!c.alive) continue;
-        if (!c.sock.sendAll(bytes.data(), bytes.size())) {
-            c.alive = false;
-            Logger::warn("NetHost: send to client " + std::to_string(i) +
-                         " failed");
+    if (now - lastSnap_ >= 1.0 / kSnapshotHz) {
+        lastSnap_ = now;
+        ++tick_;
+        auto bytes = encode(encodeSnapshot(tick_, provide()));
+        for (size_t i = 0; i < clients_.size(); ++i) {
+            Client& c = clients_[i];
+            if (!c.alive) continue;
+            if (!c.sock.sendAll(bytes.data(), bytes.size())) {
+                c.alive = false;
+                Logger::warn("NetHost: send to client " +
+                             std::to_string(i) + " failed");
+            }
+        }
+    }
+    // 3) Broadcast KDA standings at kKdaHz when the game provided one.
+    if (kdaProvider_ && now - lastKda_ >= 1.0 / kKdaHz) {
+        lastKda_ = now;
+        auto bytes = encode(encodePlayerKda(kdaProvider_()));
+        for (size_t i = 0; i < clients_.size(); ++i) {
+            Client& c = clients_[i];
+            if (!c.alive) continue;
+            if (!c.sock.sendAll(bytes.data(), bytes.size())) {
+                c.alive = false;
+                Logger::warn("NetHost: kda send to client " +
+                             std::to_string(i) + " failed");
+            }
         }
     }
 }
@@ -167,6 +182,9 @@ void NetClient::poll(double now, InputProvider provide) {
                 }
             } else if (m.type == MsgType::Disconnect) {
                 alive_ = false;
+            } else if (m.type == MsgType::PlayerKda) {
+                std::vector<KdaEntry> rows;
+                if (decodePlayerKda(m, rows)) kda_ = std::move(rows);
             }
         }
     }
