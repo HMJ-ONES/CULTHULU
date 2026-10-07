@@ -22,6 +22,11 @@
 #include "entities/Units.h"
 #include "exertion/ExertionSystem.h"
 #include "modes/FreeRoamMode.h"
+#include "net/Discovery.h"
+#include "net/Lobby.h"
+#include "net/Netcode.h"
+#include "net/RadminNet.h"
+#include "net/Socket.h"
 #include "power/PowerSystem.h"
 #include "save/SaveSystem.h"
 
@@ -388,6 +393,12 @@ struct BetaGame {
             "  tick <n>                            advance n game-seconds\n"
             "  save <file>                         save game to file\n"
             "  load <file>                         load game from file\n"
+            "  myip                                show adapters (Radmin IP)\n"
+            "  discover [secs]                     find hosts on Radmin LAN\n"
+            "  host <port> [name]                  host a lobby\n"
+            "  join <ip> <port> <name>              join a lobby\n"
+            "  ready | players | startgame [force]\n"
+            "  chat <msg> | netent | leave\n"
             "  status                              dump game state\n"
             "  help | quit\n";
     }
@@ -403,9 +414,192 @@ static DirectiveType directiveByName(const std::string& n) {
     return DirectiveType::Count;
 }
 
+// Wave 6: Radmin VPN multiplayer session for the REPL driver.
+// Poll-driven (no threads): poll() is called once per REPL iteration.
+struct NetSession {
+    enum class Role { None, Hosting, Joined };
+    Role role = Role::None;
+    std::unique_ptr<net::HostLobby> host;
+    std::unique_ptr<net::JoinLobby> client;
+    std::unique_ptr<net::HostBeacon> beacon;
+    std::unique_ptr<net::NetHost> netHost;
+    std::unique_ptr<net::NetClient> netClient;
+    bool inGame = false;
+    bool hostReady = false;
+    bool clientReady = false;
+    Vec3 pendingMove{0, 0, 0};  // fed by the local "move" command
+    uint8_t pendingButtons = 0;  // fed by "attack"/"cast" (edge-triggered)
+
+    bool active() const { return role != Role::None; }
+
+    void showIPs() {
+        auto as = net::listAdapters();
+        std::cout << "adapters:\n";
+        for (const auto& a : as) {
+            std::cout << "  " << a.name << "  " << a.ip << " / " << a.netmask;
+            if (a.isRadmin())
+                std::cout << "   <-- RADMIN VPN (friends join this IP)";
+            else if (a.isLoopback())
+                std::cout << "   (loopback)";
+            std::cout << "\n";
+        }
+        if (as.empty()) std::cout << "  (none found)\n";
+    }
+
+    bool startHost(int port, const std::string& name) {
+        if (active()) {
+            std::cout << "already in a net session ('leave' first)\n";
+            return false;
+        }
+        auto h = std::make_unique<net::HostLobby>(
+            static_cast<uint16_t>(port), name.empty() ? "Host" : name);
+        if (!h->start()) return false;
+        auto pref = net::preferredAdapter(net::listAdapters());
+        auto b = std::make_unique<net::HostBeacon>(
+            name.empty() ? "Host" : name, "freeroam", h->port());
+        if (!b->start(net::broadcastAddress(pref))) return false;
+        role = Role::Hosting;
+        host = std::move(h);
+        beacon = std::move(b);
+        std::cout << "hosting on " << pref.ip << ":" << host->port()
+                  << " — friends run: discover, or: join " << pref.ip
+                  << " " << host->port() << " <name>\n";
+        return true;
+    }
+
+    bool startJoin(const std::string& ip, int port,
+                   const std::string& name) {
+        if (active()) {
+            std::cout << "already in a net session ('leave' first)\n";
+            return false;
+        }
+        auto c = std::make_unique<net::JoinLobby>();
+        if (!c->connect(ip, static_cast<uint16_t>(port), name)) return false;
+        role = Role::Joined;
+        client = std::move(c);
+        return true;
+    }
+
+    std::vector<net::SnapshotEntity> snapshotOf(BetaGame& g) {
+        std::vector<net::SnapshotEntity> out;
+        net::SnapshotEntity e;
+        e.id = g.avatar.id();
+        e.x = g.avatar.position().x;
+        e.y = g.avatar.position().y;
+        e.z = g.avatar.position().z;
+        e.hp = g.avatar.hp();
+        e.state = 0;
+        out.push_back(e);
+        for (size_t i = 0; i < g.cult.size() && out.size() < 32; ++i) {
+            const Cultist& c = g.cult.at(i);
+            net::SnapshotEntity se;
+            se.id = c.id();
+            se.x = c.position().x;
+            se.y = c.position().y;
+            se.z = c.position().z;
+            se.hp = c.hp();
+            se.state = static_cast<uint8_t>(c.state());
+            out.push_back(se);
+        }
+        return out;
+    }
+
+    void poll(BetaGame& g) {
+        if (!active()) return;
+        double now = net::nowSeconds();
+        if (role == Role::Hosting && host) {
+            host->poll();
+            if (beacon) {
+                beacon->setPlayerCount(
+                    static_cast<int>(host->players().size()));
+                beacon->tick(now);
+            }
+            for (const auto& line : host->drainChat())
+                std::cout << "[chat] " << line << "\n";
+            if (!inGame && host->gameStarted()) {
+                netHost = std::make_unique<net::NetHost>(
+                    host->takeClientSockets());
+                inGame = true;
+                std::cout << "*** game live: simulating for "
+                          << netHost->clientCount() << " client(s)\n";
+            }
+            if (inGame && netHost)
+                netHost->poll(now, [&]() { return snapshotOf(g); });
+        } else if (role == Role::Joined && client) {
+            client->poll();
+            for (const auto& line : client->drainChat())
+                std::cout << "[chat] " << line << "\n";
+            if (!inGame && client->gameStarted()) {
+                netClient = std::make_unique<net::NetClient>(
+                    client->takeSocket());
+                inGame = true;
+                std::cout << "*** game live: receiving snapshots\n";
+            }
+            if (inGame && netClient) {
+                netClient->poll(now, [&]() {
+                    net::ClientInput in;
+                    in.moveX = pendingMove.x;
+                    in.moveZ = pendingMove.z;
+                    in.buttons = pendingButtons;
+                    pendingButtons = 0;
+                    return in;
+                });
+                if (!netClient->connected()) {
+                    std::cout << "*** disconnected from host\n";
+                    reset();
+                }
+            }
+        }
+    }
+
+    void printPlayers() const {
+        if (role == Role::Hosting && host) {
+            for (const auto& p : host->players())
+                std::cout << "  [" << p.id << "] " << p.name
+                          << (p.ready ? " READY" : "")
+                          << " team " << p.team << "\n";
+        } else if (role == Role::Joined && client) {
+            for (const auto& p : client->players())
+                std::cout << "  [" << p.id << "] " << p.name
+                          << (p.ready ? " READY" : "")
+                          << " team " << p.team << "\n";
+        } else {
+            std::cout << "not in a lobby\n";
+        }
+    }
+
+    void toggleReady() {
+        if (role == Role::Hosting && host) {
+            hostReady = !hostReady;
+            host->setHostReady(hostReady);
+            std::cout << "host ready: " << (hostReady ? "yes" : "no")
+                      << "\n";
+        } else if (role == Role::Joined && client) {
+            clientReady = !clientReady;
+            client->setReady(clientReady);
+            std::cout << "ready: " << (clientReady ? "yes" : "no") << "\n";
+        } else {
+            std::cout << "not in a lobby\n";
+        }
+    }
+
+    void reset() {
+        role = Role::None;
+        host.reset();
+        client.reset();
+        beacon.reset();
+        netHost.reset();
+        netClient.reset();
+        inGame = false;
+        hostReady = clientReady = false;
+        pendingButtons = 0;
+    }
+};
+
 int main() {
     BetaGame g;
     g.setupWorld();
+    NetSession nets;
 
     std::cout << "CULT-ULHU playable beta — free roam\n"
               << "Your eldritch avatar stalks the map. Type 'help'.\n";
@@ -413,6 +607,7 @@ int main() {
 
     std::string line;
     while (std::cout << "\n> " && std::getline(std::cin, line)) {
+        nets.poll(g);  // pump multiplayer (non-blocking)
         std::istringstream in(line);
         std::string cmd;
         in >> cmd;
@@ -442,6 +637,7 @@ int main() {
                 std::cout << "usage: move <n|s|e|w|ne|nw|se|sw> [steps]\n";
                 continue;
             }
+            nets.pendingMove = d;  // also feeds multiplayer input
             for (int i = 0; i < steps; ++i) {
                 g.avatar.move(d, 1.0, 8.0f);
                 g.avatar.setFacingYaw(std::atan2(d.z, d.x));
@@ -569,6 +765,7 @@ int main() {
         }
 
         if (cmd == "attack") {
+            nets.pendingButtons |= 1;  // also feeds multiplayer input
             Entity* t = g.nearestTarget(g.avatar.position());
             if (!t) { std::cout << "no target in range\n"; continue; }
             g.avatarAnim.requestState(AnimationState::Attack);
@@ -659,6 +856,119 @@ int main() {
                       << s.entities.size() << "\n";
             continue;
         }
+
+        // ---- Wave 6: Radmin VPN multiplayer ----
+        if (cmd == "myip") {
+            nets.showIPs();
+            continue;
+        }
+
+        if (cmd == "discover") {
+            int secs = 3;
+            in >> secs;
+            if (secs < 1) secs = 1;
+            if (secs > 15) secs = 15;
+            net::DiscoveryClient dc;
+            if (!dc.start()) {
+                std::cout << "discovery failed (UDP unavailable?)\n";
+                continue;
+            }
+            std::cout << "listening for hosts (" << secs << "s)...\n";
+            auto hosts = dc.listenFor(secs * 1000);
+            if (hosts.empty()) {
+                std::cout << "no hosts found. Is the host's beacon running "
+                             "on your Radmin network?\n";
+            } else {
+                for (const auto& h : hosts)
+                    std::cout << "  " << h.hostName << "  " << h.ip << ":"
+                              << h.tcpPort << "  " << h.mode << "  "
+                              << h.players << "/" << h.maxPlayers << "\n";
+            }
+            continue;
+        }
+
+        if (cmd == "host") {
+            int port = 47778;
+            std::string name;
+            in >> port >> name;
+            if (port <= 0 || port > 65535) {
+                std::cout << "usage: host <port> [name]\n";
+                continue;
+            }
+            nets.startHost(port, name);
+            continue;
+        }
+
+        if (cmd == "join") {
+            std::string ip, name;
+            int port = 0;
+            in >> ip >> port >> name;
+            if (ip.empty() || port <= 0 || port > 65535) {
+                std::cout << "usage: join <ip> <port> <name>\n";
+                continue;
+            }
+            nets.startJoin(ip, port, name.empty() ? "Cultist" : name);
+            continue;
+        }
+
+        if (cmd == "ready") {
+            nets.toggleReady();
+            continue;
+        }
+
+        if (cmd == "players") {
+            nets.printPlayers();
+            continue;
+        }
+
+        if (cmd == "startgame") {
+            std::string f;
+            in >> f;
+            if (nets.role != NetSession::Role::Hosting || !nets.host) {
+                std::cout << "only the host can start the game\n";
+                continue;
+            }
+            nets.host->startGame(f == "force");
+            continue;
+        }
+
+        if (cmd == "chat") {
+            std::string text;
+            std::getline(in, text);
+            while (!text.empty() && text.front() == ' ') text.erase(0, 1);
+            if (text.empty()) {
+                std::cout << "usage: chat <message>\n";
+                continue;
+            }
+            if (nets.role == NetSession::Role::Hosting && nets.host)
+                nets.host->sendChatAll("Host", text);
+            else if (nets.role == NetSession::Role::Joined && nets.client)
+                nets.client->sendChat(text);
+            else
+                std::cout << "not in a net session\n";
+            continue;
+        }
+
+        if (cmd == "netent") {
+            if (nets.netClient) {
+                const auto& ents = nets.netClient->entities();
+                std::cout << ents.size() << " snapshot entities (tick "
+                          << nets.netClient->lastTick() << "):\n";
+                for (const auto& [id, e] : ents)
+                    std::cout << "  id=" << id << " (" << e.x << "," << e.z
+                              << ") hp=" << e.hp << "\n";
+            } else {
+                std::cout << "no client snapshot stream (join a game first)\n";
+            }
+            continue;
+        }
+
+        if (cmd == "leave") {
+            nets.reset();
+            std::cout << "left net session\n";
+            continue;
+        }
+        // ---- end Wave 6 ----
 
         std::cout << "unknown command. Type 'help'.\n";
     }
