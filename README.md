@@ -385,6 +385,66 @@ devotion, sorcerer mana, relic amplifiers, monstrosity species/feral flags,
 mimic disguise, building rebuild progress, and ambient/ritual timers all
 reset to defaults; respawned entities get fresh ids.
 
+## Wave 6: Radmin VPN multiplayer (player-hosted, no dedicated server)
+
+No AWS, no recurring server cost: one player hosts the match on their own
+PC, everyone else joins over the Radmin VPN virtual LAN (26.x.x.x).
+
+### Playing over Radmin VPN — step by step
+
+1. Everyone installs **Radmin VPN** (free) and joins the same Radmin
+   network (one player creates it and shares the network name).
+2. The host starts the game and types:
+   `myip` — confirms the Radmin adapter is detected (its 26.x.x.x address
+   is highlighted; friends will join this IP).
+3. The host types `host 47778` (any port works). A lobby opens and a
+   presence beacon starts broadcasting on the Radmin subnet.
+4. Friends type `discover` — the host's game appears — or connect
+   directly: `join 26.x.x.x 47778 <name>`.
+5. Everyone types `ready`. The host watches with `players`, then types
+   `startgame` (or `startgame force`).
+6. Play. Clients steer with `move`/`attack` (sent at 30 Hz); the host's PC
+   simulates the world and broadcasts snapshots at 20 Hz. `netent` shows
+   the entities your client is tracking. `chat <msg>` talks to the lobby.
+
+Driver command reference: `myip`, `discover [secs]`, `host <port> [name]`,
+`join <ip> <port> <name>`, `ready`, `players`, `startgame [force]`,
+`chat <msg>`, `netent`, `leave`.
+
+### How it works
+
+- `src/net/Socket.h` — thin POSIX `UdpSocket`/`TcpSocket`/`TcpListener`
+  wrappers (non-blocking). Windows port is a marked TODO (Winsock2).
+- `src/net/RadminNet.h` — enumerates IPv4 adapters, detects the Radmin
+  adapter by its 26.0.0.0/8 address, computes the subnet broadcast
+  address. Falls back to LAN, then loopback, with a clear log message.
+- `src/net/Discovery.h` — host UDP beacons every 2 s
+  (`CULTHULU|1|<host>|<mode>|<players>|<max>|<tcpPort>` on UDP 47777);
+  clients listen and list found hosts (6 s expiry).
+- `src/net/Protocol.h` — framing: `[type:u8][len:u32 BE][payload]`;
+  payloads are readable `key=value;` text. Types: Hello, Welcome,
+  PlayerList, ChatMsg, Ready, StartGame, ClientInput, HostSnapshot,
+  Disconnect.
+- `src/net/Lobby.h` — host lobby: up to 10 players, ready tracking,
+  auto 5v5 team assignment, all-ready or forced start.
+- `src/net/Netcode.h` — host-authoritative: clients send
+  `{seq, moveX, moveZ, yaw, buttons}` at 30 Hz; host broadcasts
+  `{tick, id,x,y,z,hp,state}` snapshots at 20 Hz; clients apply directly.
+
+### Limitations (v1, honest)
+
+- No client-side prediction/reconciliation — fine on virtual-LAN
+  latencies (<50 ms typical), visible lag on worse links.
+- No delta compression or interest management — fine at our entity
+  counts; revisit past ~200 tracked entities.
+- No encryption at the game layer — Radmin VPN already encrypts the
+  tunnel, so traffic between players is protected.
+- Discovery uses UDP broadcast; heavily restricted sandboxes may block
+  UDP outright (the test suite skips the live discovery test in that
+  case and still validates the beacon protocol).
+- The host's PC does all the simulating — a weak host means a laggy
+  game for everyone. No dedicated server also means no 24/7 lobbies.
+
 ## Discrepancy notes (faithful to the doc)
 
 - The doc said "12 beliefs" but listed 11. The 12th — **Dreams** — was chosen
@@ -406,8 +466,11 @@ reset to defaults; respawned entities get fresh ids.
   `EventBus`→Unreal delegates, `GameClock`→world time, `CameraSystem`→
   `APlayerCameraManager`, `AnimationStateMachine`→Anim Blueprints; keep core
   engine-agnostic and bind at the edges.
-- **Networking**: authoritative server sim using this core; replicate
-  `GameEvent`s to clients.
+- **Networking** (done, wave 6): Radmin VPN player-hosted multiplayer —
+  UDP discovery beacons, TCP lobby (10 players, 5v5 teams, ready-up),
+  host-authoritative 30 Hz inputs / 20 Hz snapshots, driver commands
+  (`myip`, `discover`, `host`, `join`, `ready`, `players`, `startgame`).
+  No dedicated server; host's PC simulates.
 - **Wave 5** (done): animation clip data model (bone tracks/keyframes/poses),
   `.canim` text serialization, procedural Walk/Run/Idle/Attack/Death
   generators, crossfade blending in the state machine, FBX importer hook
