@@ -110,6 +110,24 @@ enum class EventType {
     DirectiveProgress,     // tag = directive name; amount = progress 0..1
     DirectiveCompleted,    // tag = directive name; the operation ran its course
 
+    // World / construction (wave 7)
+    BuildStarted,          // tag = building type name; sourceId = site id
+    BuildProgress,         // tag = building type name; amount = progress 0..1
+    BuildCompleted,        // tag = building type name; sourceId = site id
+    AltarUpgraded,         // sourceId = altar id; amount = new tier
+    RitualAtAltar,         // sourceId = altar id; tag = ritual name
+    CaptiveDelivered,      // sourceId = captive id; targetId = altar id
+    DungeonEntered,        // sourceId = entity id; targetId = dungeon id
+    DungeonExited,         // sourceId = entity id; targetId = dungeon id
+    DungeonCompleted,      // targetId = dungeon id; boss slain, dungeon cleared
+
+    // Cthulhu Avatar RMB: "Wave of Domination" (wave 7).
+    VictimLevitated,      // sourceId = caster; targetId = victim caught by the wave
+    VictimSlammed,         // sourceId = caster; targetId = victim; amount = damage; tag = "slam"/"launch"
+    VictimsLaunched,       // sourceId = caster; amount = victim count
+    VictimDropped,         // sourceId = caster; targetId = victim; amount = 1 fell to death, 0 survived
+    DirectStunApplied,     // sourceId = caster; targetId = victim; amount = stun seconds
+
     Count
 };
 
