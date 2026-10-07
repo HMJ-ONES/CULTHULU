@@ -22,6 +22,9 @@ public:
 
     Cultist& recruit();                 // add a loyal cultist
     void dismissDead();                 // remove the fallen
+    // Save/load support: drop the whole roster and cancel any active
+    // campaign. Insurrection risk is left untouched (restore it separately).
+    void clear();
     size_t size() const { return cultists_.size(); }
     Cultist& at(size_t i) { return *cultists_.at(i); }
 
