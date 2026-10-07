@@ -21,12 +21,16 @@
 //   HostSnapshot H->C  {tick, n, e0, e1, ...}     20 Hz;
 //                                   each eK = "id,x,y,z,hp,state"
 //   Disconnect   *->*  {id, reason}
+//   PlayerKda    H->C  {n, e0, e1, ...}           ~1 Hz KDA standings;
+//                                   each eK = "playerIdx,kills,deaths,assists,name"
 
 #include <cstdint>
 #include <map>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "net/Kda.h"
 
 namespace cultulhu {
 namespace net {
@@ -41,6 +45,7 @@ enum class MsgType : uint8_t {
     ClientInput = 6,
     HostSnapshot = 7,
     Disconnect = 8,
+    PlayerKda = 9,
 };
 
 constexpr int kProtocolVersion = 1;
@@ -75,6 +80,17 @@ std::string fieldStr(const Message& m, const std::string& key,
                      const std::string& dflt = "");
 int fieldInt(const Message& m, const std::string& key, int dflt = 0);
 float fieldFloat(const Message& m, const std::string& key, float dflt = 0.0f);
+
+// One KDA standings row, tagged with the player index it belongs to
+// (names alone are not stable keys).
+struct KdaEntry {
+    uint32_t playerIdx = 0;
+    KdaRow row;
+};
+
+// Host -> clients standings broadcast.
+Message encodePlayerKda(const std::vector<KdaEntry>& entries);
+bool decodePlayerKda(const Message& m, std::vector<KdaEntry>& out);
 
 } // namespace net
 } // namespace cultulhu

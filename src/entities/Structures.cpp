@@ -25,4 +25,13 @@ void Building::update(double dt) {
     }
 }
 
+void Altar::unassignCaptive(uint64_t captiveId) {
+    for (auto it = captives_.begin(); it != captives_.end(); ++it) {
+        if (*it == captiveId) {
+            captives_.erase(it);
+            return;
+        }
+    }
+}
+
 } // namespace cultulhu

@@ -17,6 +17,11 @@ enum class AnimationState {
     Stunned,
     Death,
     Channel, // rituals / long casts
+    // Wave of Domination (Cthulhu Avatar RMB, wave 7) hooks.
+    CastWave,  // mind-control wave travelling forward (one-shot)
+    Levitate,  // caster holding levitated victims (loops while RMB held)
+    Launch,    // hurling victims forward (one-shot)
+    Levitated, // victim: floating, immobilized (loops while held)
     Count
 };
 
@@ -30,6 +35,10 @@ inline const char* animationStateName(AnimationState s) {
         case AnimationState::Stunned: return "Stunned";
         case AnimationState::Death:   return "Death";
         case AnimationState::Channel: return "Channel";
+        case AnimationState::CastWave: return "CastWave";
+        case AnimationState::Levitate: return "LevitateHold";
+        case AnimationState::Launch:  return "Launch";
+        case AnimationState::Levitated: return "Levitated";
         case AnimationState::Count:   return "Count";
     }
     return "Unknown";
