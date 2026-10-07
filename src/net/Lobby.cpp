@@ -26,26 +26,33 @@ void sendMsg(TcpSocket& s, const Message& m) {
 
 std::string encodeLobbyPlayer(const LobbyPlayer& p) {
     return std::to_string(p.id) + "," + p.name + "," +
-           (p.ready ? "1" : "0") + "," + std::to_string(p.team);
+           (p.ready ? "1" : "0") + "," + std::to_string(p.team) + "," +
+           std::to_string(p.kills) + "," + std::to_string(p.deaths) + "," +
+           std::to_string(p.assists);
 }
 
 bool decodeLobbyPlayer(const std::string& s, LobbyPlayer& out) {
     std::vector<std::string> parts;
     size_t i = 0;
     // Split on ',' but the name may not contain ',' (cleanName strips it),
-    // so a plain split is safe: id,name,ready,team.
+    // so a plain split is safe: id,name,ready,team[,kills,deaths,assists].
     while (i <= s.size()) {
         size_t c = s.find(',', i);
         parts.push_back(s.substr(i, c == std::string::npos ? c : c - i));
         if (c == std::string::npos) break;
         i = c + 1;
     }
-    if (parts.size() != 4) return false;
+    // Accept the old 4-part form (KDA defaults to 0) and the new 7-part
+    // form; anything else is malformed.
+    if (parts.size() != 4 && parts.size() != 7) return false;
     try {
         out.id = static_cast<uint32_t>(std::stoul(parts[0]));
         out.name = parts[1];
         out.ready = parts[2] == "1";
         out.team = std::stoi(parts[3]);
+        out.kills = parts.size() == 7 ? std::stoi(parts[4]) : 0;
+        out.deaths = parts.size() == 7 ? std::stoi(parts[5]) : 0;
+        out.assists = parts.size() == 7 ? std::stoi(parts[6]) : 0;
     } catch (...) {
         return false;
     }
@@ -87,6 +94,27 @@ void HostLobby::broadcastPlayerList() {
     for (size_t i = 0; i < ps.size(); ++i)
         m.fields["p" + std::to_string(i)] = encodeLobbyPlayer(ps[i]);
     broadcast(m);
+}
+
+void HostLobby::updateKda(uint32_t id, int kills, int deaths, int assists) {
+    bool found = false;
+    if (id == 0) {
+        hostInfo_.kills = kills;
+        hostInfo_.deaths = deaths;
+        hostInfo_.assists = assists;
+        found = true;
+    } else {
+        for (auto& s : slots_) {
+            if (s->helloDone && s->info.id == id) {
+                s->info.kills = kills;
+                s->info.deaths = deaths;
+                s->info.assists = assists;
+                found = true;
+                break;
+            }
+        }
+    }
+    if (found) broadcastPlayerList();
 }
 
 std::vector<LobbyPlayer> HostLobby::players() const {
