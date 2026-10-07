@@ -1,6 +1,27 @@
 #include "animation/AnimationStateMachine.h"
 
+#include <cmath>
+
 namespace cultulhu {
+
+namespace {
+
+// Advance a clip-local time, wrapping for looping clips.
+void advanceClipTime(const AnimationClip& c, double& t, double dt) {
+    t += dt;
+    if (c.loop && c.durationSeconds > 0.0) {
+        t = std::fmod(t, c.durationSeconds);
+        if (t < 0.0) t += c.durationSeconds;
+    }
+}
+
+double smoothstep(double t) {
+    if (t < 0.0) t = 0.0;
+    if (t > 1.0) t = 1.0;
+    return t * t * (3.0 - 2.0 * t);
+}
+
+} // namespace
 
 AnimationStateMachine::AnimationStateMachine() = default;
 
@@ -33,18 +54,43 @@ std::string AnimationStateMachine::mixamoClipName(AnimationState state) {
     return "";
 }
 
-void AnimationStateMachine::requestState(AnimationState s) {
+void AnimationStateMachine::transitionTo(AnimationState s,
+                                          double blendSeconds) {
+    if (blendSeconds > 0.0 && s != state_) {
+        const AnimationClip* c = clip(state_);
+        hasPrevClip_ = (c != nullptr);
+        if (c) prevClip_ = *c;
+        prevTime_ = timeInState_;
+        blendDuration_ = blendSeconds;
+        blendT_ = 0.0;
+        blendActive_ = true;
+    } else {
+        blendActive_ = false;
+        blendT_ = 1.0;
+    }
+    state_ = s;
+    timeInState_ = 0.0;
+}
+
+void AnimationStateMachine::requestState(AnimationState s, double blendSeconds) {
     if (s == AnimationState::Count) return;
     if (state_ == AnimationState::Death) return; // terminal
     if (s == state_) return;
     if (state_ == AnimationState::Stunned && s != AnimationState::Death)
         return; // stunned interrupts; only death overrides stun
-    state_ = s;
-    timeInState_ = 0.0;
+    transitionTo(s, blendSeconds);
 }
 
 void AnimationStateMachine::update(double dt) {
     timeInState_ += dt;
+    if (blendActive_) {
+        blendT_ += dt / blendDuration_;
+        if (hasPrevClip_) advanceClipTime(prevClip_, prevTime_, dt);
+        if (blendT_ >= 1.0) {
+            blendT_ = 1.0;
+            blendActive_ = false;
+        }
+    }
     switch (state_) {
         case AnimationState::Attack:
         case AnimationState::Cast:
@@ -52,8 +98,7 @@ void AnimationStateMachine::update(double dt) {
             // One-shot states return to Idle when the clip finishes, unless
             // the bound clip loops.
             if (!clipLoops(state_) && timeInState_ >= clipDuration(state_)) {
-                state_ = AnimationState::Idle;
-                timeInState_ = 0.0;
+                transitionTo(AnimationState::Idle, 0.25);
             }
             break;
         default:
@@ -65,6 +110,20 @@ std::string AnimationStateMachine::currentClipName() const {
     const AnimationClip* c = clip(state_);
     if (c) return c->name;
     return std::string("<procedural:") + animationStateName(state_) + ">";
+}
+
+Pose AnimationStateMachine::sampleBlendedPose() const {
+    const AnimationClip* cur = clip(state_);
+    const Pose poseB = cur ? cur->sampleAt(timeInState_) : Pose{};
+    if (!blendActive_ || !hasPrevClip_) return poseB;
+    const Pose poseA = prevClip_.sampleAt(prevTime_);
+    return blendPoses(poseA, poseB, smoothstep(blendT_));
+}
+
+Pose AnimationStateMachine::currentPose() const {
+    if (blendActive_) return sampleBlendedPose();
+    const AnimationClip* cur = clip(state_);
+    return cur ? cur->sampleAt(timeInState_) : Pose{};
 }
 
 double AnimationStateMachine::clipDuration(AnimationState s) const {

@@ -81,8 +81,20 @@ bool BeliefSystem::requestChange(Belief in, Belief out) {
     return true;
 }
 
-void BeliefSystem::punishInfringer() {
-    for (auto& p : pending_) p.remaining *= 0.5; // faster adoption
+// Save/load: wholesale belief restore (no adoption timer, no events).
+void BeliefSystem::restoreActive(const std::vector<Belief>& beliefs) {
+    active_.clear();
+    pending_.clear();
+    for (Belief b : beliefs) {
+        if (b == Belief::Count) continue;
+        if (static_cast<int>(active_.size()) >= MAX_ACTIVE) break;
+        if (isActive(b)) continue;
+        active_.push_back(b);
+    }
+    fear_ = 0.0f;
+}
+
+void BeliefSystem::punishInfringer() {    for (auto& p : pending_) p.remaining *= 0.5; // faster adoption
     GameEvent e(EventType::InsurrectionRiskUp);
     e.amount = PUNISH_RISK_UP;
     e.tag = "punish_infringer";

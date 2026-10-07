@@ -107,6 +107,8 @@ enum class EventType {
     // Eldritch directives
     DirectiveIssued,       // tag = directive name; amount = obedience chance
     DirectiveResolved,     // tag = "DirectiveName/OutcomeName"; amount = obedience chance
+    DirectiveProgress,     // tag = directive name; amount = progress 0..1
+    DirectiveCompleted,    // tag = directive name; the operation ran its course
 
     Count
 };
