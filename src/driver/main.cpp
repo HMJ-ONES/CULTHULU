@@ -8,8 +8,12 @@
 #include "assets/AssetManager.h"
 #include "beliefs/BeliefSystem.h"
 #include "camera/CameraSystem.h"
+#include "characters/CharacterPackageLoader.h"
+#include "characters/CharacterValidator.h"
+#include "characters/abilities/WaveOfDomination.h"
 #include "chaos/LunaticSystem.h"
 #include "combat/Attacks.h"
+#include "combat/Combos.h"
 #include "combat/CrowdControl.h"
 #include "commands/CommandSystem.h"
 #include "commands/DirectiveExecutor.h"
@@ -21,16 +25,20 @@
 #include "entities/Structures.h"
 #include "entities/Units.h"
 #include "exertion/ExertionSystem.h"
+#include "input/InputManager.h"
 #include "modes/FreeRoamMode.h"
 #include "net/Discovery.h"
 #include "net/Lobby.h"
 #include "net/Netcode.h"
+#include "net/PlayerStats.h"
 #include "net/RadminNet.h"
 #include "net/Socket.h"
 #include "power/PowerSystem.h"
 #include "save/SaveSystem.h"
+#include "ui/CommandMenu.h"
 
 #include <cmath>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -59,9 +67,10 @@ Belief beliefByName(const std::string& n) {
 }
 
 // Wave 5b: entity type ids in a save file are trusted only after this check.
+// Wave 7: range extended to EntityType::Altar (newest enumerator; keep last).
 bool validEntityType(int t) {
     return t >= static_cast<int>(EntityType::GreatOldOne) &&
-           t <= static_cast<int>(EntityType::Artifact);
+           t <= static_cast<int>(EntityType::Altar);
 }
 
 // Wave 5b: rebuild a world entity from a save record. The avatar and
@@ -143,6 +152,22 @@ struct BetaGame {
 
     // Manually spawned world entities (sorcerers, monstrosities, ...).
     std::vector<std::unique_ptr<Entity>> world;
+
+    // Wave 7: driver-local construction sites. The `build` command starts
+    // one at the avatar's position; tickSecond() advances them, and
+    // finished sites spawn real buildings into `world`.
+    std::vector<std::unique_ptr<ConstructionSite>> sites;
+
+    // Wave 7: playable character packages. Auto-loaded at startup from
+    // assets/characters/; `chars`/`addchar`/`validate` manage them.
+    CharacterRegistry charReg;
+    CharacterPackageLoader charLoader{charReg};
+
+    // Wave 7: RMB state-machine demo (Cthulhu Avatar's Wave of Domination).
+    // The ability is persistent; the context is re-pointed at the current
+    // world for each `rmb` subcommand.
+    WaveOfDomination waveAbility;
+    RmbContext waveCtx{bus, fx, beliefs, rng};
 
     BetaGame() {
         // The exertion system now owns the power pipeline (event -> belief
@@ -235,6 +260,20 @@ struct BetaGame {
         freeroam.update(1.0);
         fx.tick(1.0);
         avatarAnim.update(1.0);
+        // Wave 7: driver construction sites progress; finished ones spawn
+        // into the world. The god counts as labor (build sites get one
+        // builder, so a solo site finishes in 120s of game time).
+        for (auto& s : sites) s->update(1.0);
+        for (auto it = sites.begin(); it != sites.end();) {
+            if (!(*it)->finished()) { ++it; continue; }
+            BuildingType t = (*it)->targetType();
+            Vec3 p = (*it)->position();
+            auto b = (*it)->complete();
+            std::cout << "[build] " << buildingTypeName(t)
+                      << " finished at (" << p.x << ", " << p.z << ")\n";
+            if (b) world.push_back(std::move(b));
+            it = sites.erase(it);
+        }
         if (cult.update(1.0)) {
             // revolt handled by narration subscription
         }
@@ -309,6 +348,12 @@ struct BetaGame {
         std::cout << "world: " << freeroam.civilians().size()
                   << " civilians, " << freeroam.creatures().size()
                   << " creatures, " << relicsInReach() << " relics near\n";
+        std::cout << "sites: " << sites.size() << " under construction";
+        for (const auto& s : sites)
+            std::cout << " [" << buildingTypeName(s->targetType()) << " "
+                      << static_cast<int>(s->progress() * 100.0f) << "%]";
+        std::cout << "\ncharacters: " << charReg.count()
+                  << " registered\n";
         (void)pose;
     }
 
@@ -399,6 +444,16 @@ struct BetaGame {
             "  join <ip> <port> <name>              join a lobby\n"
             "  ready | players | startgame [force]\n"
             "  chat <msg> | netent | leave\n"
+            "  build <wall|barracks|watchtower|trap|portal|altar>\n"
+            "                                          start construction\n"
+            "  menu [cultist|location|enemy|altar]  radial command menu demo\n"
+            "  combo                               melee combo chain demo\n"
+            "  chars | addchar <folder> | validate <id>\n"
+            "                                          character packages\n"
+            "  kda                                 demo KDA tracking\n"
+            "  interact                            E-interact demo\n"
+            "  jump | sprint <on|off>              input state demos\n"
+            "  rmb <press|move|launch|release|stun> Wave of Domination demo\n"
             "  status                              dump game state\n"
             "  help | quit\n";
     }
@@ -412,6 +467,39 @@ static DirectiveType directiveByName(const std::string& n) {
     if (n == "defend") return DirectiveType::Defend;
     if (n == "relic") return DirectiveType::GatherRelic;
     return DirectiveType::Count;
+}
+
+// Wave 7: re-point the persistent RMB context at the current world.
+static void fillRmbCtx(BetaGame& g) {
+    g.waveCtx.caster = &g.avatar;
+    g.waveCtx.casterYaw = g.avatar.facingYaw();
+    g.waveCtx.entities.clear();
+    for (const auto& c : g.freeroam.civilians())
+        g.waveCtx.entities.push_back(c.get());
+    for (const auto& c : g.freeroam.creatures())
+        g.waveCtx.entities.push_back(c.get());
+    for (const auto& e : g.world)
+        g.waveCtx.entities.push_back(e.get());
+    g.waveCtx.targetedEntityId = 0;
+}
+
+static const char* wavePhaseName(WaveOfDomination::Phase p) {
+    switch (p) {
+        case WaveOfDomination::Phase::Idle:   return "Idle";
+        case WaveOfDomination::Phase::Wave:   return "Wave";
+        case WaveOfDomination::Phase::Hold:   return "Hold";
+        case WaveOfDomination::Phase::Flying: return "Flying";
+    }
+    return "?";
+}
+
+static void printWaveState(BetaGame& g) {
+    std::cout << "  phase=" << wavePhaseName(g.waveAbility.phase())
+              << " victims=" << g.waveAbility.victimCount()
+              << " cooldown=" << g.waveAbility.cooldownRemaining() << "s"
+              << " caster-anim="
+              << animationStateName(g.waveAbility.suggestedCasterState())
+              << "\n";
 }
 
 // Wave 6: Radmin VPN multiplayer session for the REPL driver.
@@ -603,6 +691,33 @@ int main() {
 
     std::cout << "CULT-ULHU playable beta — free roam\n"
               << "Your eldritch avatar stalks the map. Type 'help'.\n";
+
+    // Wave 7: auto-load character packages. The binary is usually run as
+    // ./build/cultulhu_play from the repo root (assets/characters), but
+    // also works from the build dir (../assets/characters).
+    {
+        std::string root = "assets/characters";
+        {
+            std::ifstream probe(root + "/cthulhu_avatar/character.def");
+            if (!probe) root = "../assets/characters";
+        }
+        const int n = g.charLoader.scanAndLoad(root);
+        std::cout << "characters: " << n << " package(s) from " << root
+                  << "\n";
+        for (const auto& p : g.charLoader.packages()) {
+            ValidationReport rep = CharacterValidator::validate(p);
+            std::cout << "  " << p.folderName << " -> '" << p.def.id
+                      << "': " << (rep.ok ? "OK" : "INVALID");
+            if (!rep.warnings.empty())
+                std::cout << " (" << rep.warnings.size() << " warning(s))";
+            std::cout << "\n";
+            for (const auto& w : rep.warnings)
+                std::cout << "      ! " << w << "\n";
+        }
+        for (const auto& e : g.charLoader.loadErrors())
+            std::cout << "  load error: " << e << "\n";
+    }
+
     g.printStatus();
 
     std::string line;
@@ -969,6 +1084,460 @@ int main() {
             continue;
         }
         // ---- end Wave 6 ----
+
+        // ---- Wave 7: world & controls driver demos ----
+        if (cmd == "build") {
+            std::string what; in >> what;
+            BuildingType t;
+            if (what == "wall") t = BuildingType::Wall;
+            else if (what == "barracks") t = BuildingType::Barracks;
+            else if (what == "watchtower") t = BuildingType::Watchtower;
+            else if (what == "trap") t = BuildingType::Trap;
+            else if (what == "portal") t = BuildingType::Portal;
+            else if (what == "altar") t = BuildingType::Altar;
+            else {
+                std::cout << "usage: build "
+                             "<wall|barracks|watchtower|trap|portal|altar>\n";
+                continue;
+            }
+            Vec3 p = g.avatar.position();
+            auto site = std::make_unique<ConstructionSite>(
+                FACTION_CTHULHU, p, t);
+            site->addBuilder(g.avatar.id());  // the god breaks ground
+            g.sites.push_back(std::move(site));
+            std::cout << "construction started: " << buildingTypeName(t)
+                      << " (" << defaultHpFor(t) << " hp when done) at ("
+                      << p.x << ", " << p.z << ") — the avatar works it; "
+                      << "solo finish in ~120s game time ('tick 121')\n";
+            continue;
+        }
+
+        if (cmd == "menu") {
+            std::string kind; in >> kind;
+            if (kind.empty()) kind = "location";
+            MenuContext ctx;
+            Vec3 p = g.avatar.position();
+            if (kind == "cultist") {
+                if (g.cult.size() == 0) {
+                    std::cout << "no cultists — 'spawn cultist' first\n";
+                    continue;
+                }
+                ctx.kind = MenuContext::Kind::OwnCultist;
+                ctx.entityId = g.cult.at(0).id();
+                ctx.pos = g.cult.at(0).position();
+            } else if (kind == "location") {
+                ctx.kind = MenuContext::Kind::Location;
+                ctx.pos = Vec3{p.x + 20.0f, 0, p.z};
+            } else if (kind == "enemy") {
+                ctx.kind = MenuContext::Kind::Enemy;
+                if (Entity* e = g.nearestTarget(p, 200.0f)) {
+                    ctx.entityId = e->id();
+                    ctx.pos = e->position();
+                } else {
+                    ctx.pos = Vec3{p.x + 30.0f, 0, p.z};
+                }
+            } else if (kind == "altar") {
+                ctx.kind = MenuContext::Kind::Altar;
+                for (const auto& e : g.world)
+                    if (e->type() == EntityType::Altar) {
+                        ctx.entityId = e->id();
+                        ctx.pos = e->position();
+                        break;
+                    }
+                if (ctx.entityId == 0) ctx.pos = p;
+            } else {
+                std::cout << "usage: menu [cultist|location|enemy|altar]\n";
+                continue;
+            }
+            GameStateSummary summary;
+            summary.commandableCultists =
+                static_cast<int>(g.cult.size());
+            CommandMenu menu;
+            std::vector<MenuButton> buttons =
+                menu.generateMenu(ctx, summary);
+            std::cout << CommandMenu::renderText(buttons);
+            // Demo dispatch: fire the first enabled non-Cancel button.
+            for (const auto& b : buttons) {
+                if (b.action == MenuAction::Cancel || !b.enabled) continue;
+                if (menu.dispatch(b, ctx, g.commands, g.executor)) {
+                    std::cout << "[demo dispatch] "
+                              << menuActionName(b.action) << " -> ";
+                    if (!menu.issuedOrders().empty()) {
+                        std::cout << "queued order(s):";
+                        for (const auto& o : menu.issuedOrders())
+                            std::cout << " ["
+                                      << menuActionName(o.action) << "]";
+                    } else {
+                        std::cout << "whole-cult directive issued";
+                    }
+                    std::cout << "\n";
+                }
+                break;
+            }
+            continue;
+        }
+
+        if (cmd == "combo") {
+            ComboTracker tr;  // default basic_flurry
+            auto show = [&]() {
+                const int st = tr.currentStage();
+                if (st == 0) {
+                    std::cout << "  chain inactive\n";
+                    return;
+                }
+                const ComboStage* s = tr.stageDef();
+                std::cout << "  stage " << st << ": anim=" << s->animState
+                          << " dmg x" << s->damageMult
+                          << (s->ccType.empty()
+                                  ? ", no CC"
+                                  : ", CC=" + s->ccType + " " +
+                                        std::to_string(s->ccSeconds) +
+                                        "s")
+                          << "\n";
+            };
+            std::cout << "LMB chain, 0.5s apart (window 1.2s):\n";
+            tr.onLmbClick(0.0); show();
+            tr.onLmbClick(0.5); show();
+            tr.onLmbClick(1.0); show();
+            std::cout << "click 4s late (t=5.0): chain resets to stage 1\n";
+            tr.onLmbClick(5.0); show();
+            std::cout << "no click for 3s: timeout kills the chain\n";
+            tr.update(8.0);
+            std::cout << "  active: " << (tr.active() ? "yes" : "no")
+                      << "\n";
+            continue;
+        }
+
+        if (cmd == "chars") {
+            std::cout << g.charReg.count()
+                      << " characters registered:\n";
+            for (const auto& id : g.charReg.list()) {
+                const CharacterDef* d = g.charReg.get(id);
+                std::cout << "  '" << id << "' — " << d->displayName
+                          << "\n      hp=" << d->maxHp
+                          << " speed=" << d->moveSpeed
+                          << " stamina=" << d->maxStamina
+                          << " combo='" << d->meleeComboId << "'"
+                          << " rmb="
+                          << (d->rmbAbilityId.empty()
+                                  ? heavyAttackKindName(d->rightClick.kind)
+                                  : d->rmbAbilityId)
+                          << " (" << d->rightClick.name << ")"
+                          << " Q/F/R=" << d->qAbility.name << "/"
+                          << d->fAbility.name << "/" << d->rAbility.name
+                          << "\n";
+            }
+            for (const auto& e : g.charLoader.loadErrors())
+                std::cout << "  load error: " << e << "\n";
+            continue;
+        }
+
+        if (cmd == "addchar") {
+            std::string folder; in >> folder;
+            if (folder.empty()) {
+                std::cout << "usage: addchar <folder>\n";
+                continue;
+            }
+            if (g.charLoader.hotLoad(folder)) {
+                std::string name = folder;
+                const size_t slash = name.find_last_of("/\\");
+                if (slash != std::string::npos) name = name.substr(slash + 1);
+                const CharacterPackage* p = g.charLoader.find(name);
+                std::cout << "hot-loaded package '" << name << "'";
+                if (p) {
+                    std::cout << " -> registered '" << p->def.id << "' ("
+                              << p->def.displayName << ")";
+                    ValidationReport rep =
+                        CharacterValidator::validate(*p);
+                    if (!rep.warnings.empty())
+                        std::cout << " [" << rep.warnings.size()
+                                  << " warning(s)]";
+                }
+                std::cout << "\n";
+            } else {
+                std::cout << "hot-load failed: " << folder << "\n";
+                for (const auto& e : g.charLoader.loadErrors())
+                    std::cout << "  " << e << "\n";
+            }
+            continue;
+        }
+
+        if (cmd == "validate") {
+            std::string id; in >> id;
+            if (id.empty()) {
+                std::cout << "usage: validate <character-id>\n";
+                continue;
+            }
+            const CharacterPackage* found = nullptr;
+            for (const auto& p : g.charLoader.packages())
+                if (p.def.id == id || p.folderName == id) {
+                    found = &p;
+                    break;
+                }
+            if (!found) {
+                std::cout << "no package '" << id << "'\n";
+                continue;
+            }
+            std::cout << "package '" << found->folderName << "':\n"
+                      << CharacterValidator::validate(*found).summary();
+            continue;
+        }
+
+        if (cmd == "kda") {
+            PlayerStatsTracker st;
+            st.setPlayerName(0, "Cthulhu");
+            st.setPlayerName(1, "Rival");
+            st.setPlayerName(2, "Acolyte");
+            // Cthulhu and Acolyte both damage the rival's avatar
+            // (entity 9001); Cthulhu lands the kill -> Acolyte assists.
+            st.recordDamage(2, 9001, 30.0f, 10.0);
+            st.recordDamage(0, 9001, 80.0f, 12.0);
+            st.recordKill(0, 1, 9001, 13.0);
+            // The rival scores an environmental kill: kill/death only.
+            st.recordKill(1, 0);
+            std::cout << "  player\tK\tD\tA\n";
+            for (const auto& r : st.rows())
+                std::cout << "  " << r.name << "\t" << r.kills << "\t"
+                          << r.deaths << "\t" << r.assists << "\n";
+            std::cout << "(Acolyte assists: damaged entity 9001 within "
+                         "the 10s assist window; the killer never "
+                         "self-assists)\n";
+            continue;
+        }
+
+        if (cmd == "interact") {
+            InputManager im;
+            InputState s;
+            s.e.held = true;
+            s.e.pressed = true;  // latch E for one frame
+            im.update(s, 1.0f / 60.0f);
+            Vec3 ap = g.avatar.position();
+            std::vector<Interactable> cands = {
+                {501, Interactable::Kind::Altar, "E: perform ritual",
+                 Vec3{ap.x + 2.0f, 0, ap.z}},
+                {502, Interactable::Kind::Relic, "E: claim relic",
+                 Vec3{ap.x - 10.0f, 0, ap.z}},
+            };
+            const Interactable* t = im.findInteractable(ap, cands);
+            if (t) {
+                im.setInteractTarget(t->entityId);
+                std::cout << "E pressed -> target entity " << t->entityId
+                          << " (" << t->prompt << "); lastInteractTarget="
+                          << im.lastInteractTarget() << "\n";
+            } else {
+                std::cout << "E pressed -> nothing within "
+                          << InputManager::INTERACT_RADIUS << "m\n";
+            }
+            continue;
+        }
+
+        if (cmd == "jump") {
+            const float dt = 1.0f / 60.0f;
+            std::cout << "jump buffer: Space pressed 0.1s before landing\n";
+            {
+                InputManager im;
+                InputState s;
+                im.setGrounded(false);          // airborne...
+                s.space.held = true;
+                s.space.pressed = true;
+                im.update(s, dt);               // ...buffer the press
+                s.space.held = false;
+                s.space.pressed = false;
+                im.update(s, 0.1f);             // 0.1s pass (within 0.15s)
+                im.setGrounded(true);         // land
+                im.update(s, dt);
+                std::cout << "  jumpPressed on landing: "
+                          << (im.jumpPressed() ? "yes (fires, buffer "
+                                                 "consumed)"
+                                               : "no")
+                          << "\n";
+            }
+            std::cout << "coyote time: Space 0.05s after leaving ground\n";
+            {
+                InputManager im;
+                InputState s;
+                im.setGrounded(true);
+                im.update(s, dt);
+                im.setGrounded(false);          // walk off a ledge
+                im.update(s, 0.05f);
+                s.space.held = true;
+                s.space.pressed = true;
+                im.update(s, dt);
+                std::cout << "  jumpPressed: "
+                          << (im.jumpPressed() ? "yes" : "no") << "\n";
+            }
+            std::cout << "coyote expired: Space 0.5s after leaving ground\n";
+            {
+                InputManager im;
+                InputState s;
+                im.setGrounded(true);
+                im.update(s, dt);
+                im.setGrounded(false);
+                im.update(s, 0.5f);             // past the 0.12s window
+                s.space.held = true;
+                s.space.pressed = true;
+                im.update(s, dt);
+                std::cout << "  jumpPressed: "
+                          << (im.jumpPressed() ? "yes" : "no") << "\n";
+            }
+            continue;
+        }
+
+        if (cmd == "sprint") {
+            std::string arg; in >> arg;
+            if (arg != "on" && arg != "off") {
+                std::cout << "usage: sprint <on|off>\n";
+                continue;
+            }
+            InputManager im;
+            InputState s;
+            const bool want = (arg == "on");
+            if (want) {
+                s.shift.held = true;
+                s.shift.pressed = true;
+            }
+            std::cout << "Shift " << arg
+                      << ": 1s ticks (drain 18/s, regen 12/s, "
+                         "recover at 30)\n";
+            for (int i = 0; i < 8; ++i) {
+                s.shift.pressed = false;
+                im.update(s, 1.0f);
+                std::cout << "  t=" << (i + 1) << "s stamina="
+                          << static_cast<int>(im.stamina().value)
+                          << (im.sprintHeld() ? " sprinting" : " walking")
+                          << (im.stamina().exhausted ? " EXHAUSTED" : "")
+                          << "\n";
+            }
+            // Show the regen side: sprinting first exhausts, then resting
+            // recovers above the 30-point threshold.
+            if (want) {
+                s.shift.held = false;
+                std::cout << "(shift released — regen)\n";
+                for (int i = 0; i < 4; ++i) {
+                    im.update(s, 1.0f);
+                    std::cout << "  t=+" << (i + 1) << "s stamina="
+                              << static_cast<int>(im.stamina().value)
+                              << (im.stamina().exhausted ? " EXHAUSTED"
+                                                          : " recovered")
+                              << "\n";
+                }
+            }
+            continue;
+        }
+
+        if (cmd == "rmb") {
+            std::string sub; in >> sub;
+            fillRmbCtx(g);
+            if (sub == "press") {
+                // Make sure the wave has something to catch: the wave
+                // travels forward along the avatar's facing, 25m.
+                Vec3 ap = g.avatar.position();
+                const float yaw = g.avatar.facingYaw();
+                const Vec3 fwd{std::cos(yaw), 0.0f, std::sin(yaw)};
+                bool any = false;
+                for (Entity* e : g.waveCtx.entities) {
+                    if (!e || !e->alive()) continue;
+                    const Vec3 d{e->position().x - ap.x, 0.0f,
+                                 e->position().z - ap.z};
+                    const float along = d.x * fwd.x + d.z * fwd.z;
+                    const float lat =
+                        std::abs(d.x * -fwd.z + d.z * fwd.x);
+                    if (along > 0.0f && along <= 25.0f && lat <= 3.0f &&
+                        WaveOfDomination::isSusceptible(e)) {
+                        any = true;
+                        break;
+                    }
+                }
+                if (!any) {
+                    Vec3 q{ap.x + fwd.x * 6.0f, 0.0f, ap.z + fwd.z * 6.0f};
+                    g.world.push_back(std::make_unique<Civilian>(q));
+                    g.waveCtx.entities.push_back(g.world.back().get());
+                    std::cout << "(a demo civilian wanders into the "
+                                 "wave path)\n";
+                }
+                if (!g.waveAbility.ready()) {
+                    std::cout << "Wave of Domination on cooldown ("
+                              << g.waveAbility.cooldownRemaining()
+                              << "s left)\n";
+                    continue;
+                }
+                g.waveAbility.onPress(g.waveCtx);
+                for (int i = 0;
+                     i < 30 &&
+                     g.waveAbility.phase() == WaveOfDomination::Phase::Wave;
+                     ++i)
+                    g.waveAbility.update(g.waveCtx, 0.1);
+                std::cout << "RMB pressed (wave cast):\n";
+                printWaveState(g);
+            } else if (sub == "move") {
+                float dx = 0.0f, dy = 0.0f;
+                in >> dx >> dy;
+                if (g.waveAbility.phase() !=
+                    WaveOfDomination::Phase::Hold) {
+                    std::cout << "nothing held (phase="
+                              << wavePhaseName(g.waveAbility.phase())
+                              << ") — 'rmb press' first\n";
+                    continue;
+                }
+                g.waveAbility.onMouseMove(g.waveCtx, dx, dy);
+                for (int i = 0; i < 5; ++i)
+                    g.waveAbility.update(g.waveCtx, 0.1);
+                std::cout << "mouse swung the held victims:\n";
+                printWaveState(g);
+            } else if (sub == "launch") {
+                if (g.waveAbility.phase() !=
+                    WaveOfDomination::Phase::Hold) {
+                    std::cout << "nothing held (phase="
+                              << wavePhaseName(g.waveAbility.phase())
+                              << ") — 'rmb press' first\n";
+                    continue;
+                }
+                g.waveAbility.onLeftClick(g.waveCtx);
+                for (int i = 0; i < 25; ++i)
+                    g.waveAbility.update(g.waveCtx, 0.1);
+                std::cout << "LMB while held: victims hurled (300 dmg on "
+                             "impact):\n";
+                printWaveState(g);
+            } else if (sub == "release") {
+                g.waveAbility.onRelease(g.waveCtx);
+                for (int i = 0; i < 10; ++i)
+                    g.waveAbility.update(g.waveCtx, 0.1);
+                std::cout << "RMB released: victims dropped (gentle -> 1s "
+                             "stagger; >8m drop -> lethal):\n";
+                printWaveState(g);
+            } else if (sub == "stun") {
+                uint64_t id = 0;
+                in >> id;
+                if (id == 0) {
+                    Entity* t = g.nearestTarget(g.avatar.position(),
+                                                25.0f);
+                    if (t) id = t->id();
+                }
+                if (id == 0) {
+                    std::cout << "no target — usage: rmb stun [entity-id]\n";
+                    continue;
+                }
+                if (!g.waveAbility.ready()) {
+                    std::cout << "Wave of Domination on cooldown ("
+                              << g.waveAbility.cooldownRemaining()
+                              << "s left)\n";
+                    continue;
+                }
+                g.waveCtx.targetedEntityId = id;
+                g.waveAbility.onPress(g.waveCtx);
+                std::cout << "RMB with cursor target " << id
+                          << ": direct stun (2.5s) — stunned="
+                          << (g.fx.isStunned(id) ? "yes" : "no")
+                          << ", cooldown="
+                          << g.waveAbility.cooldownRemaining() << "s\n";
+            } else {
+                std::cout << "usage: rmb "
+                             "<press|move <dx> <dy>|launch|release|stun "
+                             "[id]>\n";
+            }
+            continue;
+        }
+        // ---- end Wave 7 ----
 
         std::cout << "unknown command. Type 'help'.\n";
     }
