@@ -146,6 +146,8 @@ Message encodePlayerKda(const std::vector<KdaEntry>& entries) {
 bool decodePlayerKda(const Message& m, std::vector<KdaEntry>& out) {
     if (m.type != MsgType::PlayerKda) return false;
     int n = fieldInt(m, "n", 0);
+    // Wave 9d: 'n' is remote-controlled — cap it (see decodeSnapshot).
+    if (n < 0 || n > 4096) return false;
     out.clear();
     for (int i = 0; i < n; ++i) {
         const std::string s = fieldStr(m, "e" + std::to_string(i));

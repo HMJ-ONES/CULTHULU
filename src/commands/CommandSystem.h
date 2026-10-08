@@ -24,6 +24,11 @@ enum class DirectiveType {
     MassSacrifice,
     Defend,
     GatherRelic,
+    // Wave 9b: three new directives. See DirectiveExecutor.h for their
+    // follow-through operations.
+    AssassinateProphet, // kill an enemy leader via infiltration
+    BlightLand,         // corrupt a zone over many ticks
+    GrandSummoning,     // long ritual: 300 power to summon a champion
     Count
 };
 
@@ -52,6 +57,8 @@ public:
     // Issue a directive toward 'target' (and optionally an enemy faction).
     // Rolls the obedience model, publishes DirectiveIssued/Resolved plus any
     // consequence events, and applies automatic side effects for Obeyed.
+    // Wave 9b: targetFaction is recorded on the DirectiveResolved event so
+    // follow-through operations (assassination, war) know the enemy.
     CommandResult issueCommand(DirectiveType d, Vec3 target,
                                FactionId targetFaction = FACTION_NEUTRAL);
 
@@ -62,7 +69,8 @@ private:
     // Obedience chance in [0.05, 0.95] for the current cult state.
     float obedienceChance(DirectiveType d, Vec3 target) const;
 
-    void publishIssuedResolved(DirectiveType d, CommandOutcome o, float chance);
+    void publishIssuedResolved(DirectiveType d, CommandOutcome o, float chance,
+                               FactionId targetFaction);
 
     EventBus& bus_;
     RNG& rng_;

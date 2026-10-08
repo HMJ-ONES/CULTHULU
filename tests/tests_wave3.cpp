@@ -137,7 +137,7 @@ static void test_fear_from_raid() {
     const GameEvent* raid = rec.first(EventType::RaidPerformed);
     CHECK(raid != nullptr);
     const float delta = beliefs.onEvent(*raid);
-    CHECK_CLOSE(delta, 12.0f * raid->amount, 1e-5f); // +12 power x destruction
+    CHECK_CLOSE(delta, 14.4f * raid->amount, 1e-5f); // +14.4 power x destruction (wave 9a)
     CHECK_CLOSE(beliefs.fearLevel(), 20.0f * raid->amount, 1e-5f);
 }
 
@@ -158,7 +158,7 @@ static void test_onslaught_from_casualties() {
     const GameEvent* slain = rec.first(EventType::CivilianSlain);
     CHECK(slain != nullptr);
     const float delta = beliefs.onEvent(*slain);
-    CHECK_CLOSE(delta, 3.0f * 125.0f, 1e-4f); // +3 per civilian slain
+    CHECK_CLOSE(delta, 3.6f * 125.0f, 1e-4f); // +3.6 per civilian slain (wave 9a)
 }
 
 // ---- converted-deny-death ----
