@@ -23,7 +23,7 @@ ValidationReport CharacterValidator::validate(const CharacterPackage& pkg) {
     }
 
     if (!pkg.hasModel) {
-        r.warnings.push_back("model slot empty: logic-only (no model.fbx)");
+        r.warnings.push_back("model slot empty: logic-only (no model.fbx/.glb)");
     } else if (pkg.rigMapping.mappedCount() == 0) {
         r.warnings.push_back("bone list unavailable: rig mapping deferred "
                              "until FBX import");

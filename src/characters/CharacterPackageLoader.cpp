@@ -86,7 +86,14 @@ CharacterPackage CharacterPackageLoader::loadOne(
     pkg.defError = pr.error;
     if (!pkg.defOk) return pkg;
 
-    pkg.hasModel = fileExists(folderPath + "/model.fbx");
+    // Wave 12: accept model.glb as well as model.fbx (static or rigged).
+    if (fileExists(folderPath + "/model.fbx")) {
+        pkg.hasModel = true;
+        pkg.modelFile = "model.fbx";
+    } else if (fileExists(folderPath + "/model.glb")) {
+        pkg.hasModel = true;
+        pkg.modelFile = "model.glb";
+    }
     pkg.hasRigMap = fileExists(folderPath + "/rig.map");
     pkg.clipFiles = listCanim(folderPath + "/animations");
 

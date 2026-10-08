@@ -6,6 +6,7 @@
 //   assets/characters/<name>/
 //     character.def   (required: stats, ability kit, RMB, passive)
 //     model.fbx       (optional: rigged model; logic-only without it)
+//     model.glb       (optional: alternative to model.fbx; static or rigged)
 //     rig.map         (optional: explicit "engine_bone = fbx_bone" lines)
 //     bones.list      (optional: one FBX bone name per line; lets the
 //                     auto-mapper run before the real FBX importer lands)
@@ -30,6 +31,7 @@ struct CharacterPackage {
     std::string defError; // set when !defOk
 
     bool hasModel = false;
+    std::string modelFile; // "model.fbx" or "model.glb", whichever was found
     bool hasRigMap = false;
     bool hasBonesList = false;
     std::vector<std::string> clipFiles; // .canim paths found
