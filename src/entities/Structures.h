@@ -1,5 +1,6 @@
 #pragma once
 
+#include "assets/ModelCatalog.h"
 #include "entities/Entity.h"
 
 #include <cstdint>
@@ -40,6 +41,22 @@ inline const char* buildingTypeName(BuildingType t) {
     return "Unknown";
 }
 
+// Wave 11: world-model path per building type, via the ModelCatalog's
+// logical names (reconciled with assets/world/MANIFEST.md). Unknown
+// types resolve to "" (engine falls back to procedural/blockout
+// rendering).
+inline std::string modelPathFor(BuildingType t) {
+    switch (t) {
+        case BuildingType::Altar:      return ModelCatalog::lookup("altar");
+        case BuildingType::Barracks:   return ModelCatalog::lookup("shelter");
+        case BuildingType::Wall:       return ModelCatalog::lookup("ruined_wall");
+        case BuildingType::Watchtower: return ModelCatalog::lookup("collapsed_tower");
+        case BuildingType::Trap:       return ModelCatalog::lookup("iron_fence");
+        case BuildingType::Portal:     return ModelCatalog::lookup("ruined_arch");
+    }
+    return {};
+}
+
 // Default max HP per building type (tunable; see README wave 7 section).
 inline float defaultHpFor(BuildingType t) {
     switch (t) {
@@ -70,6 +87,11 @@ public:
 
     BuildingType buildingType() const { return buildingType_; }
     void setBuildingType(BuildingType t) { buildingType_ = t; }
+
+    // Wave 11: world-model path for this building's type (engine-agnostic
+    // string; the Unreal/Unity binding resolves it to the actual mesh).
+    // Empty when no art is bound for the type.
+    std::string modelPath() const { return modelPathFor(buildingType_); }
 
     BuildingState state() const;
     float rebuildProgress() const { return rebuildProgress_; } // 0..1

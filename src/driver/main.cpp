@@ -6,6 +6,8 @@
 #include "ai/RitualCaster.h"
 #include "animation/AnimationStateMachine.h"
 #include "assets/AssetManager.h"
+#include "assets/GlbInfo.h"
+#include "assets/ModelCatalog.h"
 #include "beliefs/BeliefSystem.h"
 #include "camera/CameraSystem.h"
 #include "characters/CharacterPackageLoader.h"
@@ -36,11 +38,14 @@
 #include "power/PowerSystem.h"
 #include "save/SaveSystem.h"
 #include "ui/CommandMenu.h"
+#include "world/MapLoader.h"
 
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <memory>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -454,6 +459,8 @@ struct BetaGame {
             "  build <wall|barracks|watchtower|trap|portal|altar>\n"
             "                                          start construction\n"
             "  menu [cultist|location|enemy|altar]  radial command menu demo\n"
+            "  mapinfo                             map art: placements, file\n"
+            "                                          check, asset budget\n"
             "  combo                               melee combo chain demo\n"
             "  chars | addchar <folder> | validate <id>\n"
             "                                          character packages\n"
@@ -1165,6 +1172,98 @@ static bool processLine(BetaGame& g, NetSession& nets,
                     std::cout << "\n";
                 }
                 break;
+            }
+            return true;
+        }
+
+        // ---- Wave 11: art pass map info ----
+        if (cmd == "mapinfo") {
+            // Resolve assets/maps/ruined_city.map like the character
+            // packages above (repo root or one level up when run from
+            // build/).
+            std::string prefix;
+            {
+                std::ifstream probe("assets/maps/ruined_city.map");
+                if (!probe) prefix = "../";
+            }
+            const std::string mapPath = prefix + "assets/maps/ruined_city.map";
+            MapData map;
+            try {
+                map = MapLoader::load(mapPath);
+            } catch (const MapParseError& e) {
+                std::cout << "MAP PARSE ERROR: " << e.what() << "\n";
+                return true;
+            }
+            std::cout << "map: " << map.name << " (" << mapPath << ")\n";
+            std::cout << "zones: " << map.zones.size() << "\n";
+            for (const auto& z : map.zones)
+                std::cout << "  " << z.name << " fear=" << z.ambient.ambientFear
+                          << "\n";
+            // Group placements by category, then by model.
+            std::map<std::string, std::map<std::string, int>> byCat;
+            for (const auto& p : map.placements)
+                byCat[ModelCatalog::categoryOf(p.modelPath)][p.modelPath]++;
+            std::cout << "placements: " << map.placements.size() << "\n";
+            for (const auto& [cat, models] : byCat) {
+                int catTotal = 0;
+                for (const auto& [m, n] : models) catTotal += n;
+                std::cout << "  [" << (cat.empty() ? "?" : cat) << "] "
+                          << catTotal << " placements, " << models.size()
+                          << " models:\n";
+                for (const auto& [m, n] : models) {
+                    // Triangle count from the GLB header (budget: <5000).
+                    std::string tris = "?";
+                    GlbStats gs = readGlbStats(prefix + m);
+                    if (gs.ok) tris = std::to_string(gs.triangles);
+                    std::cout << "    x" << n << " " << m << " [" << tris
+                              << " tris]\n";
+                }
+            }
+            // Validate every referenced file exists on disk. Missing
+            // files are LOUD, never silent.
+            std::set<std::string> distinct;
+            for (const auto& p : map.placements)
+                distinct.insert(prefix + p.modelPath);
+            int missing = 0;
+            uint64_t totalBytes = 0;
+            for (const auto& f : distinct) {
+                std::ifstream probe(f, std::ios::binary);
+                if (!probe) {
+                    std::cout << "MISSING: " << f << "\n";
+                    ++missing;
+                    continue;
+                }
+                probe.seekg(0, std::ios::end);
+                totalBytes += static_cast<uint64_t>(probe.tellg());
+            }
+            const int okFiles =
+                static_cast<int>(distinct.size()) - missing;
+            std::cout << "file check: " << okFiles << "/"
+                      << distinct.size() << " distinct models present";
+            if (missing > 0)
+                std::cout << " -- " << missing << " MISSING (see above)";
+            std::cout << "\n";
+            const double mb =
+                static_cast<double>(totalBytes) / (1024.0 * 1024.0);
+            std::cout << "asset budget: " << distinct.size()
+                      << " models, " << mb << " MB on disk (cap 30 MB)\n";
+            // MANIFEST.md (asset worker delivery): best-effort peek.
+            {
+                std::ifstream mf(prefix + "assets/world/MANIFEST.md");
+                if (mf) {
+                    std::string text((std::istreambuf_iterator<char>(mf)),
+                                     std::istreambuf_iterator<char>());
+                    size_t glbRefs = 0, pos = 0;
+                    while ((pos = text.find(".glb", pos)) != std::string::npos) {
+                        ++glbRefs; pos += 4;
+                    }
+                    std::cout << "manifest: assets/world/MANIFEST.md present "
+                              << "(mentions ~" << glbRefs << " .glb refs; "
+                              << "disk totals shown above)\n";
+                } else {
+                    std::cout << "manifest: assets/world/MANIFEST.md not "
+                              << "present yet (asset worker pending)\n";
+                }
             }
             return true;
         }
