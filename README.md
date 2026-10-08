@@ -113,7 +113,9 @@ logic is unaffected.
   per-entity timed tracker, Slow stacks toward a 0.2 floor); `Attacks.h`
   (`DamageType`, `Attack` struct, `resolveAttack`/`strikeMelee`/`castSpell`)
 - `src/commands/` — `CommandSystem`: eldritch directives (`GoToWar`,
-  `RaidCity`, `ConvertCampaign`, `MassSacrifice`, `Defend`, `GatherRelic`)
+  `RaidCity`, `ConvertCampaign`, `MassSacrifice`, `Defend`, `GatherRelic`,
+  `AssassinateProphet`, `BlightLand`, `GrandSummoning`, `OneiricHarvest`,
+  `RebuildSanctum`)
   with a computed **obedience chance** → outcomes Obeyed / PartiallyObeyed
   / Refused / SparksInsurrection; refusals raise insurrection risk; all
   published as events
@@ -126,8 +128,11 @@ logic is unaffected.
   adventurers, publishing `TrapSprung`
 - `src/ai/` — steering behaviors (follow, flee, rampage targeting) plus
   `AmbientBehavior.h`: `AmbientDirector` — every cultist on a randomized
-  timer picks an ambient action (Pray, Patrol, Gather, Preach, Brawl,
-  Desecrate), weighted by beliefs, morale, and time of day
+  timer picks one of 16 ambient actions (Pray, Patrol, Gather, Preach,
+  Brawl, Desecrate + wave-9c/15 additions: omen-reading, sparring,
+  tending wounded, sigil graffiti, chanting, dream-sharing, effigy
+  mending, whisper campaigns, blood rites, wilds hunts), weighted by
+  beliefs, morale, and time of day
 - `src/war/` — `WarSystem`: war declarations vs deity factions, kill
   tracking, belief sync for single/multi-deity power scaling
 - `src/relics/` — `RelicSystem`: relic power amplifiers, single-use cursed
@@ -913,6 +918,50 @@ count (`n > 4096` rejected); `ClipSerializer` allocation bomb (1M key cap,
 NaN rejected); heap-use-after-free in WaveOfDomination when victims were
 freed by a load mid-levitation (stale victims pruned, ability cancelled on
 load). Regression tests in `cultulhu_tests_fuzz`.
+
+## Wave 15: content expansion — new ambient events + two directives
+
+Conservative new content reusing the wave 9b/9c systems (no new models,
+no new systems; all per-tick work O(1)).
+
+### New directives
+- **OneiricHarvest** (Dreams): 60s mass dream-rite; each 10s tick the
+  cult's loyal dreamers channel a vision (`DreamShared` tag
+  `directive_dream`, so the exertion pipeline picks it up unchanged).
+  Completion publishes `OneiricHarvestCompleted` and distills the dreams
+  into 3 power per dreamer (skipped when no `PowerSystem` is attached).
+- **RebuildSanctum** (Reconstruction): 60s rebuilding; per-tick
+  `SanctumRebuiltTick` (Reconstruction 1.0), then on completion a
+  `BuildingRebuilt` (reads as restored infrastructure to every listener)
+  + `SanctumRebuilt` + a +5 devotion bump for the whole cult. Partial
+  obedience halves ticks and the devotion bump.
+Both feed their creed's exertion on Obeyed (8.0) and Chaos on Refused
+(4.0), and gain +0.10 obedience when their creed is active.
+Driver: `directive dream|rebuild`; also `command dream|rebuild` (the
+`directive` path wires the executor context; `command` degrades
+gracefully).
+
+### New ambient events
+Five new autonomous cultist activities in `AmbientDirector` (now 16),
+each with belief weighting, an event, and exertion feeds:
+- **dream-sharing** (Dreams; night bonus): recounts a vision
+  (`DreamShared`, Dreams 3.0 / Conversion 1.0); when Dreams exertion
+  runs hot (>= 50) a distant civilian may convert (`DreamWhisper` +
+  `ConversionPerformed`, tag `dreamshared`).
+- **mend-effigy** (Reconstruction; low-morale bonus): repairs a shrine
+  (`EffigyMended`, Reconstruction 2.0), +2 devotion.
+- **whisper-campaign** (Trickery/Fear): plants false rumors
+  (`RumorSpread`, Trickery 3.0 / Fear 1.0), +zone fear when a world map
+  is attached, 20% chance a civilian converts (tag `rumor`).
+- **blood-rite** (Torture/Sacrifice): ritual laceration (`RiteOfFlesh`,
+  Torture 3.0 / Fear 1.0), +2 devotion, 10% self-injury.
+- **wilds-hunt** (Onslaught/War): hunts a wild beast (`WildsHunted`,
+  Onslaught 2.0) bringing back 1–2 supplies, 15% chance the quarry
+  fights back.
+`BeliefSystem` reacts like the wave-9c events (power on shared dreams,
+mended effigies, hunted meat; dread on the blood rite when Fear is
+active). Driver: `ambient dream|mend|rumor|rite|hunt` (or bare
+`ambient` for a weighted-random action).
 
 ## Discrepancy notes (faithful to the doc)
 

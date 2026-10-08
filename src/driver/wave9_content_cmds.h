@@ -38,6 +38,12 @@ inline bool parseWave9AmbientAction(const std::string& s, AmbientAction& out) {
     else if (s == "tend")       out = AmbientAction::TendWounded;
     else if (s == "graffiti")   out = AmbientAction::Graffiti;
     else if (s == "chant")      out = AmbientAction::ChantingCircle;
+    // Wave 15.
+    else if (s == "dream")      out = AmbientAction::DreamSharing;
+    else if (s == "mend")       out = AmbientAction::MendEffigy;
+    else if (s == "rumor")      out = AmbientAction::WhisperCampaign;
+    else if (s == "rite")       out = AmbientAction::BloodRite;
+    else if (s == "hunt")       out = AmbientAction::WildsHunt;
     else return false;
     return true;
 }
@@ -50,7 +56,7 @@ inline bool registerWave9ContentCommands(BetaGame& g, const std::string& cmd,
         // ambient <name>       -> force a specific action on a random
         //                       eligible cultist
         //   names: pray patrol gather preach brawl desecrate omen spar
-        //          tend graffiti chant
+        //          tend graffiti chant dream mend rumor rite hunt
         if (g.cult.size() == 0) {
             std::cout << "ambient: no cultists yet (recruit some first)\n";
             return true;
@@ -68,7 +74,8 @@ inline bool registerWave9ContentCommands(BetaGame& g, const std::string& cmd,
         if (!parseWave9AmbientAction(which, a)) {
             std::cout << "ambient: unknown action '" << which
                       << "' (try: pray patrol gather preach brawl desecrate"
-                      << " omen spar tend graffiti chant)\n";
+                      << " omen spar tend graffiti chant dream mend rumor"
+                      << " rite hunt)\n";
             return true;
         }
         // Try random cultists until one is eligible.

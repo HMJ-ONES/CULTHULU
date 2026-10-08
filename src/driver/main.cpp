@@ -447,7 +447,7 @@ struct BetaGame {
             "  belief <name> [replace <old>]       adopt a belief\n"
             "  beliefs                             list active beliefs\n"
             "  rest <i>                            toggle rest for cultist i\n"
-            "  command <raid|war|convert|sacrifice|defend|relic>\n"
+            "  command <raid|war|convert|sacrifice|defend|relic|dream|rebuild>\n"
             "  attack                              melee the nearest target\n"
             "  cast <fireball|fear>                sorcerer spell + CC\n"
             "  tick <n>                            advance n game-seconds\n"
@@ -486,7 +486,7 @@ struct BetaGame {
 // the implementation compiles into this TU via the include below.
 #include "driver/wave9_content_cmds.h"
 
-// Wave 9b driver commands (`directive assassinate|blight|summon|zones`):
+// Wave 9b driver commands (`directive assassinate|blight|summon|zones`) + wave 15 (`directive dream|rebuild`):
 // header-inline module; the implementation compiles into this TU via the
 // include below.
 #include "driver/wave9_directives_cmds.h"
@@ -498,6 +498,8 @@ static DirectiveType directiveByName(const std::string& n) {
     if (n == "sacrifice") return DirectiveType::MassSacrifice;
     if (n == "defend") return DirectiveType::Defend;
     if (n == "relic") return DirectiveType::GatherRelic;
+    if (n == "dream") return DirectiveType::OneiricHarvest;
+    if (n == "rebuild") return DirectiveType::RebuildSanctum;
     return DirectiveType::Count;
 }
 
@@ -732,7 +734,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
         // Wave 9c content commands (ambient/dungeon); one registration line.
         if (registerWave9ContentCommands(g, cmd, in)) return true;
 
-        // Wave 9b directive commands (directive assassinate|blight|summon);
+        // Wave 9b directive commands (directive assassinate|blight|summon|zones) + wave 15 (dream|rebuild);
         // one registration line.
         if (registerWave9DirectiveCommands(g, cmd, in)) return true;
 
@@ -924,7 +926,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
             DirectiveType d = directiveByName(what);
             if (d == DirectiveType::Count) {
                 std::cout << "usage: command "
-                             "<raid|war|convert|sacrifice|defend|relic>\n";
+                             "<raid|war|convert|sacrifice|defend|relic|dream|rebuild>\n";
                 return true;
             }
             CommandResult r = g.commands.issueCommand(d,

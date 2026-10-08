@@ -84,6 +84,11 @@ constexpr float OMEN_READ_POWER        = 2.0f;   // power per omen-reading
 constexpr float SIGIL_FEAR             = 3.0f;   // fear per painted sigil
 constexpr float SPARRING_POWER         = 0.5f;   // power per sparring bout
 constexpr float CHANT_POWER            = 0.5f;   // power per chanting circle
+// Wave 15: five new ambient activities.
+constexpr float DREAMSHARE_POWER       = 1.0f;   // power per shared dream (Dreams)
+constexpr float EFFIGY_POWER           = 1.0f;   // power per mended effigy (Reconstruction)
+constexpr float RITE_FEAR              = 2.0f;   // fear per blood rite (Fear)
+constexpr float HUNT_POWER             = 0.5f;   // power per hunted meat (Onslaught)
 } // namespace
 
 BeliefSystem::BeliefSystem(EventBus& bus, GameClock& clock)
@@ -368,6 +373,25 @@ float BeliefSystem::onEvent(const GameEvent& e) {
             break;
         case EventType::ChantingHeld:
             if (isActive(Belief::Magic)) delta += CHANT_POWER * e.amount;
+            break;
+        // Wave 15: new ambient activities.
+        case EventType::DreamShared:
+            if (isActive(Belief::Dreams))
+                delta += DREAMSHARE_POWER * e.amount;
+            break;
+        case EventType::EffigyMended:
+            if (isActive(Belief::Reconstruction))
+                delta += EFFIGY_POWER * e.amount;
+            break;
+        case EventType::RiteOfFlesh:
+            if (isActive(Belief::Fear)) {
+                fear_ += RITE_FEAR;
+                if (fear_ > 100.0f) fear_ = 100.0f;
+            }
+            break;
+        case EventType::WildsHunted:
+            if (isActive(Belief::Onslaught))
+                delta += HUNT_POWER * e.amount;
             break;
         default: break;
     }

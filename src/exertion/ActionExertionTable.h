@@ -90,6 +90,18 @@ inline constexpr ExertionFeed ACTION_EXERTION_TABLE[] = {
     {EventType::DholeTremors,       Belief::Fear,      2.0f},
     {EventType::DholeAmbush,        Belief::Fear,      8.0f},
     {EventType::ValeRelicClaimed,   Belief::Magic,     8.0f},
+    // Wave 15: new ambient activities.
+    {EventType::DreamShared,    Belief::Dreams,     3.0f},
+    {EventType::DreamShared,    Belief::Conversion, 1.0f},
+    {EventType::EffigyMended,   Belief::Reconstruction, 2.0f},
+    {EventType::RumorSpread,    Belief::Trickery,   3.0f},
+    {EventType::RumorSpread,    Belief::Fear,       1.0f},
+    {EventType::RiteOfFlesh,    Belief::Torture,    3.0f},
+    {EventType::RiteOfFlesh,    Belief::Fear,       1.0f},
+    {EventType::WildsHunted,    Belief::Onslaught,  2.0f},
+    // Wave 15: new directives.
+    {EventType::OneiricHarvestCompleted, Belief::Dreams, 5.0f},
+    {EventType::SanctumRebuiltTick, Belief::Reconstruction, 1.0f},
     // Wave 9b: new directives.
     {EventType::LeaderAssassinated, Belief::Fear,     15.0f},
     {EventType::LeaderAssassinated, Belief::War,       6.0f},
@@ -126,6 +138,9 @@ inline constexpr DirectiveFeed DIRECTIVE_EXERTION_TABLE[] = {
     {DirectiveType::AssassinateProphet, Belief::Trickery,   8.0f, 4.0f},
     {DirectiveType::BlightLand,    Belief::Fear,            8.0f, 4.0f},
     {DirectiveType::GrandSummoning, Belief::Magic,         10.0f, 5.0f},
+    // Wave 15: two new directives.
+    {DirectiveType::OneiricHarvest, Belief::Dreams,     8.0f, 4.0f},
+    {DirectiveType::RebuildSanctum, Belief::Reconstruction, 8.0f, 4.0f},
 };
 
 inline constexpr std::size_t DIRECTIVE_EXERTION_TABLE_SIZE =

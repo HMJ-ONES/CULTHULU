@@ -32,6 +32,16 @@ enum class AmbientAction {
     TendWounded,    // heals injured cultists; Reconstruction synergy; loyalty bump
     Graffiti,       // paints eldritch sigils; raises Fear in the current zone
     ChantingCircle, // group chant; Magic exertion gain; may attract a creature
+    // Wave 15: five more autonomous activities.
+    DreamSharing,   // recounts a dream-vision; Dreams synergy; may convert a
+                    // distant civilian when Dreams exertion runs hot
+    MendEffigy,     // repairs a shrine/effigy; Reconstruction feed; pride bump
+    WhisperCampaign,// plants false rumors; Trickery feed; may convert a
+                    // civilian; raises zone fear when a world map is attached
+    BloodRite,      // ritual self-laceration; Torture feed; zeal bump; small
+                    // self-injury risk
+    WildsHunt,      // hunts a wild beast; Onslaught feed; brings back meat
+                    // (supplies); the quarry may fight back
     Count
 };
 

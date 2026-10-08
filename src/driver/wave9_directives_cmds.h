@@ -1,6 +1,7 @@
 #pragma once
 
-// Wave 9b driver commands: `directive assassinate|blight|summon|zones`.
+// Wave 9b driver commands: `directive assassinate|blight|summon|zones`
+// plus wave 15: `directive dream|rebuild`.
 //
 // This module is header-inline on purpose: src/driver/ is excluded from
 // the engine library's CMake source glob, so the implementation lives in
@@ -24,6 +25,12 @@
 //                                      answers on completion.
 //   directive zones                    list the session's zones and their
 //                                      Blighted state.
+//   directive dream                    (wave 15) 60s mass dream-rite:
+//                                      the cult's dreamers channel visions
+//                                      into power.
+//   directive rebuild                  (wave 15) 60s rebuilding directive:
+//                                      the sanctum rises again, and the
+//                                      cult's devotion steadies.
 //
 // The first call wires the session: executor context (power, exertion, and
 // a small world map with demo zones for blight targeting), a
@@ -195,6 +202,22 @@ inline bool runZones() {
     return true;
 }
 
+// Wave 15: `directive dream` — 60s mass dream-rite.
+inline bool runDreamHarvest(BetaGame& g) {
+    CommandResult r = g.commands.issueCommand(DirectiveType::OneiricHarvest,
+                                              g.avatar.position());
+    std::cout << commandOutcomeName(r.outcome) << " — " << r.detail << "\n";
+    return true;
+}
+
+// Wave 15: `directive rebuild` — 60s sanctum rebuilding.
+inline bool runRebuildSanctum(BetaGame& g) {
+    CommandResult r = g.commands.issueCommand(DirectiveType::RebuildSanctum,
+                                              g.avatar.position());
+    std::cout << commandOutcomeName(r.outcome) << " — " << r.detail << "\n";
+    return true;
+}
+
 } // namespace wave9b
 
 inline bool registerWave9DirectiveCommands(BetaGame& g, const std::string& cmd,
@@ -207,8 +230,10 @@ inline bool registerWave9DirectiveCommands(BetaGame& g, const std::string& cmd,
     if (sub == "blight")      return wave9b::runBlight(g);
     if (sub == "summon")      return wave9b::runSummon(g);
     if (sub == "zones")       return wave9b::runZones();
+    if (sub == "dream")       return wave9b::runDreamHarvest(g);
+    if (sub == "rebuild")     return wave9b::runRebuildSanctum(g);
     std::cout << "usage: directive "
-                 "<assassinate [entity-id]|blight|summon|zones>\n";
+                 "<assassinate [entity-id]|blight|summon|zones|dream|rebuild>\n";
     return true;
 }
 

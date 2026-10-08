@@ -140,6 +140,15 @@ enum class EventType {
     CaveIn,               // sourceId = dungeon id; targetId = entity id;
                           // amount = damage; tag = "sealed" or "rubble"
 
+    // Wave 15: five new ambient activities.
+    DreamShared,          // sourceId = cultist; amount = 1 (2 when Dreams
+                          // exertion runs hot, >= 50); a shared dream-vision
+    EffigyMended,         // sourceId = cultist; amount = 1
+    RumorSpread,          // sourceId = cultist; amount = 1; pos = location
+                          // the false rumor was planted at
+    RiteOfFlesh,          // sourceId = cultist; amount = 1
+    WildsHunted,          // sourceId = cultist; amount = meat brought back
+
     // Wave 13: Vale of Pnath hazards & encounters.
     AbyssPitFall,         // sourceId = entity id; targetId = dungeon id;
                           // amount = fall damage (scales with depth)
@@ -152,6 +161,15 @@ enum class EventType {
                           // amount = damage; tag = "ambush"
     ValeRelicClaimed,     // sourceId = entity id; targetId = dungeon id;
                           // the cursed relic at the Vale's bottom was seized
+
+    // Wave 15: two new directives.
+    OneiricHarvestCompleted, // OneiricHarvest done: amount = dreamers that
+                          // channeled the rite; tag = directive name;
+                          // pos = rite site
+    SanctumRebuiltTick,   // RebuildSanctum progress tick: amount = progress
+                          // 0..1; tag = directive name; pos = sanctum site
+    SanctumRebuilt,       // RebuildSanctum done: tag = directive name;
+                          // pos = sanctum site
 
     // Wave 9b: three new directives.
     LeaderAssassinated,   // AssassinateProphet success: sourceId = slain

@@ -37,6 +37,15 @@ constexpr double SUMMON_TICK = 5.0;
 constexpr float SUMMON_COST = 300.0f;        // power consumed at start
 constexpr float SUMMON_INTERRUPT_CHANCE = 0.02f;  // per tick (no refund)
 constexpr float CHAMPION_MAX_HP = 1200.0f;   // dread champion (boosted Monstrosity)
+// Wave 15 tuning (all creative-liberty numbers).
+// OneiricHarvest: the mass dream-rite.
+constexpr double DREAM_HARVEST_DURATION = 60.0; // seconds of game time
+constexpr double DREAM_HARVEST_TICK = 10.0;
+constexpr float DREAM_POWER_PER_DREAMER = 3.0f; // power distilled per dreamer
+// RebuildSanctum: the rebuilding.
+constexpr double REBUILD_DURATION = 60.0;    // seconds of game time
+constexpr double REBUILD_TICK = 5.0;
+constexpr float REBUILD_DEVOTION_BUMP = 5.0f; // devotion to every living cultist
 } // namespace
 
 // ---------------------------------------------------------------------------
@@ -464,6 +473,106 @@ private:
 };
 
 // ---------------------------------------------------------------------------
+// Wave 15: new directive operations.
+// ---------------------------------------------------------------------------
+
+class DreamHarvestOperation : public DirectiveOperation {
+public:
+    DreamHarvestOperation(EventBus& bus, RNG& rng, CultManager& cult,
+                          Vec3 site, const DirectiveContext& ctx, bool partial)
+        : DirectiveOperation(bus, rng, cult,
+                             directiveName(DirectiveType::OneiricHarvest),
+                             partial ? DREAM_HARVEST_DURATION * 0.5
+                                     : DREAM_HARVEST_DURATION,
+                             DREAM_HARVEST_TICK, partial),
+          site_(site), ctx_(ctx) {}
+
+protected:
+    void onTick() override {
+        // The cult's loyal dreamers channel their visions into the rite.
+        size_t dreamers = 0;
+        for (size_t i = 0; i < cult_.size(); ++i) {
+            const Cultist& c = cult_.at(i);
+            if (c.alive() && c.state() == CultistState::Loyal) ++dreamers;
+        }
+        if (dreamers > dreamers_) dreamers_ = dreamers;
+
+        // DreamShared is the existing ambient dream event, so the exertion
+        // pipeline (Dreams 3.0/tick) and belief power pick it up unchanged.
+        GameEvent e(EventType::DreamShared);
+        e.amount = 1.0f * magnitudeScale();
+        e.tag = "directive_dream";
+        e.pos = site_;
+        bus_.publish(e);
+    }
+
+    void onComplete() override {
+        GameEvent e(EventType::OneiricHarvestCompleted);
+        e.tag = name();
+        e.amount = static_cast<float>(dreamers_);
+        e.pos = site_;
+        bus_.publish(e);
+        // Harvested dreams are distilled into power.
+        if (ctx_.power && dreamers_ > 0)
+            ctx_.power->add(DREAM_POWER_PER_DREAMER *
+                            static_cast<float>(dreamers_) * magnitudeScale());
+    }
+
+private:
+    Vec3 site_;
+    DirectiveContext ctx_;
+    size_t dreamers_ = 0; // peak dreamer count over the rite
+};
+
+class RebuildOperation : public DirectiveOperation {
+public:
+    RebuildOperation(EventBus& bus, RNG& rng, CultManager& cult, Vec3 site,
+                     bool partial)
+        : DirectiveOperation(bus, rng, cult,
+                             directiveName(DirectiveType::RebuildSanctum),
+                             partial ? REBUILD_DURATION * 0.5 : REBUILD_DURATION,
+                             REBUILD_TICK, partial),
+          site_(site) {}
+
+protected:
+    void onTick() override {
+        // The Reconstruction exertion table feeds 1.0 per progress tick.
+        GameEvent e(EventType::SanctumRebuiltTick);
+        e.amount = progress() * magnitudeScale();
+        e.tag = name();
+        e.pos = site_;
+        bus_.publish(e);
+    }
+
+    void onComplete() override {
+        // The work crews raise the sanctum back up: a BuildingRebuilt
+        // reads as restored infrastructure to every listener (Reconstruction
+        // exertion 8.0), and the shared labor steadies the cult.
+        GameEvent e(EventType::BuildingRebuilt);
+        e.tag = name();
+        e.amount = 1.0f * magnitudeScale();
+        e.pos = site_;
+        bus_.publish(e);
+
+        GameEvent s(EventType::SanctumRebuilt);
+        s.tag = name();
+        s.amount = 1.0f;
+        s.pos = site_;
+        bus_.publish(s);
+
+        for (size_t i = 0; i < cult_.size(); ++i) {
+            Cultist& c = cult_.at(i);
+            if (c.alive())
+                c.setDevotion(c.devotion() +
+                              REBUILD_DEVOTION_BUMP * magnitudeScale());
+        }
+    }
+
+private:
+    Vec3 site_;
+};
+
+// ---------------------------------------------------------------------------
 // DirectiveExecutor
 // ---------------------------------------------------------------------------
 
@@ -546,6 +655,16 @@ void DirectiveExecutor::onResolved(const GameEvent& e) {
         case DirectiveType::GrandSummoning:
             spawn(std::make_unique<SummoningOperation>(bus_, rng_, cult_,
                                                        e.pos, ctx_, partial));
+            break;
+        // Wave 15.
+        case DirectiveType::OneiricHarvest:
+            spawn(std::make_unique<DreamHarvestOperation>(bus_, rng_, cult_,
+                                                          e.pos, ctx_,
+                                                          partial));
+            break;
+        case DirectiveType::RebuildSanctum:
+            spawn(std::make_unique<RebuildOperation>(bus_, rng_, cult_, e.pos,
+                                                     partial));
             break;
         case DirectiveType::Count:
             break;

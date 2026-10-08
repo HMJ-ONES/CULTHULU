@@ -16,6 +16,8 @@ const char* directiveName(DirectiveType d) {
         case DirectiveType::AssassinateProphet: return "AssassinateProphet";
         case DirectiveType::BlightLand:      return "BlightLand";
         case DirectiveType::GrandSummoning:  return "GrandSummoning";
+        case DirectiveType::OneiricHarvest:  return "OneiricHarvest";
+        case DirectiveType::RebuildSanctum:  return "RebuildSanctum";
         case DirectiveType::Count:           return "Count";
     }
     return "Unknown";
@@ -87,6 +89,12 @@ float CommandSystem::obedienceChance(DirectiveType d, Vec3 target) const {
     if (beliefs_.isActive(Belief::Fear) && d == DirectiveType::BlightLand)
         chance += 0.10f;
     if (beliefs_.isActive(Belief::Magic) && d == DirectiveType::GrandSummoning)
+        chance += 0.10f;
+    // Wave 15: the new directives align with their creeds too.
+    if (beliefs_.isActive(Belief::Dreams) && d == DirectiveType::OneiricHarvest)
+        chance += 0.10f;
+    if (beliefs_.isActive(Belief::Reconstruction) &&
+        d == DirectiveType::RebuildSanctum)
         chance += 0.10f;
 
     if (chance < 0.05f) chance = 0.05f;

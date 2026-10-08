@@ -29,6 +29,9 @@ enum class DirectiveType {
     AssassinateProphet, // kill an enemy leader via infiltration
     BlightLand,         // corrupt a zone over many ticks
     GrandSummoning,     // long ritual: 300 power to summon a champion
+    // Wave 15: two new directives.
+    OneiricHarvest,     // mass dream-rite: channel dream-visions into power
+    RebuildSanctum,     // repair the sanctum: rebuild + cult devotion bump
     Count
 };
 

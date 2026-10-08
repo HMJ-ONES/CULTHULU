@@ -21,6 +21,11 @@ const char* ambientActionName(AmbientAction a) {
         case AmbientAction::TendWounded:    return "TendWounded";
         case AmbientAction::Graffiti:       return "Graffiti";
         case AmbientAction::ChantingCircle: return "ChantingCircle";
+        case AmbientAction::DreamSharing:   return "DreamSharing";
+        case AmbientAction::MendEffigy:     return "MendEffigy";
+        case AmbientAction::WhisperCampaign: return "WhisperCampaign";
+        case AmbientAction::BloodRite:      return "BloodRite";
+        case AmbientAction::WildsHunt:      return "WildsHunt";
         case AmbientAction::Count:          return "Count";
     }
     return "Unknown";
@@ -28,8 +33,9 @@ const char* ambientActionName(AmbientAction a) {
 
 AmbientAction chooseAmbientAction(const Cultist& /*c*/, const BeliefSystem& beliefs,
                                   float morale01, double hourOfDay, RNG& rng) {
-    // Weights indexed by AmbientAction (Pray..ChantingCircle).
-    float w[11] = {
+    // Weights indexed by AmbientAction (Pray..WildsHunt).
+    static constexpr int kActionCount = static_cast<int>(AmbientAction::Count);
+    float w[kActionCount] = {
         15.0f, // Pray
         20.0f, // Patrol
         20.0f, // Gather
@@ -41,7 +47,13 @@ AmbientAction chooseAmbientAction(const Cultist& /*c*/, const BeliefSystem& beli
         4.0f,  // TendWounded
         4.0f,  // Graffiti
         5.0f,  // ChantingCircle
+        6.0f,  // DreamSharing
+        4.0f,  // MendEffigy
+        5.0f,  // WhisperCampaign
+        3.0f,  // BloodRite
+        5.0f,  // WildsHunt
     };
+    static_assert(sizeof(w) / sizeof(w[0]) == 16, "weights must match AmbientAction count");
 
     bool night = (hourOfDay >= 22.0 || hourOfDay < 6.0);
     if (beliefs.isActive(Belief::Sacrifice) || beliefs.isActive(Belief::Magic))
@@ -73,13 +85,34 @@ AmbientAction chooseAmbientAction(const Cultist& /*c*/, const BeliefSystem& beli
         w[10] += 12.0f;
     if (night)
         w[10] += 6.0f;
+    // Wave 15 weights.
+    if (beliefs.isActive(Belief::Dreams))
+        w[11] += 12.0f;
+    if (night)
+        w[11] += 6.0f;
+    if (beliefs.isActive(Belief::Reconstruction))
+        w[12] += 10.0f;
+    if (morale01 < 0.5f)
+        w[12] += 4.0f; // low spirits: mend what is broken
+    if (beliefs.isActive(Belief::Trickery))
+        w[13] += 10.0f;
+    if (beliefs.isActive(Belief::Fear))
+        w[13] += 5.0f;
+    if (beliefs.isActive(Belief::Torture))
+        w[14] += 8.0f;
+    if (beliefs.isActive(Belief::Sacrifice))
+        w[14] += 6.0f;
+    if (beliefs.isActive(Belief::Onslaught))
+        w[15] += 10.0f;
+    if (beliefs.isActive(Belief::War))
+        w[15] += 6.0f;
 
     float total = 0.0f;
     for (float x : w) total += x;
 
     float roll = rng.uniform(0.0f, total);
     float acc = 0.0f;
-    for (int i = 0; i < 11; ++i) {
+    for (int i = 0; i < kActionCount; ++i) {
         acc += w[i];
         if (roll <= acc) return static_cast<AmbientAction>(i);
     }
@@ -287,6 +320,96 @@ void AmbientDirector::applyAction(Cultist& c, AmbientAction a) {
                 lured.tag = kSpecies[rng_.intRange(0, 2)];
                 bus_.publish(lured);
             }
+            break;
+        }
+
+        case AmbientAction::DreamSharing: {
+            // The cultist recounts last night's vision at the campfire.
+            // When Dreams exertion burns hot (>= 50) the vision is vivid
+            // enough to reach a distant sleeper: a civilian converts.
+            const bool hot = exertion_ &&
+                             exertion_->exertion(Belief::Dreams) >= 50.0f;
+            GameEvent e(EventType::DreamShared);
+            e.sourceId = c.id();
+            e.amount = hot ? 2.0f : 1.0f;
+            bus_.publish(e);
+            if (hot && rng_.chance(0.30f)) {
+                GameEvent whisper(EventType::DreamWhisper);
+                whisper.sourceId = c.id();
+                whisper.amount = 1.0f;
+                whisper.tag = "dreamshared";
+                bus_.publish(whisper);
+
+                GameEvent conv(EventType::ConversionPerformed);
+                conv.sourceId = c.id();
+                conv.amount = 1.0f;
+                conv.tag = "dreamshared";
+                bus_.publish(conv);
+            }
+            break;
+        }
+
+        case AmbientAction::MendEffigy: {
+            // Small shrine repairs: unglamorous, steadying work.
+            GameEvent e(EventType::EffigyMended);
+            e.sourceId = c.id();
+            e.amount = 1.0f;
+            bus_.publish(e);
+            c.setDevotion(c.devotion() + 2.0f); // pride in the work
+            break;
+        }
+
+        case AmbientAction::WhisperCampaign: {
+            // The cultist slips into the settlement planting false rumors.
+            // The zone grows more afraid when a world map is attached; the
+            // Trickery belief's craft rises through RumorSpread regardless.
+            if (map_) {
+                if (Zone* z = map_->zoneAtMut(c.position()))
+                    z->addAmbientFear(4.0f);
+            }
+            GameEvent e(EventType::RumorSpread);
+            e.sourceId = c.id();
+            e.amount = 1.0f;
+            e.pos = c.position();
+            bus_.publish(e);
+            // A rumor that lands converts like a sermon.
+            if (rng_.chance(0.20f)) {
+                GameEvent conv(EventType::ConversionPerformed);
+                conv.sourceId = c.id();
+                conv.amount = 1.0f;
+                conv.tag = "rumor";
+                bus_.publish(conv);
+            }
+            break;
+        }
+
+        case AmbientAction::BloodRite: {
+            // Ritual laceration: the flesh is an altar too. Zeal rises;
+            // the rite sometimes draws more blood than intended.
+            GameEvent e(EventType::RiteOfFlesh);
+            e.sourceId = c.id();
+            e.amount = 1.0f;
+            bus_.publish(e);
+            c.setDevotion(c.devotion() + 2.0f);
+            if (rng_.chance(0.10f)) c.takeDamage(6.0f);
+            break;
+        }
+
+        case AmbientAction::WildsHunt: {
+            // A hunting party of one: the meat feeds the cult (supplies),
+            // the quarry sometimes feeds on the hunter.
+            const int meat = rng_.intRange(1, 2);
+            GameEvent hunt(EventType::WildsHunted);
+            hunt.sourceId = c.id();
+            hunt.amount = static_cast<float>(meat);
+            bus_.publish(hunt);
+
+            GameEvent food(EventType::SuppliesGathered);
+            food.sourceId = c.id();
+            food.amount = static_cast<float>(meat);
+            bus_.publish(food);
+
+            if (rng_.chance(0.15f)) c.takeDamage(10.0f);
             break;
         }
 
