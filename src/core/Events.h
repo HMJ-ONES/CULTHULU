@@ -128,6 +128,44 @@ enum class EventType {
     VictimDropped,         // sourceId = caster; targetId = victim; amount = 1 fell to death, 0 survived
     DirectStunApplied,     // sourceId = caster; targetId = victim; amount = stun seconds
 
+    // Wave 9c: new ambient cultist activities.
+    OmenRead,             // sourceId = cultist; amount = power from reading portents
+    SparringHeld,         // sourceId/targetId = the sparring pair; amount = 1
+    SigilPainted,         // sourceId = cultist; amount = 1; pos = sigil location
+    ChantingHeld,         // sourceId = cultist; amount = 1
+    CreatureAttracted,    // sourceId = cultist; tag = species lured by the chant
+
+    // Wave 9c: dungeon hazard triggers.
+    SpikePitSprung,       // sourceId = entity id; targetId = dungeon id; amount = damage
+    CaveIn,               // sourceId = dungeon id; targetId = entity id;
+                          // amount = damage; tag = "sealed" or "rubble"
+
+    // Wave 9b: three new directives.
+    LeaderAssassinated,   // AssassinateProphet success: sourceId = slain
+                          // leader's entity id (0 when unknown);
+                          // faction = enemy faction; amount = 1
+    EnemyMoraleShocked,   // the enemy cult's morale breaks: faction = enemy
+                          // faction; amount = shock duration in seconds.
+                          // Conversions against them are easier while the
+                          // Conversion-exertion it feeds stays high.
+    AssassinExposed,      // AssassinateProphet failed: the infiltrator was
+                          // uncovered. sourceId = assassin's cultist id;
+                          // tag = directive name. The target escapes.
+    ZoneBlightTick,       // BlightLand corruption tick: tag = zone name;
+                          // amount = blight progress 0..1; pos = zone center.
+                          // The city system reads this to scale civilian
+                          // output down while the blight spreads.
+    ZoneBlighted,          // BlightLand completed: tag = zone name; amount =
+                          // 1 when the zone registry flagged it persistent,
+                          // 0 when no zone registry was attached.
+    SummoningInterrupted,  // GrandSummoning failed: tag = directive name or
+                          // the reason ("interrupted", "insufficient_power").
+                          // Spent power is NOT refunded.
+    ChampionSummoned,      // GrandSummoning completed: a champion answers.
+                          // sourceId = 0 (the game layer spawns the entity);
+                          // tag = champion kind; amount = champion max HP;
+                          // pos = summoning site.
+
     Count
 };
 

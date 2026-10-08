@@ -31,6 +31,22 @@ public:
         return nullptr;
     }
 
+    // Wave 9b: flag the named zone Blighted (BlightLand directive
+    // completion). Returns false when no zone has that name.
+    bool blightZone(const std::string& name) {
+        for (auto& z : zones_)
+            if (z.name() == name) { z.setBlighted(); return true; }
+        return false;
+    }
+
+    // Wave 9c: mutable twin of zoneAt() for systems that change zones
+    // (e.g. graffiti raising a zone's fear). Same dangling caveat.
+    Zone* zoneAtMut(Vec3 p) {
+        for (auto& z : zones_)
+            if (z.contains(p)) return &z;
+        return nullptr;
+    }
+
 private:
     std::string name_;
     std::vector<Zone> zones_;

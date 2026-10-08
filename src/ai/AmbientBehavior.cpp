@@ -1,5 +1,8 @@
 #include "ai/AmbientBehavior.h"
 
+#include "exertion/ExertionSystem.h"
+#include "world/WorldMap.h"
+
 #include <algorithm>
 #include <vector>
 
@@ -7,27 +10,37 @@ namespace cultulhu {
 
 const char* ambientActionName(AmbientAction a) {
     switch (a) {
-        case AmbientAction::Pray:      return "Pray";
-        case AmbientAction::Patrol:    return "Patrol";
-        case AmbientAction::Gather:    return "Gather";
-        case AmbientAction::Preach:    return "Preach";
-        case AmbientAction::Brawl:     return "Brawl";
-        case AmbientAction::Desecrate: return "Desecrate";
-        case AmbientAction::Count:     return "Count";
+        case AmbientAction::Pray:           return "Pray";
+        case AmbientAction::Patrol:         return "Patrol";
+        case AmbientAction::Gather:         return "Gather";
+        case AmbientAction::Preach:         return "Preach";
+        case AmbientAction::Brawl:          return "Brawl";
+        case AmbientAction::Desecrate:      return "Desecrate";
+        case AmbientAction::OmenReading:    return "OmenReading";
+        case AmbientAction::Sparring:       return "Sparring";
+        case AmbientAction::TendWounded:    return "TendWounded";
+        case AmbientAction::Graffiti:       return "Graffiti";
+        case AmbientAction::ChantingCircle: return "ChantingCircle";
+        case AmbientAction::Count:          return "Count";
     }
     return "Unknown";
 }
 
 AmbientAction chooseAmbientAction(const Cultist& /*c*/, const BeliefSystem& beliefs,
                                   float morale01, double hourOfDay, RNG& rng) {
-    // Weights indexed by AmbientAction (Pray..Desecrate).
-    float w[6] = {
+    // Weights indexed by AmbientAction (Pray..ChantingCircle).
+    float w[11] = {
         15.0f, // Pray
         20.0f, // Patrol
         20.0f, // Gather
         10.0f, // Preach
         5.0f,  // Brawl
         5.0f,  // Desecrate
+        6.0f,  // OmenReading
+        6.0f,  // Sparring
+        4.0f,  // TendWounded
+        4.0f,  // Graffiti
+        5.0f,  // ChantingCircle
     };
 
     bool night = (hourOfDay >= 22.0 || hourOfDay < 6.0);
@@ -43,13 +56,30 @@ AmbientAction chooseAmbientAction(const Cultist& /*c*/, const BeliefSystem& beli
         w[4] += 10.0f;
     if (beliefs.isActive(Belief::Torture) || beliefs.isActive(Belief::Chaos))
         w[5] += 15.0f;
+    // Wave 9c weights.
+    if (beliefs.isActive(Belief::Dreams))
+        w[6] += 12.0f;
+    if (beliefs.isActive(Belief::War) || beliefs.isActive(Belief::Onslaught))
+        w[7] += 10.0f;
+    if (beliefs.isActive(Belief::Reconstruction))
+        w[8] += 10.0f;
+    if (morale01 < 0.5f)
+        w[8] += 6.0f; // low spirits: the wounded get tended
+    if (beliefs.isActive(Belief::Fear))
+        w[9] += 12.0f;
+    if (beliefs.isActive(Belief::Trickery))
+        w[9] += 8.0f;
+    if (beliefs.isActive(Belief::Magic))
+        w[10] += 12.0f;
+    if (night)
+        w[10] += 6.0f;
 
     float total = 0.0f;
     for (float x : w) total += x;
 
     float roll = rng.uniform(0.0f, total);
     float acc = 0.0f;
-    for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 11; ++i) {
         acc += w[i];
         if (roll <= acc) return static_cast<AmbientAction>(i);
     }
@@ -155,10 +185,136 @@ void AmbientDirector::applyAction(Cultist& c, AmbientAction a) {
             break;
         }
 
+        case AmbientAction::OmenReading: {
+            // Portents read in entrails and starlight: a small power gain.
+            // Dreams synergy: when Dreams exertion burns hot (>= 50) the
+            // visions sharpen and the reading yields a bonus.
+            float amount = 1.0f;
+            if (exertion_ && exertion_->exertion(Belief::Dreams) >= 50.0f)
+                amount = 2.5f;
+            GameEvent e(EventType::OmenRead);
+            e.sourceId = c.id();
+            e.amount = amount;
+            bus_.publish(e);
+            break;
+        }
+
+        case AmbientAction::Sparring: {
+            // Friendly bouts: pick a partner the same way Brawl does.
+            std::vector<size_t> others;
+            for (size_t i = 0; i < cult_.size(); ++i) {
+                Cultist& o = cult_.at(i);
+                if (o.id() != c.id() && eligible(o)) others.push_back(i);
+            }
+            if (others.empty()) break; // nobody to spar with: nothing happens
+
+            Cultist& partner = cult_.at(others[rng_.intRange(
+                0, static_cast<int>(others.size()) - 1)]);
+
+            GameEvent e(EventType::SparringHeld);
+            e.sourceId = c.id();
+            e.targetId = partner.id();
+            e.amount = 1.0f;
+            bus_.publish(e);
+
+            // Tiny loyalty bump for both fighters; small injury risk.
+            c.setDevotion(c.devotion() + 2.0f);
+            partner.setDevotion(partner.devotion() + 2.0f);
+            if (rng_.chance(0.15f)) {
+                Cultist& hurt = rng_.chance(0.5f) ? c : partner;
+                hurt.takeDamage(8.0f);
+            }
+            break;
+        }
+
+        case AmbientAction::TendWounded: {
+            // Patch up the most hurt cultist. Reconstruction synergy: when
+            // Reconstruction exertion burns hot (>= 50) the tending is
+            // markedly stronger.
+            Cultist* patient = nullptr;
+            float worst = 1.0f;
+            for (size_t i = 0; i < cult_.size(); ++i) {
+                Cultist& o = cult_.at(i);
+                if (!o.alive()) continue;
+                float frac = o.hp() / o.maxHp();
+                if (frac < worst) { worst = frac; patient = &o; }
+            }
+            if (!patient || worst >= 1.0f) break; // nobody hurt
+
+            float dose = 18.0f;
+            if (exertion_ &&
+                exertion_->exertion(Belief::Reconstruction) >= 50.0f)
+                dose = 30.0f;
+            float healed = std::min(dose, patient->maxHp() - patient->hp());
+            patient->heal(healed);
+            patient->setDevotion(patient->devotion() + 3.0f);
+
+            GameEvent e(EventType::HealPerformed);
+            e.sourceId = c.id();
+            e.targetId = patient->id();
+            e.amount = healed;
+            bus_.publish(e);
+            break;
+        }
+
+        case AmbientAction::Graffiti: {
+            // Eldritch sigils on the walls. The zone the cultist stands in
+            // grows more afraid (when a world map is attached); the Fear
+            // belief's dread rises through SigilPainted regardless.
+            if (map_) {
+                if (Zone* z = map_->zoneAtMut(c.position()))
+                    z->addAmbientFear(8.0f);
+            }
+            GameEvent e(EventType::SigilPainted);
+            e.sourceId = c.id();
+            e.amount = 1.0f;
+            e.pos = c.position();
+            bus_.publish(e);
+            break;
+        }
+
+        case AmbientAction::ChantingCircle: {
+            GameEvent e(EventType::ChantingHeld);
+            e.sourceId = c.id();
+            e.amount = 1.0f;
+            bus_.publish(e);
+            // Sometimes the chant carries: a wild thing slinks closer.
+            if (rng_.chance(0.10f)) {
+                static const char* kSpecies[] = {"ghoul", "deep one",
+                                                 "night-gaunt"};
+                GameEvent lured(EventType::CreatureAttracted);
+                lured.sourceId = c.id();
+                lured.tag = kSpecies[rng_.intRange(0, 2)];
+                bus_.publish(lured);
+            }
+            break;
+        }
+
         case AmbientAction::Count:
             break;
     }
     ++actions_;
+}
+
+bool AmbientDirector::forceAction(size_t cultistIndex, AmbientAction a) {
+    if (cultistIndex >= cult_.size()) return false;
+    Cultist& c = cult_.at(cultistIndex);
+    if (!eligible(c)) return false;
+    applyAction(c, a);
+    return true;
+}
+
+bool AmbientDirector::forceRandom() {
+    std::vector<size_t> elig;
+    for (size_t i = 0; i < cult_.size(); ++i)
+        if (eligible(cult_.at(i))) elig.push_back(i);
+    if (elig.empty()) return false;
+    Cultist& c = cult_.at(
+        elig[static_cast<size_t>(
+            rng_.intRange(0, static_cast<int>(elig.size()) - 1))]);
+    applyAction(c, chooseAmbientAction(c, beliefs_, c.devotion() / 100.0f,
+                                       hourOfDay_, rng_));
+    return true;
 }
 
 } // namespace cultulhu
