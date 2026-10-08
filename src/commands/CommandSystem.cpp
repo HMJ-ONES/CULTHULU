@@ -13,6 +13,9 @@ const char* directiveName(DirectiveType d) {
         case DirectiveType::MassSacrifice:   return "MassSacrifice";
         case DirectiveType::Defend:          return "Defend";
         case DirectiveType::GatherRelic:     return "GatherRelic";
+        case DirectiveType::AssassinateProphet: return "AssassinateProphet";
+        case DirectiveType::BlightLand:      return "BlightLand";
+        case DirectiveType::GrandSummoning:  return "GrandSummoning";
         case DirectiveType::Count:           return "Count";
     }
     return "Unknown";
@@ -78,6 +81,13 @@ float CommandSystem::obedienceChance(DirectiveType d, Vec3 target) const {
         chance += 0.15f;
     if (beliefs_.isActive(Belief::Sacrifice) && d == DirectiveType::MassSacrifice)
         chance += 0.10f;
+    // Wave 9b: the new directives align with their creeds too.
+    if (beliefs_.isActive(Belief::Trickery) && d == DirectiveType::AssassinateProphet)
+        chance += 0.10f;
+    if (beliefs_.isActive(Belief::Fear) && d == DirectiveType::BlightLand)
+        chance += 0.10f;
+    if (beliefs_.isActive(Belief::Magic) && d == DirectiveType::GrandSummoning)
+        chance += 0.10f;
 
     if (chance < 0.05f) chance = 0.05f;
     if (chance > 0.95f) chance = 0.95f;
@@ -85,7 +95,8 @@ float CommandSystem::obedienceChance(DirectiveType d, Vec3 target) const {
 }
 
 void CommandSystem::publishIssuedResolved(DirectiveType d, CommandOutcome o,
-                                          float chance) {
+                                          float chance,
+                                          FactionId targetFaction) {
     GameEvent issued(EventType::DirectiveIssued);
     issued.tag = directiveName(d);
     issued.amount = chance;
@@ -96,13 +107,16 @@ void CommandSystem::publishIssuedResolved(DirectiveType d, CommandOutcome o,
     // pipeline can attribute obedience/failure to the right belief.
     resolved.tag = std::string(directiveName(d)) + "/" + commandOutcomeName(o);
     resolved.amount = chance;
+    // Wave 9b: carry the enemy faction so follow-through operations know
+    // who the directive is aimed at (FACTION_NEUTRAL = unspecified).
+    resolved.faction = targetFaction;
     bus_.publish(resolved);
 }
 
 CommandResult CommandSystem::issueCommand(DirectiveType d, Vec3 target,
-                                          FactionId /*targetFaction*/) {
+                                          FactionId targetFaction) {
     if (commandableCount() == 0) {
-        publishIssuedResolved(d, CommandOutcome::Refused, 0.0f);
+        publishIssuedResolved(d, CommandOutcome::Refused, 0.0f, targetFaction);
         // Nobody to obey, and nobody to revolt: no risk added.
         return {CommandOutcome::Refused, 0.0f, "no cultists to command"};
     }
@@ -121,7 +135,7 @@ CommandResult CommandSystem::issueCommand(DirectiveType d, Vec3 target,
     else
         outcome = CommandOutcome::Refused;
 
-    publishIssuedResolved(d, outcome, chance);
+    publishIssuedResolved(d, outcome, chance, targetFaction);
 
     switch (outcome) {
         case CommandOutcome::Obeyed:
@@ -133,8 +147,10 @@ CommandResult CommandSystem::issueCommand(DirectiveType d, Vec3 target,
                 raid.pos = target;
                 bus_.publish(raid);
             }
-            // GoToWar, MassSacrifice, Defend, GatherRelic: no automatic
-            // effect; the game layer interprets the outcome.
+            // GoToWar, MassSacrifice, Defend, GatherRelic, and the wave 9b
+            // directives (AssassinateProphet, BlightLand, GrandSummoning):
+            // no automatic effect; the DirectiveExecutor's follow-through
+            // operations interpret the outcome.
             break;
 
         case CommandOutcome::PartiallyObeyed:

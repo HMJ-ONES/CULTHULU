@@ -52,6 +52,10 @@ bool decodeSnapshot(const Message& m, uint32_t& tickOut,
     if (m.type != MsgType::HostSnapshot) return false;
     tickOut = static_cast<uint32_t>(fieldInt(m, "tick", 0));
     int n = fieldInt(m, "n", 0);
+    // Wave 9d: 'n' is remote-controlled. Cap it: without a bound a
+    // malicious/buggy host could force billions of loop iterations here
+    // (CPU hang). Legitimate snapshots carry a handful of entities.
+    if (n < 0 || n > 4096) return false;
     entsOut.clear();
     for (int i = 0; i < n; ++i) {
         std::string s = fieldStr(m, "e" + std::to_string(i));

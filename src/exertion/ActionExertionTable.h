@@ -69,6 +69,26 @@ inline constexpr ExertionFeed ACTION_EXERTION_TABLE[] = {
     {EventType::PrayerOffered,       Belief::Dreams,    1.0f},
     {EventType::Nightmare,          Belief::Dreams,    3.0f},
     {EventType::Nightmare,          Belief::Chaos,     2.0f},
+    // Wave 9c: new ambient activities.
+    {EventType::OmenRead,           Belief::Dreams,    3.0f},
+    {EventType::SparringHeld,       Belief::War,       2.0f},
+    {EventType::SparringHeld,       Belief::Onslaught, 1.0f},
+    {EventType::SigilPainted,       Belief::Fear,      2.0f},
+    {EventType::ChantingHeld,       Belief::Magic,     3.0f},
+    // Wave 9c: dungeon hazards.
+    {EventType::SpikePitSprung,     Belief::Fear,      2.0f},
+    {EventType::CaveIn,             Belief::Chaos,     4.0f},
+    // (Dungeon traps reuse TrapSprung -> Trickery 6.0f, already above.)
+    // Wave 9b: new directives.
+    {EventType::LeaderAssassinated, Belief::Fear,     15.0f},
+    {EventType::LeaderAssassinated, Belief::War,       6.0f},
+    {EventType::EnemyMoraleShocked, Belief::Conversion, 5.0f},
+    {EventType::AssassinExposed,    Belief::Fear,       3.0f},
+    {EventType::ZoneBlightTick,     Belief::Fear,       1.0f},
+    {EventType::ZoneBlighted,       Belief::Fear,      10.0f},
+    {EventType::SummoningInterrupted, Belief::Magic,   -5.0f},
+    {EventType::ChampionSummoned,   Belief::Magic,     10.0f},
+    {EventType::ChampionSummoned,   Belief::Fear,       5.0f},
 };
 
 inline constexpr std::size_t ACTION_EXERTION_TABLE_SIZE =
@@ -91,6 +111,10 @@ inline constexpr DirectiveFeed DIRECTIVE_EXERTION_TABLE[] = {
     {DirectiveType::GoToWar,        Belief::War,            8.0f, 4.0f},
     {DirectiveType::Defend,         Belief::Reconstruction, 6.0f, 3.0f},
     {DirectiveType::GatherRelic,    Belief::Magic,          6.0f, 3.0f},
+    // Wave 9b: new directives.
+    {DirectiveType::AssassinateProphet, Belief::Trickery,   8.0f, 4.0f},
+    {DirectiveType::BlightLand,    Belief::Fear,            8.0f, 4.0f},
+    {DirectiveType::GrandSummoning, Belief::Magic,         10.0f, 5.0f},
 };
 
 inline constexpr std::size_t DIRECTIVE_EXERTION_TABLE_SIZE =
