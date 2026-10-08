@@ -58,6 +58,7 @@ void WaveOfDomination::onPress(RmbContext& ctx) {
 }
 
 void WaveOfDomination::onRelease(RmbContext& ctx) {
+    pruneStaleVictims(ctx);
     if (phase_ == Phase::Hold) {
         dropVictims(ctx);
     } else if (phase_ == Phase::Wave) {
@@ -82,7 +83,33 @@ void WaveOfDomination::onMouseMove(RmbContext& ctx, float dx, float dy) {
 }
 
 void WaveOfDomination::onLeftClick(RmbContext& ctx) {
+    pruneStaleVictims(ctx);
     if (phase_ == Phase::Hold && !victims_.empty()) launchVictims(ctx);
+}
+
+void WaveOfDomination::cancel() {
+    victims_.clear();
+    phase_ = Phase::Idle;
+    waveDist_ = 0.0f;
+    swingOffset_ = Vec3{};
+    swingTarget_ = Vec3{};
+}
+
+void WaveOfDomination::pruneStaleVictims(const RmbContext& ctx) {
+    for (size_t i = victims_.size(); i-- > 0;) {
+        Entity* e = victims_[i].entity;
+        bool live = false;
+        for (Entity* c : ctx.entities) {
+            if (c != nullptr && c == e) {
+                live = true;
+                break;
+            }
+        }
+        if (!live) victims_.erase(victims_.begin() + i);
+    }
+    if (victims_.empty() &&
+        (phase_ == Phase::Hold || phase_ == Phase::Flying))
+        phase_ = Phase::Idle;
 }
 
 void WaveOfDomination::update(RmbContext& ctx, double dt) {
@@ -90,6 +117,8 @@ void WaveOfDomination::update(RmbContext& ctx, double dt) {
         cooldown_ -= static_cast<float>(dt);
         if (cooldown_ < 0.0f) cooldown_ = 0.0f;
     }
+    // Never touch a victim the world no longer owns (see prune above).
+    pruneStaleVictims(ctx);
     switch (phase_) {
         case Phase::Wave: {
             waveDist_ += kWaveSpeed * static_cast<float>(dt);
