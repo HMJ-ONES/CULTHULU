@@ -353,8 +353,208 @@ void bindProceduralFallbacks(AnimationStateMachine& sm) {
         sm.bindClip(AnimationState::Attack, makeAttackSwing());
     if (!sm.hasClip(AnimationState::Death))
         sm.bindClip(AnimationState::Death, makeDeath());
-    // Cast, Stunned, Channel: left unbound on purpose; the state machine's
-    // runtime procedural fallback covers them until FBX clips are imported.
+    if (!sm.hasClip(AnimationState::Cast))
+        sm.bindClip(AnimationState::Cast, makeCast());
+    if (!sm.hasClip(AnimationState::Stunned))
+        sm.bindClip(AnimationState::Stunned, makeStunned());
+    if (!sm.hasClip(AnimationState::Channel))
+        sm.bindClip(AnimationState::Channel, makeChannel());
+    if (!sm.hasClip(AnimationState::CastWave))
+        sm.bindClip(AnimationState::CastWave, makeCastWave());
+    // Levitate/Launch/Levitated: left unbound on purpose; the Wave of
+    // Domination runtime drives those victim-side states directly.
+}
+
+AnimationClip makeCast() {
+    // Spell cast: gather (0-0.3s), thrust both arms forward to release
+    // (0.3-0.6s), recover (0.6-1.0s). One-shot.
+    AnimationClip c = baseClip("Cast", 1.0, false);
+
+    const std::vector<double> times = {0.0, 0.3, 0.6, 1.0};
+    const std::vector<float> armPitch = {10.0f, -30.0f, 85.0f, 10.0f};
+    const std::vector<float> elbow = {-15.0f, -70.0f, -8.0f, -15.0f};
+    const std::vector<float> spinePitch = {0.0f, -6.0f, 12.0f, 2.0f};
+    const std::vector<float> hipsY = {1.0f, 0.96f, 0.94f, 1.0f};
+    const std::vector<float> headPitch = {0.0f, -8.0f, 12.0f, 0.0f};
+
+    auto keyed = [&](const std::vector<float>& v) {
+        std::vector<Keyframe> keys;
+        for (size_t i = 0; i < times.size(); ++i)
+            keys.push_back(kfRot(times[i], v[i], 0.0f, 0.0f));
+        return keys;
+    };
+
+    addTrack(c, "upperArmL", keyed(armPitch));
+    addTrack(c, "upperArmR", keyed(armPitch));
+    addTrack(c, "lowerArmL", keyed(elbow));
+    addTrack(c, "lowerArmR", keyed(elbow));
+    addTrack(c, "spine", keyed(spinePitch));
+    addTrack(c, "head", keyed(headPitch));
+
+    std::vector<Keyframe> hipsKeys;
+    for (size_t i = 0; i < times.size(); ++i)
+        hipsKeys.push_back(kf(times[i], 0.0f, hipsY[i], 0.0f,
+                              0.0f, 0.0f, 0.0f));
+    addTrack(c, "hips", std::move(hipsKeys));
+
+    // Feet planted through the cast.
+    for (const char* bone : {"upperLegL", "upperLegR", "lowerLegL",
+                             "lowerLegR"}) {
+        addTrack(c, bone,
+                 {kfRot(0.0, 0.0f, 0.0f, 0.0f), kfRot(1.0, 0.0f, 0.0f, 0.0f)});
+    }
+    return c;
+}
+
+AnimationClip makeStunned() {
+    // Hit by crowd control: snap the head back, arms flail outward,
+    // knees buckle. One-shot.
+    AnimationClip c = baseClip("Stunned", 0.9, false);
+
+    const std::vector<double> times = {0.0, 0.25, 0.55, 0.9};
+    const std::vector<float> headPitch = {0.0f, -25.0f, -10.0f, 5.0f};
+    const std::vector<float> headYaw = {0.0f, 12.0f, -12.0f, 0.0f};
+    const std::vector<float> armOut = {7.0f, 45.0f, 30.0f, 10.0f};
+    const std::vector<float> spinePitch = {0.0f, -14.0f, -6.0f, 3.0f};
+    const std::vector<float> hipsY = {1.0f, 0.9f, 0.86f, 0.97f};
+    const std::vector<float> kneeBuckle = {-6.0f, -28.0f, -20.0f, -8.0f};
+
+    auto keyed = [&](const std::vector<float>& v, int channel) {
+        std::vector<Keyframe> keys;
+        for (size_t i = 0; i < times.size(); ++i) {
+            float rx = 0.0f, ry = 0.0f, rz = 0.0f;
+            if (channel == 0) rx = v[i];
+            else if (channel == 1) ry = v[i];
+            else rz = v[i];
+            keys.push_back(kfRot(times[i], rx, ry, rz));
+        }
+        return keys;
+    };
+
+    addTrack(c, "head", [&] {
+        std::vector<Keyframe> headKeys;
+        for (size_t i = 0; i < times.size(); ++i)
+            headKeys.push_back(
+                kfRot(times[i], headPitch[i], headYaw[i], 0.0f));
+        return headKeys;
+    }());
+    addTrack(c, "upperArmL", keyed(armOut, 2));
+    addTrack(c, "upperArmR", keyed(armOut, 2));
+    addTrack(c, "lowerArmL", keyed(kneeBuckle, 0));
+    addTrack(c, "lowerArmR", keyed(kneeBuckle, 0));
+    addTrack(c, "spine", keyed(spinePitch, 0));
+
+    std::vector<Keyframe> hipsKeys;
+    for (size_t i = 0; i < times.size(); ++i)
+        hipsKeys.push_back(kf(times[i], 0.0f, hipsY[i], 0.0f,
+                              0.0f, 0.0f, 0.0f));
+    addTrack(c, "hips", std::move(hipsKeys));
+    addTrack(c, "upperLegL", keyed(kneeBuckle, 0));
+    addTrack(c, "upperLegR", keyed(kneeBuckle, 0));
+    addTrack(c, "lowerLegL", keyed(kneeBuckle, 0));
+    addTrack(c, "lowerLegR", keyed(kneeBuckle, 0));
+    return c;
+}
+
+AnimationClip makeChannel() {
+    // Sustained cast: arms raised overhead, held with a faint tremble.
+    // Loops until the channel ends.
+    AnimationClip c = baseClip("Channel", 2.0, true);
+    const double T = 2.0;
+    const int N = 16;
+    const auto phase = [&](double t) { return 2.0 * kPi * t / T; };
+    const auto tremble = [&](double t, float base) {
+        return base + static_cast<float>(3.0 * std::sin(phase(t) * 4.0));
+    };
+
+    addTrack(c, "upperArmL", loopKeys(T, N, [&](double t) {
+                 return kfRot(t, tremble(t, -165.0f), 0.0f, 12.0f);
+             }));
+    addTrack(c, "upperArmR", loopKeys(T, N, [&](double t) {
+                 return kfRot(t, tremble(t + 0.13, -165.0f), 0.0f, -12.0f);
+             }));
+    addTrack(c, "lowerArmL", loopKeys(T, N, [&](double t) {
+                 return kfRot(t, tremble(t, -12.0f), 0.0f, 0.0f);
+             }));
+    addTrack(c, "lowerArmR", loopKeys(T, N, [&](double t) {
+                 return kfRot(t, tremble(t + 0.13, -12.0f), 0.0f, 0.0f);
+             }));
+    addTrack(c, "spine", loopKeys(T, N, [&](double t) {
+                 return kfRot(t, tremble(t, -8.0f), 0.0f, 0.0f);
+             }));
+    addTrack(c, "head", loopKeys(T, N, [&](double t) {
+                 return kfRot(t, tremble(t, -18.0f), 0.0f, 0.0f);
+             }));
+    addTrack(c, "hips", loopKeys(T, N, [&](double t) {
+                 return kf(t, 0.0f, 0.97f, 0.0f, 0.0f, 0.0f, 0.0f);
+             }));
+    for (const char* bone : {"upperLegL", "upperLegR", "lowerLegL",
+                             "lowerLegR"}) {
+        addTrack(c, bone,
+                 {kfRot(0.0, 0.0f, 0.0f, 0.0f), kfRot(T, 0.0f, 0.0f, 0.0f)});
+    }
+    return c;
+}
+
+AnimationClip makeCastWave() {
+    // RMB-kit gesture (Wave of Domination): wide horizontal sweep, both
+    // arms, hips driving the turn. One-shot.
+    AnimationClip c = baseClip("CastWave", 1.2, false);
+
+    const std::vector<double> times = {0.0, 0.4, 0.8, 1.2};
+    const std::vector<float> armSweep = {0.0f, -60.0f, 60.0f, 0.0f};
+    const std::vector<float> armPitch = {20.0f, 45.0f, 45.0f, 20.0f};
+    const std::vector<float> hipsTwist = {0.0f, -25.0f, 25.0f, 0.0f};
+    const std::vector<float> spinePitch = {0.0f, 6.0f, 6.0f, 0.0f};
+
+    auto keyed = [&](const std::vector<float>& v, int channel) {
+        std::vector<Keyframe> keys;
+        for (size_t i = 0; i < times.size(); ++i) {
+            float rx = 0.0f, ry = 0.0f, rz = 0.0f;
+            if (channel == 0) rx = v[i];
+            else if (channel == 1) ry = v[i];
+            else rz = v[i];
+            keys.push_back(kfRot(times[i], rx, ry, rz));
+        }
+        return keys;
+    };
+
+    // Wide sweep: pitch raises the arms, yaw swings them; mirrored.
+    addTrack(c, "upperArmL", [&] {
+        std::vector<Keyframe> keys;
+        for (size_t i = 0; i < times.size(); ++i)
+            keys.push_back(
+                kfRot(times[i], armPitch[i], armSweep[i], 0.0f));
+        return keys;
+    }());
+    addTrack(c, "upperArmR", [&] {
+        std::vector<Keyframe> keys;
+        for (size_t i = 0; i < times.size(); ++i)
+            keys.push_back(
+                kfRot(times[i], armPitch[i], -armSweep[i], 0.0f));
+        return keys;
+    }());
+    addTrack(c, "lowerArmL",
+             {kfRot(0.0, -10.0f, 0.0f, 0.0f), kfRot(1.2, -10.0f, 0.0f, 0.0f)});
+    addTrack(c, "lowerArmR",
+             {kfRot(0.0, -10.0f, 0.0f, 0.0f), kfRot(1.2, -10.0f, 0.0f, 0.0f)});
+    addTrack(c, "spine", keyed(spinePitch, 0));
+
+    std::vector<Keyframe> hipsKeys;
+    for (size_t i = 0; i < times.size(); ++i)
+        hipsKeys.push_back(kf(times[i], 0.0f, 1.0f, 0.0f, 0.0f,
+                              hipsTwist[i], 0.0f));
+    addTrack(c, "hips", std::move(hipsKeys));
+    addTrack(c, "head", keyed(hipsTwist, 1));
+    for (const char* bone : {"upperLegL", "upperLegR"}) {
+        addTrack(c, bone,
+                 {kfRot(0.0, -5.0f, 0.0f, 6.0f), kfRot(1.2, -5.0f, 0.0f, 6.0f)});
+    }
+    for (const char* bone : {"lowerLegL", "lowerLegR"}) {
+        addTrack(c, bone,
+                 {kfRot(0.0, -8.0f, 0.0f, 0.0f), kfRot(1.2, -8.0f, 0.0f, 0.0f)});
+    }
+    return c;
 }
 
 } // namespace cultulhu

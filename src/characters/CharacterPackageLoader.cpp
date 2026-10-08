@@ -116,11 +116,7 @@ CharacterPackage CharacterPackageLoader::loadOne(
             pkg.rigAutoMapped = true;
         }
     }
-    for (const auto& w : mapWarnings) {
-        // Surface rig.map problems through the def error channel only
-        // when the def itself is fine; validator reports the rest.
-        (void)w;
-    }
+    for (const auto& w : mapWarnings) pkg.rigMapWarnings.push_back(w);
     return pkg;
 }
 

@@ -19,6 +19,9 @@ std::string RigMapper::normalize(const std::string& name) {
                              static_cast<unsigned char>(ch))));
     const std::string prefix = "mixamorig:";
     if (s.rfind(prefix, 0) == 0) s = s.substr(prefix.size());
+    // Rigify deform bones ("DEF-thigh.L") and Blender "DEF_" prefixes:
+    // strip the deform marker so they match the base bone names.
+    if (s.rfind("def", 0) == 0) s = s.substr(3);
     std::string out;
     out.reserve(s.size());
     for (char ch : s) {
@@ -30,31 +33,46 @@ std::string RigMapper::normalize(const std::string& name) {
 const std::vector<std::string>& RigMapper::aliasesFor(
     const std::string& engineBone) {
     // Normalized alias lists (compare against normalize(candidate)).
+    // Covers Mixamo ("LeftForeArm"), Blender default ("Forearm.L"),
+    // Rigify ("forearm.L", "DEF-forearm.L" via the def-strip), and plain
+    // DCC names ("forearm_l", "l_forearm", "Clavicle_L").
     static const std::unordered_map<std::string, std::vector<std::string>>
         table = {
-            {"hips", {"pelvis", "hip", "root"}},
-            {"spine", {"chest", "spine1", "spine2", "torso", "upperchest"}},
-            {"head", {"neckhead"}},
+            {"hips",
+             {"pelvis", "hip", "root", "hipbone", "crotch", "pelvisl",
+              "pelvisr"}},
+            {"spine",
+             {"chest", "spine1", "spine2", "torso", "upperchest", "belly",
+              "waist", "spine01", "spine02"}},
+            {"head", {"neckhead", "neck", "headneck"}},
             {"upperarml",
-             {"leftarm", "armleft", "shoulderl", "upperarml"}},
+             {"leftarm", "armleft", "shoulderl", "upperarml", "lupperarm",
+              "collarl", "claviclel"}},
             {"upperarmr",
-             {"rightarm", "armright", "shoulderr", "upperarmr"}},
+             {"rightarm", "armright", "shoulderr", "upperarmr", "rupperarm",
+              "collarr", "clavicler"}},
             {"lowerarml",
-             {"leftforearm", "forearmleft", "forearml", "elbowl"}},
+             {"leftforearm", "forearmleft", "forearml", "elbowl",
+              "lforearm"}},
             {"lowerarmr",
-             {"rightforearm", "forearmright", "forearmr", "elbowr"}},
+             {"rightforearm", "forearmright", "forearmr", "elbowr",
+              "rforearm"}},
             {"upperlegl",
-             {"leftupleg", "uplegleft", "thighl", "hiplegl", "legl"}},
+             {"leftupleg", "uplegleft", "thighl", "hiplegl", "legl",
+              "lthigh", "lupperleg"}},
             {"upperlegr",
-             {"rightupleg", "uplegright", "thighr", "hiplegr", "legr"}},
+             {"rightupleg", "uplegright", "thighr", "hiplegr", "legr",
+              "rthigh", "rupperleg"}},
             {"lowerlegl",
-             {"leftleg", "legleft", "shinl", "calfl", "kneel"}},
+             {"leftleg", "legleft", "shinl", "calfl", "kneel", "lshin"}},
             {"lowerlegr",
-             {"rightleg", "legright", "shinr", "calfr", "kneer"}},
+             {"rightleg", "legright", "shinr", "calfr", "kneer", "rshin"}},
         };
-    // NOTE: Rigify uses dotted names ("upper_arm.L"); normalize() strips
-    // the dot, so "upperarml" covers "upper_arm.L", and "thighl" covers
-    // "thigh.L". Mixamo's "mixamorig:LeftArm" normalizes to "leftarm".
+    // NOTE: normalize() lowercases, strips "mixamorig:"/"DEF" prefixes and
+    // drops non-alphanumerics, so "upper_arm.L" -> "upperarml",
+    // "DEF-thigh.L" -> "thighl", "Clavicle_L" -> "claviclel" and
+    // "mixamorig:LeftForeArm" -> "leftforearm". Aliases above are stored
+    // in normalized form.
     static const std::vector<std::string> empty;
     auto it = table.find(engineBone);
     return it == table.end() ? empty : it->second;
@@ -170,6 +188,28 @@ int RigMapping::mappedCount() const {
         if (b.mapped) ++n;
     }
     return n;
+}
+
+std::vector<std::string> RigMapping::diagnosticLines() const {
+    std::vector<std::string> out;
+    for (const auto& b : bones) {
+        std::ostringstream ss;
+        ss << b.engineBone;
+        // Pad the engine-bone column for readability.
+        for (size_t i = b.engineBone.size(); i < 11; ++i) ss << ' ';
+        if (!b.mapped) {
+            ss << "<- (unmapped)";
+        } else {
+            ss << "<- '" << b.fbxBone << "' (";
+            ss << (b.confidence >= 1.0f ? "exact"
+                   : b.confidence >= 0.9f ? "alias"
+                                          : "low-confidence");
+            ss << ", " << static_cast<int>(b.confidence * 100 + 0.5f)
+               << "%)";
+        }
+        out.push_back(ss.str());
+    }
+    return out;
 }
 
 } // namespace cultulhu

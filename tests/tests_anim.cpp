@@ -294,12 +294,17 @@ static void testFallbackBinding() {
     CHECK(sm.hasClip(AnimationState::Run));
     CHECK(sm.hasClip(AnimationState::Attack));
     CHECK(sm.hasClip(AnimationState::Death));
-    CHECK(!sm.hasClip(AnimationState::Cast)); // deliberately left unbound
+    // Second shift: Cast/Stunned/Channel/CastWave now get procedural
+    // clips too (they used to rely on the runtime fallback).
+    CHECK(sm.hasClip(AnimationState::Cast));
+    CHECK(sm.hasClip(AnimationState::Stunned));
+    CHECK(sm.hasClip(AnimationState::Channel));
+    CHECK(sm.hasClip(AnimationState::CastWave));
     CHECK(!sm.proceduralFallback());         // Idle now bound
 
     sm.requestState(AnimationState::Cast, 0.0);
-    CHECK(sm.proceduralFallback()); // runtime fallback still covers Cast
-    CHECK(sm.currentPose().empty());
+    CHECK(!sm.proceduralFallback()); // Cast plays its bound clip now
+    CHECK(!sm.currentPose().empty());
 
     // Existing bindings are never overwritten.
     AnimationClip custom = twoKeyClip("Custom", 1.0, true, 10.0f);

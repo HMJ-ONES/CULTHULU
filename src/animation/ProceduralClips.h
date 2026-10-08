@@ -17,6 +17,14 @@ AnimationClip makeRun();          // ~0.6s loop: bigger swing, forward lean
 AnimationClip makeIdle();         // ~2.0s loop: breathing, slight sway
 AnimationClip makeAttackSwing();  // ~0.8s one-shot: overhead swing
 AnimationClip makeDeath();        // ~1.2s one-shot: crumple to the ground
+AnimationClip makeCast();          // ~1.0s one-shot: arms thrust forward,
+                                  // channel the spell, recover
+AnimationClip makeStunned();       // ~0.9s one-shot: reel back, arms flail,
+                                  // head shake
+AnimationClip makeChannel();       // ~2.0s loop: arms raised overhead,
+                                  // held with a tremble (sustained casts)
+AnimationClip makeCastWave();      // ~1.2s one-shot: wide sweeping gesture
+                                  // for RMB kits (Wave of Domination)
 
 // Bone names every generator (and the FBX hook) agrees on.
 const std::vector<std::string>& humanoidBones();
@@ -24,9 +32,10 @@ const std::vector<std::string>& humanoidBones();
 class AnimationStateMachine; // forward decl; defined in AnimationStateMachine.h
 
 // Bind generated clips for every state that has no clip bound yet. Idle,
-// Walk, Run, Attack and Death get procedural clips; Cast, Stunned and Channel
-// intentionally stay unbound so the state machine's runtime procedural
-// fallback covers them until real FBX/Mixamo clips are imported.
+// Walk, Run, Attack, Death, Cast, Stunned, Channel and CastWave get
+// procedural clips; custom .canim clips bound earlier always win.
+// Levitate/Launch/Levitated stay unbound: they are victim-side states
+// driven at runtime by the Wave of Domination logic.
 void bindProceduralFallbacks(AnimationStateMachine& sm);
 
 } // namespace cultulhu

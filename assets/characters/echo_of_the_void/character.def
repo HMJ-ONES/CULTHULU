@@ -1,0 +1,40 @@
+# Echo of the Void — minimal logic-only character package.
+#
+# This is the smallest playable character: a character.def and nothing
+# else. No model.fbx/.glb (logic-only), no rig.map (nothing to map),
+# no animations/ (every clip falls back to procedural). It exists to
+# prove the fallback chain end-to-end and as a copy-paste starting
+# point: duplicate this folder, rename it, edit the values, and you
+# have a new playable character.
+#
+# Validate it in the driver with:  character validate echo_of_the_void
+# Expected grade: OK WITH WARNINGS (every warning names its fallback).
+
+id = echo_of_the_void
+display_name = Echo of the Void
+flavor = A hollow where a god used to be.
+max_hp = 150
+move_speed = 5.5
+max_stamina = 90
+melee_combo = echo_flurry
+
+[q]
+id = hollow_grasp
+name = Hollow Grasp
+flavor = Emptiness reaches out and takes hold.
+cooldown = 6
+stamina_cost = 15
+mana_cost = 0
+effect = aoe_damage
+power = 40
+range = 5
+
+[rightclick]
+kind = MeleeHeavy
+name = Void Slam
+damage_mult = 1.5
+range = 3
+
+[passive]
+id = hollow_presence
+desc = Hollow Presence: nearby candles snuff out. (Behavior hook; engine binds it.)

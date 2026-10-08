@@ -472,6 +472,7 @@ struct BetaGame {
             "  combo                               melee combo chain demo\n"
             "  chars | addchar <folder> | validate <id>\n"
             "                                          character packages\n"
+            "  character <list|validate> [id]      deep package report\n"
             "  kda                                 demo KDA tracking\n"
             "  interact                            E-interact demo\n"
             "  jump | sprint <on|off>              input state demos\n"
@@ -1475,6 +1476,51 @@ static bool processLine(BetaGame& g, NetSession& nets,
             }
             std::cout << "package '" << found->folderName << "':\n"
                       << CharacterValidator::validate(*found).summary();
+            return true;
+        }
+
+        // Second shift: `character` command group. `character validate`
+        // runs the deep validator (schema, model probe, rig diagnostics,
+        // clip coverage); `character list` shows the registry.
+        if (cmd == "character") {
+            std::string sub; in >> sub;
+            if (sub == "list") {
+                std::cout << g.charReg.count()
+                          << " characters registered:\n";
+                for (const auto& id : g.charReg.list()) {
+                    const CharacterDef* d = g.charReg.get(id);
+                    std::cout << "  '" << id << "' — " << d->displayName
+                              << "\n";
+                }
+                return true;
+            }
+            if (sub == "validate") {
+                std::string id; in >> id;
+                if (id.empty()) {
+                    std::cout << "usage: character validate "
+                                 "<character-id>\n";
+                    return true;
+                }
+                const CharacterPackage* found = nullptr;
+                for (const auto& p : g.charLoader.packages())
+                    if (p.def.id == id || p.folderName == id) {
+                        found = &p;
+                        break;
+                    }
+                if (!found) {
+                    std::cout << "no package '" << id << "'\n"
+                              << "hint: drop a folder in "
+                                 "assets/characters/<name>/ with a "
+                                 "character.def, then 'addchar <folder>'\n";
+                    return true;
+                }
+                std::cout << "deep validation of '" << found->folderName
+                          << "' (" << found->folderPath << "):\n"
+                          << CharacterValidator::validateDeep(*found)
+                                 .summary();
+                return true;
+            }
+            std::cout << "usage: character <list|validate> [character-id]\n";
             return true;
         }
 

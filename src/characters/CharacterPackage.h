@@ -36,6 +36,10 @@ struct CharacterPackage {
     bool hasBonesList = false;
     std::vector<std::string> clipFiles; // .canim paths found
 
+    // Warnings produced while parsing rig.map (unknown engine bones,
+    // malformed lines). Surfaced by the deep validator.
+    std::vector<std::string> rigMapWarnings;
+
     RigMapping rigMapping;   // explicit (rig.map) or auto-mapped
     bool rigAutoMapped = false;
 };

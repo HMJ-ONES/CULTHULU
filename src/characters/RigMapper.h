@@ -34,6 +34,12 @@ struct RigMapping {
     // Engine bone names with no source match.
     std::vector<std::string> unmapped() const;
     int mappedCount() const;
+
+    // Per-bone diagnostic lines, e.g.
+    //   "upperArmL <- 'mixamorig:LeftArm' (alias, 90%)"
+    //   "head      <- (unmapped)"
+    // Used by the deep character validator; never a silent failure.
+    std::vector<std::string> diagnosticLines() const;
 };
 
 class RigMapper {
