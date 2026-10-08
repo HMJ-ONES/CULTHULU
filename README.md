@@ -883,3 +883,98 @@ load). Regression tests in `cultulhu_tests_fuzz`.
   `assets/animations/` is the drop point.)
 - **Content**: per-entity tuning, full 5v5 matchmaking flow, more ambient
   variety and directive types. (Driver save/load done.)
+
+## Performance: keeping it light (owner constraint)
+
+The host's PC simulates the world for every player, so the game is
+budgeted for modest machines from day one. Current discipline:
+
+- **Asset budget**: every model < 5k triangles, total art < 30 MB, no
+  texture above 512 px (most packs are vertex-colored, no textures at all).
+- **Map budget**: `assets/maps/ruined_city.map` holds ~60–120 placed
+  props — streets, ruins, and the cultist base stay readable without
+  drowning the host.
+- **Sim budget**: the core is plain C++17 with no engine overhead in the
+  hot loop; snapshots broadcast at 20 Hz, client inputs at 30 Hz.
+
+### Optimization levers available later (not yet needed)
+
+If profiling ever shows the host struggling, these are the planned,
+in-order levers — cheapest wins first:
+
+1. **Instanced rendering** — repeated props (tombstones, wall segments,
+   braziers, trees) become UE5 Instanced Static Meshes: one draw call per
+   prop type instead of one per prop. (See
+   `unreal/Docs/ArtImportAndPerf.md`.)
+2. **LODs** — auto-generated LOD chains on buildings/props (UE5 can
+   generate these on FBX import); Nanite is an option for hero pieces only,
+   never for instanced small props.
+3. **Occlusion culling** — UE5's built-in culling + precomputed visibility
+   volumes for the dungeon interiors so unseen rooms cost nothing.
+4. **Texture streaming** — already tiny (≤512 px), but UE5 texture
+   streaming keeps only visible mips resident if we ever add larger art.
+5. **Spatial partitioning for entity queries** — the sim's radius/nearest
+   queries (wave catch checks, AI perception, slam collision) move from
+   linear scans to a uniform grid / quadtree when entity counts grow.
+6. **Dynamic AI tick scaling** — ambient cultist AI already runs on
+   staggered intervals; under load, distant/off-screen cultists tick less
+   often (0.5 Hz) while near-camera ones stay at full rate.
+7. **Snapshot delta compression** — netcode currently sends full 20 Hz
+   snapshots; deltas + quantized positions halve host upload bandwidth.
+8. **Dungeon interior streaming** — dungeon/cave interiors load only while
+   a player is inside (or near an entrance); surface props stream by zone.
+
+None of these change game design — they are pure engineering levers to
+pull if and when the profiler says so.
+
+## Art: the ruined city (wave 11)
+
+The game now ships with real art — a dark Lovecraftian ruined city and
+cultist base built from free models, kept deliberately light for the
+player-hosted model.
+
+### Sources & licenses (all CC0 1.0, verified on the source sites)
+
+| Pack | URL | Used for |
+|---|---|---|
+| Kenney Graveyard Kit | https://kenney.nl/assets/graveyard-kit | tombstones, crypts, dead trees, fences, debris |
+| Kenney Castle Kit | https://kenney.nl/assets/castle-kit | ruined walls, towers, gate, ground |
+| Kenney Mini Dungeon | https://kenney.nl/assets/mini-dungeon | dirt, floors |
+
+Full per-file table in `assets/world/MANIFEST.md`, license statements in
+`assets/world/LICENSES.md`. Quaternius was evaluated and **rejected** —
+its license changed to a proprietary one in 2026, failing the CC0-only
+rule. One consistent low-poly style (Kenney) keeps the look coherent.
+
+### Budget (hard, enforced by tests)
+
+- 38 models downloaded, **0.72 MB total** (cap 30 MB)
+- Max single model **626 triangles** (cap 5,000); 7,414 tris total
+- 3 shared palette textures, exactly **512×512 px** (cap 512)
+- Map uses 11 models across **90 placements** in 4 zones
+  (`assets/maps/ruined_city.map`): `cult_base` (altar plaza, braziers,
+  banners, shelters), `graveyard`, `old_city` (ruined streets, collapsed
+  towers), `outskirts`
+
+### Art direction
+
+Desaturated greys and moss greens for stone, ember-orange braziers as the
+only warm light source, violet-black fog. Documented in the header of
+`assets/maps/ruined_city.map`.
+
+### Swapping / extending the map
+
+1. Drop new CC0 `.glb` files into `assets/world/<category>/` (keep the
+   budgets — `tests_wave11` enforces them).
+2. Add a row to `assets/world/MANIFEST.md`.
+3. Add `place <path> <x> <y> <z> <rotY> <scale> <zone>` lines to
+   `assets/maps/ruined_city.map` (format documented in its header).
+4. Run `mapinfo` in the driver — it lists placements and fails loudly on
+   missing files. `ctest` re-validates everything.
+
+### UE5 import
+
+See `unreal/Docs/ArtImportAndPerf.md`: Content Browser folder layout,
+import settings, and the key rule — repeated props become **Instanced
+Static Meshes** (one draw call per prop type), LOD chains on import,
+shared darkening material for the grade.

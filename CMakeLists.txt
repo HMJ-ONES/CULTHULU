@@ -68,6 +68,9 @@ target_link_libraries(cultulhu_tests_content_wave9 PRIVATE cultulhu)
 add_executable(cultulhu_tests_fuzz tests/tests_fuzz.cpp)
 target_link_libraries(cultulhu_tests_fuzz PRIVATE cultulhu)
 
+add_executable(cultulhu_tests_wave11 tests/tests_wave11.cpp)
+target_link_libraries(cultulhu_tests_wave11 PRIVATE cultulhu)
+
 # Headless balance simulator (see src/sim/ and sim_reports/analysis.md).
 add_executable(cultulhu_sim src/sim/main.cpp)
 target_compile_definitions(cultulhu_sim PRIVATE CULTULHU_SIM_MAIN)
@@ -95,4 +98,5 @@ add_test(NAME cultulhu_tests_sim COMMAND cultulhu_tests_sim)
 add_test(NAME cultulhu_tests_directives_wave9 COMMAND cultulhu_tests_directives_wave9)
 add_test(NAME cultulhu_tests_content_wave9 COMMAND cultulhu_tests_content_wave9)
 add_test(NAME cultulhu_tests_fuzz COMMAND cultulhu_tests_fuzz)
+add_test(NAME cultulhu_tests_wave11 COMMAND cultulhu_tests_wave11)
 add_test(NAME cultulhu_fuzz_smoke COMMAND cultulhu_fuzz all 2000 42)

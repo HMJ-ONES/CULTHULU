@@ -1,0 +1,148 @@
+# ============================================================================
+# CULT-ULHU map file: ruined_city
+#
+# FORMAT (wave 11 art pass). Line-based, UTF-8, '#' starts a comment.
+#   map  <name>
+#       Declares the map name. Must appear once, before any zone/place.
+#   zone <name> <minx> <miny> <minz> <maxx> <maxy> <maxz> <ambientFear>
+#       Rectangular region feeding world/ZoneDef (see src/world/Zone.h).
+#       ambientFear is background fear 0..100. Zones may overlap; the engine
+#       resolves zoneAt() in file order, so list specific zones first.
+#   place <model> <x> <y> <z> <rotYdeg> <scale> <zone>
+#       One prop instance. <model> is a repo-relative path to a .glb under
+#       assets/world/<category>/<name>.glb (categories: terrain, buildings,
+#       props, cult). <zone> must name a zone declared above.
+# Blank lines and '#' comments are ignored. Anything else is a parse error
+# (see src/world/MapLoader.h) reported with a line number.
+#
+# ART DIRECTION - ruined old city reclaimed by a newborn cult.
+#   Palette: desaturated greys and cold stone blues for ruins; moss greens
+#     creeping over rubble; ember oranges reserved for braziers and the
+#     altar plaza (the only warm light in the scene); bone whites for the
+#     skull piles and banners. Deep violet-black fog; night is the default.
+#   Mood: a dead city that the cult is re-inhabiting. The old city reads
+#     as abandonment (collapsed towers, colonnade fallen mid-row, rubble
+#     choking the cross-streets); the cult base reads as occupation (tents
+#     ringed around the altar plaza, banners on the approach road, braziers
+#     lit, cages with occupants). The graveyard is older than the city.
+#   Budget: this is the host-simulated build - keep every model < 5000
+#     triangles, total map assets < 30 MB, ~100 placements.
+#
+# MODELS (reconciled 2026-10-07 with assets/world/MANIFEST.md): all paths
+# below point at real CC0 (Kenney: Graveyard/Castle/Mini-Dungeon kits)
+# downloads. Two provisional models had no equivalent in the packs and
+# their placements were dropped: skull piles (4, cult base) and cages (5).
+# Textures: each GLB references ../textures/colormap-<pack>.png.
+# ============================================================================
+
+map ruined_city
+
+# zone: cult_base (ambient fear 62)
+zone cult_base -60 0 235 60 0 365 62
+
+# zone: graveyard (ambient fear 55)
+zone graveyard -360 0 -80 -200 0 120 55
+
+# zone: old_city (ambient fear 45)
+zone old_city -220 0 -220 220 0 220 45
+
+# zone: outskirts (ambient fear 28)
+zone outskirts -500 0 -500 500 0 500 28
+
+# -- cult base: the altar plaza --
+place assets/world/cult/altar-stone.glb 0 0 300 0 1.5 cult_base
+place assets/world/cult/wood-structure.glb -30 0 278 15 1.0 cult_base
+place assets/world/cult/wood-structure.glb 30 0 278 55 1.0 cult_base
+place assets/world/cult/wood-structure.glb -36 0 312 95 1.0 cult_base
+place assets/world/cult/wood-structure.glb 36 0 312 135 1.0 cult_base
+place assets/world/cult/wood-structure.glb -20 0 338 175 1.0 cult_base
+place assets/world/cult/wood-structure.glb 20 0 338 215 1.0 cult_base
+place assets/world/cult/fire-basket.glb -12 0 288 0 1.0 cult_base
+place assets/world/cult/fire-basket.glb 12 0 288 90 1.0 cult_base
+place assets/world/cult/fire-basket.glb -12 0 312 180 1.0 cult_base
+place assets/world/cult/fire-basket.glb 12 0 312 270 1.0 cult_base
+place assets/world/cult/banner.glb -8 0 252 0 1.0 cult_base
+place assets/world/cult/banner.glb 8 0 252 180 1.0 cult_base
+place assets/world/cult/banner.glb -14 0 272 0 1.0 cult_base
+place assets/world/cult/banner.glb 14 0 272 180 1.0 cult_base
+place assets/world/cult/banner.glb -10 0 326 0 1.0 cult_base
+place assets/world/cult/banner.glb 10 0 326 180 1.0 cult_base
+place assets/world/buildings/stone-wall-damaged.glb -46 0 268 90 1.0 cult_base
+place assets/world/buildings/stone-wall-damaged.glb 46 0 268 90 1.0 cult_base
+place assets/world/buildings/stone-wall-damaged.glb -46 0 332 0 1.0 cult_base
+place assets/world/buildings/stone-wall-damaged.glb 46 0 332 0 1.0 cult_base
+
+# -- old city: ruined streets --
+place assets/world/buildings/stone-wall-damaged.glb -60 0 -180 0 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb 60 0 -180 0 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb -60 0 180 0 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb 60 0 180 0 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb -180 0 -60 90 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb -180 0 60 90 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb 180 0 -60 90 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb 180 0 60 90 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb -120 0 -120 30 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb 120 0 -120 -30 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb -120 0 120 -30 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb 120 0 120 30 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb 0 0 -140 0 1.0 old_city
+place assets/world/buildings/stone-wall-damaged.glb 0 0 140 0 1.0 old_city
+place assets/world/buildings/tower-square-base.glb -150 0 -150 10 1.2 old_city
+place assets/world/buildings/tower-square-base.glb 150 0 -150 35 1.2 old_city
+place assets/world/buildings/tower-square-base.glb -150 0 150 60 1.2 old_city
+place assets/world/buildings/tower-square-base.glb 150 0 150 85 1.2 old_city
+place assets/world/props/debris.glb -100 0 -40 0 0.8 old_city
+place assets/world/props/debris.glb 100 0 -40 20 0.9 old_city
+place assets/world/props/debris.glb -100 0 40 40 1.0 old_city
+place assets/world/props/debris.glb 100 0 40 60 0.8 old_city
+place assets/world/props/debris.glb -40 0 -100 80 0.9 old_city
+place assets/world/props/debris.glb 40 0 -100 100 1.0 old_city
+place assets/world/props/debris.glb -40 0 100 120 0.8 old_city
+place assets/world/props/debris.glb 40 0 100 140 0.9 old_city
+place assets/world/props/debris.glb 0 0 -20 160 1.0 old_city
+place assets/world/props/debris.glb 0 0 20 180 0.8 old_city
+place assets/world/props/debris.glb -20 0 0 200 0.9 old_city
+place assets/world/props/debris.glb 20 0 0 220 1.0 old_city
+place assets/world/buildings/stone-wall-column.glb -136 0 0 90 1.0 old_city
+place assets/world/buildings/stone-wall-column.glb -102 0 0 95 1.0 old_city
+place assets/world/buildings/stone-wall-column.glb -68 0 0 100 1.0 old_city
+place assets/world/buildings/stone-wall-column.glb -34 0 0 105 1.0 old_city
+place assets/world/buildings/stone-wall-column.glb 34 0 0 110 1.0 old_city
+place assets/world/buildings/stone-wall-column.glb 68 0 0 115 1.0 old_city
+place assets/world/buildings/stone-wall-column.glb 102 0 0 120 1.0 old_city
+place assets/world/buildings/stone-wall-column.glb 136 0 0 125 1.0 old_city
+place assets/world/buildings/wall-doorway.glb 0 0 -60 0 1.1 old_city
+place assets/world/buildings/wall-doorway.glb 0 0 60 0 1.1 old_city
+place assets/world/buildings/wall-doorway.glb -60 0 0 90 1.1 old_city
+place assets/world/cult/fire-basket.glb -60 0 -60 0 1.0 old_city
+place assets/world/cult/fire-basket.glb 60 0 -60 45 1.0 old_city
+place assets/world/cult/fire-basket.glb -60 0 60 90 1.0 old_city
+place assets/world/cult/fire-basket.glb 60 0 60 135 1.0 old_city
+
+# -- graveyard --
+place assets/world/props/gravestone-cross.glb -320 0 -40 5 1.0 graveyard
+place assets/world/props/gravestone-cross.glb -300 0 -40 -8 0.9 graveyard
+place assets/world/props/gravestone-cross.glb -280 0 -40 -5 0.9500000000000001 graveyard
+place assets/world/props/gravestone-cross.glb -260 0 -40 -2 0.9 graveyard
+place assets/world/props/gravestone-cross.glb -240 0 -40 1 0.9500000000000001 graveyard
+place assets/world/props/gravestone-cross.glb -320 0 60 4 0.9 graveyard
+place assets/world/props/gravestone-cross.glb -300 0 60 7 0.9500000000000001 graveyard
+place assets/world/props/gravestone-cross.glb -280 0 60 10 0.9 graveyard
+place assets/world/props/gravestone-cross.glb -260 0 60 13 0.9500000000000001 graveyard
+place assets/world/props/gravestone-cross.glb -240 0 60 16 0.9 graveyard
+place assets/world/props/pine-crooked.glb -340 0 -60 0 1.1 graveyard
+place assets/world/props/pine-crooked.glb -220 0 -60 30 1.1 graveyard
+place assets/world/props/pine-crooked.glb -340 0 80 60 1.1 graveyard
+place assets/world/props/pine-crooked.glb -220 0 80 90 1.1 graveyard
+
+# -- outskirts --
+place assets/world/props/pine-crooked.glb 300 0 -300 12 1.2 outskirts
+place assets/world/props/pine-crooked.glb -300 0 300 0 0.9 outskirts
+place assets/world/props/pine-crooked.glb 350 0 200 40 0.9 outskirts
+place assets/world/props/pine-crooked.glb -350 0 -200 80 0.9 outskirts
+place assets/world/props/gravestone-cross.glb 280 0 260 0 1.0 outskirts
+place assets/world/props/gravestone-cross.glb 300 0 280 15 1.0 outskirts
+place assets/world/props/gravestone-cross.glb -280 0 -280 30 1.0 outskirts
+place assets/world/props/debris.glb 250 0 -200 0 1.0 outskirts
+place assets/world/props/debris.glb -250 0 200 60 1.0 outskirts
+place assets/world/props/debris.glb 100 0 400 120 1.0 outskirts
