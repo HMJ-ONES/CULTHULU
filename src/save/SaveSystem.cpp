@@ -39,34 +39,42 @@ bool SaveSystem::load(const std::string& path, GameState& out) {
 
     GameState s;
     std::string line;
-    while (std::getline(f, line)) {
-        if (line.rfind("clock=", 0) == 0) {
-            s.clockTime = std::stod(line.substr(6));
-        } else if (line.rfind("power=", 0) == 0) {
-            s.power = std::stof(line.substr(6));
-        } else if (line.rfind("beliefs=", 0) == 0) {
-            std::string rest = line.substr(8);
-            std::stringstream ss(rest);
-            std::string tok;
-            while (std::getline(ss, tok, ',')) {
-                if (tok.empty()) continue;
-                int b = std::stoi(tok);
-                if (b >= 0 && b < static_cast<int>(Belief::Count))
-                    s.activeBeliefs.push_back(static_cast<Belief>(b));
+    // Wave 9d: a corrupt/hand-edited save must fail gracefully (return
+    // false), never throw. std::stod/stof/stoi throw invalid_argument or
+    // out_of_range on malformed fields, which would otherwise terminate
+    // the driver via an uncaught exception.
+    try {
+        while (std::getline(f, line)) {
+            if (line.rfind("clock=", 0) == 0) {
+                s.clockTime = std::stod(line.substr(6));
+            } else if (line.rfind("power=", 0) == 0) {
+                s.power = std::stof(line.substr(6));
+            } else if (line.rfind("beliefs=", 0) == 0) {
+                std::string rest = line.substr(8);
+                std::stringstream ss(rest);
+                std::string tok;
+                while (std::getline(ss, tok, ',')) {
+                    if (tok.empty()) continue;
+                    int b = std::stoi(tok);
+                    if (b >= 0 && b < static_cast<int>(Belief::Count))
+                        s.activeBeliefs.push_back(static_cast<Belief>(b));
+                }
+            } else if (line.rfind("risk=", 0) == 0) {
+                s.insurrectionRisk = std::stof(line.substr(5));
+            } else if (line.rfind("entity=", 0) == 0) {
+                std::stringstream ss(line.substr(7));
+                GameState::EntityRec e;
+                if (ss >> e.id >> e.type >> e.faction >> e.pos.x >> e.pos.y
+                       >> e.pos.z >> e.hp >> e.maxHp) {
+                    s.entities.push_back(e);
+                } else {
+                    return false; // malformed entity line
+                }
             }
-        } else if (line.rfind("risk=", 0) == 0) {
-            s.insurrectionRisk = std::stof(line.substr(5));
-        } else if (line.rfind("entity=", 0) == 0) {
-            std::stringstream ss(line.substr(7));
-            GameState::EntityRec e;
-            if (ss >> e.id >> e.type >> e.faction >> e.pos.x >> e.pos.y
-                   >> e.pos.z >> e.hp >> e.maxHp) {
-                s.entities.push_back(e);
-            } else {
-                return false; // malformed entity line
-            }
+            // Unknown lines are ignored for forward compatibility.
         }
-        // Unknown lines are ignored for forward compatibility.
+    } catch (...) {
+        return false; // corrupt save file: fail the load, don't crash
     }
     out = s;
     return true;

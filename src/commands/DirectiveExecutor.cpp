@@ -1,12 +1,43 @@
 #include "commands/DirectiveExecutor.h"
 
+#include "beliefs/Belief.h"
 #include "commands/CommandSystem.h"
 #include "cult/CultManager.h"
+#include "entities/Units.h"
+#include "exertion/ExertionSystem.h"
+#include "power/PowerSystem.h"
+#include "world/WorldMap.h"
+#include "world/Zone.h"
 
 #include <algorithm>
 #include <cstdio>
+#include <string>
 
 namespace cultulhu {
+
+// Wave 9b tuning (all creative-liberty numbers).
+namespace {
+// AssassinateProphet: infiltration approach.
+constexpr double ASSASSIN_DURATION = 60.0;   // seconds of approach
+constexpr double ASSASSIN_TICK = 5.0;        // one strike attempt per tick
+constexpr float ASSASSIN_BASE_CHANCE = 0.08f;
+constexpr float ASSASSIN_TRICKERY_WEIGHT = 0.30f; // * Trickery exertion 0..1
+constexpr float ASSASSIN_DIST_PENALTY_CAP = 0.15f; // full penalty at 2000m+
+constexpr float ASSASSIN_EXPOSE_CHANCE = 0.10f;   // per failed strike tick
+constexpr float ASSASSIN_RISK_NUDGE = 4.0f;  // insurrection risk on exposure
+constexpr float MORALE_SHOCK_SECONDS = 120.0f;   // enemy morale shock window
+// BlightLand: zone corruption.
+constexpr double BLIGHT_TICKS = 120.0;       // corruption ticks (full)
+constexpr double BLIGHT_TICK_INTERVAL = 1.0; // seconds of game time per tick
+constexpr float BLIGHT_TRICKLE_PER_CULTIST = 0.1f; // power/s per cultist in zone
+constexpr float BLIGHT_FALLBACK_RADIUS = 60.0f;    // when no zone bounds known
+// GrandSummoning: the long ritual.
+constexpr double SUMMON_DURATION = 90.0;     // seconds of game time
+constexpr double SUMMON_TICK = 5.0;
+constexpr float SUMMON_COST = 300.0f;        // power consumed at start
+constexpr float SUMMON_INTERRUPT_CHANCE = 0.02f;  // per tick (no refund)
+constexpr float CHAMPION_MAX_HP = 1200.0f;   // dread champion (boosted Monstrosity)
+} // namespace
 
 // ---------------------------------------------------------------------------
 // DirectiveOperation base
@@ -205,6 +236,234 @@ protected:
 };
 
 // ---------------------------------------------------------------------------
+// Wave 9b: new directive operations.
+// ---------------------------------------------------------------------------
+
+class AssassinateOperation : public DirectiveOperation {
+public:
+    AssassinateOperation(EventBus& bus, RNG& rng, CultManager& cult,
+                         Vec3 target, int enemyFaction,
+                         const DirectiveContext& ctx, bool partial)
+        : DirectiveOperation(bus, rng, cult,
+                             directiveName(DirectiveType::AssassinateProphet),
+                             partial ? ASSASSIN_DURATION * 0.5
+                                     : ASSASSIN_DURATION,
+                             ASSASSIN_TICK, partial),
+          target_(target), enemyFaction_(enemyFaction), ctx_(ctx) {
+        // The infiltrator: the most devoted loyal cultist still standing.
+        float best = -1.0f;
+        for (size_t i = 0; i < cult_.size(); ++i) {
+            const Cultist& c = cult_.at(i);
+            if (!c.alive() || c.state() != CultistState::Loyal) continue;
+            if (c.devotion() > best) {
+                best = c.devotion();
+                assassinId_ = c.id();
+            }
+        }
+    }
+
+protected:
+    void onTick() override {
+        // Per-tick strike chance: Trickery exertion opens the way, distance
+        // closes it. Partial obedience halves the crew's competence.
+        float trickery = 0.0f;
+        if (ctx_.exertion)
+            trickery = ctx_.exertion->exertion(Belief::Trickery) / 100.0f;
+        Vec3 centroid;
+        size_t n = 0;
+        for (size_t i = 0; i < cult_.size(); ++i) {
+            const Cultist& c = cult_.at(i);
+            if (!c.alive()) continue;
+            centroid = centroid + c.position();
+            ++n;
+        }
+        float distPenalty = 0.0f;
+        if (n > 0) {
+            const float d =
+                centroid.distance(target_); // Vec3::distance is 3D
+            distPenalty = std::min(ASSASSIN_DIST_PENALTY_CAP, d / 2000.0f);
+        }
+        float p = (ASSASSIN_BASE_CHANCE + ASSASSIN_TRICKERY_WEIGHT * trickery -
+                   distPenalty) *
+                  magnitudeScale();
+        if (p < 0.02f) p = 0.02f;
+        if (p > 0.60f) p = 0.60f;
+
+        if (rng_.chance(p)) {
+            // The blade finds its mark: the leader dies, their cult's
+            // morale breaks (conversions against them ease while the
+            // Conversion-exertion this feeds stays high).
+            GameEvent kill(EventType::LeaderAssassinated);
+            kill.sourceId = ctx_.targetEntityId;
+            kill.faction = enemyFaction_;
+            kill.amount = 1.0f;
+            kill.pos = target_;
+            bus_.publish(kill);
+            GameEvent shock(EventType::EnemyMoraleShocked);
+            shock.faction = enemyFaction_;
+            shock.amount = MORALE_SHOCK_SECONDS;
+            bus_.publish(shock);
+            finishEarly();
+            return;
+        }
+        if (rng_.chance(ASSASSIN_EXPOSE_CHANCE)) {
+            // Exposed: the target escapes, the cult fears retaliation, and
+            // the enemy deity notices (CombatStarted reads as a War event).
+            GameEvent exposed(EventType::AssassinExposed);
+            exposed.sourceId = assassinId_;
+            exposed.tag = name();
+            bus_.publish(exposed);
+            GameEvent risk(EventType::InsurrectionRiskUp);
+            risk.amount = ASSASSIN_RISK_NUDGE;
+            risk.tag = "assassin_exposed";
+            bus_.publish(risk);
+            GameEvent war(EventType::CombatStarted);
+            war.faction = enemyFaction_;
+            war.tag = "deity_noticed";
+            war.pos = target_;
+            bus_.publish(war);
+            finishEarly();
+        }
+    }
+
+    void onComplete() override {
+        // The infiltration never found an opening and dissolves quietly.
+    }
+
+private:
+    Vec3 target_;
+    int enemyFaction_;
+    DirectiveContext ctx_;
+    uint64_t assassinId_ = 0;
+};
+
+class BlightOperation : public DirectiveOperation {
+public:
+    BlightOperation(EventBus& bus, RNG& rng, CultManager& cult, Vec3 target,
+                    const DirectiveContext& ctx, bool partial)
+        : DirectiveOperation(bus, rng, cult,
+                             directiveName(DirectiveType::BlightLand),
+                             (partial ? BLIGHT_TICKS * 0.5 : BLIGHT_TICKS) *
+                                 BLIGHT_TICK_INTERVAL,
+                             BLIGHT_TICK_INTERVAL, partial),
+          ctx_(ctx), center_(target) {
+        // Resolve the zone at the target: name + bounds for the corruption.
+        if (ctx_.worldMap) {
+            if (const Zone* z = ctx_.worldMap->zoneAt(target)) {
+                zoneName_ = z->name();
+                zmin_ = z->min();
+                zmax_ = z->max();
+                hasBounds_ = true;
+                center_ = z->center();
+            }
+        }
+    }
+
+protected:
+    void onTick() override {
+        // The city system reads ZoneBlightTick to scale civilian output
+        // down while the blight spreads; Fear exertion feeds off every tick.
+        GameEvent t(EventType::ZoneBlightTick);
+        t.tag = zoneName_;
+        t.amount = progress();
+        t.pos = center_;
+        bus_.publish(t);
+        // Cultists standing in the blight draw a small power trickle.
+        if (ctx_.power) {
+            int inZone = 0;
+            for (size_t i = 0; i < cult_.size(); ++i) {
+                const Cultist& c = cult_.at(i);
+                if (!c.alive()) continue;
+                if (inBlight(c.position())) ++inZone;
+            }
+            if (inZone > 0)
+                ctx_.power->add(BLIGHT_TRICKLE_PER_CULTIST *
+                                static_cast<float>(inZone) *
+                                magnitudeScale());
+        }
+    }
+
+    void onComplete() override {
+        // Persistent state: the zone is Blighted from now on.
+        bool flagged = false;
+        if (ctx_.worldMap) flagged = ctx_.worldMap->blightZone(zoneName_);
+        GameEvent e(EventType::ZoneBlighted);
+        e.tag = zoneName_;
+        e.amount = flagged ? 1.0f : 0.0f;
+        e.pos = center_;
+        bus_.publish(e);
+    }
+
+private:
+    bool inBlight(Vec3 p) const {
+        if (hasBounds_) {
+            return p.x >= zmin_.x && p.x <= zmax_.x &&
+                   p.y >= zmin_.y && p.y <= zmax_.y &&
+                   p.z >= zmin_.z && p.z <= zmax_.z;
+        }
+        const float dx = p.x - center_.x, dz = p.z - center_.z;
+        return dx * dx + dz * dz <=
+               BLIGHT_FALLBACK_RADIUS * BLIGHT_FALLBACK_RADIUS;
+    }
+
+    DirectiveContext ctx_;
+    std::string zoneName_ = "the wilds";
+    Vec3 center_;
+    Vec3 zmin_;
+    Vec3 zmax_;
+    bool hasBounds_ = false;
+};
+
+class SummoningOperation : public DirectiveOperation {
+public:
+    SummoningOperation(EventBus& bus, RNG& rng, CultManager& cult, Vec3 site,
+                       const DirectiveContext& ctx, bool partial)
+        : DirectiveOperation(bus, rng, cult,
+                             directiveName(DirectiveType::GrandSummoning),
+                             partial ? SUMMON_DURATION * 0.5 : SUMMON_DURATION,
+                             SUMMON_TICK, partial),
+          site_(site) {
+        // The price is paid up front: 300 power, or the rite cannot begin.
+        if (!ctx.power || ctx.power->value() < SUMMON_COST) {
+            GameEvent e(EventType::SummoningInterrupted);
+            e.tag = "insufficient_power";
+            e.pos = site_;
+            bus_.publish(e);
+            finishEarly();
+            return;
+        }
+        ctx.power->add(-SUMMON_COST);
+    }
+
+protected:
+    void onTick() override {
+        // Long rituals draw attention: each tick risks disruption (like
+        // SacrificeOperation). Spent power is NOT refunded.
+        if (rng_.chance(SUMMON_INTERRUPT_CHANCE)) {
+            GameEvent e(EventType::SummoningInterrupted);
+            e.tag = name();
+            e.pos = site_;
+            bus_.publish(e);
+            finishEarly();
+        }
+    }
+
+    void onComplete() override {
+        // Something vast answers. The game layer spawns the entity from
+        // this event: a boosted Monstrosity (the dread champion).
+        GameEvent e(EventType::ChampionSummoned);
+        e.sourceId = 0; // the game layer spawns the entity
+        e.tag = "dread_champion";
+        e.amount = partial() ? CHAMPION_MAX_HP * 0.5f : CHAMPION_MAX_HP;
+        e.pos = site_;
+        bus_.publish(e);
+    }
+
+private:
+    Vec3 site_;
+};
+
+// ---------------------------------------------------------------------------
 // DirectiveExecutor
 // ---------------------------------------------------------------------------
 
@@ -273,6 +532,20 @@ void DirectiveExecutor::onResolved(const GameEvent& e) {
         case DirectiveType::GatherRelic:
             spawn(std::make_unique<RelicOperation>(bus_, rng_, cult_,
                                                    partial));
+            break;
+        // Wave 9b.
+        case DirectiveType::AssassinateProphet:
+            spawn(std::make_unique<AssassinateOperation>(bus_, rng_, cult_,
+                                                         e.pos, enemyFaction,
+                                                         ctx_, partial));
+            break;
+        case DirectiveType::BlightLand:
+            spawn(std::make_unique<BlightOperation>(bus_, rng_, cult_, e.pos,
+                                                    ctx_, partial));
+            break;
+        case DirectiveType::GrandSummoning:
+            spawn(std::make_unique<SummoningOperation>(bus_, rng_, cult_,
+                                                       e.pos, ctx_, partial));
             break;
         case DirectiveType::Count:
             break;

@@ -56,6 +56,27 @@ target_link_libraries(cultulhu_tests_wave7d PRIVATE cultulhu)
 add_executable(cultulhu_tests_wave7e tests/tests_wave7e.cpp)
 target_link_libraries(cultulhu_tests_wave7e PRIVATE cultulhu)
 
+add_executable(cultulhu_tests_sim tests/tests_sim.cpp)
+target_link_libraries(cultulhu_tests_sim PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_directives_wave9 tests/tests_directives_wave9.cpp)
+target_link_libraries(cultulhu_tests_directives_wave9 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_content_wave9 tests/tests_content_wave9.cpp)
+target_link_libraries(cultulhu_tests_content_wave9 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_fuzz tests/tests_fuzz.cpp)
+target_link_libraries(cultulhu_tests_fuzz PRIVATE cultulhu)
+
+# Headless balance simulator (see src/sim/ and sim_reports/analysis.md).
+add_executable(cultulhu_sim src/sim/main.cpp)
+target_compile_definitions(cultulhu_sim PRIVATE CULTULHU_SIM_MAIN)
+target_link_libraries(cultulhu_sim PRIVATE cultulhu)
+
+# Fuzz harness binary: cultulhu_fuzz [all|target1|2|3] [iterations] [seed].
+add_executable(cultulhu_fuzz src/fuzz/fuzz_main.cpp)
+target_link_libraries(cultulhu_fuzz PRIVATE cultulhu)
+
 enable_testing()
 add_test(NAME cultulhu_tests COMMAND cultulhu_tests)
 add_test(NAME cultulhu_tests_wave2 COMMAND cultulhu_tests_wave2)
@@ -70,3 +91,8 @@ add_test(NAME cultulhu_tests_wave7b COMMAND cultulhu_tests_wave7b)
 add_test(NAME cultulhu_tests_wave7c COMMAND cultulhu_tests_wave7c)
 add_test(NAME cultulhu_tests_wave7d COMMAND cultulhu_tests_wave7d)
 add_test(NAME cultulhu_tests_wave7e COMMAND cultulhu_tests_wave7e)
+add_test(NAME cultulhu_tests_sim COMMAND cultulhu_tests_sim)
+add_test(NAME cultulhu_tests_directives_wave9 COMMAND cultulhu_tests_directives_wave9)
+add_test(NAME cultulhu_tests_content_wave9 COMMAND cultulhu_tests_content_wave9)
+add_test(NAME cultulhu_tests_fuzz COMMAND cultulhu_tests_fuzz)
+add_test(NAME cultulhu_fuzz_smoke COMMAND cultulhu_fuzz all 2000 42)

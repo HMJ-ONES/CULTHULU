@@ -4,6 +4,17 @@
 
 namespace cultulhu {
 
+const char* hazardTypeName(HazardType t) {
+    switch (t) {
+        case HazardType::None:    return "None";
+        case HazardType::SpikePit: return "SpikePit";
+        case HazardType::CaveIn:  return "CaveIn";
+        case HazardType::Trapped: return "Trapped";
+        case HazardType::Count:   return "Count";
+    }
+    return "Unknown";
+}
+
 DungeonInstance::DungeonInstance(EventBus& bus, uint64_t id, uint64_t seed,
                                  Vec3 entrancePos, int width, int height,
                                  float cellSize, DeferGenerate)
@@ -74,6 +85,8 @@ void DungeonInstance::doGenerate() {
     for (size_t i = 1; i < rooms_.size(); ++i)
         relicSpots_.push_back(
             cellToWorld(rooms_[i].centerX(), rooms_[i].centerY()));
+
+    placeHazards();
 }
 
 void CaveInstance::doGenerate() {
@@ -118,6 +131,110 @@ void CaveInstance::doGenerate() {
     for (size_t i = 1; i < rooms_.size(); ++i)
         relicSpots_.push_back(
             cellToWorld(rooms_[i].centerX(), rooms_[i].centerY()));
+
+    placeHazards();
+}
+
+void DungeonInstance::placeHazards() {
+    // Seeded rolls: 18% spike pit, 12% hidden trap, 10% cave-in per room.
+    // The entrance room (index 0) is always safe. Same seed -> same
+    // hazards, because every roll comes from the seeded rng_.
+    hazards_.clear();
+    for (size_t i = 1; i < rooms_.size(); ++i) {
+        float roll = rng_.uniform(0.0f, 1.0f);
+        DungeonHazard h;
+        h.roomIndex = static_cast<int>(i);
+        if (roll < 0.18f) {
+            h.type = HazardType::SpikePit;
+        } else if (roll < 0.30f) {
+            h.type = HazardType::Trapped;
+        } else if (roll < 0.40f) {
+            h.type = HazardType::CaveIn;
+            h.triggerChance = CAVE_IN_TRIGGER_CHANCE;
+        } else {
+            continue;
+        }
+        hazards_.push_back(std::move(h));
+    }
+}
+
+bool DungeonInstance::roomSealed(int roomIndex) const {
+    for (const auto& h : hazards_)
+        if (h.roomIndex == roomIndex && h.sealed) return true;
+    return false;
+}
+
+int DungeonInstance::entityRoom(uint64_t entityId) const {
+    auto it = entityRoom_.find(entityId);
+    return it == entityRoom_.end() ? -1 : it->second;
+}
+
+bool DungeonInstance::traverseTo(uint64_t entityId, int roomIndex) {
+    auto it = entityRoom_.find(entityId);
+    if (it == entityRoom_.end()) return false; // not inside
+    if (roomIndex < 0 || roomIndex >= static_cast<int>(rooms_.size()))
+        return false;
+    if (roomSealed(roomIndex)) return false; // passage blocked by a cave-in
+
+    it->second = roomIndex;
+    Vec3 roomPos =
+        cellToWorld(rooms_[static_cast<size_t>(roomIndex)].centerX(),
+                    rooms_[static_cast<size_t>(roomIndex)].centerY());
+
+    for (auto& h : hazards_) {
+        if (h.roomIndex != roomIndex) continue;
+        switch (h.type) {
+            case HazardType::SpikePit: {
+                // Once per entity per room.
+                if (std::find(h.victims.begin(), h.victims.end(), entityId) !=
+                    h.victims.end())
+                    break;
+                h.victims.push_back(entityId);
+                GameEvent e(EventType::SpikePitSprung);
+                e.sourceId = entityId;
+                e.targetId = id_;
+                e.amount = SPIKE_PIT_DAMAGE;
+                e.pos = roomPos;
+                bus_.publish(e);
+                break;
+            }
+            case HazardType::Trapped: {
+                if (h.spent) break; // hidden trap fires once, ever
+                h.spent = true;
+                // Reuses TrapSprung, so the Trickery exertion feed applies.
+                GameEvent e(EventType::TrapSprung);
+                e.sourceId = entityId;
+                e.targetId = id_;
+                e.amount = DUNGEON_TRAP_DAMAGE;
+                e.tag = "dungeon_trap";
+                e.pos = roomPos;
+                bus_.publish(e);
+                break;
+            }
+            case HazardType::CaveIn: {
+                if (h.sealed) break;
+                if (!rng_.chance(h.triggerChance)) break;
+                bool sealed = rng_.chance(CAVE_IN_SEAL_CHANCE);
+                if (sealed) h.sealed = true;
+                // Everyone currently in the room takes falling rock.
+                for (const auto& kv : entityRoom_) {
+                    if (kv.second != roomIndex) continue;
+                    GameEvent e(EventType::CaveIn);
+                    e.sourceId = id_;
+                    e.targetId = kv.first;
+                    e.amount = CAVE_IN_DAMAGE;
+                    e.tag = sealed ? "sealed" : "rubble";
+                    e.pos = roomPos;
+                    bus_.publish(e);
+                }
+                break;
+            }
+            case HazardType::None:
+            case HazardType::Count:
+                break;
+        }
+    }
+    return true;
 }
 
 void DungeonInstance::registerSurfaceEntity(uint64_t entityId) {
@@ -132,6 +249,7 @@ bool DungeonInstance::enter(uint64_t entityId) {
     if (it == surfaceIds_.end()) return false;
     surfaceIds_.erase(it);
     insideIds_.push_back(entityId);
+    entityRoom_[entityId] = 0; // entities arrive in the entrance room
     GameEvent e(EventType::DungeonEntered);
     e.sourceId = entityId;
     e.targetId = id_;
@@ -144,6 +262,7 @@ bool DungeonInstance::exit(uint64_t entityId) {
     auto it = std::find(insideIds_.begin(), insideIds_.end(), entityId);
     if (it == insideIds_.end()) return false;
     insideIds_.erase(it);
+    entityRoom_.erase(entityId);
     surfaceIds_.push_back(entityId);
     GameEvent e(EventType::DungeonExited);
     e.sourceId = entityId;
@@ -161,6 +280,7 @@ bool DungeonInstance::isInside(uint64_t entityId) const {
 void DungeonInstance::onEntityDied(uint64_t entityId) {
     auto it = std::find(insideIds_.begin(), insideIds_.end(), entityId);
     if (it != insideIds_.end()) insideIds_.erase(it);
+    entityRoom_.erase(entityId);
     if (completed_ || bossId_ == 0 || entityId != bossId_) return;
     completed_ = true;
     GameEvent e(EventType::DungeonCompleted);
