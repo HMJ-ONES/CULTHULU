@@ -79,6 +79,13 @@ public:
     Vec3 valeRelicSpot() const;
     Vec3 guardianSpawnPos() const;
 
+    // Wave 16: seize the vault's cursed relic. Publishes ValeRelicClaimed
+    // once (the "What Lies Beneath" achievement hook); returns false if
+    // the vault was already emptied. Callers grant the relic's power via
+    // RelicSystem::seizeRelic (which publishes RelicClaimed).
+    bool claimRelic(uint64_t entityId);
+    bool relicClaimed() const { return relicClaimed_; }
+
     // Optional: link a Dhole entity id so ambushes are attributed to it
     // (sourceId of DholeAmbush). 0 = the tunnel itself strikes.
     void setDholeEntityId(uint64_t id) { dholeEntityId_ = id; }
@@ -98,6 +105,7 @@ private:
     int maxDepth_ = 0;
     int deepestRoom_ = 0;
     uint64_t dholeEntityId_ = 0;
+    bool relicClaimed_ = false;
 };
 
 } // namespace cultulhu

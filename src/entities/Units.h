@@ -89,7 +89,7 @@ public:
         : Entity(EntityType::Creature, faction, pos, maxHp),
           species_(std::move(species)) {}
 
-    const std::string& species() const { return species_; }
+    std::string species() const override { return species_; }
     bool captured() const { return captured_; }
     void setCaptured(bool c) { captured_ = c; }
 

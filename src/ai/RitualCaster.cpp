@@ -29,17 +29,26 @@ void RitualCaster::update(double dt) {
 
     for (Sorcerer* s : sorcerers_) {
         if (!s || !s->alive() || s->mana() < MANA_COST) continue;
-        // Nearby civilians only — rituals need an audience.
-        std::vector<Civilian*> near;
+        // Nearby civilians only — rituals need an audience. Wave 16:
+        // enemy cultists in range may also be turned (Turncoat).
+        std::vector<Entity*> near;
         for (Civilian* c : civilians_) {
             if (!c || !c->alive()) continue;
             const float dx = c->position().x - s->position().x;
             const float dz = c->position().z - s->position().z;
             if (std::sqrt(dx * dx + dz * dz) <= RANGE) near.push_back(c);
         }
+        for (Cultist* c : cultists_) {
+            if (!c || !c->alive()) continue;
+            if (c->faction() == FACTION_NEUTRAL) continue;
+            if (c->faction() == s->faction()) continue; // already ours
+            const float dx = c->position().x - s->position().x;
+            const float dz = c->position().z - s->position().z;
+            if (std::sqrt(dx * dx + dz * dz) <= RANGE) near.push_back(c);
+        }
         if (near.empty()) continue;
 
-        Civilian* target = near[rng_.intRange(
+        Entity* target = near[rng_.intRange(
             0, static_cast<int>(near.size()) - 1)];
         s->setMana(s->mana() - MANA_COST);
         ++attempted_;
@@ -59,6 +68,7 @@ void RitualCaster::update(double dt) {
             conv.targetId = target->id();
             conv.amount = 1.0f;
             conv.tag = "ritual";
+            conv.faction = target->faction(); // wave 16: who was turned
             bus_.publish(conv);
         }
     }

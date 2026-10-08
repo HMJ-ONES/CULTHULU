@@ -18,13 +18,31 @@ float ccDuration(float baseSeconds, const BeliefSystem& beliefs) {
 }
 
 bool dealDamage(Entity& target, float dmg, EventBus& bus,
-                EventType killedEvent, bool oneHit) {
+                EventType killedEvent, bool oneHit, uint64_t attackerId,
+                EntityType attackerType) {
     bool killed = target.takeDamage(dmg, oneHit);
     if (killed) {
         GameEvent e(killedEvent);
         e.targetId = target.id();
         e.faction = target.faction();
         bus.publish(e);
+        // Wave 16: species-tagged monstrosity slay (e.g. "dhole").
+        if (target.type() == EntityType::Monstrosity) {
+            GameEvent m(EventType::MonstrositySlain);
+            m.targetId = target.id();
+            m.faction = target.faction();
+            m.tag = target.species();
+            bus.publish(m);
+        }
+        // Wave 16: avatar-on-avatar kill = PvP kill.
+        if (attackerId != 0 && attackerId != target.id() &&
+            attackerType == EntityType::EldritchAvatar &&
+            target.type() == EntityType::EldritchAvatar) {
+            GameEvent p(EventType::PlayerKilled);
+            p.sourceId = attackerId;
+            p.targetId = target.id();
+            bus.publish(p);
+        }
     }
     return killed;
 }

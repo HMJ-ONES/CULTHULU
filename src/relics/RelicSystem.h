@@ -4,6 +4,7 @@
 #include "entities/Entity.h"
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 namespace cultulhu {
@@ -37,6 +38,12 @@ public:
     bool checkTrigger(uint64_t id, const std::vector<const Entity*>& entities,
                       float radius = 6.0f);
     size_t artifactCount() const { return artifacts_.size(); }
+
+    // Wave 16: seize a cursed relic (grants its amplifier) and announce it.
+    // Publishes RelicClaimed (sourceId = claimer). This is the hook behind
+    // the "Price of Power" achievement.
+    void seizeRelic(float amplifier, uint64_t claimerId,
+                    const std::string& relicName = "");
 
 private:
     EventBus& bus_;

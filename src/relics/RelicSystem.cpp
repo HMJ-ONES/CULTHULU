@@ -21,6 +21,16 @@ float RelicSystem::powerMultiplier() const {
     return m;
 }
 
+void RelicSystem::seizeRelic(float amplifier, uint64_t claimerId,
+                             const std::string& relicName) {
+    addRelic(amplifier);
+    GameEvent ev(EventType::RelicClaimed);
+    ev.sourceId = claimerId;
+    ev.amount = amplifier;
+    ev.tag = relicName;
+    bus_.publish(ev);
+}
+
 uint64_t RelicSystem::placeCursedArtifact(Vec3 pos, FactionId owner) {
     CursedArtifactTrap t;
     t.id = nextId_++;

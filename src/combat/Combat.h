@@ -22,8 +22,13 @@ float calcDamage(const AttackInfo& atk, const BeliefSystem& beliefs);
 float ccDuration(float baseSeconds, const BeliefSystem& beliefs);
 
 // Applies damage; publishes `killedEvent` on the bus if the target dies.
+// When the killer is known, pass its entity id and type: avatar-on-avatar
+// kills additionally publish PlayerKilled (PvP), and monstrosity kills
+// publish MonstrositySlain (tag = species).
 bool dealDamage(Entity& target, float dmg, EventBus& bus,
-                EventType killedEvent, bool oneHit = false);
+                EventType killedEvent, bool oneHit = false,
+                uint64_t attackerId = 0,
+                EntityType attackerType = EntityType::Creature);
 
 } // namespace combat
 } // namespace cultulhu

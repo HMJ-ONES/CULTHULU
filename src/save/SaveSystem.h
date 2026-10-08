@@ -4,6 +4,7 @@
 #include "core/Vec3.h"
 
 #include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -25,6 +26,9 @@ struct GameState {
     std::vector<Belief> activeBeliefs;
     float insurrectionRisk = 0.0f;
     std::vector<EntityRec> entities;
+    // Wave 16: achievements — unlocked ids + named progress counters.
+    std::vector<std::string> unlockedAchievements;
+    std::map<std::string, double> achievementProgress;
 };
 
 // Simple human-readable text format (see SaveSystem.cpp header comment).

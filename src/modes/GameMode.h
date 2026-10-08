@@ -19,6 +19,29 @@ public:
 protected:
     EventBus& bus_;
     GameClock& clock_;
+
+    // Wave 16: match lifecycle for achievements. Modes call noteMatchTick()
+    // each update: MatchStarted fires once on the first tick, MatchEnded
+    // once when isOver() first becomes true (faction = winner team).
+    void noteMatchTick(const std::string& modeName) {
+        if (!matchStarted_) {
+            matchStarted_ = true;
+            GameEvent e(EventType::MatchStarted);
+            e.tag = modeName;
+            bus_.publish(e);
+        }
+        if (!matchEnded_ && isOver()) {
+            matchEnded_ = true;
+            GameEvent e(EventType::MatchEnded);
+            e.tag = modeName;
+            e.faction = winner();
+            bus_.publish(e);
+        }
+    }
+
+private:
+    bool matchStarted_ = false;
+    bool matchEnded_ = false;
 };
 
 } // namespace cultulhu

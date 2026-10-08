@@ -3,6 +3,7 @@
 #include "core/Vec3.h"
 
 #include <cstdint>
+#include <string>
 
 namespace cultulhu {
 
@@ -36,6 +37,10 @@ public:
     uint64_t id() const { return id_; }
     EntityType type() const { return type_; }
     FactionId faction() const { return faction_; }
+
+    // Species tag for creatures/monstrosities ("" for everything else).
+    // Used by combat kill instrumentation (MonstrositySlain).
+    virtual std::string species() const { return ""; }
 
     Vec3 position() const { return pos_; }
     void setPosition(Vec3 p) { pos_ = p; }

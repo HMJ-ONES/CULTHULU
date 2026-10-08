@@ -40,6 +40,8 @@ public:
     float totalRuin() const; // ruin across all districts, 0..1
     int population() const;  // civilians remaining across all districts
 
+    bool destroyedAnnounced = false; // CityDestroyed fires once per city
+
 private:
     std::string name_;
     Vec3 pos_;

@@ -87,7 +87,7 @@ protected:
     Vec3 pointAtFraction(int lane, float f) const;
     Vec3 pathTarget(const Minion& m) const; // next waypoint (team-aware)
     bool pathComplete(const Minion& m) const;
-    void damageBase(int team, float dmg);
+    void damageBase(int team, float dmg, uint64_t attackerId = 0);
     Minion makeMinion(int team, int lane, const std::string& kind, Vec3 pos);
 };
 

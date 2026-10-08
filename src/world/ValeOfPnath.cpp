@@ -162,4 +162,15 @@ void ValeOfPnath::fireHazard(DungeonHazard& h, uint64_t entityId,
     }
 }
 
+bool ValeOfPnath::claimRelic(uint64_t entityId) {
+    if (relicClaimed_) return false;
+    relicClaimed_ = true;
+    GameEvent e(EventType::ValeRelicClaimed);
+    e.sourceId = entityId;
+    e.targetId = id_;
+    e.pos = valeRelicSpot();
+    bus_.publish(e);
+    return true;
+}
+
 } // namespace cultulhu

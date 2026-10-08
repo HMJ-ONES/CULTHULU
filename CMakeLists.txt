@@ -83,6 +83,9 @@ target_link_libraries(cultulhu_tests_wave14 PRIVATE cultulhu)
 add_executable(cultulhu_tests_wave15 tests/tests_wave15.cpp)
 target_link_libraries(cultulhu_tests_wave15 PRIVATE cultulhu)
 
+add_executable(cultulhu_tests_wave16 tests/tests_wave16.cpp)
+target_link_libraries(cultulhu_tests_wave16 PRIVATE cultulhu)
+
 # Headless balance simulator (see src/sim/ and sim_reports/analysis.md).
 add_executable(cultulhu_sim src/sim/main.cpp)
 target_compile_definitions(cultulhu_sim PRIVATE CULTULHU_SIM_MAIN)
@@ -117,4 +120,5 @@ add_test(NAME cultulhu_tests_wave14 COMMAND cultulhu_tests_wave14)
 set_tests_properties(cultulhu_tests_wave14 PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME cultulhu_tests_wave15 COMMAND cultulhu_tests_wave15)
+add_test(NAME cultulhu_tests_wave16 COMMAND cultulhu_tests_wave16)
 add_test(NAME cultulhu_fuzz_smoke COMMAND cultulhu_fuzz all 2000 42)

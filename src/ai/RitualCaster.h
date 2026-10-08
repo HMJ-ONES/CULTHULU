@@ -29,6 +29,8 @@ public:
     // World state (raw pointers; the driver refreshes these each tick).
     void setSorcerers(const std::vector<Sorcerer*>& s) { sorcerers_ = s; }
     void setCivilians(const std::vector<Civilian*>& c) { civilians_ = c; }
+    // Wave 16: enemy cultists in range may be turned (Turncoat achievement).
+    void setCultists(const std::vector<Cultist*>& c) { cultists_ = c; }
 
     void update(double dt);
 
@@ -43,6 +45,7 @@ private:
 
     std::vector<Sorcerer*> sorcerers_;
     std::vector<Civilian*> civilians_;
+    std::vector<Cultist*> cultists_; // wave 16: turnable enemy cultists
 
     double interval_;
     double timer_ = 0.0;

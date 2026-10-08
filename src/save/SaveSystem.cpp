@@ -9,6 +9,8 @@
 //   beliefs=<b0>,<b1>,<b2>        (belief enum ints; may be empty)
 //   risk=<insurrection risk>
 //   entity=<id> <type> <faction> <x> <y> <z> <hp> <maxHp>
+//   achievement=<id>              (wave 16: unlocked achievement)
+//   achprogress=<name> <value>    (wave 16: named progress counter)
 
 namespace cultulhu {
 
@@ -30,6 +32,10 @@ bool SaveSystem::save(const GameState& s, const std::string& path) {
           << e.pos.x << " " << e.pos.y << " " << e.pos.z << " "
           << e.hp << " " << e.maxHp << "\n";
     }
+    // Wave 16: achievements (unlocked ids + named progress counters).
+    for (const auto& id : s.unlockedAchievements) f << "achievement=" << id << "\n";
+    for (const auto& kv : s.achievementProgress)
+        f << "achprogress=" << kv.first << " " << kv.second << "\n";
     return static_cast<bool>(f);
 }
 
@@ -70,6 +76,18 @@ bool SaveSystem::load(const std::string& path, GameState& out) {
                 } else {
                     return false; // malformed entity line
                 }
+            } else if (line.rfind("achievement=", 0) == 0) {
+                // Wave 16: unlocked achievement id (skip empties).
+                std::string id = line.substr(12);
+                if (!id.empty()) s.unlockedAchievements.push_back(id);
+            } else if (line.rfind("achprogress=", 0) == 0) {
+                // Wave 16: named progress counter; malformed lines are
+                // skipped rather than failing the whole load.
+                std::stringstream ss(line.substr(12));
+                std::string name;
+                double value = 0.0;
+                if (ss >> name >> value && !name.empty())
+                    s.achievementProgress[name] = value;
             }
             // Unknown lines are ignored for forward compatibility.
         }

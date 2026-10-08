@@ -26,7 +26,8 @@ float resolveAttack(const Attack& atk, Entity& target,
     info.attackerType = atk.attackerType;
     // Wave 4: exertion-derived faction power scales the final damage.
     float dmg = combat::calcDamage(info, beliefs) * atk.factionPowerMult;
-    combat::dealDamage(target, dmg, bus, killedEvent);
+    combat::dealDamage(target, dmg, bus, killedEvent, false, atk.attackerId,
+                       atk.attackerType);
     return dmg;
 }
 

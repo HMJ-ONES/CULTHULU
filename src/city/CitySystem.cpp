@@ -104,6 +104,21 @@ void CitySystem::damageBuilding(City& city, size_t district, size_t building,
         e.pos = b.position();
         bus_.publish(e);
     }
+
+    // Wave 16: the whole city is rubble — announce it once.
+    if (!city.destroyedAnnounced) {
+        bool allRazed = !city.districts().empty();
+        for (const auto& dd : city.districts())
+            allRazed = allRazed && dd.ruin() >= 1.0f;
+        if (allRazed) {
+            city.destroyedAnnounced = true;
+            GameEvent e(EventType::CityDestroyed);
+            e.tag = city.name();
+            e.amount = 1.0f;
+            e.pos = b.position();
+            bus_.publish(e);
+        }
+    }
 }
 
 } // namespace cultulhu

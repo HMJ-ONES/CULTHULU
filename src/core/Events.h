@@ -197,6 +197,21 @@ enum class EventType {
                           // tag = champion kind; amount = champion max HP;
                           // pos = summoning site.
 
+    // Wave 16: achievements — new instrumentation events.
+    RelicClaimed,        // sourceId = claimer entity id; amount = amplifier;
+                         // tag = relic name/kind ("" when unnamed)
+    MonstrositySlain,    // targetId = monstrosity id; faction = its faction;
+                         // tag = species (e.g. "dhole")
+    CityDestroyed,       // tag = city name; amount = 1; all districts razed
+    PlayerKilled,        // sourceId = killer entity id; targetId = victim
+                         // entity id; both are EldritchAvatars (PvP)
+    PointCaptured,       // targetId = point index; faction = capturing team
+    GreatOldOneSlain,    // sourceId = killing-blow entity id (0 unknown);
+                         // faction = fallen GOO's team
+    MatchStarted,        // tag = mode name ("capture", "moba")
+    MatchEnded,          // tag = mode name; faction = winner team (-1 draw)
+    AchievementUnlocked, // tag = achievement id; the dark takes note
+
     Count
 };
 

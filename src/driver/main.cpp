@@ -2,6 +2,7 @@
 // playable headless right now. The engine binding (Unreal/Unity) will replace
 // this with real rendering later; all game logic lives in the core library.
 
+#include "achievements/AchievementSystem.h"
 #include "ai/AmbientBehavior.h"
 #include "ai/RitualCaster.h"
 #include "animation/AnimationStateMachine.h"
@@ -136,6 +137,9 @@ struct BetaGame {
     EventBus bus;
     GameClock clock;
     RNG rng{1234};
+    // Wave 16: achievements (progression). Subscribes to the bus on
+    // construction; persists via buildSaveState/applySaveState.
+    AchievementSystem achievements{bus};
     PowerSystem power;
     BeliefSystem beliefs{bus, clock};
     CultManager cult{bus, clock, rng};
@@ -394,6 +398,7 @@ struct BetaGame {
         for (size_t i = 0; i < cult.size(); ++i)
             s.entities.push_back(rec(cult.at(i)));
         for (const auto& e : world) s.entities.push_back(rec(*e));
+        achievements.saveTo(s); // wave 16
         return s;
     }
 
@@ -408,6 +413,7 @@ struct BetaGame {
         power.set(s.power);
         beliefs.restoreActive(s.activeBeliefs);
         cult.addRisk(s.insurrectionRisk - cult.insurrectionRisk());
+        achievements.loadFrom(s); // wave 16
         cult.clear();
         world.clear();
         // Wave 9d: the old world's entities are gone; the Wave of
@@ -473,6 +479,8 @@ struct BetaGame {
             "  chars | addchar <folder> | validate <id>\n"
             "                                          character packages\n"
             "  character <list|validate> [id]      deep package report\n"
+            "  achievements [setplayer <id> [faction] [team]]\n"
+            "                                          deeds & unlocks\n"
             "  kda                                 demo KDA tracking\n"
             "  interact                            E-interact demo\n"
             "  jump | sprint <on|off>              input state demos\n"
@@ -1523,6 +1531,44 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 return true;
             }
             std::cout << "usage: character <list|validate> [character-id]\n";
+            return true;
+        }
+
+        if (cmd == "achievements") {
+            std::string sub; in >> sub;
+            if (sub == "setplayer") {
+                // Wave 16: identify the local player for multiplayer
+                // achievements (entity id, faction, team).
+                uint64_t id = 0; int faction = 0, team = -1;
+                in >> id;
+                if (in >> faction) in >> team;
+                g.achievements.setLocalPlayer(id, faction, team);
+                std::cout << "local player: entity " << id
+                          << " faction " << faction << " team " << team
+                          << "\n";
+                return true;
+            }
+            const auto& defs = g.achievements.defs();
+            size_t unlocked = 0;
+            for (const auto& d : defs) {
+                if (g.achievements.isUnlocked(d.id)) {
+                    ++unlocked;
+                    std::cout << "  [x] " << d.name << " — "
+                              << d.description << "\n";
+                }
+            }
+            for (const auto& d : defs) {
+                if (g.achievements.isUnlocked(d.id)) continue;
+                std::cout << "  [ ] " << d.name << " — " << d.description;
+                auto pr = g.achievements.progress(d.id);
+                if (pr.first >= 0.0) {
+                    std::cout << "  (" << pr.first << "/" << pr.second
+                              << " " << d.progressUnit << ")";
+                }
+                std::cout << "\n";
+            }
+            std::cout << unlocked << "/" << defs.size()
+                      << " deeds recorded in the dark.\n";
             return true;
         }
 

@@ -119,7 +119,7 @@ bool MobaDefense::pathComplete(const Minion& m) const {
     return m.step + 1 >= lanes_[m.lane].size();
 }
 
-void MobaDefense::damageBase(int team, float dmg) {
+void MobaDefense::damageBase(int team, float dmg, uint64_t attackerId) {
     Base& b = bases_[team];
     if (!b.gooAlive) return;
     b.hp -= dmg;
@@ -129,10 +129,17 @@ void MobaDefense::damageBase(int team, float dmg) {
         GameEvent e(EventType::Defeated);
         e.faction = team;
         bus_.publish(e);
+        // Wave 16: attribute the killing blow for the Godslayer achievement.
+        GameEvent g(EventType::GreatOldOneSlain);
+        g.sourceId = attackerId;
+        g.faction = team;
+        g.pos = b.pos;
+        bus_.publish(g);
     }
 }
 
 void MobaDefense::update(double dt) {
+    noteMatchTick("moba");
     float fdt = static_cast<float>(dt);
     ensureTowers();
 
