@@ -15,6 +15,7 @@
 #include "core/GameClock.h"
 #include "core/RNG.h"
 #include "cult/CultManager.h"
+#include "driver/ParseUtil.h"
 #include "entities/Units.h"
 #include "exertion/ExertionSystem.h"
 #include "net/Netcode.h"
@@ -359,13 +360,36 @@ static void test_wave_uaf_world_cleared() {
     }
 }
 
+// ---------------------------------------------------------------------------
+// BUG 5 (overnight): driver `spawn` command threw uncaught std::out_of_range
+// (via std::stoi) on huge count arguments, e.g.
+//   spawn cultist  99999999999999999992
+// found by the fuzz harness (driver-dispatch target). Fix: ParseUtil::safeStoi
+// clamps to INT_MAX instead of throwing.
+// ---------------------------------------------------------------------------
+static void test_spawn_count_overflow_no_throw() {
+    using cultulhu::driver::safeStoi;
+    // The exact fuzz reproducer must not throw and must clamp.
+    CHECK(safeStoi("99999999999999999992") == std::numeric_limits<int>::max());
+    // Normal values pass through.
+    CHECK(safeStoi("1") == 1);
+    CHECK(safeStoi("20") == 20);
+    CHECK(safeStoi("0") == 0);
+    CHECK(safeStoi("2147483647") == std::numeric_limits<int>::max());
+    CHECK(safeStoi("2147483648") == std::numeric_limits<int>::max());
+    // Non-digit input yields 0 (never throws).
+    CHECK(safeStoi("") == 0);
+    CHECK(safeStoi("abc") == 0);
+    CHECK(safeStoi("12x") == 0);
+}
+
 int main() {
-    test_save_load_malformed_no_throw();
-    test_decode_count_cap();
+    test_save_load_malformed_no_throw();    test_decode_count_cap();
     test_clip_load_huge_keycount();
     test_issue_command_bad_directive();
     test_event_bus_malformed();
     test_wave_uaf_world_cleared();
+    test_spawn_count_overflow_no_throw();
     std::cout << "fuzz: " << checks << " checks, " << failures
               << " failures\n";
     return failures == 0 ? 0 : 1;
