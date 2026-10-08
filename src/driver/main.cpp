@@ -24,6 +24,7 @@
 #include "core/RNG.h"
 #include "cult/CultManager.h"
 #include "dreams/DreamSystem.h"
+#include "driver/ParseUtil.h"
 #include "entities/Structures.h"
 #include "entities/Units.h"
 #include "exertion/ExertionSystem.h"
@@ -43,6 +44,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <memory>
 #include <set>
@@ -463,6 +465,8 @@ struct BetaGame {
             "  mapinfo                             map art: placements, file\n"
             "                                          check, asset budget\n"
             "  bestiary                            creature/NPC models\n"
+            "  ambient [action]                    trigger cultist ambient\n"
+            "                                          action (see 'ambient' help)\n"
             "  dungeon [seed] | dungeon pnath [seed]\n"
             "                                          dungeon map / Vale of Pnath\n"
             "  combo                               melee combo chain demo\n"
@@ -803,6 +807,10 @@ static bool processLine(BetaGame& g, NetSession& nets,
             // spawn <monstrosity|creature> [species] [n]  (species optional;
             //   a bare number is treated as the count, default species
             //   "spawned")
+            //
+            // Count parsing is overflow-safe (ParseUtil::safeStoi): huge
+            // digit strings clamp instead of throwing std::out_of_range.
+            using cultulhu::driver::safeStoi;
             std::string what;
             in >> what;
             int n = 1;
@@ -818,15 +826,15 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 if (in >> tok) {
                     if (isMonster) {
                         if (isNum(tok)) {
-                            n = std::stoi(tok);
+                            n = safeStoi(tok);
                         } else {
                             species = tok;
                             std::string tok2;
                             if (in >> tok2 && isNum(tok2))
-                                n = std::stoi(tok2);
+                                n = safeStoi(tok2);
                         }
                     } else if (isNum(tok)) {
-                        n = std::stoi(tok);
+                        n = safeStoi(tok);
                     }
                     // else: unrecognized trailing token — ignore like the
                     // old `in >> n` failbit path did.
@@ -858,8 +866,10 @@ static bool processLine(BetaGame& g, NetSession& nets,
                     g.world.push_back(
                         std::make_unique<Civilian>(q));
                 } else {
-                    std::cout << "unknown: " << what << "\n";
-                    break;
+                    std::cout << "unknown: " << what
+                              << " (try: cultist | civilian | sorcerer |"
+                                 " monstrosity [species])\n";
+                    return true;
                 }
             }
             if (!isMonster)
