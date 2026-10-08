@@ -66,7 +66,15 @@ constexpr float ONSLAUGHT_PER_CIVILIAN = 3.6f;   // (wave 9a sim: 3.0 left the k
                                                      // belief far behind War; +20%)
 constexpr float ONSLAUGHT_IDLE_DECAY   = 2.0f;   // power lost per sec after 1h idle
 
-constexpr float DREAM_WHISPER_POWER    = 2.0f;   // per dream-whisper conversion
+constexpr float DREAM_WHISPER_POWER    = 13.0f;  // per dream-whisper conversion
+                                                     // (wave 10 / R5: 2.0 left Dreams at 238
+                                                     // power; whispers are its only income)
+constexpr float RECONSTRUCTION_PER_REBUILD = 2.0f;  // power per rebuilt
+                                                     // building (wave 10 / R5:
+                                                     // Reconstruction had no
+                                                     // power path at all)
+constexpr float RECONSTRUCTION_PER_HEAL    = 0.5f;  // power per heal performed
+
 constexpr float PRAYER_POWER           = 1.0f;   // per prayer offered (ambient)
 constexpr float DESECRATE_FEAR         = 2.0f;   // fear per desecration
 constexpr float DESECRATE_TORTURE      = 2.0f;   // power per desecration (Torture)
@@ -317,6 +325,18 @@ float BeliefSystem::onEvent(const GameEvent& e) {
         switch (e.type) {
             case EventType::DreamWhisper:
                 delta += DREAM_WHISPER_POWER * e.amount; break;
+            default: break;
+        }
+    }
+
+    // Wave 10 (R5): Reconstruction had no power path (only the 1.5x heal
+    // multiplier). Rebuilding and mending now feed Cthulhu directly.
+    if (isActive(Belief::Reconstruction)) {
+        switch (e.type) {
+            case EventType::BuildingRebuilt:
+                delta += RECONSTRUCTION_PER_REBUILD; break;
+            case EventType::HealPerformed:
+                delta += RECONSTRUCTION_PER_HEAL; break;
             default: break;
         }
     }

@@ -168,8 +168,8 @@ static void test_tend_wounded() {
     CHECK_CLOSE(e.amount, 18.0f, 1e-4f);
     CHECK_CLOSE(patient.hp(), 68.0f, 1e-4f);
     CHECK_CLOSE(patient.devotion(), 53.0f, 1e-4f); // loyalty bump
-    // HealPerformed feeds Reconstruction +1 (inactive: half rate).
-    CHECK_CLOSE(w.exertion.exertion(Belief::Reconstruction), 10.5f, 1e-4f);
+    // HealPerformed feeds Reconstruction +2 (wave 10 / R2; inactive: half).
+    CHECK_CLOSE(w.exertion.exertion(Belief::Reconstruction), 11.0f, 1e-4f);
 }
 
 static void test_tend_wounded_reconstruction_synergy() {

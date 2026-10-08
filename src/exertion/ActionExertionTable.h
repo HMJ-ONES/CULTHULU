@@ -40,8 +40,9 @@ inline constexpr ExertionFeed ACTION_EXERTION_TABLE[] = {
     {EventType::BrawlBrokeOut,      Belief::Chaos,     3.0f},
     {EventType::DesecrationDone,    Belief::Chaos,     2.0f},
     {EventType::LunaticActed,       Belief::Chaos,     3.0f},
-    // Sacrifice
-    {EventType::SacrificeCompleted, Belief::Sacrifice, 12.0f},
+    // Sacrifice (wave 10 / R2: 12.0 every ~300 ticks = 0.04/s could never
+    // beat the 0.05/s decay, leaving Dark Rites / Martyrs' Visions dead)
+    {EventType::SacrificeCompleted, Belief::Sacrifice, 20.0f},
     {EventType::SacrificeInterrupted, Belief::Sacrifice, -5.0f},
     // Conversion
     {EventType::ConversionPerformed, Belief::Conversion, 6.0f},
@@ -50,8 +51,10 @@ inline constexpr ExertionFeed ACTION_EXERTION_TABLE[] = {
     // War
     {EventType::EnemyCultistSlain,  Belief::War,       6.0f},
     // Reconstruction
-    {EventType::BuildingRebuilt,    Belief::Reconstruction, 2.0f},
-    {EventType::HealPerformed,      Belief::Reconstruction, 1.0f},
+    // Reconstruction (wave 10 / R2: 2.0/200 ticks + 1.0/60 ticks = 0.027/s
+    // could never beat the 0.05/s decay, so Reconstruction never warmed)
+    {EventType::BuildingRebuilt,    Belief::Reconstruction, 8.0f},
+    {EventType::HealPerformed,      Belief::Reconstruction, 2.0f},
     // Trickery
     {EventType::MimicKill,          Belief::Trickery,  8.0f},
     {EventType::TrapSprung,         Belief::Trickery,  6.0f},
@@ -62,9 +65,11 @@ inline constexpr ExertionFeed ACTION_EXERTION_TABLE[] = {
     // Onslaught
     {EventType::CivilianSlain,      Belief::Onslaught, 3.0f},
     {EventType::MeleeAttack,        Belief::Onslaught, 1.0f},
-    // Dreams
+    // Dreams (wave 10 / R2: 1.0/150 ticks + rests/nightmares = 0.021/s could
+    // never beat the 0.05/s decay, leaving Nightmare Surge / Oneiromancy /
+    // Martyrs' Visions dead)
     {EventType::RestStarted,        Belief::Dreams,    2.0f},
-    {EventType::DreamWhisper,       Belief::Dreams,    1.0f},
+    {EventType::DreamWhisper,       Belief::Dreams,    8.0f},
     {EventType::DreamWhisper,       Belief::Conversion, 1.0f},
     {EventType::PrayerOffered,       Belief::Dreams,    1.0f},
     {EventType::Nightmare,          Belief::Dreams,    3.0f},
