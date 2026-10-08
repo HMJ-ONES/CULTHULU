@@ -174,6 +174,8 @@ struct BetaGame {
         // power rules -> synergy multipliers -> PowerSystem). Narration for
         // the notable moments.
         dreams.setExertion(&exertion);
+        ambient.setExertion(&exertion); // wave 9c: Dreams/Reconstruction
+                                       // synergies for omen-reading/tending
         bus.subscribe(EventType::Revolt, [](const GameEvent&) {
             std::cout << "\n!! THE CULT REVOLTS !!\n";
         });
@@ -401,6 +403,11 @@ struct BetaGame {
         cult.addRisk(s.insurrectionRisk - cult.insurrectionRisk());
         cult.clear();
         world.clear();
+        // Wave 9d: the old world's entities are gone; the Wave of
+        // Domination ability may hold raw pointers to them. Cancel it
+        // (pruneStaleVictims is the backstop inside the ability).
+        waveAbility.cancel();
+        waveCtx.entities.clear();
         bool avatarSeen = false;
         for (const auto& r : s.entities) {
             if (!validEntityType(r.type)) continue;
@@ -458,6 +465,15 @@ struct BetaGame {
             "  help | quit\n";
     }
 };
+
+// Wave 9c driver commands (`ambient`, `dungeon`): header-inline module;
+// the implementation compiles into this TU via the include below.
+#include "driver/wave9_content_cmds.h"
+
+// Wave 9b driver commands (`directive assassinate|blight|summon|zones`):
+// header-inline module; the implementation compiles into this TU via the
+// include below.
+#include "driver/wave9_directives_cmds.h"
 
 static DirectiveType directiveByName(const std::string& n) {
     if (n == "raid") return DirectiveType::RaidCity;
@@ -684,59 +700,35 @@ struct NetSession {
     }
 };
 
-int main() {
-    BetaGame g;
-    g.setupWorld();
-    NetSession nets;
-
-    std::cout << "CULT-ULHU playable beta — free roam\n"
-              << "Your eldritch avatar stalks the map. Type 'help'.\n";
-
-    // Wave 7: auto-load character packages. The binary is usually run as
-    // ./build/cultulhu_play from the repo root (assets/characters), but
-    // also works from the build dir (../assets/characters).
-    {
-        std::string root = "assets/characters";
-        {
-            std::ifstream probe(root + "/cthulhu_avatar/character.def");
-            if (!probe) root = "../assets/characters";
-        }
-        const int n = g.charLoader.scanAndLoad(root);
-        std::cout << "characters: " << n << " package(s) from " << root
-                  << "\n";
-        for (const auto& p : g.charLoader.packages()) {
-            ValidationReport rep = CharacterValidator::validate(p);
-            std::cout << "  " << p.folderName << " -> '" << p.def.id
-                      << "': " << (rep.ok ? "OK" : "INVALID");
-            if (!rep.warnings.empty())
-                std::cout << " (" << rep.warnings.size() << " warning(s))";
-            std::cout << "\n";
-            for (const auto& w : rep.warnings)
-                std::cout << "      ! " << w << "\n";
-        }
-        for (const auto& e : g.charLoader.loadErrors())
-            std::cout << "  load error: " << e << "\n";
-    }
-
-    g.printStatus();
-
-    std::string line;
-    while (std::cout << "\n> " && std::getline(std::cin, line)) {
+// ---------------------------------------------------------------------------
+// One REPL input line through the full driver dispatch. Extracted from
+// main()'s loop so the fuzz harness (src/fuzz) can drive it directly.
+// Returns false when the session should end (quit/exit).
+// ---------------------------------------------------------------------------
+static bool processLine(BetaGame& g, NetSession& nets,
+                        const std::string& line) {
         nets.poll(g);  // pump multiplayer (non-blocking)
         std::istringstream in(line);
         std::string cmd;
         in >> cmd;
-        if (cmd.empty()) continue;
+        if (cmd.empty()) return true;
 
-        if (cmd == "quit" || cmd == "exit") break;
-        if (cmd == "help") { g.printHelp(); continue; }
-        if (cmd == "status") { g.printStatus(); continue; }
+        // Wave 9c content commands (ambient/dungeon); one registration line.
+        if (registerWave9ContentCommands(g, cmd, in)) return true;
+
+        // Wave 9b directive commands (directive assassinate|blight|summon);
+        // one registration line.
+        if (registerWave9DirectiveCommands(g, cmd, in)) return true;
+
+        if (cmd == "quit" || cmd == "exit") return false;
+        if (cmd == "help") { g.printHelp(); return true; }
+        if (cmd == "status") { g.printStatus(); return true; }
         if (cmd == "beliefs") {
             std::cout << "active:";
             for (Belief b : g.beliefs.active())
                 std::cout << " " << beliefName(b);
             std::cout << "\n";
-            continue;
+            return true;
         }
 
         if (cmd == "move") {
@@ -750,7 +742,7 @@ int main() {
             if (dir.find('w') != std::string::npos) d.x -= 1;
             if (d.x == 0 && d.z == 0) {
                 std::cout << "usage: move <n|s|e|w|ne|nw|se|sw> [steps]\n";
-                continue;
+                return true;
             }
             nets.pendingMove = d;  // also feeds multiplayer input
             for (int i = 0; i < steps; ++i) {
@@ -762,7 +754,7 @@ int main() {
                                                 : AnimationState::Walk);
             std::cout << "moved to (" << g.avatar.position().x << ", "
                       << g.avatar.position().z << ")\n";
-            continue;
+            return true;
         }
 
         if (cmd == "camera") {
@@ -771,14 +763,14 @@ int main() {
             else if (m == "tp") g.camera.setMode(CameraMode::ThirdPerson);
             else {
                 std::cout << "usage: camera <fp|tp>\n";
-                continue;
+                return true;
             }
             CameraPose p = g.camera.poseFor(g.avatar.position(),
                                             g.avatar.facingYaw());
             std::cout << "camera: " << cameraModeName(g.camera.mode())
                       << " eye=(" << p.eye.x << "," << p.eye.y << ","
                       << p.eye.z << ")\n";
-            continue;
+            return true;
         }
 
         if (cmd == "look") {
@@ -792,7 +784,7 @@ int main() {
                           << "m away (hp " << t->hp() << ").\n";
             else
                 std::cout << "no targets in range.\n";
-            continue;
+            return true;
         }
 
         if (cmd == "spawn") {
@@ -820,7 +812,7 @@ int main() {
                 }
             }
             std::cout << "spawned " << n << " " << what << "(s)\n";
-            continue;
+            return true;
         }
 
         if (cmd == "belief") {
@@ -829,14 +821,14 @@ int main() {
             Belief b = beliefByName(name);
             if (b == Belief::Count) {
                 std::cout << "unknown belief\n";
-                continue;
+                return true;
             }
             Belief out = Belief::Count;
             if (rw == "replace") {
                 out = beliefByName(old);
                 if (out == Belief::Count) {
                     std::cout << "unknown belief to replace\n";
-                    continue;
+                    return true;
                 }
             }
             if (g.beliefs.requestChange(b, out))
@@ -844,14 +836,14 @@ int main() {
                           << " adoption started (~120s game time)\n";
             else
                 std::cout << "cannot adopt (already active or no room)\n";
-            continue;
+            return true;
         }
 
         if (cmd == "rest") {
             size_t i; in >> i;
             if (i >= g.cult.size()) {
                 std::cout << "no cultist " << i << "\n";
-                continue;
+                return true;
             }
             Cultist& c = g.cult.at(i);
             if (g.dreams.isResting(c.id())) {
@@ -861,7 +853,7 @@ int main() {
                 g.dreams.startRest(c.id());
                 std::cout << "cultist " << i << " rests (dream-visions)\n";
             }
-            continue;
+            return true;
         }
 
         if (cmd == "command") {
@@ -870,19 +862,19 @@ int main() {
             if (d == DirectiveType::Count) {
                 std::cout << "usage: command "
                              "<raid|war|convert|sacrifice|defend|relic>\n";
-                continue;
+                return true;
             }
             CommandResult r = g.commands.issueCommand(d,
                                                       g.avatar.position());
             std::cout << commandOutcomeName(r.outcome) << " — "
                       << r.detail << "\n";
-            continue;
+            return true;
         }
 
         if (cmd == "attack") {
             nets.pendingButtons |= 1;  // also feeds multiplayer input
             Entity* t = g.nearestTarget(g.avatar.position());
-            if (!t) { std::cout << "no target in range\n"; continue; }
+            if (!t) { std::cout << "no target in range\n"; return true; }
             g.avatarAnim.requestState(AnimationState::Attack);
             float dmg = strikeMelee(g.avatar.id(), EntityType::EldritchAvatar,
                                     *t, 40.0f, g.beliefs, g.bus, g.fx,
@@ -891,13 +883,13 @@ int main() {
             std::cout << "struck for " << dmg << " (target hp " << t->hp()
                       << ")\n";
             g.tickSecond();
-            continue;
+            return true;
         }
 
         if (cmd == "cast") {
             std::string spell; in >> spell;
             Entity* t = g.nearestTarget(g.avatar.position());
-            if (!t) { std::cout << "no target in range\n"; continue; }
+            if (!t) { std::cout << "no target in range\n"; return true; }
             // The avatar channels through its sorcerer attendant's craft.
             g.avatarAnim.requestState(AnimationState::Cast);
             float dmg;
@@ -917,11 +909,11 @@ int main() {
                 std::cout << "fireball for " << dmg << "\n";
             } else {
                 std::cout << "usage: cast <fireball|fear>\n";
-                continue;
+                return true;
             }
             std::cout << "target hp " << t->hp() << "\n";
             g.tickSecond();
-            continue;
+            return true;
         }
 
         if (cmd == "tick") {
@@ -933,14 +925,14 @@ int main() {
             std::cout << "t+" << n << "s  power " << before << " -> "
                       << g.power.value() << "  (" << g.freeroam.hourOfDay()
                       << "h)\n";
-            continue;
+            return true;
         }
 
         if (cmd == "save") {
             std::string file; in >> file;
             if (file.empty()) {
                 std::cout << "usage: save <file>\n";
-                continue;
+                return true;
             }
             GameState s = g.buildSaveState();
             if (SaveSystem::save(s, file))
@@ -950,32 +942,32 @@ int main() {
                           << file << "\n";
             else
                 std::cout << "save failed: " << file << "\n";
-            continue;
+            return true;
         }
 
         if (cmd == "load") {
             std::string file; in >> file;
             if (file.empty()) {
                 std::cout << "usage: load <file>\n";
-                continue;
+                return true;
             }
             GameState s;
             if (!SaveSystem::load(file, s)) {
                 std::cout << "load failed: " << file << "\n";
-                continue;
+                return true;
             }
             g.applySaveState(s);
             std::cout << "loaded " << file << ": t=" << s.clockTime
                       << "s power=" << s.power << " beliefs="
                       << s.activeBeliefs.size() << " entities="
                       << s.entities.size() << "\n";
-            continue;
+            return true;
         }
 
         // ---- Wave 6: Radmin VPN multiplayer ----
         if (cmd == "myip") {
             nets.showIPs();
-            continue;
+            return true;
         }
 
         if (cmd == "discover") {
@@ -986,7 +978,7 @@ int main() {
             net::DiscoveryClient dc;
             if (!dc.start()) {
                 std::cout << "discovery failed (UDP unavailable?)\n";
-                continue;
+                return true;
             }
             std::cout << "listening for hosts (" << secs << "s)...\n";
             auto hosts = dc.listenFor(secs * 1000);
@@ -999,7 +991,7 @@ int main() {
                               << h.tcpPort << "  " << h.mode << "  "
                               << h.players << "/" << h.maxPlayers << "\n";
             }
-            continue;
+            return true;
         }
 
         if (cmd == "host") {
@@ -1008,10 +1000,10 @@ int main() {
             in >> port >> name;
             if (port <= 0 || port > 65535) {
                 std::cout << "usage: host <port> [name]\n";
-                continue;
+                return true;
             }
             nets.startHost(port, name);
-            continue;
+            return true;
         }
 
         if (cmd == "join") {
@@ -1020,20 +1012,20 @@ int main() {
             in >> ip >> port >> name;
             if (ip.empty() || port <= 0 || port > 65535) {
                 std::cout << "usage: join <ip> <port> <name>\n";
-                continue;
+                return true;
             }
             nets.startJoin(ip, port, name.empty() ? "Cultist" : name);
-            continue;
+            return true;
         }
 
         if (cmd == "ready") {
             nets.toggleReady();
-            continue;
+            return true;
         }
 
         if (cmd == "players") {
             nets.printPlayers();
-            continue;
+            return true;
         }
 
         if (cmd == "startgame") {
@@ -1041,10 +1033,10 @@ int main() {
             in >> f;
             if (nets.role != NetSession::Role::Hosting || !nets.host) {
                 std::cout << "only the host can start the game\n";
-                continue;
+                return true;
             }
             nets.host->startGame(f == "force");
-            continue;
+            return true;
         }
 
         if (cmd == "chat") {
@@ -1053,7 +1045,7 @@ int main() {
             while (!text.empty() && text.front() == ' ') text.erase(0, 1);
             if (text.empty()) {
                 std::cout << "usage: chat <message>\n";
-                continue;
+                return true;
             }
             if (nets.role == NetSession::Role::Hosting && nets.host)
                 nets.host->sendChatAll("Host", text);
@@ -1061,7 +1053,7 @@ int main() {
                 nets.client->sendChat(text);
             else
                 std::cout << "not in a net session\n";
-            continue;
+            return true;
         }
 
         if (cmd == "netent") {
@@ -1075,13 +1067,13 @@ int main() {
             } else {
                 std::cout << "no client snapshot stream (join a game first)\n";
             }
-            continue;
+            return true;
         }
 
         if (cmd == "leave") {
             nets.reset();
             std::cout << "left net session\n";
-            continue;
+            return true;
         }
         // ---- end Wave 6 ----
 
@@ -1098,7 +1090,7 @@ int main() {
             else {
                 std::cout << "usage: build "
                              "<wall|barracks|watchtower|trap|portal|altar>\n";
-                continue;
+                return true;
             }
             Vec3 p = g.avatar.position();
             auto site = std::make_unique<ConstructionSite>(
@@ -1109,7 +1101,7 @@ int main() {
                       << " (" << defaultHpFor(t) << " hp when done) at ("
                       << p.x << ", " << p.z << ") — the avatar works it; "
                       << "solo finish in ~120s game time ('tick 121')\n";
-            continue;
+            return true;
         }
 
         if (cmd == "menu") {
@@ -1120,7 +1112,7 @@ int main() {
             if (kind == "cultist") {
                 if (g.cult.size() == 0) {
                     std::cout << "no cultists — 'spawn cultist' first\n";
-                    continue;
+                    return true;
                 }
                 ctx.kind = MenuContext::Kind::OwnCultist;
                 ctx.entityId = g.cult.at(0).id();
@@ -1147,7 +1139,7 @@ int main() {
                 if (ctx.entityId == 0) ctx.pos = p;
             } else {
                 std::cout << "usage: menu [cultist|location|enemy|altar]\n";
-                continue;
+                return true;
             }
             GameStateSummary summary;
             summary.commandableCultists =
@@ -1174,7 +1166,7 @@ int main() {
                 }
                 break;
             }
-            continue;
+            return true;
         }
 
         if (cmd == "combo") {
@@ -1205,7 +1197,7 @@ int main() {
             tr.update(8.0);
             std::cout << "  active: " << (tr.active() ? "yes" : "no")
                       << "\n";
-            continue;
+            return true;
         }
 
         if (cmd == "chars") {
@@ -1229,14 +1221,14 @@ int main() {
             }
             for (const auto& e : g.charLoader.loadErrors())
                 std::cout << "  load error: " << e << "\n";
-            continue;
+            return true;
         }
 
         if (cmd == "addchar") {
             std::string folder; in >> folder;
             if (folder.empty()) {
                 std::cout << "usage: addchar <folder>\n";
-                continue;
+                return true;
             }
             if (g.charLoader.hotLoad(folder)) {
                 std::string name = folder;
@@ -1259,14 +1251,14 @@ int main() {
                 for (const auto& e : g.charLoader.loadErrors())
                     std::cout << "  " << e << "\n";
             }
-            continue;
+            return true;
         }
 
         if (cmd == "validate") {
             std::string id; in >> id;
             if (id.empty()) {
                 std::cout << "usage: validate <character-id>\n";
-                continue;
+                return true;
             }
             const CharacterPackage* found = nullptr;
             for (const auto& p : g.charLoader.packages())
@@ -1276,11 +1268,11 @@ int main() {
                 }
             if (!found) {
                 std::cout << "no package '" << id << "'\n";
-                continue;
+                return true;
             }
             std::cout << "package '" << found->folderName << "':\n"
                       << CharacterValidator::validate(*found).summary();
-            continue;
+            return true;
         }
 
         if (cmd == "kda") {
@@ -1302,7 +1294,7 @@ int main() {
             std::cout << "(Acolyte assists: damaged entity 9001 within "
                          "the 10s assist window; the killer never "
                          "self-assists)\n";
-            continue;
+            return true;
         }
 
         if (cmd == "interact") {
@@ -1328,7 +1320,7 @@ int main() {
                 std::cout << "E pressed -> nothing within "
                           << InputManager::INTERACT_RADIUS << "m\n";
             }
-            continue;
+            return true;
         }
 
         if (cmd == "jump") {
@@ -1380,14 +1372,14 @@ int main() {
                 std::cout << "  jumpPressed: "
                           << (im.jumpPressed() ? "yes" : "no") << "\n";
             }
-            continue;
+            return true;
         }
 
         if (cmd == "sprint") {
             std::string arg; in >> arg;
             if (arg != "on" && arg != "off") {
                 std::cout << "usage: sprint <on|off>\n";
-                continue;
+                return true;
             }
             InputManager im;
             InputState s;
@@ -1422,7 +1414,7 @@ int main() {
                               << "\n";
                 }
             }
-            continue;
+            return true;
         }
 
         if (cmd == "rmb") {
@@ -1459,7 +1451,7 @@ int main() {
                     std::cout << "Wave of Domination on cooldown ("
                               << g.waveAbility.cooldownRemaining()
                               << "s left)\n";
-                    continue;
+                    return true;
                 }
                 g.waveAbility.onPress(g.waveCtx);
                 for (int i = 0;
@@ -1477,7 +1469,7 @@ int main() {
                     std::cout << "nothing held (phase="
                               << wavePhaseName(g.waveAbility.phase())
                               << ") — 'rmb press' first\n";
-                    continue;
+                    return true;
                 }
                 g.waveAbility.onMouseMove(g.waveCtx, dx, dy);
                 for (int i = 0; i < 5; ++i)
@@ -1490,7 +1482,7 @@ int main() {
                     std::cout << "nothing held (phase="
                               << wavePhaseName(g.waveAbility.phase())
                               << ") — 'rmb press' first\n";
-                    continue;
+                    return true;
                 }
                 g.waveAbility.onLeftClick(g.waveCtx);
                 for (int i = 0; i < 25; ++i)
@@ -1515,13 +1507,13 @@ int main() {
                 }
                 if (id == 0) {
                     std::cout << "no target — usage: rmb stun [entity-id]\n";
-                    continue;
+                    return true;
                 }
                 if (!g.waveAbility.ready()) {
                     std::cout << "Wave of Domination on cooldown ("
                               << g.waveAbility.cooldownRemaining()
                               << "s left)\n";
-                    continue;
+                    return true;
                 }
                 g.waveCtx.targetedEntityId = id;
                 g.waveAbility.onPress(g.waveCtx);
@@ -1535,11 +1527,53 @@ int main() {
                              "<press|move <dx> <dy>|launch|release|stun "
                              "[id]>\n";
             }
-            continue;
+            return true;
         }
         // ---- end Wave 7 ----
 
         std::cout << "unknown command. Type 'help'.\n";
+    return true;
+}
+
+int main() {
+    BetaGame g;
+    g.setupWorld();
+    NetSession nets;
+
+    std::cout << "CULT-ULHU playable beta — free roam\n"
+              << "Your eldritch avatar stalks the map. Type 'help'.\n";
+
+    // Wave 7: auto-load character packages. The binary is usually run as
+    // ./build/cultulhu_play from the repo root (assets/characters), but
+    // also works from the build dir (../assets/characters).
+    {
+        std::string root = "assets/characters";
+        {
+            std::ifstream probe(root + "/cthulhu_avatar/character.def");
+            if (!probe) root = "../assets/characters";
+        }
+        const int n = g.charLoader.scanAndLoad(root);
+        std::cout << "characters: " << n << " package(s) from " << root
+                  << "\n";
+        for (const auto& p : g.charLoader.packages()) {
+            ValidationReport rep = CharacterValidator::validate(p);
+            std::cout << "  " << p.folderName << " -> '" << p.def.id
+                      << "': " << (rep.ok ? "OK" : "INVALID");
+            if (!rep.warnings.empty())
+                std::cout << " (" << rep.warnings.size() << " warning(s))";
+            std::cout << "\n";
+            for (const auto& w : rep.warnings)
+                std::cout << "      ! " << w << "\n";
+        }
+        for (const auto& e : g.charLoader.loadErrors())
+            std::cout << "  load error: " << e << "\n";
+    }
+
+    g.printStatus();
+
+    std::string line;
+    while (std::cout << "\n> " && std::getline(std::cin, line)) {
+        if (!processLine(g, nets, line)) break;
     }
 
     std::cout << "The dream ends. Power: " << g.power.value() << "\n";

@@ -45,6 +45,14 @@ public:
     const AmbientParams& ambient() const { return def_.ambient; }
     const std::vector<Vec3>& relicSpots() const { return def_.relicSpots; }
 
+    // Wave 9c: raise (or lower) the background fear in this zone, 0..100.
+    // Graffiti of the Old One feeds this; fear decays elsewhere.
+    void addAmbientFear(float amount) {
+        def_.ambient.ambientFear += amount;
+        if (def_.ambient.ambientFear < 0.0f) def_.ambient.ambientFear = 0.0f;
+        if (def_.ambient.ambientFear > 100.0f) def_.ambient.ambientFear = 100.0f;
+    }
+
     bool contains(Vec3 p) const {
         return p.x >= def_.min.x && p.x <= def_.max.x &&
                p.y >= def_.min.y && p.y <= def_.max.y &&
@@ -63,8 +71,15 @@ public:
     // Pick a random relic spot, or (0,0,0) when the zone has none.
     Vec3 randomRelicSpot(RNG& rng) const;
 
+    // Wave 9b: persistent BlightLand state. Once a BlightLand directive
+    // completes on this zone it stays Blighted for the rest of the game
+    // (the city layer reads this to keep civilian output suppressed).
+    bool blighted() const { return blighted_; }
+    void setBlighted(bool b = true) { blighted_ = b; }
+
 private:
     ZoneDef def_;
+    bool blighted_ = false;
 };
 
 } // namespace cultulhu
