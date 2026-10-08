@@ -8,11 +8,15 @@ namespace cultulhu {
 
 // ---- tuning (all creative-liberty numbers; documented in README) ----
 namespace {
-constexpr float TORTURE_PER_VICTIM      = 8.0f;   // civilians/creatures tortured
+constexpr float TORTURE_PER_VICTIM      = 6.4f;   // civilians/creatures tortured
+                                                     // (wave 9a sim: 8.0 made Torture the runaway
+                                                     // fastest single belief; -20%)
 constexpr float TORTURE_PER_CAPTURED    = 5.0f;   // captured cultists tortured
 constexpr float TORTURE_ONE_HIT_KILL   = -12.0f;  // own cultist one-hit killed
 
-constexpr float FEAR_RAID_POWER        = 12.0f;  // per raid * destruction(0..1)
+constexpr float FEAR_RAID_POWER        = 14.4f;  // per raid * destruction(0..1)
+                                                     // (wave 9a sim: 12.0 left steady raiding
+                                                     // stalled below 500 power; +20%)
 constexpr float FEAR_RAID_LEVEL        = 20.0f;
 constexpr float FEAR_DECAY_PER_SEC     = 1.5f;   // when not in combat
 constexpr float FEAR_POWER_DECAY       = 1.0f;   // power lost per sec while decaying
@@ -27,7 +31,8 @@ constexpr float CHAOS_IMPRISONED        = -4.0f;
 constexpr float CHAOS_ADOPT_SPEED      = 2.0f;   // faster belief adoption
 constexpr float PUNISH_RISK_UP         = 10.0f;  // insurrection risk per punishment
 
-constexpr float SACRIFICE_COMPLETED    = 25.0f;
+constexpr float SACRIFICE_COMPLETED    = 30.0f;  // (wave 9a sim: 25.0 left Sacrifice
+                                                     // stalled at ~495 power; +20%)
 constexpr float SACRIFICE_INTERRUPTED  = -15.0f;
 constexpr float DEATH_DENIED           = 20.0f;  // converted denies a death
 
@@ -45,13 +50,32 @@ constexpr float TRICKERY_TRAP_FEAR     = 5.0f;
 
 constexpr float MAGIC_NECROMANCY       = 10.0f;
 
-constexpr float ONSLAUGHT_PER_CIVILIAN = 3.0f;
+// Wave 9b: new directives.
+constexpr float ASSASSIN_FEAR_LEVEL    = 40.0f;  // fear level from a slain leader
+constexpr float ASSASSIN_FEAR_POWER    = 30.0f;  // power spike on assassination
+constexpr float ASSASSIN_WAR_POWER     = 20.0f;  // war power on assassination
+constexpr float BLIGHT_TICK_FEAR       = 1.5f;   // fear per blight tick
+constexpr float BLIGHT_TICK_POWER      = 0.5f;   // power per blight tick
+constexpr float BLIGHT_DONE_FEAR       = 20.0f;
+constexpr float BLIGHT_DONE_POWER      = 10.0f;
+constexpr float CHAMPION_MAGIC_POWER   = 25.0f;  // power on successful summoning
+constexpr float CHAMPION_FEAR_LEVEL    = 15.0f;  // fear from the summoned horror
+constexpr float SUMMON_INTERRUPT_MAGIC = -15.0f; // power lost on interruption
+
+constexpr float ONSLAUGHT_PER_CIVILIAN = 3.6f;   // (wave 9a sim: 3.0 left the kill-fantasy
+                                                     // belief far behind War; +20%)
 constexpr float ONSLAUGHT_IDLE_DECAY   = 2.0f;   // power lost per sec after 1h idle
 
 constexpr float DREAM_WHISPER_POWER    = 2.0f;   // per dream-whisper conversion
 constexpr float PRAYER_POWER           = 1.0f;   // per prayer offered (ambient)
 constexpr float DESECRATE_FEAR         = 2.0f;   // fear per desecration
 constexpr float DESECRATE_TORTURE      = 2.0f;   // power per desecration (Torture)
+
+// Wave 9c: new ambient activities.
+constexpr float OMEN_READ_POWER        = 2.0f;   // power per omen-reading
+constexpr float SIGIL_FEAR             = 3.0f;   // fear per painted sigil
+constexpr float SPARRING_POWER         = 0.5f;   // power per sparring bout
+constexpr float CHANT_POWER            = 0.5f;   // power per chanting circle
 } // namespace
 
 BeliefSystem::BeliefSystem(EventBus& bus, GameClock& clock)
@@ -174,6 +198,26 @@ float BeliefSystem::onEvent(const GameEvent& e) {
                 fear_ = 0.0f;
                 delta += FEAR_DEFEATED;
                 break;
+            // Wave 9b: a slain enemy leader terrifies the populace.
+            case EventType::LeaderAssassinated:
+                fear_ += ASSASSIN_FEAR_LEVEL;
+                if (fear_ > 100.0f) fear_ = 100.0f;
+                delta += ASSASSIN_FEAR_POWER;
+                break;
+            case EventType::ZoneBlightTick:
+                fear_ += BLIGHT_TICK_FEAR;
+                if (fear_ > 100.0f) fear_ = 100.0f;
+                delta += BLIGHT_TICK_POWER;
+                break;
+            case EventType::ZoneBlighted:
+                fear_ += BLIGHT_DONE_FEAR;
+                if (fear_ > 100.0f) fear_ = 100.0f;
+                delta += BLIGHT_DONE_POWER;
+                break;
+            case EventType::ChampionSummoned:
+                fear_ += CHAMPION_FEAR_LEVEL;
+                if (fear_ > 100.0f) fear_ = 100.0f;
+                break;
             case EventType::TrapSprung:
                 // Traps generate fear too (Trickery synergy).
                 fear_ += TRICKERY_TRAP_FEAR;
@@ -231,6 +275,8 @@ float BeliefSystem::onEvent(const GameEvent& e) {
                 break;
             case EventType::BaseBuildingDamaged:   delta += WAR_BUILDING_DAMAGED; break;
             case EventType::BaseBuildingDestroyed: delta += WAR_BUILDING_DESTROYED; break;
+            // Wave 9b: decapitating the enemy cult is an act of war.
+            case EventType::LeaderAssassinated: delta += ASSASSIN_WAR_POWER; break;
             default: break;
         }
     }
@@ -247,6 +293,9 @@ float BeliefSystem::onEvent(const GameEvent& e) {
     if (isActive(Belief::Magic)) {
         switch (e.type) {
             case EventType::NecromancyPerformed: delta += MAGIC_NECROMANCY; break;
+            // Wave 9b: the summoning answers (or fizzles).
+            case EventType::ChampionSummoned: delta += CHAMPION_MAGIC_POWER; break;
+            case EventType::SummoningInterrupted: delta += SUMMON_INTERRUPT_MAGIC; break;
             default: break;
         }
     }
@@ -283,6 +332,22 @@ float BeliefSystem::onEvent(const GameEvent& e) {
                 if (fear_ > 100.0f) fear_ = 100.0f;
             }
             if (isActive(Belief::Torture)) delta += DESECRATE_TORTURE;
+            break;
+        // Wave 9c: new ambient activities.
+        case EventType::OmenRead:
+            delta += OMEN_READ_POWER * e.amount; break;
+        case EventType::SigilPainted:
+            if (isActive(Belief::Fear)) {
+                fear_ += SIGIL_FEAR;
+                if (fear_ > 100.0f) fear_ = 100.0f;
+            }
+            break;
+        case EventType::SparringHeld:
+            if (isActive(Belief::War) || isActive(Belief::Onslaught))
+                delta += SPARRING_POWER * e.amount;
+            break;
+        case EventType::ChantingHeld:
+            if (isActive(Belief::Magic)) delta += CHANT_POWER * e.amount;
             break;
         default: break;
     }
