@@ -8,6 +8,13 @@ namespace cultulhu {
 namespace {
 // A conversion campaign takes ~300s of game time per soul at 1.0 efficiency.
 constexpr double CAMPAIGN_SECONDS_PER_SOUL = 300.0;
+// Wave 10 (R3): organic insurrection fuel. Insurrection previously only
+// fired via punishment; a disaffected flock now stokes risk by itself.
+// Kept a slow burn (+0.2/s): a revolt after ~4 min of sustained neglect in
+// the worst case, not a chained alarm (the wave-9 sim flagged +0.5/s-class
+// rates as revolt-chaining).
+constexpr float LOW_DEVOTION_RISK_PER_SEC = 0.2f;
+constexpr float DISAFFECTED_DEVOTION = 20.0f;
 }
 
 CultManager::CultManager(EventBus& bus, GameClock& clock, RNG& rng)
@@ -73,6 +80,19 @@ void CultManager::startConversionCampaign(int targetConverts) {
 }
 
 bool CultManager::update(double dt) {
+    // Wave 10 (R3): disaffected cultists (devotion < 20) slowly stoke
+    // insurrection risk on their own — once per tick, not per cultist.
+    {
+        bool disaffected = false;
+        for (const auto& c : cultists_) {
+            if (c->alive() && c->devotion() < DISAFFECTED_DEVOTION) {
+                disaffected = true;
+                break;
+            }
+        }
+        if (disaffected)
+            addRisk(LOW_DEVOTION_RISK_PER_SEC * static_cast<float>(dt));
+    }
     if (campaignActive_) {
         campaignRemaining_ -= dt;
         if (campaignRemaining_ <= 0.0) {

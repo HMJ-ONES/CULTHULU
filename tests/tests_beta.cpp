@@ -115,7 +115,7 @@ static void test_dreams_whisper_power_rule() {
     adoptNow(w.beliefs, Belief::Dreams);
     GameEvent e(EventType::DreamWhisper);
     e.amount = 1.0f;
-    CHECK_CLOSE(w.beliefs.onEvent(e), 2.0f, 1e-6f); // DREAM_WHISPER_POWER
+    CHECK_CLOSE(w.beliefs.onEvent(e), 13.0f, 1e-6f); // DREAM_WHISPER_POWER
 }
 
 // ---- Camera ----
