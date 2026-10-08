@@ -32,9 +32,14 @@ public:
     static constexpr float MIN_EXERTION = 0.0f;
     static constexpr float MAX_EXERTION = 100.0f;
     static constexpr float BASELINE = 10.0f;      // rest level, decays here
-    static constexpr float DECAY_PER_SEC = 0.5f;  // drift toward baseline
-    static constexpr float SYNERGY_THRESHOLD = 50.0f; // synergy/conflict gate
-    static constexpr float TENSION_THRESHOLD = 70.0f; // tension event gate
+    static constexpr float DECAY_PER_SEC = 0.05f;  // drift toward baseline
+                                                     // (wave 10 / R2: 0.5 made the synergy/tension
+                                                     // gates unreachable; now warm play reaches
+                                                     // them and neglect decays over ~minutes)
+    static constexpr float SYNERGY_THRESHOLD = 25.0f; // synergy/conflict gate
+                                                      // (wave 10 / R2: 50 was unreachable)
+    static constexpr float TENSION_THRESHOLD = 35.0f; // tension event gate
+                                                      // (wave 10 / R2: 70 was unreachable)
     static constexpr float TENSION_COOLDOWN = 60.0f;  // seconds between
                                                       // tension events
 
@@ -59,6 +64,7 @@ public:
 private:
     void feedFromEvent(const GameEvent& e);
     void feedFromDirective(const GameEvent& e); // parses DirectiveResolved
+    float stackedIncomeMultiplier() const; // R1: diminishing income returns
     float powerMultiplierFor(const GameEvent& e) const;
     void fireTensions(double dt);
 

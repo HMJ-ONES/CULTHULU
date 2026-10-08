@@ -88,8 +88,8 @@ static void testDecayAndClamp() {
     Wave4World w;
     w.exertion.addExertion(Belief::War, 100.0f); // inactive: 10+50=60
     CHECK_CLOSE(w.exertion.exertion(Belief::War), 60.0f, 0.01f);
-    w.exertion.update(10.0); // -5 toward baseline
-    CHECK_CLOSE(w.exertion.exertion(Belief::War), 55.0f, 0.01f);
+    w.exertion.update(10.0); // -0.5 toward baseline (wave 10: decay 0.05/s)
+    CHECK_CLOSE(w.exertion.exertion(Belief::War), 59.5f, 0.01f);
 
     w.exertion.addExertion(Belief::Torture, 1000.0f);
     CHECK_CLOSE(w.exertion.exertion(Belief::Torture), 100.0f, 0.01f);
@@ -97,7 +97,7 @@ static void testDecayAndClamp() {
     CHECK_CLOSE(w.exertion.exertion(Belief::Torture), 0.0f, 0.01f);
 }
 
-// 3. Terror synergy (Fear x Torture): power gains x1.25 when both > 50.
+// 3. Terror synergy (Fear x Torture): power gains x1.25 when both > 25.
 static void testTerrorSynergy() {
     Wave4World a, b;
     adoptNow(a.beliefs, Belief::Torture);
@@ -203,6 +203,51 @@ static void testObedienceInterplay() {
     CHECK(calm <= 20);
 }
 
+// Wave 10 (R1): stacked beliefs dilute power income: 1x / 0.75x / 0.5x.
+static void testStackedIncomeMultiplier() {
+    Wave4World one, two, three;
+    adoptNow(one.beliefs, Belief::War);
+    adoptNow(two.beliefs, Belief::War);
+    adoptNow(two.beliefs, Belief::Fear);
+    adoptNow(three.beliefs, Belief::War);
+    adoptNow(three.beliefs, Belief::Fear);
+    adoptNow(three.beliefs, Belief::Magic);
+
+    GameEvent e(EventType::EnemyCultistSlain);
+    const float p0 = one.power.value(), p1 = two.power.value(),
+                p2 = three.power.value();
+    one.bus.publish(e); two.bus.publish(e); three.bus.publish(e);
+    const float base = one.power.value() - p0; // War: 10.0 power
+    CHECK(base > 0.0f);
+    CHECK_CLOSE(two.power.value() - p1, base * 0.75f, 0.05f);
+    CHECK_CLOSE(three.power.value() - p2, base * 0.5f, 0.05f);
+}
+
+// Wave 10 (R3): disaffected cultists (devotion < 20) stoke insurrection risk
+// on their own — no punishment required.
+static void testDisaffectedRiskTrickle() {
+    Wave4World w;
+    CHECK_CLOSE(w.cult.insurrectionRisk(), 0.0f, 1e-6f);
+    w.cult.recruit().setDevotion(10.0f);
+    w.cult.update(100.0);
+    CHECK_CLOSE(w.cult.insurrectionRisk(), 20.0f, 0.01f); // 0.2/s x 100s
+}
+
+// Wave 10 (R4): Onslaught idle decay starts after 20 in-game minutes.
+static void testOnslaughtIdleLimit() {
+    CHECK_CLOSE(BeliefSystem::ONSLAUGHT_IDLE_LIMIT, 1200.0, 1e-6);
+}
+
+// Wave 10 (R5): Reconstruction has a power path (rebuilds and heals).
+static void testReconstructionPowerPath() {
+    Wave4World w;
+    adoptNow(w.beliefs, Belief::Reconstruction);
+    GameEvent rb(EventType::BuildingRebuilt);
+    CHECK_CLOSE(w.beliefs.onEvent(rb), 2.0f, 1e-6f);
+    GameEvent h(EventType::HealPerformed);
+    CHECK_CLOSE(w.beliefs.onEvent(h), 0.5f, 1e-6f);
+}
+
 // 8. Belief tension events fire on hot conflicts, then cool down.
 static void testTensionEvents() {
     Wave4World w;
@@ -247,10 +292,10 @@ static void testInteractionMatrix() {
     ex[bi(Belief::Dreams)] = 60.0f;
     ex[bi(Belief::Chaos)] = 60.0f;
     CHECK(synergyActive(Belief::Dreams, Belief::Chaos, ex));
-    ex[bi(Belief::Chaos)] = 40.0f;
+    ex[bi(Belief::Chaos)] = 20.0f;
     CHECK(!synergyActive(Belief::Dreams, Belief::Chaos, ex));
     // Threshold parity between the matrix queries and the exertion system.
-    CHECK_CLOSE(ExertionSystem::SYNERGY_THRESHOLD, 50.0f, 0.001f);
+    CHECK_CLOSE(ExertionSystem::SYNERGY_THRESHOLD, 25.0f, 0.001f);
     CHECK(synergyPairCount() == 10);
     CHECK(conflictPairCount() == 5);
 }
@@ -317,6 +362,10 @@ int main() {
     testDerivedStats();
     testObedienceInterplay();
     testTensionEvents();
+    testStackedIncomeMultiplier();
+    testDisaffectedRiskTrickle();
+    testOnslaughtIdleLimit();
+    testReconstructionPowerPath();
     testDirectiveFeeds();
     testInteractionMatrix();
     testRitualCaster();

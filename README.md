@@ -213,7 +213,8 @@ logic is unaffected.
 ## Wave 4: belief exertion & interactions
 
 Every belief now carries an **exertion (fervor) meter 0–100** (baseline 10,
-decays toward baseline at 0.5/s when neglected). Active beliefs accumulate
+decays toward baseline at 0.05/s when neglected — wave 10: was 0.5/s, which
+made the synergy/tension gates unreachable). Active beliefs accumulate
 at full rate; inactive beliefs still track at half rate, so swapping creeds
 mid-game has momentum. Exertion is fed by a data table
 (`src/exertion/ActionExertionTable.h`) — every game action feeds it:
@@ -227,23 +228,24 @@ mid-game has momentum. Exertion is fed by a data table
 | Feral rampage | Breeding +4, Fear +5 |
 | Explosion | Chaos +6 |
 | Punish infringers / brawl / desecrate / lunatic acts | Chaos +4/+3/+2/+3 |
-| Completed sacrifice ritual | Sacrifice +12 |
+| Completed sacrifice ritual | Sacrifice +20 |
 | Interrupted sacrifice ritual | Sacrifice −5 |
 | Conversion (soul) | Conversion +6 |
 | Mass conversion (200s cd) | Conversion +10 |
 | Sermon / dream-whisper | Conversion +2/+1 |
 | Enemy cultist slain in war | War +6 |
-| Building auto-rebuilt / heal | Reconstruction +2/+1 |
+| Building auto-rebuilt / heal | Reconstruction +8/+2 |
 | Mimic kill / sprung trap / cursed artifact | Trickery +8/+6/+4 |
 | Sorcerer spell cast / necromancy | Magic +3/+10 |
 | Civilian slain / melee attack | Onslaught +3/+1 |
-| Cultist rests / prays / dream-whisper / nightmare | Dreams +2/+1/+1/+3 (nightmare also Chaos +2) |
+| Cultist rests / prays / dream-whisper / nightmare | Dreams +2/+1/+8/+3 (nightmare also Chaos +2) |
 | Directive obeyed (Raid→Fear, Convert→Conversion, Sacrifice→Sacrifice, War→War, Defend→Reconstruction, Relic→Magic) | aligned belief +8 (partial +4) |
 | Directive refused / sparks insurrection | Chaos +4 / +8 |
 
 ### Interaction matrix (12×12)
 
-When two beliefs both exceed **50 exertion** they interact:
+When two beliefs both exceed **25 exertion** they interact (wave 10: was 50,
+unreachable):
 
 **Synergies** (amplify each other):
 | Pair | Name | Effect |
@@ -260,7 +262,7 @@ When two beliefs both exceed **50 exertion** they interact:
 | Torture × Chaos | Cruelty Unbound | torture power ×1.25 (stacks additively) |
 
 **Conflicts** (each suppresses the other's exertion gains by half while both
-> 50; both > 70 fires a `BeliefTension` event + **+1.5** insurrection risk,
+> 25; both > 35 fires a `BeliefTension` event + **+1.5** insurrection risk,
 60s cooldown per pair):
 | Pair | Name | Extra effect |
 |---|---|---|
@@ -752,8 +754,43 @@ the per-player KDA table.
 Wave 7 adds the `cultulhu_tests_wave7*` suites (zones, dungeons/caves,
 altars, buildings, construction sites, builder AI, command menu, input
 model, combos, stats panel, character packages, validation, RMB
-abilities, KDA): all passing alongside the earlier waves (13/13 ctest
-suites green).
+abilities, KDA): all passing alongside the earlier waves (18/18 ctest
+suites green as of wave 10).
+
+## Wave 10: balance-sim recommendations applied (R1–R5)
+
+The five structural fixes the wave-9 sim flagged but left unapplied:
+
+- **R1 — diminishing returns on stacked belief income.** Power deltas now
+  scale by active-belief count: 1× / 0.75× / 2-beliefs, 0.5× / 3-beliefs
+  (`ExertionSystem::stackedIncomeMultiplier`). Conversion×Trickery×Magic
+  dropped from 2.28× to 0.79× the scenario median.
+- **R2 — exertion can reach the synergy gates.** `DECAY_PER_SEC` 0.5→0.05,
+  `SYNERGY_THRESHOLD` 50→25, `TENSION_THRESHOLD` 70→35; sparse feeds bumped
+  so every belief warms under steady play (SacrificeCompleted +12→+20,
+  BuildingRebuilt +2→+8, HealPerformed +1→+2, DreamWhisper +1→+8). The full
+  interaction matrix is live in the sim: Terror, Nightmare Surge, Blood
+  Frenzy, Dark Rites, Infiltration, Martyrs' Visions, Oneiromancy all fire;
+  conflict suppression holds Reconstruction×War below the tension gate.
+- **R3 — organic insurrection fuel.** Cultists under 20 devotion stoke
+  +0.2/s risk (`CultManager::update`). Chaos scenarios now revolt ~3–5× per
+  hour organically instead of only via punishment (kept at 0.2/s, not 0.5/s,
+  so it stays a slow burn rather than a chained alarm).
+- **R4 — Onslaught idle decay reachable.** `ONSLAUGHT_IDLE_LIMIT` 3600s→
+  1200s: 20 idle minutes now bite (not measurable in the sim — the bot
+  never idles).
+- **R5 — Reconstruction & Dreams power paths.** Rebuilding +2 power,
+  heals +0.5; dream-whispers 2.0→13.0. Dreams now reaches 500 power;
+  Reconstruction earns 66/run from its own actions (190→256 final).
+
+Re-ran the full sim (18 scenarios × 8 seeds × 3600 ticks; report in
+`sim_reports/wave10_report.md`, wave-9 CSVs archived under
+`sim_reports/wave9_baseline/`). Watch item: Fear×Torture is the fastest
+loadout at 1.99× the scenario median (Terror synergy now fires, as
+designed) — inside the 2× flag, but the flag may want recalibration if
+the target is ≤1.5× for all loadouts. No sim scenario pairs a hot
+conflict, so tension events are covered by unit test
+(`testTensionEvents`) rather than the sim matrix.
 
 ## Wave 9: balance sim, new content, robustness
 

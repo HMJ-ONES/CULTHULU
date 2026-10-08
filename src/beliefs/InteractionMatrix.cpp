@@ -60,8 +60,8 @@ BeliefRelation beliefRelation(Belief a, Belief b) {
 
 namespace {
 // ExertionSystem::SYNERGY_THRESHOLD duplicated here to keep this module
-// dependency-free (both must stay 50; asserted in the wave-4 tests).
-constexpr float THRESHOLD = 50.0f;
+// dependency-free (both must stay 25; asserted in the wave-4 tests).
+constexpr float THRESHOLD = 25.0f;
 
 bool pairHot(Belief a, Belief b, BeliefRelation want, const float exertion[12]) {
     if (beliefRelation(a, b) != want) return false;
