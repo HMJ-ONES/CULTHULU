@@ -23,8 +23,10 @@ public:
     // Mass-conversion (Conversion belief): 3 instant converts, 200s cooldown.
     static constexpr double MASS_CONVERT_COOLDOWN = 200.0;
     static constexpr int MASS_CONVERT_COUNT = 3;
-    // Onslaught: power decays if no civilian slain for 1 in-game hour.
-    static constexpr double ONSLAUGHT_IDLE_LIMIT = 3600.0;
+    // Onslaught: power decays if no civilian slain for 20 in-game minutes.
+    // (wave 10 / R4: the 3600s limit equaled the full play horizon, so the
+    // mechanic could never bite; now a pacifist Onslaught actually decays)
+    static constexpr double ONSLAUGHT_IDLE_LIMIT = 1200.0;
 
     BeliefSystem(EventBus& bus, GameClock& clock);
 

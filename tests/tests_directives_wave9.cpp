@@ -221,10 +221,11 @@ static void testAssassinateSuccess() {
     CHECK(shock.events[0].faction == 2);
     CHECK_CLOSE(shock.events[0].amount, 120.0f, 1e-3f);
     CHECK(!progress.events.empty()); // progress along the way
-    // Big Fear + power spike through the pipeline.
+    // Big Fear + power spike through the pipeline. (wave 10 / R1: the test
+    // creed runs Fear+War, so the 50.0 spike dilutes to 50*0.75 = 37.5.)
     CHECK(w.exertion.exertion(Belief::Fear) > fearBefore);
     CHECK(w.exertion.exertion(Belief::War) > warBefore);
-    CHECK_CLOSE(w.power.value(), powerBefore + 30.0f + 20.0f, 1e-3f);
+    CHECK_CLOSE(w.power.value(), powerBefore + 37.5f, 1e-3f);
 }
 
 // 5. AssassinateProphet failure branch (seeded): the assassin is exposed,

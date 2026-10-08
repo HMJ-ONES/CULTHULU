@@ -138,9 +138,22 @@ float ExertionSystem::powerMultiplierFor(const GameEvent& e) const {
 void ExertionSystem::onGameEvent(const GameEvent& e) {
     feedFromEvent(e);
     feedFromDirective(e);
-    // Existing belief power rules, then exertion-scaled synergy bonuses.
+    // Existing belief power rules, scaled by the stacked-income multiplier
+    // (R1), then exertion-scaled synergy bonuses.
     const float delta = beliefs_.onEvent(e);
-    power_.add(delta * powerMultiplierFor(e));
+    power_.add(delta * stackedIncomeMultiplier() * powerMultiplierFor(e));
+}
+
+// R1 (wave 10): diminishing returns on stacked belief income. Three full
+// schedules stacking linearly made Conversion x Trickery x Magic 2.28x the
+// scenario median. Each additional active belief now dilutes the whole
+// income stream: second belief's events at 0.75x, third at 0.5x. Applies to
+// losses too (symmetric dilution).
+float ExertionSystem::stackedIncomeMultiplier() const {
+    const size_t n = beliefs_.active().size();
+    if (n >= 3) return 0.5f;
+    if (n == 2) return 0.75f;
+    return 1.0f;
 }
 
 void ExertionSystem::fireTensions(double dt) {
