@@ -40,6 +40,13 @@ enum class HazardType {
     CaveIn,   // corridor hazard: chance on traversal; damages entities
               // inside and may SEAL the passage (roomSealed)
     Trapped,  // room hazard: hidden trap, fires once on first entry
+    // Wave 13: Vale of Pnath hazards. The base traverseTo() loop calls
+    // the virtual fireHazard(), so subclasses can add their own types
+    // without touching the traversal logic.
+    AbyssPit,    // room hazard: bottomless pit; fall damage scales w/ depth
+    Whispers,    // room hazard: maddening whispers; fear scales w/ dread
+    DholeTunnel, // room hazard: telegraphed burrower ambush (tremors first,
+                 // then the strike on the next traversal)
     Count
 };
 
@@ -53,6 +60,8 @@ struct DungeonHazard {
     float triggerChance = 1.0f; // cave-ins roll this per traversal
     bool spent = false;         // one-shot traps
     bool sealed = false;        // cave-in blocked the passage
+    bool primed = false;        // wave 13: two-stage hazards (dhole tunnel:
+                                // first traversal telegraphs, second strikes)
     std::vector<uint64_t> victims; // spike pits: entities already hit
 };
 
@@ -80,7 +89,6 @@ public:
     static constexpr float CAVE_IN_DAMAGE = 20.0f;
     static constexpr float CAVE_IN_TRIGGER_CHANCE = 0.35f;
     static constexpr float CAVE_IN_SEAL_CHANCE = 0.40f;
-
     DungeonInstance(EventBus& bus, uint64_t id, uint64_t seed,
                     Vec3 entrancePos,
                     int width = DEFAULT_WIDTH, int height = DEFAULT_HEIGHT,
@@ -170,6 +178,14 @@ protected:
 
     // Wave 9c: seeded hazard placement; called at the end of doGenerate().
     void placeHazards();
+
+    // Wave 13: hazard dispatch hook. traverseTo() calls this for every
+    // hazard attached to the entered room; the base version fires the
+    // wave-9c types (SpikePit/Trapped/CaveIn). Subclasses override to
+    // handle their own hazard types (Vale of Pnath adds AbyssPit,
+    // Whispers, DholeTunnel). roomPos is the room center in world space.
+    virtual void fireHazard(DungeonHazard& h, uint64_t entityId,
+                            int roomIndex, Vec3 roomPos);
 
     EventBus& bus_;
     RNG rng_;

@@ -84,6 +84,12 @@ inline constexpr ExertionFeed ACTION_EXERTION_TABLE[] = {
     {EventType::SpikePitSprung,     Belief::Fear,      2.0f},
     {EventType::CaveIn,             Belief::Chaos,     4.0f},
     // (Dungeon traps reuse TrapSprung -> Trickery 6.0f, already above.)
+    // Wave 13: Vale of Pnath hazards & encounters.
+    {EventType::AbyssPitFall,       Belief::Fear,      6.0f},
+    {EventType::MaddeningWhispers,  Belief::Fear,      4.0f},
+    {EventType::DholeTremors,       Belief::Fear,      2.0f},
+    {EventType::DholeAmbush,        Belief::Fear,      8.0f},
+    {EventType::ValeRelicClaimed,   Belief::Magic,     8.0f},
     // Wave 9b: new directives.
     {EventType::LeaderAssassinated, Belief::Fear,     15.0f},
     {EventType::LeaderAssassinated, Belief::War,       6.0f},

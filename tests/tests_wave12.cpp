@@ -84,7 +84,9 @@ static void testCatalogResolves() {
     std::set<std::string> seenPaths;
     for (const auto& [key, path] : m) {
         CHECK(!key.empty());
-        CHECK(!path.empty());
+        if (path.empty()) continue; // wave 13: intentional placeholder
+                                    // slots (e.g. "dhole" — no CC0 model
+                                    // exists; procedural fallback applies)
         CHECK(seenPaths.insert(path).second); // no two keys share a file
         CHECK(fileExists(repoPrefix() + path));
     }
@@ -107,6 +109,8 @@ static void testBudgets() {
     std::set<std::string> counted;
     for (const auto& [key, path] : m) {
         const std::string full = repoPrefix() + path;
+        if (path.empty()) continue; // wave 13: intentional placeholder
+                                    // slots have no file (see above)
         if (!counted.insert(full).second) continue;
         GlbStats gs = readGlbStats(full);
         CHECK(gs.ok);

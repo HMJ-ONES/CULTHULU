@@ -10,6 +10,9 @@ const char* hazardTypeName(HazardType t) {
         case HazardType::SpikePit: return "SpikePit";
         case HazardType::CaveIn:  return "CaveIn";
         case HazardType::Trapped: return "Trapped";
+        case HazardType::AbyssPit: return "AbyssPit";
+        case HazardType::Whispers: return "Whispers";
+        case HazardType::DholeTunnel: return "DholeTunnel";
         case HazardType::Count:   return "Count";
     }
     return "Unknown";
@@ -183,7 +186,15 @@ bool DungeonInstance::traverseTo(uint64_t entityId, int roomIndex) {
 
     for (auto& h : hazards_) {
         if (h.roomIndex != roomIndex) continue;
-        switch (h.type) {
+        fireHazard(h, entityId, roomIndex, roomPos);
+    }
+    return true;
+}
+
+// Wave 13: extracted from traverseTo() unchanged (wave-9c behavior).
+void DungeonInstance::fireHazard(DungeonHazard& h, uint64_t entityId,
+                                int roomIndex, Vec3 roomPos) {
+    switch (h.type) {
             case HazardType::SpikePit: {
                 // Once per entity per room.
                 if (std::find(h.victims.begin(), h.victims.end(), entityId) !=
@@ -231,10 +242,11 @@ bool DungeonInstance::traverseTo(uint64_t entityId, int roomIndex) {
             }
             case HazardType::None:
             case HazardType::Count:
+            case HazardType::AbyssPit:   // Vale of Pnath only; handled by
+            case HazardType::Whispers:    // the ValeOfPnath override below.
+            case HazardType::DholeTunnel: // Base dungeons never place these.
                 break;
         }
-    }
-    return true;
 }
 
 void DungeonInstance::registerSurfaceEntity(uint64_t entityId) {

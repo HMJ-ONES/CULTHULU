@@ -113,6 +113,30 @@ private:
     bool feral_;
 };
 
+class Dhole : public Monstrosity {
+public:
+    // Wave 13: the burrower of the Vale of Pnath ("Dholes" is on the legal
+    // allowlist). High-HP ambusher with a dread (fear) aura. Starts
+    // burrowed — untargetable by convention until it surfaces to strike,
+    // then it may re-burrow. No CC0 dhole model exists; ModelCatalog maps
+    // "dhole" to "" and the procedural serpent/worm-like fallback applies.
+    static constexpr float DHOLE_MAX_HP = 1500.0f;
+    static constexpr float FEAR_AURA_RADIUS = 18.0f;
+    static constexpr float FEAR_AURA_STRENGTH = 12.0f; // fear per second
+
+    Dhole(FactionId faction, Vec3 pos)
+        : Monstrosity(faction, pos, "dhole", /*feral=*/true, DHOLE_MAX_HP) {}
+
+    bool burrowed() const { return burrowed_; }
+    void surface() { burrowed_ = false; }
+    void burrow() { burrowed_ = true; }
+    float fearAuraRadius() const { return FEAR_AURA_RADIUS; }
+    float fearAuraStrength() const { return FEAR_AURA_STRENGTH; }
+
+private:
+    bool burrowed_ = true;
+};
+
 class Mimic : public Entity {
 public:
     Mimic(FactionId faction, Vec3 pos, float maxHp = 120.0f)
