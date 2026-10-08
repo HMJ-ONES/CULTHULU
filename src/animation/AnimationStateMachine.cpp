@@ -99,6 +99,10 @@ void AnimationStateMachine::update(double dt) {
         case AnimationState::Attack:
         case AnimationState::Cast:
         case AnimationState::Channel:
+        case AnimationState::CastWave: // wave 18: missed one-shots, added
+        case AnimationState::Launch:   // for auto-return parity
+        case AnimationState::Brawl:    // wave 18: 0.9s one-shot
+        case AnimationState::Maul:     // wave 18: one-shot like Attack
             // One-shot states return to Idle when the clip finishes, unless
             // the bound clip loops.
             if (!clipLoops(state_) && timeInState_ >= clipDuration(state_)) {
@@ -139,6 +143,10 @@ double AnimationStateMachine::clipDuration(AnimationState s) const {
         case AnimationState::Cast:   return 1.2;
         case AnimationState::Channel:return 3.0;
         case AnimationState::Death:  return 2.0;
+        case AnimationState::Brawl:  return 0.9;  // wave 18: brawl one-shot
+        case AnimationState::Maul:   return 0.9;  // wave 18: maul one-shot
+        case AnimationState::CastWave: return 1.0;
+        case AnimationState::Launch: return 0.8;
         default:                     return 1.0;
     }
 }

@@ -18,8 +18,20 @@ ECultAnimState UCultUlhuAnimInstance::FromCore(cultulhu::AnimationState S)
 	case AnimationState::Levitate: return ECultAnimState::Levitate;
 	case AnimationState::Launch:   return ECultAnimState::Launch;
 	case AnimationState::Levitated: return ECultAnimState::Levitated;
+	case AnimationState::FearRun:  return ECultAnimState::FearRun;
+	case AnimationState::Brawl:    return ECultAnimState::Brawl;
+	case AnimationState::SacrificePerformer:
+		return ECultAnimState::SacrificePerformer;
+	case AnimationState::SacrificeVictim:
+		return ECultAnimState::SacrificeVictim;
+	case AnimationState::Maul:     return ECultAnimState::Maul;
+	case AnimationState::WarBattle: return ECultAnimState::WarBattle;
+	case AnimationState::Build:    return ECultAnimState::Build;
+	case AnimationState::Repair:   return ECultAnimState::Repair;
 	default:
 		// VERIFY IN EDITOR: add new core states here when the enum grows.
+		// WarBattle/Build/Repair added wave 18: the AnimBP needs matching
+		// looping states for each (see SetCoreState VERIFY note).
 		return ECultAnimState::Idle;
 	}
 }

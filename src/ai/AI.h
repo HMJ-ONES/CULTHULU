@@ -18,9 +18,14 @@ void moveToward(Entity& e, const Vec3& target, double dt, float speed);
 void cultistFollow(Cultist& c, const Vec3& leaderPos, double dt,
                    float speed = 4.0f);
 
-// Civilian flees directly away from a threat.
+// Civilian flees directly away from a threat. Sets the civilian's anim
+// state to FearRun; call civilianCalm() when the threat is gone.
 void civilianFlee(Civilian& c, const Vec3& threatPos, double dt,
                   float speed = 5.0f);
+
+// The threat is gone: return a fleeing civilian to Idle. Safe to call
+// anytime (no-op when already Idle; never overrides Death).
+void civilianCalm(Civilian& c);
 
 // Feral monstrosity rampage targeting: nearest entity of Cthulhu's faction
 // (typically cultists), excluding itself. Returns nullptr if none.

@@ -5,8 +5,10 @@
 #include "achievements/AchievementSystem.h"
 #include "ai/AmbientBehavior.h"
 #include "ai/RitualCaster.h"
+#include "animation/AnimationDirector.h"
 #include "animation/AnimationStateMachine.h"
 #include "assets/AssetManager.h"
+#include "assets/GlbAnimExtractor.h"
 #include "assets/GlbInfo.h"
 #include "assets/ModelCatalog.h"
 #include "beliefs/BeliefSystem.h"
@@ -160,6 +162,10 @@ struct BetaGame {
     ActiveEffects fx;
     AssetManager assets;
     AnimationStateMachine avatarAnim;
+    // Wave 18: bridges gameplay events to per-entity animation state
+    // (brawls, sacrifices, mauls). Entities are tracked as they spawn;
+    // tickSecond() advances all tracked machines.
+    AnimationDirector animDirector{bus};
 
     // Manually spawned world entities (sorcerers, monstrosities, ...).
     std::vector<std::unique_ptr<Entity>> world;
@@ -181,6 +187,10 @@ struct BetaGame {
     RmbContext waveCtx{bus, fx, beliefs, rng};
 
     BetaGame() {
+        // Wave 18: the avatar's anim machine is tracked so event hooks
+        // (brawl/sacrifice/maul) can pose it, and its machine ticks with
+        // every other tracked entity in tickSecond().
+        animDirector.track(avatar);
         // The exertion system now owns the power pipeline (event -> belief
         // power rules -> synergy multipliers -> PowerSystem). Narration for
         // the notable moments.
@@ -273,6 +283,7 @@ struct BetaGame {
         freeroam.update(1.0);
         fx.tick(1.0);
         avatarAnim.update(1.0);
+        animDirector.tick(1.0); // wave 18: advance tracked entity anims
         // Wave 7: driver construction sites progress; finished ones spawn
         // into the world. The god counts as labor (build sites get one
         // builder, so a solo site finishes in 120s of game time).
@@ -416,6 +427,10 @@ struct BetaGame {
         achievements.loadFrom(s); // wave 16
         cult.clear();
         world.clear();
+        // Wave 18: the old entities are gone; drop their anim tracking
+        // (the avatar persists, so re-track it).
+        animDirector.clear();
+        animDirector.track(avatar);
         // Wave 9d: the old world's entities are gone; the Wave of
         // Domination ability may hold raw pointers to them. Cancel it
         // (pruneStaleVictims is the backstop inside the ability).
@@ -435,10 +450,23 @@ struct BetaGame {
                 Cultist& c = cult.recruit();
                 c.setPosition(r.pos);
                 c.revive(r.hp);
+                c.setAnimPackDir( // wave 18: package .canim clips
+                    "assets/characters/cultist_hooded/animations");
+                bindEntityClips(c, "assets");
+                animDirector.track(c);
                 continue;
             }
             auto e = entityFromRecord(r);
-            if (e) world.push_back(std::move(e));
+            if (e) {
+                // Wave 18: restore the package link by type (saved games
+                // don't persist it) so .canim clips rebind on load.
+                if (e->type() == EntityType::Civilian)
+                    e->setAnimPackDir(
+                        "assets/characters/civilian_villager/animations");
+                bindEntityClips(*e, "assets");
+                animDirector.track(*e);
+                world.push_back(std::move(e));
+            }
         }
     }
 
@@ -858,9 +886,18 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 if (what == "cultist") {
                     Cultist& c = g.cult.recruit();
                     c.setPosition(q);
+                    // Wave 18: clip binding + anim event tracking
+                    // (brawls/sacrifices). The hooded-cultist package's
+                    // 16 KayKit .canim clips win over embedded/procedural.
+                    c.setAnimPackDir(
+                        "assets/characters/cultist_hooded/animations");
+                    bindEntityClips(c, "assets");
+                    g.animDirector.track(c);
                 } else if (what == "sorcerer") {
-                    g.world.push_back(std::make_unique<Sorcerer>(
-                        FACTION_CTHULHU, q));
+                    auto s = std::make_unique<Sorcerer>(FACTION_CTHULHU, q);
+                    bindEntityClips(*s, "assets");
+                    g.animDirector.track(*s);
+                    g.world.push_back(std::move(s));
                 } else if (isMonster) {
                     auto m = std::make_unique<Monstrosity>(
                         FACTION_CTHULHU, q, species, false);
@@ -872,10 +909,20 @@ static bool processLine(BetaGame& g, NetSession& nets,
                                   << (model.empty() ? " (no model: logic-only)"
                                                     : " -> " + model)
                                   << "\n";
+                    // Wave 18: embedded glTF clips for dagon_spawn /
+                    // risen_dead / wraith, procedural fallbacks otherwise.
+                    bindEntityClips(*m, "assets");
+                    g.animDirector.track(*m);
                     g.world.push_back(std::move(m));
                 } else if (what == "civilian") {
-                    g.world.push_back(
-                        std::make_unique<Civilian>(q));
+                    auto c = std::make_unique<Civilian>(q);
+                    // Wave 18: villager package .canim clips (fearrun!)
+                    // win over procedural.
+                    c->setAnimPackDir(
+                        "assets/characters/civilian_villager/animations");
+                    bindEntityClips(*c, "assets");
+                    g.animDirector.track(*c);
+                    g.world.push_back(std::move(c));
                 } else {
                     std::cout << "unknown: " << what
                               << " (try: cultist | civilian | sorcerer |"

@@ -25,6 +25,33 @@ AnimationClip makeChannel();       // ~2.0s loop: arms raised overhead,
                                   // held with a tremble (sustained casts)
 AnimationClip makeCastWave();      // ~1.2s one-shot: wide sweeping gesture
                                   // for RMB kits (Wave of Domination)
+AnimationClip makeFearRun();       // ~0.55s loop: panicked sprint — faster/
+                                  // harder than Run, hunched torso, flailing
+                                  // arms, jerking head, high hip bob with
+                                  // lateral jitter
+AnimationClip makeBrawl();         // ~0.9s one-shot: alternating wild
+                                  // haymakers, torso twist, midsection
+                                  // grapple-shake, stagger back at the end
+AnimationClip makeSacrificePerformer(); // ~2.0s loop: ceremonial — arms
+                                  // raised overhead pulsing slowly up-down,
+                                  // slight torso sway, head tilted up
+AnimationClip makeSacrificeVictim(); // ~1.6s loop: kneeling victim, hips low,
+                                  // torso hunched, arms bound behind, periodic
+                                  // struggle bursts (~every 0.5s)
+AnimationClip makeMaul();          // ~1.0s one-shot: crouch-pounce forward,
+                                  // alternating raking arm tears, head snap,
+                                  // ends in a low crouch
+AnimationClip makeWarBattle();     // ~1.1s loop: disciplined war fighting —
+                                  // clean measured weapon arcs, shield-block
+                                  // raises, advancing steps. Trained
+                                  // soldiers, not a bar brawl
+AnimationClip makeBuild();         // ~1.8s loop: the construction cycle —
+                                  // overhead hammering, bend-lift-carry,
+                                  // crouch-place-stand
+AnimationClip makeRepair();        // ~1.6s loop: kneeling repair work —
+                                  // small hammering/fitting motions at waist
+                                  // height, inspection pauses (lean back,
+                                  // head tilt)
 
 // Bone names every generator (and the FBX hook) agrees on.
 const std::vector<std::string>& humanoidBones();
@@ -32,7 +59,8 @@ const std::vector<std::string>& humanoidBones();
 class AnimationStateMachine; // forward decl; defined in AnimationStateMachine.h
 
 // Bind generated clips for every state that has no clip bound yet. Idle,
-// Walk, Run, Attack, Death, Cast, Stunned, Channel and CastWave get
+// Walk, Run, Attack, Death, Cast, Stunned, Channel, CastWave, FearRun, Brawl,
+// SacrificePerformer, SacrificeVictim, Maul, WarBattle, Build and Repair get
 // procedural clips; custom .canim clips bound earlier always win.
 // Levitate/Launch/Levitated stay unbound: they are victim-side states
 // driven at runtime by the Wave of Domination logic.

@@ -21,6 +21,19 @@ bool dealDamage(Entity& target, float dmg, EventBus& bus,
                 EventType killedEvent, bool oneHit, uint64_t attackerId,
                 EntityType attackerType) {
     bool killed = target.takeDamage(dmg, oneHit);
+    // Wave 18: a monstrosity/feral beast tearing into a human MAULS them.
+    // The AnimationDirector consumes this and poses the ATTACKER (Maul is
+    // a 0.9s one-shot that auto-returns to Idle). Humans: civilians,
+    // cultists, adventurers — the prey of beasts.
+    if (attackerType == EntityType::Monstrosity &&
+        (target.type() == EntityType::Civilian ||
+         target.type() == EntityType::Cultist ||
+         target.type() == EntityType::Adventurer)) {
+        GameEvent m(EventType::MaulStruck);
+        m.sourceId = attackerId;
+        m.targetId = target.id();
+        bus.publish(m);
+    }
     if (killed) {
         GameEvent e(killedEvent);
         e.targetId = target.id();

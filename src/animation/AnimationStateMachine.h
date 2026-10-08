@@ -22,6 +22,17 @@ enum class AnimationState {
     Levitate,  // caster holding levitated victims (loops while RMB held)
     Launch,    // hurling victims forward (one-shot)
     Levitated, // victim: floating, immobilized (loops while held)
+    // Wave 18 hooks: fear/frenzy locomotion, brawling, sacrifice ritual.
+    FearRun,            // panicked sprint (loops like Run)
+    Brawl,              // wild melee brawling (one-shot, auto-returns like Attack)
+    SacrificePerformer, // priest performing a sacrifice (loops like Channel,
+                       // held during the rite)
+    SacrificeVictim,    // bound victim kneeling/struggling (loops)
+    Maul,               // beast pounce-and-tear (one-shot like Attack)
+    // Wave 18 extension: disciplined combat and labor loops.
+    WarBattle,          // disciplined war fighting (loops while engaged)
+    Build,              // construction work (loops while building)
+    Repair,             // fixing damaged structures (loops while repairing)
     Count
 };
 
@@ -39,6 +50,14 @@ inline const char* animationStateName(AnimationState s) {
         case AnimationState::Levitate: return "LevitateHold";
         case AnimationState::Launch:  return "Launch";
         case AnimationState::Levitated: return "Levitated";
+        case AnimationState::FearRun: return "FearRun";
+        case AnimationState::Brawl:   return "Brawl";
+        case AnimationState::SacrificePerformer: return "SacrificePerformer";
+        case AnimationState::SacrificeVictim:    return "SacrificeVictim";
+        case AnimationState::Maul:    return "Maul";
+        case AnimationState::WarBattle: return "WarBattle";
+        case AnimationState::Build:    return "Build";
+        case AnimationState::Repair:   return "Repair";
         case AnimationState::Count:   return "Count";
     }
     return "Unknown";
@@ -48,8 +67,9 @@ inline const char* animationStateName(AnimationState s) {
 // works with no clips bound (procedural fallback) so the whole game runs
 // headless; the engine binding later swaps in real FBX clips per state.
 // Transition rules: Death is terminal; Stunned interrupts anything but Death;
-// Attack/Cast/Channel auto-return to Idle when their clip finishes (unless
-// looping); Walk/Run/Idle loop freely.
+// Attack/Cast/Channel/Brawl/Maul auto-return to Idle when their clip finishes
+// (unless looping); Walk/Run/Idle/FearRun/SacrificePerformer/SacrificeVictim/
+// WarBattle/Build/Repair loop freely.
 class AnimationStateMachine {
 public:
     AnimationStateMachine();

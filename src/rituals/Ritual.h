@@ -15,7 +15,12 @@ public:
         : duration_(durationSeconds), bus_(bus) {}
     virtual ~Ritual() = default;
 
-    void start() { active_ = true; interrupted_ = false; elapsed_ = 0.0; }
+    void start() {
+        active_ = true;
+        interrupted_ = false;
+        elapsed_ = 0.0;
+        onStart(); // wave 18: rite-begin hook (e.g. sacrifice anim poses)
+    }
     void interrupt();
 
     // Advance the ritual. Returns true if it completed this tick.
@@ -28,6 +33,7 @@ public:
     }
 
 protected:
+    virtual void onStart() {} // wave 18: optional rite-begin hook
     virtual void onComplete() = 0;
     virtual void onInterrupted() = 0;
 
@@ -44,9 +50,24 @@ private:
 class SacrificeRitual : public Ritual {
 public:
     explicit SacrificeRitual(EventBus& bus) : Ritual(30.0, bus) {}
+
+    // Wave 18: who performs the rite and who is sacrificed. The ids ride
+    // on SacrificeStarted/Completed/Interrupted so the animation layer can
+    // pose both participants (performer -> SacrificePerformer, victim ->
+    // SacrificeVictim; both -> Idle on interrupt).
+    void setPerformer(uint64_t entityId) { performerId_ = entityId; }
+    void setVictim(uint64_t entityId) { victimId_ = entityId; }
+    uint64_t performer() const { return performerId_; }
+    uint64_t victim() const { return victimId_; }
+
 protected:
+    void onStart() override;
     void onComplete() override;
     void onInterrupted() override;
+
+private:
+    uint64_t performerId_ = 0;
+    uint64_t victimId_ = 0;
 };
 
 // Necromancy: dark ritual empowering sorcerers (45s ritual).

@@ -25,6 +25,17 @@ void civilianFlee(Civilian& c, const Vec3& threatPos, double dt, float speed) {
     Vec3 away = c.position() - threatPos;
     if (away.length() < 1e-4f) away = Vec3(1, 0, 0);
     moveToward(c, c.position() + away.normalized() * 10.0f, dt, speed);
+    // Wave 18: the fleeing civilian runs in panic (loops like Run; the
+    // caller/UE5 binding calls civilianCalm() when the threat is gone so
+    // they are never stuck in FearRun).
+    if (c.alive())
+        c.anim().requestState(AnimationState::FearRun);
+}
+
+void civilianCalm(Civilian& c) {
+    // The threat is gone: drop the panic pose back to Idle. requestState
+    // no-ops when already Idle, and Death is never overridden.
+    c.anim().requestState(AnimationState::Idle);
 }
 
 const Entity* selectRampageTarget(

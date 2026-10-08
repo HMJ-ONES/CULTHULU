@@ -212,6 +212,16 @@ enum class EventType {
     MatchEnded,          // tag = mode name; faction = winner team (-1 draw)
     AchievementUnlocked, // tag = achievement id; the dark takes note
 
+    // Wave 18: behavior-hook animation events.
+    SacrificeStarted,    // a sacrifice rite begins: sourceId = performer
+                         // (priest) entity id; targetId = victim entity id
+    MaulStruck,          // a monstrosity/feral beast mauled a human:
+                         // sourceId = attacker id; targetId = victim id
+    WarEngagement,       // disciplined war fighting (not a brawl, not a
+                         // beast maul): sourceId = attacker entity id;
+                         // targetId = victim entity id;
+                         // faction = attacker's faction
+
     Count
 };
 

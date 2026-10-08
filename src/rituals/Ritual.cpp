@@ -21,13 +21,24 @@ bool Ritual::update(double dt) {
     return false;
 }
 
+void SacrificeRitual::onStart() {
+    GameEvent e(EventType::SacrificeStarted);
+    e.sourceId = performerId_;
+    e.targetId = victimId_;
+    bus_.publish(e);
+}
+
 void SacrificeRitual::onComplete() {
     GameEvent e(EventType::SacrificeCompleted);
+    e.sourceId = performerId_;
+    e.targetId = victimId_;
     bus_.publish(e);
 }
 
 void SacrificeRitual::onInterrupted() {
     GameEvent e(EventType::SacrificeInterrupted);
+    e.sourceId = performerId_;
+    e.targetId = victimId_;
     bus_.publish(e);
 }
 

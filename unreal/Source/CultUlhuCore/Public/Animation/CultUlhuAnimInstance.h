@@ -18,7 +18,8 @@
 
 // Mirrors cultulhu::AnimationState for the AnimGraph.
 // VERIFY IN EDITOR: keep in sync with the core enum (incl. CastWave,
-// Levitate, Launch, Levitated for the Wave of Domination).
+// Levitate, Launch, Levitated for the Wave of Domination, and the wave-18
+// states FearRun, Brawl, SacrificePerformer, SacrificeVictim, Maul).
 UENUM(BlueprintType)
 enum class ECultAnimState : uint8
 {
@@ -34,6 +35,14 @@ enum class ECultAnimState : uint8
 	Levitate UMETA(DisplayName = "Levitate"),
 	Launch   UMETA(DisplayName = "Launch"),
 	Levitated UMETA(DisplayName = "Levitated"), // victim: floating, held
+	FearRun  UMETA(DisplayName = "FearRun"),
+	Brawl    UMETA(DisplayName = "Brawl"),
+	SacrificePerformer UMETA(DisplayName = "SacrificePerformer"),
+	SacrificeVictim UMETA(DisplayName = "SacrificeVictim"),
+	Maul     UMETA(DisplayName = "Maul"),
+	WarBattle UMETA(DisplayName = "WarBattle"), // disciplined war fighting (loops)
+	Build    UMETA(DisplayName = "Build"),      // construction work (loops)
+	Repair   UMETA(DisplayName = "Repair"),     // fixing structures (loops)
 };
 
 UCLASS(Blueprintable)

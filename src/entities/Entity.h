@@ -1,5 +1,6 @@
 #pragma once
 
+#include "animation/AnimationStateMachine.h"
 #include "core/Vec3.h"
 
 #include <cstdint>
@@ -61,7 +62,26 @@ public:
         hp_ = hp < 0.0f ? 0.0f : (hp > maxHp_ ? maxHp_ : hp);
     }
 
-    virtual void update(double /*dt*/) {}
+    // Wave 18: every entity owns a headless-safe animation state machine.
+    // Behavior code drives it directly, e.g.
+    //     entity.anim().requestState(AnimationState::FearRun);
+    // The machine works with no clips bound (procedural fallback) so the
+    // simulation runs with zero art assets; the engine binding later binds
+    // real FBX/glTF clips per state.
+    AnimationStateMachine& anim() { return anim_; }
+    const AnimationStateMachine& anim() const { return anim_; }
+
+    // Wave 18: directory holding this entity's custom .canim clips
+    // (e.g. "assets/characters/cultist_hooded/animations"), or "" for none.
+    // bindEntityClips() loads and binds them (by CLIP name) before the
+    // embedded-gltf / procedural steps. Set at spawn by the game layer.
+    void setAnimPackDir(std::string dir) { animPackDir_ = std::move(dir); }
+    const std::string& animPackDir() const { return animPackDir_; }
+
+    // Default update advances the animation machine (one-shot states
+    // auto-return to Idle here). Subclasses with their own update() that
+    // skip the base call (e.g. buildings) simply don't tick animation.
+    virtual void update(double dt) { anim_.update(dt); }
 
 protected:
     uint64_t id_;
@@ -71,6 +91,9 @@ protected:
     float hp_;
     float maxHp_;
     bool oneHitKilled_ = false;
+
+    AnimationStateMachine anim_; // wave 18: per-entity animation state
+    std::string animPackDir_;     // wave 18: custom .canim clips dir ("")
 
 private:
     static uint64_t nextId_;

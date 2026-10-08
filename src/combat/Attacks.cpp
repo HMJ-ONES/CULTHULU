@@ -26,6 +26,17 @@ float resolveAttack(const Attack& atk, Entity& target,
     info.attackerType = atk.attackerType;
     // Wave 4: exertion-derived faction power scales the final damage.
     float dmg = combat::calcDamage(info, beliefs) * atk.factionPowerMult;
+    // Wave 18: cultist-on-cultist melee is a war engagement (disciplined
+    // fighting, not a brawl, not a beast maul). Brawls never resolve
+    // combat and mauls use Monstrosity attackers, so this stays clean.
+    if (atk.melee && atk.attackerType == EntityType::Cultist &&
+        target.type() == EntityType::Cultist) {
+        GameEvent war(EventType::WarEngagement);
+        war.sourceId = atk.attackerId;
+        war.targetId = target.id();
+        war.faction = target.faction();
+        bus.publish(war);
+    }
     combat::dealDamage(target, dmg, bus, killedEvent, false, atk.attackerId,
                        atk.attackerType);
     return dmg;

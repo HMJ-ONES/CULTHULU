@@ -186,6 +186,12 @@ public:
     bool hasBuilder(uint64_t cultistId) const {
         return builders_.count(cultistId) != 0;
     }
+    // Wave 18: enumerate the attached builders (read-only). The animation
+    // hook consumer resolves site ids from BuildStarted/Completed events
+    // back to their builders through this.
+    const std::unordered_set<uint64_t>& builderIds() const {
+        return builders_;
+    }
 
     // Progress scales linearly with builder count: n builders finish n
     // times faster than one. Sites with no builders stall.
