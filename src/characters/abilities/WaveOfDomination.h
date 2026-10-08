@@ -71,6 +71,11 @@ public:
     size_t victimCount() const { return victims_.size(); }
     float cooldownRemaining() const { return cooldown_; }
 
+    // Drop every victim and return to Idle without drop/launch effects.
+    // The game layer calls this when the world is rebuilt under a live
+    // ability (e.g. save/load clears all entities).
+    void cancel();
+
     // Susceptibility rule (documented): civilians, adventurers, and
     // cultists of any faith except Chaos. Chaos-aligned lunatics are
     // immune (madness shields the mind); feral monstrosities are immune
@@ -95,6 +100,13 @@ private:
     Vec3 swingTarget_;
 
     std::vector<Victim> victims_;
+
+    // Drop victims whose entity is no longer in the live world. Victim
+    // pointers are only safe to touch while the exact pointer is still in
+    // the current context entity list: the world can be rebuilt under a
+    // live ability (save/load clears it; a dead cultist victim can be
+    // dismissed). Dereferencing anything else is a use-after-free.
+    void pruneStaleVictims(const RmbContext& ctx);
 
     static Vec3 forward(float yaw) {
         return Vec3{std::cos(yaw), 0.0f, std::sin(yaw)};

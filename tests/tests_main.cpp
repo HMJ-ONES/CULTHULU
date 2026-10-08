@@ -104,7 +104,7 @@ static void test_torture_power_math() {
     adoptNow(bs, Belief::Torture);
 
     GameEvent t(EventType::TorturePerformed); t.amount = 2.0f;
-    CHECK_CLOSE(bs.onEvent(t), 16.0f, 0.001f);   // 2 victims * 8
+    CHECK_CLOSE(bs.onEvent(t), 12.8f, 0.001f);   // 2 victims * 6.4 (wave 9a)
 
     GameEvent c(EventType::CapturedTortured); c.amount = 1.0f;
     CHECK_CLOSE(bs.onEvent(c), 5.0f, 0.001f);
