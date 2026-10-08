@@ -834,6 +834,36 @@ generator (seeded): spike pits (25 dmg, once per entity), trapped rooms
 (15 dmg, one-shot, feeds Trickery), cave-ins (20 dmg, 35% trigger, 40%
 seal the passage). Driver: `ambient [name]`, `dungeon [seed]`.
 
+### The Vale of Pnath (wave 13) — signature deep dungeon
+Lovecraft's Dreamlands abyss (public domain; only Lovecraft-original
+terms are used — see `assets/creatures/LEGAL_NAMES.md`). A special
+`ValeOfPnath` dungeon type, deeper and larger than normal dungeons:
+72×72 grid, up to 20 rooms, each room carrying a **depth** value (0 at
+the mouth, growing along the corridor chain) that reads as vertical
+descent. Entered through a surface fissure or from the deepest cave
+tier. Driver: `dungeon pnath [seed]`.
+
+- **Escalating dread**: `dreadAt(room) = depth/maxDepth` in [0,1].
+  Deeper rooms hit harder and feed more Fear exertion.
+- **Vale hazards** (seeded, via the virtual `fireHazard()` hook):
+  abyss pits (`O`: 20 + 12×depth fall damage, once per entity),
+  maddening whispers (`w`: 4 + 16×dread fear, every traversal),
+  dhole tunnels (`D`: two-stage — first traversal publishes
+  `DholeTremors` as a telegraph, the next traversal triggers
+  `DholeAmbush` for 55 + 45×dread damage, attributed to the linked
+  dhole entity when one is set).
+- **Dholes**: `Dhole : Monstrosity` (`src/entities/Units.h`) — 1500 HP
+  burrowing ambusher, feral, with an 18m fear aura (12 fear/sec).
+  Starts burrowed; `surface()`/`burrow()` toggle it. No CC0 dhole
+  model exists anywhere surveyed, so the `ModelCatalog` "dhole" slot
+  is an intentional empty placeholder and the procedural
+  serpent/worm-like fallback applies.
+- **Relic vault**: the deepest room holds the cursed artifact
+  (`valeRelicSpot()`); spawn the guardian at `guardianSpawnPos()`
+  and register it with `setBossId()` — its death completes the Vale
+  (`DungeonCompleted`), and seizing the relic publishes
+  `ValeRelicClaimed` (Magic exertion).
+
 ### Robustness: fuzz harness (`src/fuzz/`, binary `cultulhu_fuzz`)
 150k deterministic iterations (+300k extra seeds, all clean; ASan/UBSan
 clean) across three targets: event bus, command parser, driver REPL
@@ -971,6 +1001,71 @@ only warm light source, violet-black fog. Documented in the header of
    `assets/maps/ruined_city.map` (format documented in its header).
 4. Run `mapinfo` in the driver — it lists placements and fails loudly on
    missing files. `ctest` re-validates everything.
+
+## Bestiary: NPCs & creatures (wave 12)
+
+Civilians, cultists and horrors finally have bodies. All CC0, all light.
+
+> **Binaries are base64-packed.** The GitHub push path corrupts raw binary
+> files, so every `.glb`/`.png` ships as a `*.b64` text sidecar. After
+> cloning, run **`python3 assets/decode_assets.py`** once to restore the
+> binaries. Tests and the driver reference the decoded `.glb` paths.
+
+### NPCs (character packages — auto-discovered, validated)
+
+| package | model | source / license | tris | role |
+|---|---|---|---|---|
+| `cultist_hooded` | Rogue_Hooded | KayKit Adventurers / CC0 | 6,035 | rank-and-file cultist |
+| `cultist_magus` | Mage | KayKit Adventurers / CC0 | 5,683 | cult leader / high priest |
+| `civilian_villager` | Rogue | KayKit Adventurers / CC0 | 6,377 | townsfolk |
+| `civilian_guard` | Knight | KayKit Adventurers / CC0 | 6,952 | city watch / militia |
+| `civilian_laborer` | Barbarian | KayKit Adventurers / CC0 | 6,543 | dockworker / laborer |
+
+All five are **rigged** (skeleton intact) with animation clips stripped for
+size — our procedural animation fallback drives them. Catalog role keys
+(`ModelCatalog::creatureModel("cultist")` etc.) resolve humanoid NPC
+entity types to these packages. Source:
+https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0 —
+"Free for personal and commercial use, no attribution required. (CC0 Licensed)".
+
+### Creatures (bestiary — `assets/creatures/`)
+
+| species key | file | source | tris | rigged | role |
+|---|---|---|---|---|---|
+| `pale_wight` | pale_wight.glb | KayKit Skeletons / CC0 | 4,588 | yes (clips stripped) | robed skeletal oracle — cult horror |
+| `ossified_brute` | ossified_brute.glb | KayKit Skeletons / CC0 | 5,934 | yes (clips stripped) | heavy bone horror |
+| `charnel_imp` | charnel_imp.glb | KayKit Skeletons / CC0 | 5,288 | yes (clips stripped) | swarm chaff |
+| `skittering_ghoul` | skittering_ghoul.glb | KayKit Skeletons / CC0 | 5,278 | yes (clips stripped) | fast skirmisher |
+| `wraith` | wraith.glb | Kenney Graveyard Kit / CC0 | 413 | no (static) | lesser servitor, drifts between graves |
+| `risen_dead` | risen_dead.glb | Kenney Graveyard Kit / CC0 | 1,078 | no (static) | reanimated corpse |
+| `dagon_spawn` | dagon_spawn.glb | Kenney Mini Dungeon / CC0 | 374 | skin data present | deep-one hybrid brute |
+
+Spawned monstrosities resolve their `species` string through
+`ModelCatalog::creatureModel()` — `spawn monstrosity pale_wight 3` just
+works. Naming is honest: the KayKit models are undead horrors re-themed
+for the bestiary, the Kenney pair are graveyard spooks, and the orc is a
+brute re-themed as a deep-one hybrid — none are true Mythos entities.
+Genuinely Lovecraftian CC0 models (tentacled things, true deep ones,
+shoggoths, winged terrors) were not found in any CC0 source surveyed
+(Kenney, KayKit, OpenGameArt, itch.io). Per-file sources
+in `assets/creatures/MANIFEST.md`. (Naming follows
+`assets/creatures/LEGAL_NAMES.md`: in-game creature names use only
+Lovecraft-original public-domain names or plain generic English.)
+
+### Budget note
+
+Rigged characters get their own tier: **<10k tris** per character model
+(static world props stay <5k). KayKit humanoids land at 5.7k–7k indexed
+tris — still mobile-light and far below anything that troubles a host PC.
+Total wave-12 model bytes stay under the 10 MB cap. Enforced by
+`tests_wave12`.
+
+### Driver
+
+- `bestiary` — lists every registered creature/NPC model with tri counts
+  and file-presence checks.
+- `spawn monstrosity [species] [n]` — spawn a bestiary species by name
+  (e.g. `spawn monstrosity deep_one 2`); unknown species spawn logic-only.
 
 ### UE5 import
 

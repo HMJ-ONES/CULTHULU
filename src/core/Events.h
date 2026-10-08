@@ -140,6 +140,19 @@ enum class EventType {
     CaveIn,               // sourceId = dungeon id; targetId = entity id;
                           // amount = damage; tag = "sealed" or "rubble"
 
+    // Wave 13: Vale of Pnath hazards & encounters.
+    AbyssPitFall,         // sourceId = entity id; targetId = dungeon id;
+                          // amount = fall damage (scales with depth)
+    MaddeningWhispers,    // sourceId = dungeon id; targetId = entity id;
+                          // amount = fear inflicted (scales with dread)
+    DholeTremors,         // telegraph: sourceId = dungeon id;
+                          // targetId = room index (as uint64); the next
+                          // traversal of that room triggers the ambush
+    DholeAmbush,          // sourceId = dhole entity id; targetId = victim id;
+                          // amount = damage; tag = "ambush"
+    ValeRelicClaimed,     // sourceId = entity id; targetId = dungeon id;
+                          // the cursed relic at the Vale's bottom was seized
+
     // Wave 9b: three new directives.
     LeaderAssassinated,   // AssassinateProphet success: sourceId = slain
                           // leader's entity id (0 when unknown);

@@ -19,7 +19,8 @@ High Priest Not To Be Described, Hunting Horrors, Hypnos, Mi-Go,
 Miri Nigri, Moonbeasts, Nath-Horthath, Night-gaunts, Nodens,
 Nyarlathotep, Rat-Things, Re-Animated Corpse, Re-Animated Horror,
 Shantaks, Shoggoths, Shub-Niggurath, Star-Spawn of Cthulhu, Tamash,
-Winged Servants, Yog-Sothoth, Zo-Kalar, Zoogs and the Ancient Zoog.
+Winged Servants, Yog-Sothoth, Zo-Kalar, Zoogs and the Ancient Zoog,
+Vale of Pnath (added Oct 7, 2026 — Lovecraft's Dreamlands, owner favorite).
 
 ## Explicitly FORBIDDEN (still under copyright / trademark risk)
 - Hounds of Tindalos — created by Frank Belknap Long (1931), NOT public domain.

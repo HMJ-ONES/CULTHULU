@@ -43,10 +43,29 @@ ModelCatalog::creatureModels() {
     // See assets/creatures/MANIFEST.md for sources and licenses.
     static const std::unordered_map<std::string, std::string> kCreatures = {
         // reserved role keys (humanoid NPCs via character packages)
-        {"cultist",   "assets/characters/cultist_robed/model.glb"},
+        {"cultist",   "assets/characters/cultist_hooded/model.glb"},
         {"civilian",  "assets/characters/civilian_villager/model.glb"},
-        {"adventurer","assets/characters/civilian_villager/model.glb"},
-        {"sorcerer",  "assets/characters/cultist_hooded/model.glb"},
+        {"adventurer","assets/characters/civilian_guard/model.glb"},
+        {"sorcerer",  "assets/characters/cultist_magus/model.glb"},
+        // wave 12 bestiary: KayKit Skeletons (CC0), animation clips
+        // stripped for size; skeletons kept, procedural anims drive them.
+        {"pale_wight",      "assets/creatures/pale_wight.glb"},
+        {"ossified_brute",  "assets/creatures/ossified_brute.glb"},
+        {"charnel_imp",     "assets/creatures/charnel_imp.glb"},
+        {"skittering_ghoul","assets/creatures/skittering_ghoul.glb"},
+        // Kenney Graveyard Kit (CC0) — static (no skeleton), same
+        // low-poly style as the wave-11 ruined city.
+        {"wraith",          "assets/creatures/wraith.glb"},
+        {"risen_dead",      "assets/creatures/risen_dead.glb"},
+        // Kenney Mini Dungeon (CC0) — green brute, re-themed as a
+        // deep-one hybrid.
+        {"dagon_spawn",     "assets/creatures/dagon_spawn.glb"},
+        // Wave 13: dhole model slot. No CC0 dhole model exists in any
+        // surveyed source; the empty path is INTENTIONAL — creatureModel()
+        // returns "" and the engine uses the procedural serpent/worm-like
+        // fallback (see Dhole in entities/Units.h and the README
+        // bestiary). tests_wave12 skips empty placeholder paths.
+        {"dhole",           ""},
     };
     return kCreatures;
 }
