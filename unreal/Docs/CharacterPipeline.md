@@ -4,7 +4,35 @@ How a plug-and-play character package becomes a playable UE5 character.
 The package format is defined by the core (`character.def` + optional
 `model.fbx`, `rig.map`/`bones.list`, `animations/`); this doc maps each
 piece into UE assets. The Cthulhu Avatar package
-(`assets/characters/cthulhu_avatar/`) is the worked example.
+(`assets/characters/cthulhu_avatar/`) is the worked example; wave 12
+added five NPC packages (`cultist_hooded`, `cultist_magus`,
+`civilian_villager`, `civilian_guard`, `civilian_laborer`) that follow
+the exact same route, and `assets/characters/echo_of_the_void/` is the
+new minimal example package. Creature *models* (7 species) live
+separately under `assets/creatures/` and are keyed in
+`ModelCatalog::creatureModels()` — they pair with
+`ACultUlhuEntityActor`, not the character pipeline.
+
+## Validate before you import
+
+The core now grades packages before they ever reach UE
+(`CharacterValidator::validateDeep()` → `CLEAN` / `OK WITH WARNINGS` /
+`INVALID`). Run it headlessly first:
+
+```
+character validate <id>     # e.g. character validate cthulhu_avatar
+```
+
+Fix every `INVALID` before creating the Data Asset; warnings are
+advisories (missing optional pieces degrade gracefully — see below).
+The owner's Blender→FBX→package→validate loop is written up in
+`docs/bring_your_own_model.md` — read that before importing a new rig.
+
+The validator also runs the rig mapper and reports per-bone diagnostics.
+The mapper knows Mixamo (`mixamorig:Hips`), Blender, and Rigify
+(`upper_arm.L`, `DEF-` prefixes) bone-name aliases, so most sane rigs
+map with no `rig.map` at all; the report tells you which bones matched
+by alias and which didn't.
 
 ## Piece-by-piece mapping
 
@@ -13,7 +41,7 @@ piece into UE assets. The Cthulhu Avatar package
 | `character.def` (id, names, hp/speed/stamina, Q/F/R, combo id, RMB, passive) | `UCultCharacterData` Data Asset (`/Game/Characters/<Name>/DA_<Name>`) | Manual entry per the field table below, or the import script (next section). Validated field-for-field by `unreal/Tests/validate_binding.py`. |
 | `model.fbx` (rigged) | `USkeletalMesh` (`/Game/Characters/<Name>/SK_<Name>`) | FBX import (see below). Skeleton = the model's skeleton. |
 | `rig.map` / auto-mapped bones | UE retarget chain | The core `RigMapper` matches the FBX bone list to the 11-bone humanoid rig. In UE, the equivalent step is **IK Retargeter**: source = Mixamo/character skeleton, target = your UE mannequin-compatible skeleton. The `rig.map` is the human-readable record of that match — keep it next to the asset. |
-| `animations/*.canim` | `UAnimSequence`s | Core `.canim` clips are the *fallback*. In UE, import real FBX anims (or Mixamo packs) and retarget them; bind them in the character's AnimBP. Procedural core clips cover anything missing. |
+| `animations/*.canim` | `UAnimSequence`s | Core `.canim` clips are the *fallback*. In UE, import real FBX anims (or Mixamo packs) and retarget them; bind them in the character's AnimBP. The core ships procedural fallback clips for all 9 gameplay states (Idle, Walk, Run, Attack, Death, Cast, Stunned, Channel, CastWave — see `src/animation/ProceduralClips.h`); Levitate/Launch/Levitated stay unbound, driven by Wave of Domination logic. |
 | (missing model) | "Logic-only" character | Fully supported: `SkeletalMesh = None` on the data asset; the character plays with a placeholder mesh or none. The game must never crash on a missing mesh. |
 | (missing clips) | Procedural fallback | Same rule: missing anims → core procedural clips, never a null montage crash. |
 
@@ -48,7 +76,9 @@ piece into UE assets. The Cthulhu Avatar package
    you just need a consistent *target* skeleton for retargeting.
 4. AnimBP: parent `UCultUlhuAnimInstance`. Build the state machine with one
    state per `ECultAnimState` (Idle/Walk/Run/Attack/Cast/Stunned/Death/
-   Channel/CastWave/Levitate/Launch). Transitions read `AnimState`.
+   Channel/CastWave/Levitate/Launch/**Levitated** — 12 states total;
+   `Levitated` is the victim-side wave state, added in the wave-13
+   review). Transitions read `AnimState`.
    // VERIFY IN EDITOR: every enum value has a state; missing states fail
    // silently at runtime (character freezes), so check twice.
 5. Assign `SK_<Name>` + AnimBP on the `UCultCharacterData` asset, then the

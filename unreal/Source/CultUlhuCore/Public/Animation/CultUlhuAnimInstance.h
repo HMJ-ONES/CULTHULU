@@ -18,7 +18,7 @@
 
 // Mirrors cultulhu::AnimationState for the AnimGraph.
 // VERIFY IN EDITOR: keep in sync with the core enum (incl. CastWave,
-// Levitate, Launch for the Wave of Domination).
+// Levitate, Launch, Levitated for the Wave of Domination).
 UENUM(BlueprintType)
 enum class ECultAnimState : uint8
 {
@@ -33,6 +33,7 @@ enum class ECultAnimState : uint8
 	CastWave UMETA(DisplayName = "CastWave"),
 	Levitate UMETA(DisplayName = "Levitate"),
 	Launch   UMETA(DisplayName = "Launch"),
+	Levitated UMETA(DisplayName = "Levitated"), // victim: floating, held
 };
 
 UCLASS(Blueprintable)

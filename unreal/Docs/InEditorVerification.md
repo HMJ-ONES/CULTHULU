@@ -113,8 +113,9 @@ the markers — it can't verify the engine behavior, only the bookkeeping.)
 - [ ] `Source/CultUlhuCore/Public/UI/CultStatsPanelWidget.h`: `BindWidget`
       names match (`PowerText`, `KillsText`, `InsurrectionBar`,
       `BeliefGaugeList`, `KdaList`).
-- [ ] `Source/CultUlhuCore/Private/UI/CultStatsPanelWidget.cpp`:
-      `UCultManagerSubsystem` fetched correctly (world vs game instance).
+- [ ] `Source/CultUlhuCore/Private/UI/CultStatsPanelWidget.cpp`: stats panel
+      populates — `UCultManagerSubsystem` is fetched from the world via
+      `GetWorld()->GetSubsystem<>()` (game-instance fetch returns null).
 - [ ] `Source/CultUlhuCore/Private/UI/CultStatsPanelWidget.cpp`: KDA
       tracker actually wired (empty table in multiplayer = bug).
 - [ ] `Source/CultUlhuCore/Private/UI/CultStatsPanelWidget.cpp`: 12 belief

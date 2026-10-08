@@ -5,6 +5,13 @@ keep the host's PC happy. Written for the owner to follow in-editor;
 nothing here is compile-verified in this repo (UE5 is not installed
 here — see the `// VERIFY IN EDITOR:` markers in `unreal/Source/`).
 
+## Before you import: decode the binaries
+
+Model binaries travel in git as base64 (`*.glb.b64`) — `push_files`
+corrupts raw binaries, so this is the permanent rule, not a workaround.
+Run `assets/decode_assets.py` right after cloning; the `.glb` files it
+produces are what you drag into the Content Browser.
+
 ## Importing the art
 
 1. In the Content Browser, create the folder structure mirroring the
@@ -13,6 +20,10 @@ here — see the `// VERIFY IN EDITOR:` markers in `unreal/Source/`).
    - `/Game/CultUlhu/World/Buildings`
    - `/Game/CultUlhu/World/Props`
    - `/Game/CultUlhu/World/Cult`
+   - `/Game/CultUlhu/Creatures` (wave 12: the 7 creature `.glb`s from
+     `assets/creatures/`, keyed by `ModelCatalog::creatureModels()`)
+   - `/Game/CultUlhu/Characters/<Pkg>` (per character package, e.g. the
+     5 NPC packages — see `CharacterPipeline.md`)
 2. Drag the FBX/GLB files from `assets/world/<category>/` into the
    matching folder. On the import dialog:
    - **Uncheck "Auto Generate Collision"** for small props (tombstones,
@@ -27,10 +38,28 @@ here — see the `// VERIFY IN EDITOR:` markers in `unreal/Source/`).
      instance** (desaturated, low albedo) across ruin pieces rather than
      per-asset materials — fewer shaders, consistent mood.
 3. The ruined-city layout lives in `assets/maps/ruined_city.map`
-   (x y z, rotY, scale, zone per prop). Recreate it in-editor with a
-   simple placement pass, or write a one-off Editor Utility script that
-   reads the `.map` file and spawns the meshes — the format is plain
-   text precisely so this stays easy.
+   (x y z, rotY, scale, zone per prop — 90 placements across 4 zones).
+   Recreate it in-editor with a simple placement pass, or write a one-off
+   Editor Utility script that reads the `.map` file and spawns the meshes
+   — the format is plain text precisely so this stays easy. The logical
+   names in the `.map` resolve through `ModelCatalog::worldModels()`
+   (`src/assets/ModelCatalog.h`); the driver's `mapinfo` command dumps
+   the parsed placements headlessly if you want to diff against your
+   in-editor result.
+
+## Creatures & NPCs (wave 12)
+
+- The 7 creature `.glb`s (`pale_wight`, `ossified_brute`, `charnel_imp`,
+  `skittering_ghoul`, `wraith`, `risen_dead`, `dagon_spawn`) import as
+  Static Meshes (or Skeletal if you rig them later) under
+  `/Game/CultUlhu/Creatures`. Same LOD/collision rules as props; they
+  are gameplay entities, so keep collision real (unlike pure decoration).
+- NPC bodies (`cultist_hooded`, `cultist_magus`, `civilian_villager`,
+  `civilian_guard`, `civilian_laborer`) are character *packages*, not
+  world art — they go through `CharacterPipeline.md`, not this doc.
+- Name discipline: creature/entity names must follow
+  `assets/creatures/LEGAL_NAMES.md` (public-domain Lovecraft only).
+  Don't invent new Mythos names in UE-side assets.
 
 ## Instancing: the single biggest win
 

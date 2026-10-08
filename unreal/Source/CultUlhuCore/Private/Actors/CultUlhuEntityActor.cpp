@@ -7,7 +7,7 @@ ACultUlhuEntityActor::ACultUlhuEntityActor()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	// VERIFY IN EDITOR: replication settings suit your net update budget;
-	// consider SetReplicatingMovement(true) for simple movers.
+	// consider SetReplicateMovement(true) for simple movers.
 }
 
 void ACultUlhuEntityActor::PossessCoreEntity(std::unique_ptr<cultulhu::Entity> CoreEntity)

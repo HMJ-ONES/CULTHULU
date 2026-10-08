@@ -17,9 +17,11 @@ ECultAnimState UCultUlhuAnimInstance::FromCore(cultulhu::AnimationState S)
 	case AnimationState::CastWave: return ECultAnimState::CastWave;
 	case AnimationState::Levitate: return ECultAnimState::Levitate;
 	case AnimationState::Launch:   return ECultAnimState::Launch;
+	case AnimationState::Levitated: return ECultAnimState::Levitated;
+	default:
+		// VERIFY IN EDITOR: add new core states here when the enum grows.
+		return ECultAnimState::Idle;
 	}
-	// VERIFY IN EDITOR: add new core states here when the enum grows.
-	return ECultAnimState::Idle;
 }
 
 void UCultUlhuAnimInstance::SetCoreState(int32 CoreState)

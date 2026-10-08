@@ -21,11 +21,15 @@ void UCultStatsPanelWidget::SetOverlayVisible(bool bVisible)
 
 void UCultStatsPanelWidget::Refresh()
 {
+	// UCultManagerSubsystem is a WORLD subsystem: it must be fetched from
+	// the world. UGameInstance::GetSubsystem<>() only returns game-instance
+	// subsystems, so fetching it from the game instance always yields null.
+	UWorld* World = GetWorld();
+	if (!World) return;
+	UCultManagerSubsystem* CultSub = World->GetSubsystem<UCultManagerSubsystem>();
+
 	UGameInstance* GI = GetGameInstance();
 	if (!GI) return;
-	UCultManagerSubsystem* CultSub = GI->GetSubsystem<UCultManagerSubsystem>();
-	// VERIFY IN EDITOR: UCultManagerSubsystem is a world subsystem — fetch
-	// via GetWorld()->GetSubsystem<>() instead if GetGameInstance() misses.
 	UCultPowerSubsystem* PowerSub = GI->GetSubsystem<UCultPowerSubsystem>();
 	if (!CultSub || !PowerSub || !CultSub->Cult() || !PowerSub->Exertion())
 		return;

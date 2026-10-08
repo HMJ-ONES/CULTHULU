@@ -120,6 +120,68 @@ Per `NetcodeDecision.md`:
 - [ ] Radmin two-machine test from packaged builds
 - [ ] Core lib rebuilt from a clean tree (no stale objects)
 
+## 9. Waves 11–13: art, NPCs/creatures, dungeons, pipeline hardening
+
+Core content added after the wave-8 binding was written. None of it
+changes the binding architecture — it plugs into the same seams.
+
+**Wave 11 — CC0 art pass.** `assets/world/` holds the CC0 (Kenney) art;
+binaries travel as `*.glb.b64` in git, so run
+`assets/decode_assets.py` after cloning. Two core-side tables drive the
+UE import:
+
+- `src/assets/ModelCatalog.h` — `worldModels()` (logical name →
+  repo-relative `.glb` under `assets/world/`) and `creatureModels()`
+  (species/role key → `assets/creatures/` or
+  `assets/characters/<pkg>/model.glb`). Import the meshes, then use
+  these tables — not hardcoded paths — when wiring placements.
+- `src/world/MapLoader.h` — `MapData MapLoader::load(path)` parses
+  `assets/maps/ruined_city.map` (90 placements, 4 zones: x y z, rotY,
+  scale, zone per prop). The driver `mapinfo` command dumps the same
+  data headlessly; an Editor Utility script can read the `.map` file
+  and spawn `UInstancedStaticMeshComponent` instances per §"Instancing"
+  in `ArtImportAndPerf.md`.
+
+**Wave 12 — NPCs + creatures.** Five humanoid character packages under
+`assets/characters/` (`cultist_hooded`, `cultist_magus`,
+`civilian_villager`, `civilian_guard`, `civilian_laborer`) follow the
+same `character.def` → `UCultCharacterData` pipeline as the Cthulhu
+Avatar (see `CharacterPipeline.md`). Seven creature models
+(`pale_wight`, `ossified_brute`, `charnel_imp`, `skittering_ghoul`,
+`wraith`, `risen_dead`, `dagon_spawn`) live under `assets/creatures/`
+and are keyed in `ModelCatalog::creatureModels()`; the driver
+`bestiary` command lists them with tri counts and file-presence checks,
+and `spawn monstrosity [species]` exercises them headlessly. UE-side:
+NPCs get `ACultUlhuCharacter` Blueprints; creatures/monstrosities
+(`cultulhu::Monstrosity`, incl. the `Dhole`) get `ACultUlhuEntityActor`
+(or a creature subclass) with `PossessCoreEntity()`.
+Legal note: names follow `assets/creatures/LEGAL_NAMES.md`
+(public-domain Lovecraft only — see the repo memory/LEGAL guideline);
+don't invent new Mythos names in UE-side assets.
+
+**Wave 13 — Vale of Pnath deep dungeon.** `src/world/ValeOfPnath.h`
+(`class ValeOfPnath : public DungeonInstance`, 72×72, up to 20 rooms)
+adds depth/dread-scaled hazards (abyss pits, maddening whispers, dhole
+tunnels with telegraph→ambush) plus a relic vault + guardian at the
+bottom; `dungeon pnath [seed]` in the driver generates one headlessly.
+UE mapping: dungeon instances → sublevels streamed by entrance proximity
+(see `ArtImportAndPerf.md` "LOD & culling"); hazards map to trigger
+volumes + the existing damage/fear systems. The `Dhole` uses an
+intentional placeholder mesh slot — no CC0 dhole model exists.
+
+**Shift 2 — character pipeline hardening.** The core now validates
+packages deeply: `CharacterValidator::validateDeep()` returns a graded
+report (`CLEAN` / `OK WITH WARNINGS` / `INVALID`), exposed headlessly
+via `character validate <id>`. Run it on every package before importing
+to UE. Related: the rig mapper knows Mixamo / Blender / Rigify bone-name
+aliases (per-bone diagnostics in the report); the core ships procedural
+clip fallbacks for all 9 gameplay anim states
+(`src/animation/ProceduralClips.h`: Idle, Walk, Run, Attack, Death,
+Cast, Stunned, Channel, CastWave — Levitate/Launch/Levitated stay
+unbound, driven by Wave of Domination logic); and
+`docs/bring_your_own_model.md` is the owner's Blender→FBX→package→validate
+loop write-up. New minimal example package: `assets/characters/echo_of_the_void/`.
+
 ## Troubleshooting
 
 | Symptom | Likely cause |

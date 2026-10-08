@@ -25,6 +25,8 @@ world subsystems, so `UCultManagerSubsystem::Initialize` can safely
 |---|---|---|
 | `Entity` (+ `Building`, `Altar`, `Creature`, …) | `ACultUlhuEntityActor : AActor` | `PossessCoreEntity()` takes ownership. Host mirrors core→actor transform; `ReplicatedHp` for clients. |
 | `CharacterDef` + `CharacterRegistry` | `ACultUlhuCharacter : ACharacter` + `UCultCharacterData : UPrimaryDataAsset` | Data asset per character (see `CharacterPipeline.md`). `ApplyCoreDef()` maps vitals/locomotion to UE components. |
+| NPC packages (wave 12: `cultist_hooded`, `cultist_magus`, `civilian_villager`, `civilian_guard`, `civilian_laborer`) | Same `UCultCharacterData` pipeline | Humanoid packages under `assets/characters/`; validate with `character validate <id>` before importing. |
+| Creature models (wave 12: 7 species via `ModelCatalog::creatureModels()`) + `Monstrosity`/`Dhole` entities | `ACultUlhuEntityActor` (or a creature subclass) | Models live in `assets/creatures/`; spawn headlessly with `spawn monstrosity [species]`, list with `bestiary`. |
 | `RmbAbility` / `WaveOfDomination` | Game-module ability component (to be written) | Core state machine stays in C++; UE feeds it `RmbContext` (press/hold/release/mousemove/LMB) and reads `suggestedCasterState()` for animation. |
 
 ## Animation
@@ -35,7 +37,7 @@ world subsystems, so `UCultManagerSubsystem::Initialize` can safely
 | `AnimationState` enum | `ECultAnimState` (mirror; keep in sync) |
 | `mixamoClipName()` | Retargeted anim sequences in the AnimBP; state machine transitions driven by `AnimState` |
 | One-shot casts/attacks | `AnimMontage`s via `PlayAttackMontage()` / `PlayCastWaveMontage()` / `PlayLaunchMontage()` |
-| Victim `Levitated` anim | `SetVictimLevitated()` → AnimBP bool / pose snapshot |
+| Victim `Levitated` anim | `SetVictimLevitated()` → AnimBP bool / pose snapshot; `ECultAnimState` now has all 12 core states (added `Levitated` in the wave-13 review) |
 
 Mixamo packs are retargeted with the IK Retargeter onto the character
 skeleton (see `CharacterPipeline.md`). The core's procedural clips are the
@@ -71,6 +73,14 @@ Radmin lobby flow.
 
 ## What is intentionally NOT mapped yet
 
-- `Dungeon`/`WorldMap` → level streaming / world partition mapping (wave 9).
-- `BuilderAI` construction sites → actor spawning + progress UI (wave 9).
-- Save system → UE `USaveGame` bridge (wave 9).
+- `Dungeon`/`DungeonInstance` → level streaming / world partition mapping.
+  Core side is done (`src/world/`; wave 13 added the 72×72 Vale of Pnath
+  deep dungeon with hazards + relic vault — see `IntegrationGuide.md`
+  §9); the UE side (sublevels streamed by entrance proximity, hazard
+  trigger volumes) is still to be built.
+- `ModelCatalog` / `MapLoader` → no C++ wrapper exists yet; the UE
+  import path consumes them as data (see `IntegrationGuide.md` §9 and
+  `ArtImportAndPerf.md`). If you want them callable from Blueprints,
+  wrap the two static lookup tables in a `UBlueprintFunctionLibrary`.
+- `BuilderAI` construction sites → actor spawning + progress UI.
+- Save system → UE `USaveGame` bridge.
