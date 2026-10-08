@@ -94,3 +94,47 @@ pine-fall, gravestone-debris, fence-damaged, iron-fence, barrel;
 - Quaternius was evaluated but **skipped**: its current license is the proprietary Quaternius Asset License (QAL v1.0, updated 2026-08-28), not CC0. KayKit not needed — Kenney alone covered all categories with one consistent art style.
 - Triangle counts parsed directly from GLB binary (indices COUNT // 3 per primitive); all models verified < 5,000 tris.
 - Palette textures verified 512x512 via PNG IHDR; palettes differ per pack, so all three are kept and mapped per model above.
+
+---
+
+# Wave 17 — Eldritch battlefield art (2026-10-08)
+
+27 low-poly GLB models + 2 shared atlas textures (512x512), all **CC0 1.0**.
+Kenney models reference the existing `colormap-graveyard-kit.png` palette
+(URI rewritten from `Textures/colormap.png`); Kenney Nature models are
+untextured. KayKit models shipped with embedded 1024x1024 atlases — extracted,
+downsampled to 512x512, and referenced externally (one atlas per pack).
+
+| File | Source pack | License | Triangles | Size | Palette |
+|---|---|---|---|---|---|
+| `buildings/crypt-ruined.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 108 | 10.7 KB | textures/colormap-graveyard-kit.png (512x512) |
+| `buildings/crypt-small.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 414 | 36.0 KB | textures/colormap-graveyard-kit.png (512x512) |
+| `props/grave-obelisk.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 76 | 8.4 KB | textures/colormap-graveyard-kit.png (512x512) |
+| `props/bone-pile.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 658 | 197.6 KB | textures/colormap-graveyard-kit.png (512x512) |
+| `props/dead-trunk.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 274 | 26.5 KB | textures/colormap-graveyard-kit.png (512x512) |
+| `props/dead-trunk-long.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 312 | 30.1 KB | textures/colormap-graveyard-kit.png (512x512) |
+| `props/rocks-tall.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 364 | 36.1 KB | textures/colormap-graveyard-kit.png (512x512) |
+| `props/pine-dead-crooked.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 336 | 35.1 KB | textures/colormap-graveyard-kit.png (512x512) |
+| `props/cave-boulder-a.glb` | [Nature Kit](https://kenney.nl/assets/nature-kit) | CC0 1.0 | 80 | 7.4 KB | none (untextured) |
+| `props/cave-boulder-c.glb` | [Nature Kit](https://kenney.nl/assets/nature-kit) | CC0 1.0 | 72 | 6.8 KB | none (untextured) |
+| `props/cave-rock-tall-a.glb` | [Nature Kit](https://kenney.nl/assets/nature-kit) | CC0 1.0 | 136 | 11.8 KB | none (untextured) |
+| `props/cave-rock-tall-c.glb` | [Nature Kit](https://kenney.nl/assets/nature-kit) | CC0 1.0 | 37 | 5.1 KB | none (untextured) |
+| `props/cave-wall-rock.glb` | [Nature Kit](https://kenney.nl/assets/nature-kit) | CC0 1.0 | 64 | 5.4 KB | none (untextured) |
+| `props/tree-dark-oak.glb` | [Nature Kit](https://kenney.nl/assets/nature-kit) | CC0 1.0 | 196 | 14.3 KB | none (untextured) |
+| `props/tree-dark-cone.glb` | [Nature Kit](https://kenney.nl/assets/nature-kit) | CC0 1.0 | 264 | 19.5 KB | none (untextured) |
+| `props/tree-dark-tall.glb` | [Nature Kit](https://kenney.nl/assets/nature-kit) | CC0 1.0 | 72 | 6.8 KB | none (untextured) |
+| `props/dungeon-pillar.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 136 | 9.5 KB | textures/kaykit-dungeon-atlas.png (512x512) |
+| `props/torch-stand.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 216 | 13.2 KB | textures/kaykit-dungeon-atlas.png (512x512) |
+| `props/torch-wall.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 278 | 17.0 KB | textures/kaykit-dungeon-atlas.png (512x512) |
+| `props/chest-old.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 728 | 64.0 KB | textures/kaykit-dungeon-atlas.png (512x512) |
+| `props/banner-tattered.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 639 | 38.3 KB | textures/kaykit-dungeon-atlas.png (512x512) |
+| `props/spike-trap.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 638 | 63.3 KB | textures/kaykit-dungeon-atlas.png (512x512) |
+| `props/tombstone-carved.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 323 | 16.6 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/tombstone-weathered.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 190 | 14.7 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/tree-dead-bare.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 184 | 6.3 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/lantern-iron.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 264 | 13.4 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/candles-cluster.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 198 | 11.0 KB | textures/kaykit-halloween-atlas.png (512x512) |
+
+New map: `assets/maps/eldritch_battlefield.map` — 72 placements in 4 zones
+(shattered_court, cavern_mouth, ashen_grove, ember_shrine), all 27 new models.
+`ruined_city.map` untouched (90 placements, asserted by tests).

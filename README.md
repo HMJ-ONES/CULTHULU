@@ -1090,6 +1090,40 @@ only warm light source, violet-black fog. Documented in the header of
 4. Run `mapinfo` in the driver — it lists placements and fails loudly on
    missing files. `ctest` re-validates everything.
 
+## Art: the eldritch battlefield (wave 17)
+
+A second art pass for the dark look the owner asked for — gothic ruins, dead
+nature, cave rock, ember/fire accents. Still brutally light.
+
+### Sources & licenses (all CC0 1.0, verified per pack)
+
+| Pack | URL | Used for |
+|---|---|---|
+| Kenney Graveyard Kit (more) | https://kenney.nl/assets/graveyard-kit | obelisk, bone pile, dead trunks, crypts |
+| Kenney Nature Kit | https://kenney.nl/assets/nature-kit | cave boulders, rock spires, dark trees |
+| KayKit Dungeon Remastered | https://kaylousberg.itch.io/kaykit-dungeon-remastered | pillars, torches, chest, banner, spike trap |
+| KayKit Halloween Bits | https://kaylousberg.itch.io/halloween-bits | tombstones, dead tree, lantern, candles |
+
+Per-file table in `assets/world/MANIFEST.md`, license statements in
+`assets/world/LICENSES.md`.
+
+### Budget
+
+- 27 models, **~0.71 MB total** (all < 1000 tris; max 728)
+- 2 shared 512×512 atlas textures (KayKit atlases downsampled from 1024);
+  Kenney graveyard models reuse the wave-11 palette, nature models untextured
+- New map `assets/maps/eldritch_battlefield.map`: **72 placements** in 4
+  zones — `shattered_court` (obelisk, crypts, banners, spike traps),
+  `cavern_mouth` (boulders, rock spires), `ashen_grove` (dead forest),
+  `ember_shrine` (torches, lanterns, candles, chest)
+- `ruined_city.map` untouched (90 placements, still asserted by tests)
+
+### Known art gaps (honest)
+
+No CC0 source found for stalactites/stalagmites, dark crystals, or hanging
+chains — surveyed Kenney, KayKit, itch.io, and OpenGameArt. These remain
+original-art tasks.
+
 ## Bestiary: NPCs & creatures (wave 12)
 
 Civilians, cultists and horrors finally have bodies. All CC0, all light.

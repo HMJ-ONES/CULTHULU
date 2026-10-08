@@ -44,6 +44,33 @@ standalone asset pack.
 
 ## Courtesy credit (not required)
 3D assets by Kenney — https://kenney.nl — CC0 1.0.
+3D assets by KayKit (Kay Lousberg) — https://kaykitgameassets.itch.io — CC0 1.0.
+
+### 4. Nature Kit (v1.0, wave 17)
+- Pack page: https://kenney.nl/assets/nature-kit — License row on the page
+  reads "Creative Commons CC0" (verified 2026-10-08).
+- The pack's own `License.txt` states: "License: (Creative Commons Zero,
+  CC0) — http://creativecommons.org/publicdomain/zero/1.0/ ..."
+- Models used: rock_largeA, rock_largeC, rock_tallA, rock_tallC,
+  cliff_cave_rock, tree_oak_dark, tree_cone_dark, tree_tall_dark
+  (all untextured; no palette needed).
+
+### 5. KayKit Dungeon Remastered (v1.1, wave 17)
+- Pack page: https://kaylousberg.itch.io/kaykit-dungeon-remastered —
+  "Free for personal and commercial use, no attribution required.
+  (CC0 Licensed)" (verified 2026-10-08). GitHub mirror README confirms
+  "Licensed under CC0 1.0 Universal".
+- Models used: pillar, torch, torch_mounted, chest, banner_shield_blue,
+  floor_tile_big_spikes. Embedded 1024x1024 atlas extracted and
+  downsampled to 512x512 (`textures/kaykit-dungeon-atlas.png`).
+
+### 6. KayKit Halloween Bits (v1.0, wave 17)
+- Pack page: https://kaylousberg.itch.io/halloween-bits —
+  "Free for personal and commercial use, no attribution required.
+  (CC0 Licensed)" (verified 2026-10-08).
+- Models used: grave_A, grave_B, tree_dead_small, lantern_standing,
+  candle_triple (.gltf+.bin packed to .glb; external 1024x1024 atlas
+  downsampled to 512x512 as `textures/kaykit-halloween-atlas.png`).
 
 ## Sources deliberately NOT used
 - **Quaternius** (quaternius.com): evaluated, rejected — its current license is

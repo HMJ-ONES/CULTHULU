@@ -1,0 +1,96 @@
+# ============================================================================
+# CULT-ULHU map file: eldritch_battlefield
+#
+# Wave 17 art pass: a dark eldritch battlefield in four zones —
+# shattered_court (ruined courtyard), cavern_mouth (cave rocks),
+# ashen_grove (dead forest), ember_shrine (torch-lit shrine).
+# 72 placements. All models CC0 (Kenney Graveyard/Nature, KayKit
+# Dungeon Remastered/Halloween Bits). See assets/world/MANIFEST.md.
+# ============================================================================
+
+map eldritch_battlefield
+
+zone shattered_court -60 0 -60 60 0 60 70
+zone cavern_mouth 80 0 -60 200 0 60 65
+zone ashen_grove -200 0 -60 -80 0 60 55
+zone ember_shrine -60 0 80 60 0 200 75
+
+# --- shattered_court: the ruined heart ---
+place assets/world/props/grave-obelisk.glb 0 0 0 0 1.6 shattered_court
+place assets/world/buildings/crypt-ruined.glb -28 0 -24 20 1.0 shattered_court
+place assets/world/buildings/crypt-ruined.glb 28 0 -24 340 1.0 shattered_court
+place assets/world/buildings/crypt-small.glb -28 0 24 160 1.0 shattered_court
+place assets/world/buildings/crypt-small.glb 28 0 24 200 1.0 shattered_court
+place assets/world/props/dungeon-pillar.glb -14 0 -14 0 1.0 shattered_court
+place assets/world/props/dungeon-pillar.glb 14 0 -14 90 1.0 shattered_court
+place assets/world/props/dungeon-pillar.glb -14 0 14 180 1.0 shattered_court
+place assets/world/props/dungeon-pillar.glb 14 0 14 270 1.0 shattered_court
+place assets/world/props/banner-tattered.glb -40 0 0 90 1.0 shattered_court
+place assets/world/props/banner-tattered.glb 40 0 0 270 1.0 shattered_court
+place assets/world/props/banner-tattered.glb 0 0 -40 0 1.0 shattered_court
+place assets/world/props/banner-tattered.glb 0 0 40 180 1.0 shattered_court
+place assets/world/props/spike-trap.glb -8 0 30 45 1.0 shattered_court
+place assets/world/props/spike-trap.glb 10 0 -32 135 1.0 shattered_court
+place assets/world/props/spike-trap.glb -35 0 8 225 1.0 shattered_court
+place assets/world/props/spike-trap.glb 34 0 10 315 1.0 shattered_court
+place assets/world/props/bone-pile.glb -20 0 34 30 1.0 shattered_court
+place assets/world/props/bone-pile.glb 22 0 -34 210 1.0 shattered_court
+place assets/world/props/rocks-tall.glb -45 0 -45 0 1.2 shattered_court
+
+# --- cavern_mouth: where the rock splits ---
+place assets/world/props/cave-wall-rock.glb 140 0 -50 0 2.0 cavern_mouth
+place assets/world/props/cave-wall-rock.glb 170 0 -52 30 2.2 cavern_mouth
+place assets/world/props/cave-wall-rock.glb 110 0 -50 330 1.8 cavern_mouth
+place assets/world/props/cave-boulder-a.glb 120 0 -20 0 1.0 cavern_mouth
+place assets/world/props/cave-boulder-a.glb 155 0 -10 120 1.3 cavern_mouth
+place assets/world/props/cave-boulder-c.glb 135 0 15 200 1.1 cavern_mouth
+place assets/world/props/cave-boulder-c.glb 165 0 25 45 0.9 cavern_mouth
+place assets/world/props/cave-rock-tall-a.glb 100 0 10 0 1.0 cavern_mouth
+place assets/world/props/cave-rock-tall-a.glb 185 0 -5 180 1.2 cavern_mouth
+place assets/world/props/cave-rock-tall-c.glb 125 0 40 90 1.0 cavern_mouth
+place assets/world/props/cave-rock-tall-c.glb 150 0 45 270 1.1 cavern_mouth
+place assets/world/props/rocks-tall.glb 95 0 -30 0 1.0 cavern_mouth
+place assets/world/props/rocks-tall.glb 190 0 35 140 1.0 cavern_mouth
+place assets/world/props/tree-dark-oak.glb 88 0 50 0 1.0 cavern_mouth
+place assets/world/props/tree-dark-cone.glb 192 0 -45 0 1.0 cavern_mouth
+place assets/world/props/tree-dark-tall.glb 105 0 52 0 1.2 cavern_mouth
+place assets/world/props/dead-trunk.glb 175 0 50 60 1.0 cavern_mouth
+place assets/world/props/bone-pile.glb 145 0 0 0 0.8 cavern_mouth
+
+# --- ashen_grove: the dead forest ---
+place assets/world/props/tree-dead-bare.glb -120 0 0 0 1.2 ashen_grove
+place assets/world/props/tree-dead-bare.glb -150 0 -25 90 1.0 ashen_grove
+place assets/world/props/tree-dead-bare.glb -110 0 30 180 1.1 ashen_grove
+place assets/world/props/tree-dead-bare.glb -165 0 20 270 0.9 ashen_grove
+place assets/world/props/tree-dark-oak.glb -135 0 -40 0 1.3 ashen_grove
+place assets/world/props/tree-dark-oak.glb -100 0 -15 120 1.0 ashen_grove
+place assets/world/props/tree-dark-oak.glb -175 0 -5 240 1.1 ashen_grove
+place assets/world/props/tree-dark-cone.glb -145 0 40 0 1.0 ashen_grove
+place assets/world/props/tree-dark-cone.glb -125 0 -10 180 1.2 ashen_grove
+place assets/world/props/tree-dark-cone.glb -160 0 45 90 1.0 ashen_grove
+place assets/world/props/tree-dark-tall.glb -115 0 -45 0 1.0 ashen_grove
+place assets/world/props/tree-dark-tall.glb -185 0 30 0 1.4 ashen_grove
+place assets/world/props/dead-trunk.glb -140 0 10 45 1.0 ashen_grove
+place assets/world/props/dead-trunk-long.glb -155 0 -35 135 1.0 ashen_grove
+place assets/world/props/tombstone-carved.glb -130 0 25 0 1.0 ashen_grove
+place assets/world/props/tombstone-carved.glb -170 0 -20 180 1.0 ashen_grove
+place assets/world/props/tombstone-weathered.glb -105 0 15 90 1.0 ashen_grove
+place assets/world/props/pine-dead-crooked.glb -190 0 -40 0 1.0 ashen_grove
+
+# --- ember_shrine: fire in the dark ---
+place assets/world/props/torch-stand.glb -20 0 100 0 1.0 ember_shrine
+place assets/world/props/torch-stand.glb 20 0 100 0 1.0 ember_shrine
+place assets/world/props/torch-stand.glb -20 0 180 0 1.0 ember_shrine
+place assets/world/props/torch-stand.glb 20 0 180 0 1.0 ember_shrine
+place assets/world/props/torch-wall.glb -8 0 140 0 1.0 ember_shrine
+place assets/world/props/torch-wall.glb 8 0 140 180 1.0 ember_shrine
+place assets/world/props/lantern-iron.glb 0 0 120 0 1.0 ember_shrine
+place assets/world/props/lantern-iron.glb -12 0 160 90 1.0 ember_shrine
+place assets/world/props/lantern-iron.glb 12 0 160 270 1.0 ember_shrine
+place assets/world/props/candles-cluster.glb -6 0 130 0 1.0 ember_shrine
+place assets/world/props/candles-cluster.glb 6 0 130 120 1.0 ember_shrine
+place assets/world/props/candles-cluster.glb -6 0 150 240 1.0 ember_shrine
+place assets/world/props/candles-cluster.glb 6 0 150 60 1.0 ember_shrine
+place assets/world/props/chest-old.glb 0 0 190 180 1.0 ember_shrine
+place assets/world/props/bone-pile.glb -30 0 140 0 1.0 ember_shrine
+place assets/world/props/tombstone-weathered.glb 30 0 140 0 1.0 ember_shrine
