@@ -755,6 +755,59 @@ model, combos, stats panel, character packages, validation, RMB
 abilities, KDA): all passing alongside the earlier waves (13/13 ctest
 suites green).
 
+## Wave 9: balance sim, new content, robustness
+
+### Balance simulator (`src/sim/`, binary `cultulhu_sim`)
+Headless batch runner: 18 scenarios (12 single-belief loadouts + triples
+Fear×Torture, War×Onslaught, Dreams×Chaos, Conversion×Trickery×Magic,
+Sacrifice×Magic×Dreams, Chaos×Reconstruction×War) × 8 seeds × 3600 ticks,
+with a scripted ScenarioBot playing each belief at a fixed schedule.
+Metrics: power-over-time curve, ticks-to-500/800, insurrection events,
+conversions, war kills, deaths by cause. Reports land in `sim_reports/`
+(git-ignored CSVs + committed `analysis.md`).
+
+Findings (full detail in `sim_reports/analysis.md`):
+- Conversion×Trickery×Magic is a 2.28× outlier (fastest to power 500) —
+  linear stacking with no diminishing returns (logged as recommendation R1).
+- The synergy/conflict matrix is currently unreachable: peak exertion 31.5
+  observed vs the 50/70 synergy/tension gates (R2).
+- Insurrection never fires organically outside Chaos punishment paths (R3);
+  Onslaught idle-decay never triggers at the 3600s limit (R4);
+  Reconstruction generates ~zero power (R5).
+
+Conservative tuning applied (each within ±20%, documented):
+TORTURE_PER_VICTIM 8.0→6.4, SACRIFICE_COMPLETED 25.0→30.0,
+FEAR_RAID_POWER 12.0→14.4, ONSLAUGHT_PER_CIVILIAN 3.0→3.6.
+
+### New directives
+- **Assassinate Prophet**: 60s infiltration; per-tick strike chance
+  `0.08 + 0.30×Trickery − dist/2000`; exposure risks an insurrection nudge
+  and a War event; success assassinates the enemy leader (Fear/War spike).
+- **Blight Land**: 120 corruption ticks on a zone; Fear rises, civilian
+  output falls; zone stays flagged Blighted.
+- **Grand Summoning**: 90s ritual costing 300 power up front (no refund on
+  interruption); completes into a 1200 HP dread champion.
+Driver: `directive assassinate|blight|summon`, `directive zones`.
+
+### New ambient events & dungeon hazards
+Ambient: omen-reading (Dreams synergy), sparring, tending wounded
+(Reconstruction synergy), sigil graffiti (+zone Fear), chanting circle
+(Magic exertion, may lure a creature). Hazards in the procedural
+generator (seeded): spike pits (25 dmg, once per entity), trapped rooms
+(15 dmg, one-shot, feeds Trickery), cave-ins (20 dmg, 35% trigger, 40%
+seal the passage). Driver: `ambient [name]`, `dungeon [seed]`.
+
+### Robustness: fuzz harness (`src/fuzz/`, binary `cultulhu_fuzz`)
+150k deterministic iterations (+300k extra seeds, all clean; ASan/UBSan
+clean) across three targets: event bus, command parser, driver REPL
+dispatch — malformed events, mutated/garbage/10KB inputs, NaN/Inf values.
+Fixed 4 real bugs: `SaveSystem::load` uncaught exceptions on malformed
+saves (now returns false); net decode CPU-hang on attacker-controlled
+count (`n > 4096` rejected); `ClipSerializer` allocation bomb (1M key cap,
+NaN rejected); heap-use-after-free in WaveOfDomination when victims were
+freed by a load mid-levitation (stale victims pruned, ability cancelled on
+load). Regression tests in `cultulhu_tests_fuzz`.
+
 ## Discrepancy notes (faithful to the doc)
 
 - The doc said "12 beliefs" but listed 11. The 12th — **Dreams** — was chosen

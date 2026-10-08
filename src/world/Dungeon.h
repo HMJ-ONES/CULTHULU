@@ -13,6 +13,12 @@
 //   CaveInstance: "drunkard's walk" — a random walk carves tunnels from the
 //     center, then several circular chambers are stamped at random points,
 //     giving an organic cave feel.
+//
+// Wave 9c: hazards (spike pits, cave-ins, hidden traps) are placed by the
+// same seeded RNG, so identical seeds give identical hazard layouts.
+// Entities move between rooms with traverseTo(), which fires hazards and
+// emits SpikePitSprung / CaveIn / TrapSprung events. Damage itself is
+// applied by the subscriber (the dungeon tracks ids, not entities).
 
 #include "core/EventBus.h"
 #include "core/Events.h"
@@ -20,9 +26,35 @@
 #include "core/Vec3.h"
 
 #include <cstdint>
+#include <unordered_map>
 #include <vector>
 
 namespace cultulhu {
+
+// Wave 9c: dungeon hazard types. Hazards are placed by the seeded
+// generator (placeHazards), so the same seed always yields the same
+// layout AND the same hazards.
+enum class HazardType {
+    None,
+    SpikePit, // room hazard: damages each entity once on entry
+    CaveIn,   // corridor hazard: chance on traversal; damages entities
+              // inside and may SEAL the passage (roomSealed)
+    Trapped,  // room hazard: hidden trap, fires once on first entry
+    Count
+};
+
+const char* hazardTypeName(HazardType t);
+
+// One hazard, attached to a room. Cave-ins conceptually sit on the
+// corridor INTO their room and roll when that room is entered.
+struct DungeonHazard {
+    HazardType type = HazardType::None;
+    int roomIndex = -1;
+    float triggerChance = 1.0f; // cave-ins roll this per traversal
+    bool spent = false;         // one-shot traps
+    bool sealed = false;        // cave-in blocked the passage
+    std::vector<uint64_t> victims; // spike pits: entities already hit
+};
 
 struct DungeonRoom {
     int x = 0, y = 0; // top-left cell
@@ -41,6 +73,13 @@ public:
     static constexpr int DEFAULT_WIDTH = 48;
     static constexpr int DEFAULT_HEIGHT = 48;
     static constexpr float DEFAULT_CELL = 4.0f; // world units per cell
+
+    // Wave 9c hazard tuning (creative-liberty numbers).
+    static constexpr float SPIKE_PIT_DAMAGE = 25.0f;
+    static constexpr float DUNGEON_TRAP_DAMAGE = 15.0f;
+    static constexpr float CAVE_IN_DAMAGE = 20.0f;
+    static constexpr float CAVE_IN_TRIGGER_CHANCE = 0.35f;
+    static constexpr float CAVE_IN_SEAL_CHANCE = 0.40f;
 
     DungeonInstance(EventBus& bus, uint64_t id, uint64_t seed,
                     Vec3 entrancePos,
@@ -74,6 +113,23 @@ public:
     }
     const std::vector<DungeonRoom>& rooms() const { return rooms_; }
     const std::vector<Vec3>& relicSpots() const { return relicSpots_; }
+
+    // Wave 9c: hazards. Seeded-deterministic (same seed -> same hazards).
+    const std::vector<DungeonHazard>& hazards() const { return hazards_; }
+
+    // Move an inside entity between rooms. Fires room-entry hazards
+    // (spike pits once per entity per room; hidden traps once ever;
+    // cave-ins roll per traversal). Returns false when the entity is not
+    // inside, the room index is bad, or the passage is sealed.
+    bool traverseTo(uint64_t entityId, int roomIndex);
+
+    // Room index of an inside entity, or -1 when not inside.
+    int entityRoom(uint64_t entityId) const;
+
+    // A cave-in sealed the passage into this room: traverseTo() refuses
+    // it. Sealing is conceptual rubble (the tile grid is unchanged);
+    // pathing callers must consult roomSealed() before moving entities.
+    bool roomSealed(int roomIndex) const;
 
     // World-space position of a cell (dungeon is centered on entrancePos).
     Vec3 cellToWorld(int x, int y) const {
@@ -112,6 +168,9 @@ protected:
     void carveRoom(const DungeonRoom& r);
     void carveCorridor(int x0, int y0, int x1, int y1);
 
+    // Wave 9c: seeded hazard placement; called at the end of doGenerate().
+    void placeHazards();
+
     EventBus& bus_;
     RNG rng_;
 
@@ -125,9 +184,11 @@ protected:
     std::vector<char> tiles_;
     std::vector<DungeonRoom> rooms_;
     std::vector<Vec3> relicSpots_;
+    std::vector<DungeonHazard> hazards_;
 
     std::vector<uint64_t> surfaceIds_;
     std::vector<uint64_t> insideIds_;
+    std::unordered_map<uint64_t, int> entityRoom_; // inside id -> room index
 
     uint64_t bossId_ = 0;
     bool completed_ = false;

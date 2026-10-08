@@ -12,6 +12,28 @@
 namespace cultulhu {
 
 class CultManager;
+class ExertionSystem;
+class PowerSystem;
+class WorldMap;
+
+// Wave 9b: optional game-layer context for directive follow-through
+// operations. The executor works without it (operations degrade
+// gracefully), but the new directives need live systems:
+//   power      - GrandSummoning consumes 300 power at operation start
+//                (fails when power < 300); BlightLand trickles power.
+//   exertion   - AssassinateProphet reads live Trickery exertion for the
+//                per-tick strike chance.
+//   worldMap   - BlightLand resolves the zone at the target position and
+//                flags it Blighted on completion.
+//   targetEntityId - enemy leader entity id for AssassinateProphet (set
+//                by the game layer right before issuing the directive;
+//                the spawn reads it synchronously during issueCommand).
+struct DirectiveContext {
+    PowerSystem* power = nullptr;
+    ExertionSystem* exertion = nullptr;
+    WorldMap* worldMap = nullptr;
+    uint64_t targetEntityId = 0;
+};
 
 // A live, ticking follow-through for an obeyed eldritch directive.
 //
@@ -33,6 +55,34 @@ class CultManager;
 //                                          completion only (see defenseActive)
 //   GatherRelic    -> RelicOperation:      travel ticks, then 60% chance of
 //                                          ArtifactTriggered (tag "relic")
+//
+// Wave 9b:
+//   AssassinateProphet -> AssassinateOperation: infiltration approach ticks;
+//                          per-tick strike roll from live Trickery exertion
+//                          and cult-to-target distance. Success =
+//                          LeaderAssassinated + EnemyMoraleShocked (120s);
+//                          exposure = AssassinExposed (target escapes) +
+//                          insurrection nudge + CombatStarted "deity_noticed".
+//                          Resolves early on success/exposure; a quiet
+//                          timeout just completes.
+//   BlightLand       -> BlightOperation:      120 corruption ticks (1s);
+//                          ZoneBlightTick per tick (the city system reads it
+//                          to cut civilian output), Fear exertion rises, and
+//                          cultists in the zone trickle power. Completion
+//                          flags the zone Blighted via the context world map.
+//   GrandSummoning   -> SummoningOperation:   90s ritual; 300 power consumed
+//                          at start (fails when power < 300, no operation).
+//                          2% interruption per tick, no refund. Completion =
+//                          ChampionSummoned (the game layer spawns a boosted
+//                          Monstrosity: the dread champion, 1200 HP).
+//
+// Operation context (power/exertion/world map/target entity) is attached via
+// DirectiveExecutor::setContext; unset entries degrade gracefully:
+//   - no PowerSystem: GrandSummoning always fails (insufficient_power);
+//     BlightLand skips the power trickle.
+//   - no ExertionSystem: AssassinateProphet strikes at base chance.
+//   - no WorldMap: BlightLand corrupts "the wilds" around the target point
+//     and ZoneBlighted carries amount 0 (no persistent flag).
 //
 // Buff hook: the executor does NOT apply a defense buff itself. While any
 // Defend operation is live, defenseActive() returns true; game layers
@@ -93,6 +143,12 @@ public:
     // Buff hook: true while any Defend directive is being carried out.
     bool defenseActive() const;
 
+    // Wave 9b: attach game-layer context (power/exertion/world map) used
+    // by the new directive operations. Optional; unset entries degrade
+    // gracefully (documented per operation).
+    void setContext(DirectiveContext ctx) { ctx_ = ctx; }
+    const DirectiveContext& context() const { return ctx_; }
+
     static constexpr size_t MAX_OPERATIONS = 4;
 
 private:
@@ -102,6 +158,7 @@ private:
     EventBus& bus_;
     RNG& rng_;
     CultManager& cult_;
+    DirectiveContext ctx_;
     std::vector<std::unique_ptr<DirectiveOperation>> ops_;
 };
 
