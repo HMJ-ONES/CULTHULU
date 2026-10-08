@@ -49,3 +49,12 @@ entities near a surfaced Dhole), not a perf fix — left for a content wave.
 1. Past ~200 entities: delta compression + interest management (as documented).
 2. If bandwidth ever matters: packed-binary snapshot encoding (~40% smaller).
 3. Implement the Dhole fear-aura application (correctness, not perf).
+
+## Wave 19 measurements (2026-10-08)
+- `mapinfo` (driver): instant. `dungeon pnath 4242`: 7 ms.
+- MapLoader: ruined_city.map (90 placements) 2 ms, eldritch_battlefield.map (72→120 placements after wave-19 art) 1 ms.
+- ValeOfPnath(4242) generation: <1 ms (20 rooms).
+- Full balance sim (18 scenarios x 8 seeds x 3600 ticks, 144 runs): 0.11 s.
+- decode_assets.py: 0.47 s for 82 assets; now skips byte-identical outputs (no redundant rewrites).
+- Decoded asset payload: ~5.0 MB (glb+png, excl. .b64 sidecars). Enforced by tests_wave19: world/ <= 2000 tris/model, characters+creatures <= 8000, textures <= 1024px, total <= 12MB.
+- Asset loading review: ModelCatalog uses function-local static maps (loaded once, cached). MapLoader parses per call (1-2 ms — no cache needed). Driver is headless (paths only, no GLB binary loads). No redundant-load issues found; only fix was the decode skip above.
