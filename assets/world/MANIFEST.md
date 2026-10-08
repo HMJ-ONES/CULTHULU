@@ -138,3 +138,40 @@ downsampled to 512x512, and referenced externally (one atlas per pack).
 New map: `assets/maps/eldritch_battlefield.map` — 72 placements in 4 zones
 (shattered_court, cavern_mouth, ashen_grove, ember_shrine), all 27 new models.
 `ruined_city.map` untouched (90 placements, asserted by tests).
+
+## Wave 19: second dark-art pass (atmospheric props)
+
+14 more KayKit models (Halloween Bits + Dungeon Remastered, CC0 1.0 — same
+packs verified in waves 11/17) + 5 original in-house procgen props
+(mist banks, scorched earth, ember clusters, collapsed beams, dead bushes).
+All models < 1000 tris except `props/ribcage.glb` (1240, under the 2000 hard cap).
+New textures (all original, generated in code): `textures/mist-soft.png`
+(256x256 RGBA), `textures/scorch-dark.png` (256x256 RGBA),
+`textures/ember-glow.png` (128x128), `textures/wood-dark.png` (128x128),
+`textures/bark-dead.png` (64x64).
+
+| File | Source pack | License | Triangles | Size | Palette |
+|---|---|---|---|---|---|
+| `props/arch-ruined.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 436 | 29.5 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/arch-gate.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 868 | 59.8 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/bones-scattered.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 204 | 8.8 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/ribcage.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 1240 | 52.4 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/skull.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 344 | 13.6 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/skull-candle.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 542 | 24.4 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/coffin-stone.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 316 | 19.6 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/tree-dead-large.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 256 | 8.4 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `props/fence-broken.glb` | [KayKit Halloween Bits](https://kaylousberg.itch.io/halloween-bits) | CC0 1.0 | 446 | 29.7 KB | textures/kaykit-halloween-atlas.png (512x512) |
+| `buildings/stairs-ruined.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 358 | 42.4 KB | textures/kaykit-dungeon-atlas.png (512x512) |
+| `props/rubble-large.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 788 | 58.8 KB | textures/kaykit-dungeon-atlas.png (512x512) |
+| `props/broken-step.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 94 | 21.7 KB | textures/kaykit-dungeon-atlas.png (512x512) |
+| `buildings/arch-dungeon.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 724 | 67.5 KB | textures/kaykit-dungeon-atlas.png (512x512) |
+| `buildings/wall-broken.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 784 | 67.7 KB | textures/kaykit-dungeon-atlas.png (512x512) |
+| `props/mist-bank.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 2 | 1.3 KB | textures/mist-soft.png (256x256) |
+| `terrain/scorched-patch.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 2 | 1.3 KB | textures/scorch-dark.png (256x256) |
+| `props/ember-cluster.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 768 | 18.1 KB | textures/ember-glow.png (128x128) |
+| `props/beams-collapsed.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 48 | 6.0 KB | textures/wood-dark.png (128x128) |
+| `props/dead-bush.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 100 | 4.9 KB | textures/bark-dead.png (64x64) |
+
+Wave-19 new payload: 536 KB decoded GLB (+ ~90 KB new textures).
+Map: `assets/maps/eldritch_battlefield.map` extended 72 -> 120 placements.
+`ruined_city.map` untouched.

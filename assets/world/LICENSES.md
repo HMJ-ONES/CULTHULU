@@ -63,6 +63,10 @@ standalone asset pack.
 - Models used: pillar, torch, torch_mounted, chest, banner_shield_blue,
   floor_tile_big_spikes. Embedded 1024x1024 atlas extracted and
   downsampled to 512x512 (`textures/kaykit-dungeon-atlas.png`).
+- Models used (wave 19): stairs_wide, rubble_large,
+  floor_tile_small_broken_A, wall_arched, wall_broken — same pack, same
+  CC0 1.0 terms; `.gltf.glb` files used directly, image URI rewritten to
+  `../textures/kaykit-dungeon-atlas.png`.
 
 ### 6. KayKit Halloween Bits (v1.0, wave 17)
 - Pack page: https://kaylousberg.itch.io/halloween-bits —
@@ -71,9 +75,38 @@ standalone asset pack.
 - Models used: grave_A, grave_B, tree_dead_small, lantern_standing,
   candle_triple (.gltf+.bin packed to .glb; external 1024x1024 atlas
   downsampled to 512x512 as `textures/kaykit-halloween-atlas.png`).
+- Models used (wave 19): arch, arch_gate, bone_A, ribcage, skull,
+  skull_candle, coffin, tree_dead_large, fence_broken — same pack, same
+  CC0 1.0 terms; `.gltf`+`.bin` packed to `.glb`, image URI rewritten to
+  `../textures/kaykit-halloween-atlas.png`. (coffin_decorated was
+  evaluated and rejected: 2064 tris, over the 2000-tri hard cap.)
+
+### 7. KayKit Character Animations 1.1 (wave 18)
+- Pack page: https://kaylousberg.itch.io/kaykit-character-animations —
+  "Free for personal and commercial use, no attribution required.
+  (CC0 Licensed)" (verified 2026-10-08). The downloaded zip's own
+  `License.txt` states: "License: (Creative Commons Zero, CC0)
+  http://creativecommons.org/publicdomain/zero/1.0/".
+- License: **CC0 1.0 Universal**
+  (https://creativecommons.org/publicdomain/zero/1.0/), by Kay Lousberg.
+- Used as: 16 clips per humanoid package converted to `.canim`
+  (`assets/characters/<civilian_guard|civilian_villager|civilian_laborer|
+  cultist_hooded|cultist_magus>/animations/`): idle, walk, run, attack,
+  death, stunned, cast, channel, cheer, fearrun, brawl, dodge, interact,
+  work, sacrifice_performer, sacrifice_victim. Full provenance in
+  `assets/characters/ANIMATIONS.md`.
 
 ## Sources deliberately NOT used
 - **Quaternius** (quaternius.com): evaluated, rejected — its current license is
   the proprietary "Quaternius Asset License (QAL) v1.0" (last updated
   2026-08-28), not CC0. Its older CC0-era assets were not used to avoid any
   license ambiguity.
+
+### 8. In-house procedural props (wave 19, original work)
+- `props/mist-bank.glb`, `terrain/scorched-patch.glb`,
+  `props/ember-cluster.glb`, `props/beams-collapsed.glb`,
+  `props/dead-bush.glb` and their textures (`textures/mist-soft.png`,
+  `textures/scorch-dark.png`, `textures/ember-glow.png`,
+  `textures/wood-dark.png`, `textures/bark-dead.png`) were generated in
+  code for this project — no third-party source, no license to verify.
+- Original work by the CULT-ULHU project; treat as project-owned assets.

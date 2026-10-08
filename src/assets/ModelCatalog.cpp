@@ -54,6 +54,29 @@ ModelCatalog::worldModels() {
         {"bare_dead_tree",      "assets/world/props/tree-dead-bare.glb"},
         {"iron_lantern",        "assets/world/props/lantern-iron.glb"},
         {"candle_cluster",      "assets/world/props/candles-cluster.glb"},
+        // eldritch battlefield, second dark-art pass (wave 19): more KayKit
+        // Halloween Bits / Dungeon Remastered (CC0) + in-house procgen
+        // atmosphere props (mist, scorch, embers, beams, dead bushes).
+        // See assets/world/MANIFEST.md.
+        {"stone_arch",      "assets/world/props/arch-ruined.glb"},
+        {"dark_gate",       "assets/world/props/arch-gate.glb"},
+        {"scattered_bones", "assets/world/props/bones-scattered.glb"},
+        {"ribcage",         "assets/world/props/ribcage.glb"},
+        {"skull",           "assets/world/props/skull.glb"},
+        {"skull_candle",    "assets/world/props/skull-candle.glb"},
+        {"stone_coffin",    "assets/world/props/coffin-stone.glb"},
+        {"dead_tree_large", "assets/world/props/tree-dead-large.glb"},
+        {"broken_fence",    "assets/world/props/fence-broken.glb"},
+        {"ruined_stairs",   "assets/world/buildings/stairs-ruined.glb"},
+        {"large_rubble",    "assets/world/props/rubble-large.glb"},
+        {"broken_step",     "assets/world/props/broken-step.glb"},
+        {"dungeon_arch",    "assets/world/buildings/arch-dungeon.glb"},
+        {"broken_wall",     "assets/world/buildings/wall-broken.glb"},
+        {"mist_bank",       "assets/world/props/mist-bank.glb"},
+        {"scorched_earth",  "assets/world/terrain/scorched-patch.glb"},
+        {"ember_cluster",   "assets/world/props/ember-cluster.glb"},
+        {"collapsed_beams", "assets/world/props/beams-collapsed.glb"},
+        {"dead_bush",       "assets/world/props/dead-bush.glb"},
     };
     return kModels;
 }

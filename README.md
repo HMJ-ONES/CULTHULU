@@ -1124,6 +1124,37 @@ No CC0 source found for stalactites/stalagmites, dark crystals, or hanging
 chains — surveyed Kenney, KayKit, itch.io, and OpenGameArt. These remain
 original-art tasks.
 
+## Art: second dark-art pass (wave 19)
+
+More atmosphere for the eldritch battlefield — ruined arches, broken stairs,
+bone decorations (ribcages, skulls, scattered bones), stone coffins, dead
+bushes, collapsed beams, plus in-house mist banks, scorched-earth patches,
+and ember clusters.
+
+### Sources
+
+14 more models from the already-verified CC0 packs above: KayKit
+Halloween Bits (arches, gate, bones, ribcage, skulls, coffin, dead tree,
+broken fence) and KayKit Dungeon Remastered (wide stairs, rubble, broken
+floor tile, arched wall, broken wall). 5 props + 5 textures generated
+in-house (original work, no license to verify) — see
+`assets/world/LICENSES.md` §8.
+
+### Budget
+
+- 19 models, **~0.54 MB decoded GLB** (all ≤ 1000 tris except ribcage at
+  1240 — under the 2000 hard cap), + ~90 KB new textures (all ≤ 256px)
+- `assets/maps/eldritch_battlefield.map` extended 72 → **120 placements**;
+  `ruined_city.map` untouched
+
+### ModelCatalog names
+
+`stone_arch`, `dark_gate`, `scattered_bones`, `ribcage`, `skull`,
+`skull_candle`, `stone_coffin`, `dead_tree_large`, `broken_fence`,
+`ruined_stairs`, `large_rubble`, `broken_step`, `dungeon_arch`,
+`broken_wall`, `mist_bank`, `scorched_earth`, `ember_cluster`,
+`collapsed_beams`, `dead_bush`.
+
 ## Bestiary: NPCs & creatures (wave 12)
 
 Civilians, cultists and horrors finally have bodies. All CC0, all light.
