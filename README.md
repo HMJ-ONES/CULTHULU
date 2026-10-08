@@ -754,8 +754,8 @@ the per-player KDA table.
 Wave 7 adds the `cultulhu_tests_wave7*` suites (zones, dungeons/caves,
 altars, buildings, construction sites, builder AI, command menu, input
 model, combos, stats panel, character packages, validation, RMB
-abilities, KDA): all passing alongside the earlier waves (18/18 ctest
-suites green as of wave 10).
+abilities, KDA): all passing alongside the earlier waves (21/21 ctest
+suites green as of wave 13 + overnight hardening).
 
 ## Wave 10: balance-sim recommendations applied (R1–R5)
 
@@ -791,6 +791,45 @@ designed) — inside the 2× flag, but the flag may want recalibration if
 the target is ≤1.5× for all loadouts. No sim scenario pairs a hot
 conflict, so tension events are covered by unit test
 (`testTensionEvents`) rather than the sim matrix.
+
+## Wave 13: Vale of Pnath deep dungeon
+
+Signature Dreamlands dungeon (public-domain Lovecraft concept; see
+`assets/creatures/LEGAL_NAMES.md`): a 72×72 `ValeOfPnath` dungeon with
+per-room depth and a dread value (0 at the mouth → 1.0 at the vault) that
+scales everything. Hazards: abyss pits (20 + 12×depth fall damage),
+maddening whispers (fear grind), and dhole tunnels — first traversal
+telegraphs tremors, the next triggers an ambush. The Dhole (1500 HP,
+burrowing, 18m fear aura) is a mini-boss; the deepest room holds a cursed
+relic vault with a guardian. `dungeon pnath [seed]` in the driver.
+The dhole model slot is an intentional placeholder (no CC0 dhole model
+exists); the engine falls back to a procedural serpent/worm shape.
+New exertion feeds: pit falls / whispers / ambushes feed Fear, the relic
+feeds Magic.
+
+## Wave 12: NPC + creature bodies
+
+Five NPC character packages (`cultist_hooded`, `cultist_magus`,
+`civilian_villager`, `civilian_guard`, `civilian_laborer`) and seven
+creatures (`pale_wight`, `ossified_brute`, `charnel_imp`,
+`skittering_ghoul`, `wraith`, `risen_dead`, `dagon_spawn`) — all
+CC0 KayKit/Kenney models, all names legal-name audited. Driver:
+`bestiary` lists the catalog, `spawn monstrosity [species] [n]` spawns
+them. The 12 large `.glb` models ship as Base64 `.glb.b64` text
+(restored by `python3 assets/decode_assets.py` after cloning).
+Honest gap: no genuinely Mythos-specific CC0 models exist anywhere
+surveyed — no tentacled horrors, true deep ones, shoggoths, or winged
+terrors; the owner's own sculpts remain the real fix.
+
+## Wave 11: lightweight world art pass
+
+38 CC0 Kenney models (0.72MB total, none over 626 triangles) plus
+`assets/maps/ruined_city.map`: 90 placements across cult base, graveyard,
+old city, and outskirts. `ModelCatalog` + `MapLoader` + the `mapinfo`
+driver command validate the art; UE5 import/performance guidance lives in
+`unreal/Docs/ArtImportAndPerf.md`. Quaternius was evaluated and rejected
+(its license is no longer CC0). Binaries travel as `.b64` text because
+GitHub's file API mangles raw binary uploads.
 
 ## Wave 9: balance sim, new content, robustness
 
