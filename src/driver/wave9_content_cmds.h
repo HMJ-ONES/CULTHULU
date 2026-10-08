@@ -13,8 +13,10 @@
 // `continue`s), false for anything it does not own.
 
 #include "ai/AmbientBehavior.h"
+#include "assets/ModelCatalog.h"
 #include "core/Events.h"
 #include "world/Dungeon.h"
+#include "world/ValeOfPnath.h"
 
 #include <iostream>
 #include <sstream>
@@ -84,10 +86,77 @@ inline bool registerWave9ContentCommands(BetaGame& g, const std::string& cmd,
     }
 
     if (cmd == "dungeon") {
-        // dungeon [seed] -> generate a dungeon and print its layout with
-        // hazards marked. Default seed 1337.
+        // dungeon [seed]        -> generate a dungeon and print its layout
+        //                          with hazards marked. Default seed 1337.
+        // dungeon pnath [seed]  -> generate the Vale of Pnath (wave 13):
+        //                          deeper, dread-scaled, dhole-haunted.
+        std::string sub;
+        in >> sub;
+        if (sub == "pnath") {
+            uint64_t seed = 4242;
+            in >> seed; // no argument: stream read fails, seed stays 4242
+            ValeOfPnath v(g.bus, 2, seed, Vec3{0, 0, 0});
+            std::vector<char> view = v.tiles();
+            for (const auto& h : v.hazards()) {
+                const DungeonRoom& r =
+                    v.rooms()[static_cast<size_t>(h.roomIndex)];
+                char glyph = '?';
+                switch (h.type) {
+                    case HazardType::AbyssPit: glyph = 'O'; break;
+                    case HazardType::Whispers: glyph = 'w'; break;
+                    case HazardType::DholeTunnel:
+                        glyph = h.primed ? 'D' : 'd';
+                        break;
+                    default: break;
+                }
+                view[static_cast<size_t>(r.centerY() * v.width() +
+                                        r.centerX())] = glyph;
+            }
+            std::cout
+                << "the Vale of Pnath (seed " << seed << "): " << v.width()
+                << "x" << v.height() << ", " << v.rooms().size()
+                << " rooms, max depth " << v.maxDepth() << ", "
+                << v.hazards().size() << " hazards\n"
+                << "entrance: surface fissure (or the deepest cave tier)\n"
+                << "legend: # wall  . floor  E mouth  O abyss pit"
+                << "  w maddening whispers  D/d dhole tunnel\n";
+            for (int y = 0; y < v.height(); ++y) {
+                for (int x = 0; x < v.width(); ++x)
+                    std::cout
+                        << view[static_cast<size_t>(y * v.width() + x)];
+                std::cout << "\n";
+            }
+            std::cout << "rooms (index: depth, dread, hazard):\n";
+            for (size_t i = 0; i < v.rooms().size(); ++i) {
+                std::cout << "  room " << i << ": depth " << v.roomDepth(i)
+                          << ", dread " << v.dreadAt(static_cast<int>(i));
+                for (const auto& h : v.hazards())
+                    if (h.roomIndex == static_cast<int>(i))
+                        std::cout << ", " << hazardTypeName(h.type);
+                if (static_cast<int>(i) == v.deepestRoomIndex())
+                    std::cout << "  <-- RELIC VAULT (deepest)";
+                std::cout << "\n";
+            }
+            std::cout << "relic vault at (" << v.valeRelicSpot().x << ", "
+                      << v.valeRelicSpot().z << "); guardian spawns at ("
+                      << v.guardianSpawnPos().x << ", "
+                      << v.guardianSpawnPos().z << ")\n"
+                      << "dhole model slot: '"
+                      << ModelCatalog::creatureModel("dhole")
+                      << "' (empty = procedural serpent/worm fallback)\n";
+            return true;
+        }
+        // Not "pnath": `sub` was actually the seed (or empty).
         uint64_t seed = 1337;
-        in >> seed; // no argument: stream read fails, seed stays 1337
+        if (!sub.empty()) {
+            try {
+                seed = static_cast<uint64_t>(std::stoull(sub));
+            } catch (...) {
+                std::cout << "dungeon: unknown subcommand '" << sub
+                          << "' (try: dungeon [seed] | dungeon pnath [seed])\n";
+                return true;
+            }
+        }
         DungeonInstance d(g.bus, 1, seed, Vec3{0, 0, 0});
 
         // Overlay hazard glyphs on a copy of the tile grid.

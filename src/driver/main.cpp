@@ -441,6 +441,7 @@ struct BetaGame {
             "  camera <fp|tp>                      switch camera\n"
             "  look                                survey surroundings\n"
             "  spawn <cultist|civilian|monstrosity|sorcerer> [n]\n"
+            "  spawn <monstrosity|creature> [species] [n]  (see 'bestiary')\n"
             "  belief <name> [replace <old>]       adopt a belief\n"
             "  beliefs                             list active beliefs\n"
             "  rest <i>                            toggle rest for cultist i\n"
@@ -461,6 +462,9 @@ struct BetaGame {
             "  menu [cultist|location|enemy|altar]  radial command menu demo\n"
             "  mapinfo                             map art: placements, file\n"
             "                                          check, asset budget\n"
+            "  bestiary                            creature/NPC models\n"
+            "  dungeon [seed] | dungeon pnath [seed]\n"
+            "                                          dungeon map / Vale of Pnath\n"
             "  combo                               melee combo chain demo\n"
             "  chars | addchar <folder> | validate <id>\n"
             "                                          character packages\n"
@@ -795,8 +799,39 @@ static bool processLine(BetaGame& g, NetSession& nets,
         }
 
         if (cmd == "spawn") {
-            std::string what; int n = 1;
-            in >> what >> n;
+            // spawn <cultist|civilian|sorcerer> [n]
+            // spawn <monstrosity|creature> [species] [n]  (species optional;
+            //   a bare number is treated as the count, default species
+            //   "spawned")
+            std::string what;
+            in >> what;
+            int n = 1;
+            std::string species = "spawned";
+            const bool isMonster = (what == "monstrosity" || what == "creature");
+            {
+                std::string tok;
+                auto isNum = [](const std::string& t) {
+                    return !t.empty() &&
+                           t.find_first_not_of("0123456789") ==
+                               std::string::npos;
+                };
+                if (in >> tok) {
+                    if (isMonster) {
+                        if (isNum(tok)) {
+                            n = std::stoi(tok);
+                        } else {
+                            species = tok;
+                            std::string tok2;
+                            if (in >> tok2 && isNum(tok2))
+                                n = std::stoi(tok2);
+                        }
+                    } else if (isNum(tok)) {
+                        n = std::stoi(tok);
+                    }
+                    // else: unrecognized trailing token — ignore like the
+                    // old `in >> n` failbit path did.
+                }
+            }
             if (n < 1) n = 1; if (n > 20) n = 20;
             Vec3 p = g.avatar.position();
             for (int i = 0; i < n; ++i) {
@@ -807,9 +842,18 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 } else if (what == "sorcerer") {
                     g.world.push_back(std::make_unique<Sorcerer>(
                         FACTION_CTHULHU, q));
-                } else if (what == "monstrosity") {
-                    g.world.push_back(std::make_unique<Monstrosity>(
-                        FACTION_CTHULHU, q, "spawned", false));
+                } else if (isMonster) {
+                    auto m = std::make_unique<Monstrosity>(
+                        FACTION_CTHULHU, q, species, false);
+                    const std::string model =
+                        ModelCatalog::creatureModel(species);
+                    if (i == 0)
+                        std::cout << "spawned " << n << " " << what << "(s) '"
+                                  << species << "'"
+                                  << (model.empty() ? " (no model: logic-only)"
+                                                    : " -> " + model)
+                                  << "\n";
+                    g.world.push_back(std::move(m));
                 } else if (what == "civilian") {
                     g.world.push_back(
                         std::make_unique<Civilian>(q));
@@ -818,7 +862,8 @@ static bool processLine(BetaGame& g, NetSession& nets,
                     break;
                 }
             }
-            std::cout << "spawned " << n << " " << what << "(s)\n";
+            if (!isMonster)
+                std::cout << "spawned " << n << " " << what << "(s)\n";
             return true;
         }
 
@@ -1265,6 +1310,55 @@ static bool processLine(BetaGame& g, NetSession& nets,
                               << "present yet (asset worker pending)\n";
                 }
             }
+            return true;
+        }
+
+        if (cmd == "bestiary") {
+            // Wave 12: list every creature/NPC model registered in the
+            // catalog (species/role key -> .glb), with tri counts and a
+            // loud file-presence check. Binaries are base64-packed
+            // (*.glb.b64); run assets/decode_assets.py after cloning.
+            std::string prefix;
+            {
+                std::ifstream probe("assets/creatures/MANIFEST.md");
+                if (!probe) prefix = "../";
+            }
+            // Bestiary flavor for known species keys (role keys first).
+            const std::map<std::string, std::string> flavor{
+                {"cultist", "Hooded Acolyte — rank-and-file cultist"},
+                {"civilian", "Villager — future convert or victim"},
+                {"adventurer", "Town Guard — city watch NPC"},
+                {"sorcerer", "Ritual Magus — cult leader figure"},
+                {"pale_wight", "Pale Wight — robed skeletal oracle"},
+                {"ossified_brute", "Ossified Brute — heavy bone horror"},
+                {"charnel_imp", "Charnel Imp — swarm chaff"},
+                {"skittering_ghoul", "Skittering Ghoul — fast skirmisher"},
+                {"wraith", "Wraith — lesser servitor, drifts between graves"},
+                {"risen_dead", "Risen Dead — reanimated corpse"},
+                {"dagon_spawn", "Dagon Spawn — deep-one hybrid brute"},
+            };
+            const auto& table = ModelCatalog::creatureModels();
+            std::cout << "bestiary: " << table.size() << " entries\n";
+            int missing = 0;
+            for (const auto& [key, path] : table) {
+                const std::string full = prefix + path;
+                std::ifstream probe(full, std::ios::binary);
+                std::string tris = "?";
+                if (probe) {
+                    GlbStats gs = readGlbStats(full);
+                    if (gs.ok) tris = std::to_string(gs.triangles);
+                } else {
+                    ++missing;
+                }
+                std::cout << "  " << key << " -> " << path << " [" << tris
+                          << " tris] " << (probe ? "present" : "MISSING")
+                          << "\n";
+                auto fi = flavor.find(key);
+                if (fi != flavor.end())
+                    std::cout << "      " << fi->second << "\n";
+            }
+            if (missing > 0)
+                std::cout << missing << " MISSING files (see above)\n";
             return true;
         }
 
