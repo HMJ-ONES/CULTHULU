@@ -26,7 +26,8 @@ struct NetAdapter {
     bool isLoopback() const;  // 127.0.0.0/8
 };
 
-// Enumerate IPv4 adapters via getifaddrs(). Linux/POSIX.
+// Enumerate IPv4 adapters: getifaddrs() on POSIX, GetAdaptersAddresses()
+// (<iphlpapi.h>) on Windows. Test seam below needs no OS at all.
 std::vector<NetAdapter> listAdapters();
 
 // Test seam: classify raw (name, ip, netmask) tuples without touching the OS.

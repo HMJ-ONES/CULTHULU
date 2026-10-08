@@ -315,8 +315,80 @@ static void testNetcodeLoopback() {
     CHECK(nh.clientCount() == 1);
 }
 
+// ---------------- Socket abstraction (Winsock2 port) ----------------
+// Exercises the wrapper API directly so the POSIX/Winsock2 branches share
+// one behavioral contract: validity transitions, close() idempotence,
+// ephemeral ports, and a UDP + TCP loopback round-trip.
+
+static void testSocketAbstraction() {
+    // Fresh sockets start invalid; close() on an invalid socket is safe.
+    {
+        UdpSocket u;
+        TcpSocket t;
+        TcpListener l;
+        CHECK(!u.valid());
+        CHECK(!t.valid());
+        CHECK(!l.valid());
+        u.close(); t.close(); l.close();  // must not crash
+        CHECK(!u.valid());
+    }
+    // UDP loopback round-trip through the abstraction (fixed high ports).
+    // Sandbox environments sometimes block UDP outright (EPERM on
+    // sendto); probe first and skip like testDiscoveryLoopback does.
+    {
+        UdpSocket probe;
+        if (!probe.open() || !probe.sendTo("127.0.0.1", 47999, "x", 1)) {
+            std::cout << "SKIP testSocketAbstraction UDP part (UDP blocked)\\n";
+        } else {
+            UdpSocket s1, s2;
+            CHECK(s1.open() && s2.open());
+            CHECK(s1.valid() && s2.valid());
+            CHECK(s1.bind(47991) && s2.bind(47992));
+            const char* msg = "winsock-probe";
+            CHECK(s1.sendTo("127.0.0.1", 47992, msg, 13));
+            char buf[64] = {};
+            std::string fromIp; uint16_t fromPort = 0;
+            long n = s2.recvFrom(buf, sizeof(buf), fromIp, fromPort, 2000);
+            CHECK(n == 13);
+            CHECK(std::string(buf, 13) == msg);
+            CHECK(fromIp == "127.0.0.1");
+            CHECK(fromPort == 47991);
+            s1.close(); s2.close();
+            CHECK(!s1.valid() && !s2.valid());
+            s1.close();  // double close safe
+        }
+    }
+    // TCP loopback: listen(0) -> connect -> accept -> echo.
+    {
+        TcpListener listener;
+        CHECK(listener.listen(0));
+        uint16_t port = listener.boundPort();
+        CHECK(port != 0);
+        TcpSocket client;
+        CHECK(client.connect("127.0.0.1", port, 3000));
+        CHECK(client.valid());
+        auto acc = listener.accept(3000);
+        CHECK(acc.has_value());
+        CHECK(acc->valid());
+        const char* ping = "tcp-probe-123";
+        CHECK(client.sendAll(ping, 13));
+        char buf[64] = {};
+        CHECK(acc->recvSome(buf, sizeof(buf), 2000) == 13);
+        CHECK(std::string(buf, 13) == ping);
+        CHECK(acc->sendAll(buf, 13));
+        char back[64] = {};
+        CHECK(client.recvSome(back, sizeof(back), 2000) == 13);
+        CHECK(std::string(back, 13) == ping);
+        // Move semantics transfer ownership; source goes invalid.
+        TcpSocket moved = std::move(client);
+        CHECK(moved.valid());
+        CHECK(!client.valid());
+    }
+}
+
 int main() {
     testProtocolRoundTrip();
+    testSocketAbstraction();
     testMessageReaderPartial();
     testRadminClassify();
     testBeaconParse();

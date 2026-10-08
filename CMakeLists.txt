@@ -12,6 +12,11 @@ list(FILTER CULTULHU_SRC EXCLUDE REGEX "src/driver/")
 add_library(cultulhu ${CULTULHU_SRC})
 target_include_directories(cultulhu PUBLIC src)
 
+# Windows: the net layer uses Winsock2 + GetAdaptersAddresses().
+if(WIN32)
+    target_link_libraries(cultulhu PUBLIC ws2_32 iphlpapi)
+endif()
+
 # Playable beta driver (headless console REPL).
 add_executable(cultulhu_play src/driver/main.cpp)
 target_link_libraries(cultulhu_play PRIVATE cultulhu)

@@ -2,10 +2,23 @@
 
 #include "core/Logger.h"
 
+#ifdef _WIN32
+// Windows adapter enumeration: GetAdaptersAddresses() from <iphlpapi.h>.
+// There is no getifaddrs() on Windows. Unicast addresses carry a CIDR
+// prefix length (OnLinkPrefixLength) instead of a netmask, so we convert
+// it to a dotted quad to keep the shared NetAdapter math unchanged.
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
+#pragma comment(lib, "iphlpapi.lib")
+#pragma comment(lib, "ws2_32.lib")
+#else
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <netinet/in.h>
+#endif
 
+#include <cstdint>
 #include <sstream>
 
 namespace cultulhu {
@@ -30,6 +43,19 @@ bool inSubnet(const std::string& ip, uint32_t net, int bits) {
     return (quadToInt(ip) >> (32 - bits)) == (net >> (32 - bits));
 }
 
+#ifdef _WIN32
+// Adapter FriendlyName is WCHAR; convert for log parity with ifa_name.
+std::string wideToUtf8(const wchar_t* w) {
+    if (!w || !*w) return "?";
+    int n = WideCharToMultiByte(CP_UTF8, 0, w, -1, nullptr, 0, nullptr,
+                                nullptr);
+    if (n <= 1) return "?";
+    std::string s(static_cast<size_t>(n - 1), '\0');
+    WideCharToMultiByte(CP_UTF8, 0, w, -1, s.data(), n, nullptr, nullptr);
+    return s;
+}
+#endif
+
 } // namespace
 
 bool NetAdapter::isRadmin() const { return inSubnet(ip, 0x1A000000, 8); }  // 26/8
@@ -47,6 +73,47 @@ std::vector<NetAdapter> classifyAdapters(
 
 std::vector<NetAdapter> listAdapters() {
     std::vector<std::tuple<std::string, std::string, std::string>> raw;
+#ifdef _WIN32
+    // GetAdaptersAddresses needs a sized buffer; the documented pattern is
+    // to retry with the size it reports via ERROR_BUFFER_OVERFLOW.
+    ULONG bufLen = 15 * 1024;
+    IP_ADAPTER_ADDRESSES* addrs = nullptr;
+    DWORD rc = ERROR_BUFFER_OVERFLOW;
+    for (int tries = 0; tries < 3 && rc == ERROR_BUFFER_OVERFLOW; ++tries) {
+        delete[] reinterpret_cast<char*>(addrs);
+        addrs = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(new char[bufLen]);
+        rc = GetAdaptersAddresses(AF_INET,
+                                  GAA_FLAG_SKIP_ANYCAST |
+                                      GAA_FLAG_SKIP_MULTICAST |
+                                      GAA_FLAG_SKIP_DNS_SERVER,
+                                  nullptr, addrs, &bufLen);
+    }
+    if (rc != NO_ERROR || !addrs) {
+        Logger::warn("GetAdaptersAddresses failed; no adapters enumerated");
+        delete[] reinterpret_cast<char*>(addrs);
+        return {};
+    }
+    for (IP_ADAPTER_ADDRESSES* a = addrs; a; a = a->Next) {
+        if (a->OperStatus != IfOperStatusUp) continue;
+        const std::string name = wideToUtf8(a->FriendlyName);
+        for (IP_ADAPTER_UNICAST_ADDRESS* ua = a->FirstUnicastAddress; ua;
+             ua = ua->Next) {
+            if (!ua->Address.lpSockaddr ||
+                ua->Address.lpSockaddr->sa_family != AF_INET)
+                continue;
+            auto* sin = reinterpret_cast<sockaddr_in*>(ua->Address.lpSockaddr);
+            char ipbuf[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, &sin->sin_addr, ipbuf, sizeof(ipbuf));
+            // CIDR prefix length -> dotted netmask for the shared math.
+            const ULONG bits = ua->OnLinkPrefixLength;
+            const uint32_t mask = (bits >= 32)   ? 0xFFFFFFFFu
+                                  : (bits == 0) ? 0x00000000u
+                                                : (0xFFFFFFFFu << (32 - bits));
+            raw.emplace_back(name, ipbuf, intToQuad(mask));
+        }
+    }
+    delete[] reinterpret_cast<char*>(addrs);
+#else
     ifaddrs* list = nullptr;
     if (getifaddrs(&list) != 0) {
         Logger::warn("getifaddrs failed; no adapters enumerated");
@@ -64,6 +131,7 @@ std::vector<NetAdapter> listAdapters() {
                          ipbuf, maskbuf);
     }
     freeifaddrs(list);
+#endif
     return classifyAdapters(raw);
 }
 

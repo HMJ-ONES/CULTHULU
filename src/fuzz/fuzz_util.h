@@ -8,12 +8,19 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdio>
+#ifdef _WIN32
+// MSVC: POSIX fd functions live in <io.h> with underscore names;
+// <fcntl.h> provides _O_WRONLY. "NUL" is the Windows /dev/null.
 #include <fcntl.h>
+#include <io.h>
+#else
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 #include <iostream>
 #include <random>
 #include <streambuf>
 #include <string>
-#include <unistd.h>
 #include <vector>
 
 namespace fuzz {
@@ -82,28 +89,48 @@ struct Watchdog {
 
 // ------------------------------------------------------- output control
 // Redirects std::cout/std::cerr to a null sink AND the raw stderr file
-// descriptor (fd 2) to /dev/null for the duration of a fuzz run: the
+// descriptor (fd 2) to the null device for the duration of a fuzz run: the
 // driver is chatty on both iostreams and raw fprintf(stderr, ...).
 // Failure reports go to the saved stderr fd, so they are never swallowed.
+//
+// Windows note: the POSIX dup/dup2/open/close spellings become
+// _dup/_dup2/_open/_close from <io.h>, and the null device is "NUL".
 class StreamSilencer {
 public:
     StreamSilencer()
         : coutBuf_(std::cout.rdbuf()), cerrBuf_(std::cerr.rdbuf()),
+#ifdef _WIN32
+          errFd_(_dup(2)) {
+#else
           errFd_(::dup(2)) {
+#endif
         std::cout.rdbuf(&null_);
         std::cerr.rdbuf(&null_);
         ::fflush(stderr);
+#ifdef _WIN32
+        const int devNull = _open("NUL", _O_WRONLY);
+        if (devNull >= 0) {
+            _dup2(devNull, 2);
+            _close(devNull);
+        }
+#else
         const int devNull = ::open("/dev/null", O_WRONLY);
         if (devNull >= 0) {
             ::dup2(devNull, 2);
             ::close(devNull);
         }
+#endif
     }
     ~StreamSilencer() {
         ::fflush(stderr);
         if (errFd_ >= 0) {
+#ifdef _WIN32
+            _dup2(errFd_, 2);
+            _close(errFd_);
+#else
             ::dup2(errFd_, 2);
             ::close(errFd_);
+#endif
         }
         std::cout.rdbuf(coutBuf_);
         std::cerr.rdbuf(cerrBuf_);

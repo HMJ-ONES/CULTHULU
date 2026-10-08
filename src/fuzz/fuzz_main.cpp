@@ -22,7 +22,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
-#include <unistd.h>
+#ifndef _WIN32
+#include <unistd.h>  // not used directly here; kept for POSIX builds
+#endif
 
 namespace {
 
