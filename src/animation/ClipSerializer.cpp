@@ -36,13 +36,19 @@ bool ClipSerializer::load(const std::string& path, AnimationClip& out) {
     if (!(in >> std::quoted(clip.name) >> clip.durationSeconds >> loopInt))
         return false;
     clip.loop = (loopInt != 0);
-    if (clip.durationSeconds < 0.0) return false;
+    if (clip.durationSeconds < 0.0 ||
+        !(clip.durationSeconds >= 0.0))  // NaN duration: corrupt file
+        return false;
 
     while (in >> token) {
         if (token != "TRACK") return false;
         BoneTrack track;
         size_t nkeys = 0;
         if (!(in >> track.bone >> nkeys)) return false;
+        // Wave 9d: nkeys comes from the file. Without a cap, a corrupt
+        // file claiming SIZE_MAX keys makes reserve() throw length_error
+        // (uncaught -> terminate). Real clips have hundreds of keys.
+        if (nkeys > 1000000) return false;
         track.keys.reserve(nkeys);
         for (size_t i = 0; i < nkeys; ++i) {
             if (!(in >> token) || token != "KEY") return false;
