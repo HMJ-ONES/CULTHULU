@@ -78,10 +78,10 @@ Belief beliefByName(const std::string& n) {
 }
 
 // Wave 5b: entity type ids in a save file are trusted only after this check.
-// Wave 7: range extended to EntityType::Altar (newest enumerator; keep last).
+// Wave 23: range extended to EntityType::Rival (newest enumerator; keep last).
 bool validEntityType(int t) {
     return t >= static_cast<int>(EntityType::GreatOldOne) &&
-           t <= static_cast<int>(EntityType::Altar);
+           t <= static_cast<int>(EntityType::Rival);
 }
 
 // Wave 5b: rebuild a world entity from a save record. The avatar and
@@ -286,6 +286,7 @@ struct BetaGame {
         // Wave 5b: directive follow-through operations tick here; their
         // events feed the exertion/power pipeline like any other events.
         executor.update(1.0);
+        freeroam.setAvatar(&avatar); // civilian flee / rival-bot targeting
         freeroam.update(1.0);
         fx.tick(1.0);
         avatarAnim.update(1.0);
@@ -326,6 +327,11 @@ struct BetaGame {
             if (!c->alive() || c->faction() == FACTION_CTHULHU) continue;
             const float d = dist(from, c->position());
             if (d < bestD) { bestD = d; best = c.get(); }
+        }
+        for (const auto& b : freeroam.bots()) {
+            if (!b->alive()) continue;
+            const float d = dist(from, b->position());
+            if (d < bestD) { bestD = d; best = b.get(); }
         }
         for (const auto& e : world) {
             if (!e->alive() || e->faction() == FACTION_CTHULHU) continue;
@@ -500,7 +506,7 @@ struct BetaGame {
             "  move <n|s|e|w|ne|nw|se|sw> [steps]  walk the avatar\n"
             "  camera <fp|tp|switch>               switch camera (any mode, anytime)\n"
             "  look                                survey surroundings\n"
-            "  spawn <cultist|civilian|monstrosity|sorcerer> [n]\n"
+            "  spawn <cultist|civilian|monstrosity|sorcerer|bot> [n]\n"
             "  spawn <monstrosity|creature> [species] [n]  (see 'bestiary')\n"
             "  belief <name> [replace <old>]       adopt a belief\n"
             "  beliefs                             list active beliefs\n"
@@ -899,7 +905,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
         }
 
         if (cmd == "spawn") {
-            // spawn <cultist|civilian|sorcerer> [n]
+            // spawn <cultist|civilian|sorcerer|bot> [n]
             // spawn <monstrosity|creature> [species] [n]  (species optional;
             //   a bare number is treated as the count, default species
             //   "spawned")
@@ -980,10 +986,18 @@ static bool processLine(BetaGame& g, NetSession& nets,
                     bindEntityClips(*c, "assets");
                     g.animDirector.track(*c);
                     g.world.push_back(std::move(c));
+                } else if (what == "bot") {
+                    // Wave 23: free-roam rival bot — AI hunter that
+                    // wanders, engages the avatar/creatures, flees when
+                    // hurt. Player-vs-bot and bot-vs-bot in free roam.
+                    uint64_t id = g.freeroam.spawnBot(q);
+                    if (i == 0)
+                        std::cout << "spawned " << n
+                                  << " rival bot(s) (id " << id << "+)\n";
                 } else {
                     std::cout << "unknown: " << what
                               << " (try: cultist | civilian | sorcerer |"
-                                 " monstrosity [species])\n";
+                                 " monstrosity [species] | bot)\n";
                     return true;
                 }
             }

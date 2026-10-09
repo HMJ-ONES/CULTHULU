@@ -1,6 +1,7 @@
 #pragma once
 
 #include "modes/GameMode.h"
+#include "ai/RivalBot.h"
 #include "entities/Structures.h"
 #include "entities/Units.h"
 
@@ -43,6 +44,13 @@ public:
     void update(double dt) override;
     bool isOver() const override { return false; } // free roam never ends
 
+    // The player's avatar, for civilian flee / rival-bot targeting.
+    // Not owned. Set by the driver each tick (null = no player present).
+    void setAvatar(Entity* a) { avatar_ = a; }
+
+    // Spawn a rival bot (free-roam "bot" AI) at pos. Returns its id.
+    uint64_t spawnBot(Vec3 pos);
+
     // Beta-owned world population.
     const std::vector<std::unique_ptr<Civilian>>& civilians() const {
         return civilians_;
@@ -50,6 +58,7 @@ public:
     const std::vector<std::unique_ptr<Creature>>& creatures() const {
         return creatures_;
     }
+    const std::vector<std::unique_ptr<RivalBot>>& bots() const { return bots_; }
     const std::vector<std::unique_ptr<Relic>>& relics() const { return relics_; }
     size_t civilianSpawnCount() const { return civSpawns_.size(); }
     size_t creatureSpawnCount() const { return creatureSpawns_.size(); }
@@ -68,7 +77,9 @@ private:
 
     std::vector<std::unique_ptr<Civilian>> civilians_;
     std::vector<std::unique_ptr<Creature>> creatures_;
+    std::vector<std::unique_ptr<RivalBot>> bots_;
     std::vector<std::unique_ptr<Relic>> relics_;
+    Entity* avatar_ = nullptr; // not owned; set by the driver
 
     double dayLength_ = 600.0; // one full day = 10 game-minutes by default
     double spawnTimer_ = 0.0;
@@ -78,6 +89,9 @@ private:
 
     Vec3 randomPoint(const SpawnPoint& s);
     Vec3 clampToBounds(Vec3 p) const;
+    void updateCivilians(double dt);
+    void updateBots(double dt);
+    void updateCreatures(double dt); // retaliation vs rival bots
 };
 
 } // namespace cultulhu

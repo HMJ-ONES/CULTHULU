@@ -21,13 +21,15 @@ enum class EntityType {
     Building,
     Relic,
     Artifact,
-    Altar // wave 7: ritual site entity (appended last; keep it last)
+    Altar, // wave 7: ritual site entity
+    Rival  // wave 23: free-roam rival bot (appended last; keep it last)
 };
 
 using FactionId = int;
 constexpr FactionId FACTION_NEUTRAL = -1;
 constexpr FactionId FACTION_CTHULHU = 0;
 // Rival deities use faction ids 1..N.
+constexpr FactionId FACTION_RIVAL = 1; // freeroam rival bots (witch-hunters)
 
 // Base class for everything that exists in the world.
 class Entity {

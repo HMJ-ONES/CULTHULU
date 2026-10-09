@@ -214,6 +214,11 @@ logic is unaffected.
   20-minute limit, then higher GOO-HP fraction wins (then most towers).
   Join with `match join [team]`; `move` walks your champion, combat is
   automatic; `camera fp|tp|switch` works mid-match.
+- Bots in every mode: `match capture|moba` starts a 5v5 bot-vs-bot game
+  (just watch, or `match join [team]` for players-vs-bots); free-roam has
+  `spawn bot [n]` (rival hunters: wander, engage avatar/creatures, flee
+  when hurt — player-vs-bot and bot-vs-bot). Civilians wander and flee
+  threats; cultists do ambient actions (pray, patrol, preach, brawls...).
 - Conversion campaigns: ~300s game time per soul at 1.0 efficiency.
 - Breeding: feral-birth chance **35%**.
 - City destruction: ruin = destroyed-HP fraction per district (permanent);

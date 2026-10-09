@@ -14,6 +14,7 @@
 #include "cult/CultManager.h"
 #include "dreams/DreamSystem.h"
 #include "entities/Units.h"
+#include "ai/RivalBot.h"
 #include "modes/FreeRoamMode.h"
 
 #include <cmath>
@@ -357,6 +358,115 @@ static void test_ambient_generation() {
     CHECK(director.actionsPerformed() == 5);
 }
 
+// ---- Wave 23: free-roam AI (civilians wander/flee, rival bots) ----
+
+static void test_civilian_wander() {
+    EventBus bus;
+    GameClock clock;
+    RNG rng{7};
+    FreeRoamMode mode(bus, clock, rng);
+    mode.addCivilianSpawn(Vec3{0, 0, 0});
+    mode.setSpawnInterval(1.0);
+    mode.update(1.0); // spawn one civilian
+    CHECK(mode.civilians().size() == 1);
+    Vec3 p0 = mode.civilians()[0]->position();
+    for (int i = 0; i < 30; ++i) mode.update(1.0);
+    // Wandering: it should have moved from its spawn point.
+    CHECK(mode.civilians()[0]->position().distance(p0) > 1.0f);
+}
+
+static void test_civilian_flee() {
+    EventBus bus;
+    GameClock clock;
+    RNG rng{7};
+    FreeRoamMode mode(bus, clock, rng);
+    mode.addCivilianSpawn(Vec3{0, 0, 0});
+    mode.setSpawnInterval(1.0);
+    mode.update(1.0);
+    Adventurer avatarStandIn(Vec3{3, 0, 0}); // threat: 3 units away
+    mode.setAvatar(&avatarStandIn);
+    Vec3 p0 = mode.civilians()[0]->position();
+    mode.update(1.0);
+    CHECK(mode.civilians()[0]->fleeing());
+    // Fled away from the threat.
+    CHECK(mode.civilians()[0]->position().distance(p0) > 0.5f);
+    CHECK(mode.civilians()[0]->position().distance(
+              avatarStandIn.position()) > 3.0f);
+    // Threat gone: calms down.
+    avatarStandIn.setPosition(Vec3{500, 0, 500});
+    mode.setAvatar(&avatarStandIn);
+    for (int i = 0; i < 5; ++i) mode.update(1.0);
+    CHECK(!mode.civilians()[0]->fleeing());
+}
+
+static void test_rival_bot_engage() {
+    EventBus bus;
+    GameClock clock;
+    RNG rng{7};
+    FreeRoamMode mode(bus, clock, rng);
+    Adventurer avatarStandIn(Vec3{0, 0, 0}, 150.0f);
+    mode.setAvatar(&avatarStandIn);
+    mode.spawnBot(Vec3{15, 0, 0});
+    CHECK(mode.bots().size() == 1);
+    RivalBot* bot = mode.bots()[0].get();
+    float hpBefore = avatarStandIn.hp();
+    for (int i = 0; i < 10; ++i) mode.update(1.0);
+    // Engaged: closed the distance and dealt melee damage.
+    CHECK(bot->state() == RivalBot::State::Engage);
+    CHECK(bot->position().distance(avatarStandIn.position()) <=
+          RivalBot::MELEE_RANGE + 1.0f);
+    CHECK(avatarStandIn.hp() < hpBefore);
+}
+
+static void test_rival_bot_flee() {
+    EventBus bus;
+    GameClock clock;
+    RNG rng{7};
+    FreeRoamMode mode(bus, clock, rng);
+    Adventurer avatarStandIn(Vec3{0, 0, 0}, 150.0f);
+    mode.setAvatar(&avatarStandIn);
+    mode.spawnBot(Vec3{10, 0, 0});
+    RivalBot* bot = mode.bots()[0].get();
+    bot->takeDamage(RivalBot::MAX_HP * 0.8f); // down to 20% HP
+    Vec3 p0 = bot->position();
+    mode.update(1.0);
+    CHECK(bot->state() == RivalBot::State::Flee);
+    // Ran away from the avatar.
+    CHECK(bot->position().distance(p0) > 0.5f);
+    CHECK(bot->position().distance(avatarStandIn.position()) > 10.0f);
+}
+
+static void test_rival_bot_vs_creature() {
+    EventBus bus;
+    GameClock clock;
+    RNG rng{7};
+    FreeRoamMode mode(bus, clock, rng);
+    mode.addCreatureSpawn(Vec3{0, 0, 0}, "ghoul");
+    mode.setCreatureCap(1);
+    mode.setSpawnInterval(1.0);
+    mode.update(1.0); // spawn the creature
+    CHECK(mode.creatures().size() == 1);
+    mode.spawnBot(Vec3{3, 0, 0}); // right next to the creature
+    float botHp = mode.bots()[0]->hp();
+    float crHp = mode.creatures()[0]->hp();
+    for (int i = 0; i < 10; ++i) mode.update(1.0);
+    // Bot-vs-bot: both sides dealt damage.
+    CHECK(mode.bots()[0]->hp() < botHp);       // creature retaliated
+    CHECK(mode.creatures()[0]->hp() < crHp);   // bot attacked
+}
+
+static void test_rival_bot_death_cleanup() {
+    EventBus bus;
+    GameClock clock;
+    RNG rng{7};
+    FreeRoamMode mode(bus, clock, rng);
+    mode.spawnBot(Vec3{0, 0, 0});
+    CHECK(mode.bots().size() == 1);
+    mode.bots()[0]->takeDamage(10000.0f);
+    mode.update(1.0);
+    CHECK(mode.bots().empty()); // dead bots are pruned
+}
+
 int main() {
     test_dreams_power_trickle();
     test_dreams_inactive_no_power();
@@ -374,6 +484,12 @@ int main() {
     test_cc_durations();
     test_obedience_math();
     test_ambient_generation();
+    test_civilian_wander();
+    test_civilian_flee();
+    test_rival_bot_engage();
+    test_rival_bot_flee();
+    test_rival_bot_vs_creature();
+    test_rival_bot_death_cleanup();
     std::cout << checks << " checks, " << failures << " failures\n";
     return failures == 0 ? 0 : 1;
 }

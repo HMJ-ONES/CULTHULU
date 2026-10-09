@@ -75,6 +75,22 @@ class Civilian : public Entity {
 public:
     Civilian(Vec3 pos, float maxHp = 50.0f)
         : Entity(EntityType::Civilian, FACTION_NEUTRAL, pos, maxHp) {}
+
+    // Wander/flee behavior state (driven by FreeRoamMode::update).
+    const Vec3& wanderTarget() const { return wanderTarget_; }
+    void setWanderTarget(Vec3 p) { wanderTarget_ = p; hasWanderTarget_ = true; }
+    bool hasWanderTarget() const { return hasWanderTarget_; }
+    double idleTimer() const { return idleTimer_; }
+    void setIdleTimer(double t) { idleTimer_ = t; }
+    bool fleeing() const { return fleeing_; }
+    void setFleeing(bool f) { fleeing_ = f; }
+    void clearWanderTarget() { hasWanderTarget_ = false; }
+
+private:
+    Vec3 wanderTarget_{0, 0, 0};
+    bool hasWanderTarget_ = false;
+    double idleTimer_ = 0.0;
+    bool fleeing_ = false;
 };
 
 class Adventurer : public Entity {
