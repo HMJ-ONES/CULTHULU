@@ -34,6 +34,9 @@ target_link_libraries(cultulhu_tests_wave3 PRIVATE cultulhu)
 add_executable(cultulhu_tests_beta tests/tests_beta.cpp)
 target_link_libraries(cultulhu_tests_beta PRIVATE cultulhu)
 
+add_executable(cultulhu_tests_wave25 tests/tests_wave25.cpp)
+target_link_libraries(cultulhu_tests_wave25 PRIVATE cultulhu)
+
 add_executable(cultulhu_tests_wave4 tests/tests_wave4.cpp)
 target_link_libraries(cultulhu_tests_wave4 PRIVATE cultulhu)
 
@@ -114,6 +117,9 @@ add_test(NAME cultulhu_tests COMMAND cultulhu_tests)
 add_test(NAME cultulhu_tests_wave2 COMMAND cultulhu_tests_wave2)
 add_test(NAME cultulhu_tests_wave3 COMMAND cultulhu_tests_wave3)
 add_test(NAME cultulhu_tests_beta COMMAND cultulhu_tests_beta)
+add_test(NAME cultulhu_tests_wave25 COMMAND cultulhu_tests_wave25)
+set_tests_properties(cultulhu_tests_wave25 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME cultulhu_tests_wave4 COMMAND cultulhu_tests_wave4)
 add_test(NAME cultulhu_tests_anim COMMAND cultulhu_tests_anim)
 add_test(NAME cultulhu_tests_wave5b COMMAND cultulhu_tests_wave5b)

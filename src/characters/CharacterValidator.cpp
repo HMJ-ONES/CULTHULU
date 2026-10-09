@@ -13,10 +13,14 @@ namespace {
 
 // Effect kinds the engine binding understands today. Unknown kinds are a
 // warning (forward compatibility), not an error.
+// Wave 25 added: "dash" (power = meters moved), "pull" (power = drag
+// meters toward the caster), "stun" (power = seconds). See
+// assets/characters/KITS.md for the full vocabulary contract.
 bool knownEffectKind(const std::string& k) {
     static const char* kinds[] = {"aoe_damage", "fear_aura", "summon",
                                   "buff",       "projectile", "heal",
-                                  "shield",     "debuff"};
+                                  "shield",     "debuff",     "dash",
+                                  "pull",       "stun"};
     for (const char* c : kinds)
         if (k == c) return true;
     return false;
