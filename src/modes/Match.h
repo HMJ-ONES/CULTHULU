@@ -59,6 +59,9 @@ public:
     static constexpr double kCaptureRespawnSec = 5.0;
     static constexpr double kMobaRespawnBaseSec = 5.0;
     static constexpr double kMobaRespawnCapSec = 20.0;
+    // Wave 33: base invocation — 20s channel within 15m of your base.
+    static constexpr float kBaseInvokeRadius = 15.0f;
+    static constexpr double kInvokeChannelSec = 20.0;
     static constexpr uint64_t kPlayerIdBase = 1000;
 
     struct Player {
@@ -75,6 +78,18 @@ public:
         int lane = 0;        // moba: assigned lane (rosterIndex % 3)
         float laneFrac = 0;  // moba: how far along the lane path (0..1)
         float facingYaw = 0.0f; // camera boom / FP look reference
+        // Wave 33: MOBA relics — damage multiplier from held artifacts
+        // (same pool as free-roam), capped like free-roam's 3x.
+        float dmgMult = 1.0f;
+        std::vector<std::string> relicNames;
+        // Wave 33: levels and base invocation. Kills level you up; each
+        // level grants one invoke charge: spend 20s channeling at your
+        // base to call down an artifact, even one never found in the
+        // jungle. No money, no shop — just blood and patience.
+        int level = 1;
+        int pendingInvokes = 0;
+        double invokeTimer = 0.0;
+        bool invoking = false;
     };
 
     Match(EventBus& bus, GameClock& clock, RNG& rng);

@@ -41,6 +41,15 @@ public:
         float hp = 100.0f;
         bool alive = true;
     };
+    // Wave 33: MOBA relic pickups — the SAME named artifacts players find
+    // in free-roam (generateRelicName pool). Claimed by walking over them;
+    // each grants its holder a damage amplifier while held.
+    struct RelicPickup {
+        Vec3 pos;
+        std::string name;
+        float amplifier = 0.2f; // +20% damage while held
+        uint64_t claimedBy = 0; // player id, 0 = unclaimed
+    };
     struct Minion {
         uint64_t id = 0;
         int team = 0;
@@ -94,6 +103,8 @@ public:
     float towerHp(int team, int lane, int idx) const;
     Vec3 towerPos(int team, int lane, int idx) const;
     const std::vector<Minion>& minions() const { return minions_; }
+    // Wave 33: relic pickups (for status display and Match sync).
+    const std::vector<RelicPickup>& relics() const { return relics_; }
 
     // --- Wave 21 player hooks (called by Match) ---
     // Refresh the player list minions/towers can target. The vector is
@@ -154,6 +165,9 @@ protected:
     // Wave 21: players in the match, refreshed each tick by Match.
     std::vector<PlayerTarget> playerTargets_;
     std::function<void(uint64_t, float, uint64_t)> playerDamageHook_;
+    // Wave 33: relic pickups on the map.
+    std::vector<RelicPickup> relics_;
+    static constexpr float kRelicClaimRadius = 6.0f; // mirrors free-roam
     // Tower entity ids for the damage hook (stable per tower index).
     static constexpr uint64_t kTowerIdBase = 5000;
 

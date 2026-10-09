@@ -1,5 +1,6 @@
 #include "modes/MobaDefense.h"
 #include "core/EventBus.h"
+#include "discovery/RelicNames.h"
 
 #include <algorithm>
 #include <cmath>
@@ -89,6 +90,21 @@ void MobaDefense::setupDefaultMap() {
     // before the mode, so lazy towers leave backdoor protection vacuous
     // (and sieging blind) for the opening tick.
     ensureTowers();
+    // Wave 33: relic pickups in the neutral jungle between the lanes —
+    // the SAME named artifacts as free-roam (generateRelicName pool).
+    // Contested: mid-jungle is equidistant, side spots lean slightly.
+    relics_.clear();
+    const std::vector<Vec3> spots = {
+        Vec3(0, 0, -27), Vec3(0, 0, 27),
+        Vec3(-75, 0, -20), Vec3(75, 0, 20),
+    };
+    for (const Vec3& sp : spots) {
+        RelicPickup r;
+        r.pos = sp;
+        r.name = generateRelicName(rng_);
+        r.amplifier = 0.15f + rng_.uniform(0.0f, 0.10f); // 15-25%, like free-roam
+        relics_.push_back(r);
+    }
 }
 
 void MobaDefense::setPlayerTargets(const std::vector<PlayerTarget>& targets) {
@@ -426,6 +442,27 @@ void MobaDefense::update(double dt) {
 
         if (m.hp <= 0.0f) it = minions_.erase(it);
         else ++it;
+    }
+    // Wave 33: relic claims — walk within 6m (free-roam radius) to take
+    // a relic. First soul there claims it; publishes RelicClaimed
+    // (sourceId = player id, amount = amplifier, tag = relic name).
+    const float claimRSq = kRelicClaimRadius * kRelicClaimRadius;
+    for (auto& r : relics_) {
+        if (r.claimedBy != 0) continue;
+        for (const auto& p : playerTargets_) {
+            if (!p.alive) continue;
+            if (p.pos.distanceSq(r.pos) <= claimRSq) {
+                r.claimedBy = p.id;
+                GameEvent e(EventType::RelicClaimed);
+                e.sourceId = p.id;
+                e.amount = r.amplifier;
+                e.tag = r.name;
+                e.pos = r.pos;
+                e.faction = p.team;
+                bus_.publish(e);
+                break;
+            }
+        }
     }
     // Last: match lifecycle sees this tick's final state (a GOO falling
     // inside this update ends the match immediately).

@@ -1,4 +1,5 @@
 #include "modes/Match.h"
+#include "discovery/RelicNames.h"
 
 #include <algorithm>
 #include <cmath>
@@ -13,6 +14,18 @@ Match::Match(EventBus& bus, GameClock& clock, RNG& rng)
     // Capture-mode spawn corners; moba overrides from its map bases.
     teamBase_[0] = Vec3(-80, 0, -80);
     teamBase_[1] = Vec3(80, 0, 80);
+    // Wave 33: MOBA relic claims — the holder's damage multiplier grows.
+    // Guarded to moba mode: free-roam publishes RelicClaimed too (avatar
+    // claims), and those must not touch match players.
+    bus_.subscribe(EventType::RelicClaimed, [this](const GameEvent& e) {
+        if (!moba_ || modeName_ != "moba") return;
+        for (auto& p : players_) {
+            if (p.id != e.sourceId) continue;
+            p.relicNames.push_back(e.tag);
+            p.dmgMult = std::min(3.0f, p.dmgMult + e.amount);
+            break;
+        }
+    });
 }
 
 bool Match::start(const std::string& mode) {
@@ -157,8 +170,38 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
     if (p.swingCd > 0) p.swingCd -= dt;
     if (!p.alive) {
         p.respawnTimer -= dt;
+        p.invoking = false;
+        p.invokeTimer = 0.0;
         if (p.respawnTimer <= 0.0) spawnPlayer(p);
         return;
+    }
+    // Wave 33: base invocation. A leveled player (pendingInvokes > 0)
+    // standing at their base channels for 20s; leaving or dying cancels.
+    // Completion calls down a free-roam artifact, found or not.
+    if (moba_ && p.pendingInvokes > 0) {
+        const Vec3 base = moba_->basePos(p.team);
+        if (p.pos.distance(base) <= kBaseInvokeRadius) {
+            if (!p.invoking) {
+                p.invoking = true;
+                p.invokeTimer = 0.0;
+            }
+            p.invokeTimer += dt;
+            if (p.invokeTimer >= kInvokeChannelSec) {
+                p.invoking = false;
+                p.invokeTimer = 0.0;
+                --p.pendingInvokes;
+                GameEvent e(EventType::RelicClaimed);
+                e.sourceId = p.id;
+                e.amount = 0.15f + rng_.uniform(0.0f, 0.10f);
+                e.tag = generateRelicName(rng_);
+                e.pos = p.pos;
+                e.faction = p.team;
+                bus_.publish(e);
+            }
+        } else {
+            p.invoking = false;
+            p.invokeTimer = 0.0;
+        }
     }
     // An enemy in melee reach pins the player: stand and fight instead of
     // walking off toward the objective.
@@ -217,11 +260,23 @@ bool Match::furthestFriendlyMinion(int team, int lane, Vec3& out) const {
 }
 
 void Match::updateMobaObjective(Player& p, double dt) {
-    // Push with the minion wave: escort it so the wave tanks the tower,
-    // then siege instead of walking past into the base (the old behavior
-    // fed towers one bot at a time and stalled every lane forever).
     MobaDefense& md = *moba_;
     float fdt = static_cast<float>(dt);
+    // Wave 33: a bot holding an invoke charge returns to base to channel.
+    // (The channel itself runs in updatePlayer once in radius.)
+    if (p.pendingInvokes > 0 && !p.invoking) {
+        const Vec3 base = md.basePos(p.team);
+        Vec3 to = base - p.pos;
+        float d = to.length();
+        if (d > kBaseInvokeRadius * 0.5f) {
+            float stepLen = kPlayerSpeed * fdt;
+            Vec3 step = (d <= stepLen) ? to : to.normalized() * stepLen;
+            p.pos += step;
+            p.facingYaw = std::atan2(step.z, step.x);
+        }
+        return;
+    }
+    // Push with the minion wave: escort it so the wave tanks the tower,
     Vec3 tp;
     if (md.nearestEnemyTowerPos(p.team, p.pos, 12.0f, tp)) {
         Vec3 to = tp - p.pos;
@@ -266,8 +321,10 @@ void Match::swingAtStructures(Player& p) {
     MobaDefense& md = *moba_;
     if (p.swingCd > 0.0) return;
     float structHp = md.enemyTowerHpNear(p.team, p.pos, kMeleeRange + 1.0f);
-    float dmg = kMeleeDps * static_cast<float>(kSwingCooldown);
-    float clearDmg = kWaveclearDps * static_cast<float>(kSwingCooldown);
+    // Wave 33: relic damage multiplier applies to structures and waveclear.
+    float dmg = kMeleeDps * static_cast<float>(kSwingCooldown) * p.dmgMult;
+    float clearDmg =
+        kWaveclearDps * static_cast<float>(kSwingCooldown) * p.dmgMult;
     md.playerHitMinions(p.team, p.pos, kMeleeRange + 1.0f, clearDmg);
     md.playerHitStructures(p.team, p.pos, kMeleeRange + 1.0f, dmg, p.id);
     if (structHp > 0.0f) p.swingCd = kSwingCooldown;
@@ -287,8 +344,10 @@ bool Match::attackNearestEnemy(Player& p, size_t idx, double dt) {
     }
     if (best >= players_.size()) return false;
     p.swingCd = kSwingCooldown;
-    stats_.recordDamage(idx, players_[best].id, kMeleeDps * 1.0f, clock_.now());
-    damagePlayer(best, kMeleeDps * 1.0f);
+    // Wave 33: relic damage multiplier.
+    const float dmg = kMeleeDps * p.dmgMult;
+    stats_.recordDamage(idx, players_[best].id, dmg, clock_.now());
+    damagePlayer(best, dmg);
     if (!players_[best].alive) killPlayer(best, static_cast<int>(idx), p.id);
     return true;
 }
@@ -310,9 +369,12 @@ void Match::killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId)
     }
     v.respawnTimer = respawn;
     if (killerIdx >= 0) {
-        const Player& k = players_[static_cast<size_t>(killerIdx)];
+        Player& k = players_[static_cast<size_t>(killerIdx)];
         stats_.recordKill(static_cast<size_t>(killerIdx), victimIdx,
                           v.id, clock_.now());
+        // Wave 33: kills level you up — each level grants one base invoke.
+        ++k.level;
+        ++k.pendingInvokes;
         GameEvent e(EventType::PlayerKilled);
         e.sourceId = k.id;
         e.targetId = v.id;
@@ -430,11 +492,39 @@ void Match::printStatus(std::ostream& os) const {
     }
     os << "  roster (KDA):\n";
     auto rows = stats_.rows();
-    for (size_t i = 0; i < players_.size() && i < rows.size(); ++i)
-        os << "    " << players_[i].name << " t" << players_[i].team
-           << (players_[i].alive ? "" : " DEAD") << " "
+    for (size_t i = 0; i < players_.size() && i < rows.size(); ++i) {
+        const Player& pl = players_[i];
+        os << "    " << pl.name << " t" << pl.team
+           << (pl.alive ? "" : " DEAD") << " "
            << rows[i].kills << "/" << rows[i].deaths << "/"
-           << rows[i].assists << "\n";
+           << rows[i].assists;
+        // Wave 33: level, relics, invoke state.
+        os << " lv" << pl.level;
+        if (!pl.relicNames.empty()) {
+            os << " [";
+            for (size_t r = 0; r < pl.relicNames.size(); ++r) {
+                if (r) os << ", ";
+                os << pl.relicNames[r];
+            }
+            os << " x" << pl.dmgMult << "]";
+        }
+        if (pl.invoking)
+            os << " (invoking " << static_cast<int>(pl.invokeTimer) << "/20s)";
+        else if (pl.pendingInvokes > 0)
+            os << " (" << pl.pendingInvokes << " invoke ready — return to base)";
+        os << "\n";
+    }
+    if (moba_) {
+        os << "  relics on the map:\n";
+        for (const auto& r : moba_->relics()) {
+            os << "    " << r.name << " (+" 
+               << static_cast<int>(r.amplifier * 100) << "%) at ("
+               << static_cast<int>(r.pos.x) << "," << static_cast<int>(r.pos.z)
+               << ")";
+            if (r.claimedBy != 0) os << " — claimed";
+            os << "\n";
+        }
+    }
     if (isOver()) os << "  OVER: winner team " << winner() << "\n";
 }
 

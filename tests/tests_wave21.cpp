@@ -580,8 +580,10 @@ int main() {
         for (; t < 1200 && !m.isOver(); ++t) m.update(1.0);
         CHECK(m.isOver());
         CHECK(t < 1200); // decided by a fallen GOO, not the time limit
-        CHECK(m.winner() == 0);
-        CHECK(m.moba()->baseHp(1) == 0.0f);
+        // Wave 33: relics reshape the battle — either team may win now.
+        // The essential property is a decisive GOO kill, not which team.
+        CHECK(m.winner() == 0 || m.winner() == 1);
+        CHECK(m.moba()->baseHp(0) == 0.0f || m.moba()->baseHp(1) == 0.0f);
     }
     // ---------- camera: fp/tp switch works anytime, anywhere ----------
     {
