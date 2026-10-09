@@ -47,10 +47,16 @@ size_t CommandSystem::commandableCount() const {
 }
 
 float CommandSystem::obedienceChance(DirectiveType d, Vec3 target) const {
+    return previewObedience(d, target).chance;
+}
+
+ObediencePreview CommandSystem::previewObedience(DirectiveType d,
+                                                 Vec3 target) const {
     // Creative liberty: obedience is a blend of devotion-driven loyalty,
     // insurrection pressure, chaos-driven lunacy, command distance from the
     // cult's centroid, and belief alignment. Tuned so a fresh loyal cult
     // (~0.74) obeys most things while a crumbling one (~0.2) rarely does.
+    ObediencePreview out;
     float loyaltySum = 0.0f;
     size_t n = 0;
     size_t lunatics = 0;
@@ -63,7 +69,10 @@ float CommandSystem::obedienceChance(DirectiveType d, Vec3 target) const {
         centroid += c.position();
         ++n;
     }
-    if (n == 0) return 0.0f;
+    if (n == 0) {
+        out.reasons.push_back("no cultists left to command");
+        return out;
+    }
 
     float loyalty = loyaltySum / static_cast<float>(n);
     float risk = cult_.insurrectionRisk() / 100.0f;
@@ -77,29 +86,31 @@ float CommandSystem::obedienceChance(DirectiveType d, Vec3 target) const {
         chance -= 0.3f * lunaticFrac;
 
     // The cult carries out orders that match its creed.
-    if (beliefs_.isActive(Belief::War) && d == DirectiveType::GoToWar)
-        chance += 0.15f;
-    if (beliefs_.isActive(Belief::Conversion) && d == DirectiveType::ConvertCampaign)
-        chance += 0.15f;
-    if (beliefs_.isActive(Belief::Sacrifice) && d == DirectiveType::MassSacrifice)
-        chance += 0.10f;
+    bool creedAligned = false;
+    if (beliefs_.isActive(Belief::War) && d == DirectiveType::GoToWar) { chance += 0.15f; creedAligned = true; }
+    if (beliefs_.isActive(Belief::Conversion) && d == DirectiveType::ConvertCampaign) { chance += 0.15f; creedAligned = true; }
+    if (beliefs_.isActive(Belief::Sacrifice) && d == DirectiveType::MassSacrifice) { chance += 0.10f; creedAligned = true; }
     // Wave 9b: the new directives align with their creeds too.
-    if (beliefs_.isActive(Belief::Trickery) && d == DirectiveType::AssassinateProphet)
-        chance += 0.10f;
-    if (beliefs_.isActive(Belief::Fear) && d == DirectiveType::BlightLand)
-        chance += 0.10f;
-    if (beliefs_.isActive(Belief::Magic) && d == DirectiveType::GrandSummoning)
-        chance += 0.10f;
+    if (beliefs_.isActive(Belief::Trickery) && d == DirectiveType::AssassinateProphet) { chance += 0.10f; creedAligned = true; }
+    if (beliefs_.isActive(Belief::Fear) && d == DirectiveType::BlightLand) { chance += 0.10f; creedAligned = true; }
+    if (beliefs_.isActive(Belief::Magic) && d == DirectiveType::GrandSummoning) { chance += 0.10f; creedAligned = true; }
     // Wave 15: the new directives align with their creeds too.
-    if (beliefs_.isActive(Belief::Dreams) && d == DirectiveType::OneiricHarvest)
-        chance += 0.10f;
+    if (beliefs_.isActive(Belief::Dreams) && d == DirectiveType::OneiricHarvest) { chance += 0.10f; creedAligned = true; }
     if (beliefs_.isActive(Belief::Reconstruction) &&
-        d == DirectiveType::RebuildSanctum)
-        chance += 0.10f;
+        d == DirectiveType::RebuildSanctum) { chance += 0.10f; creedAligned = true; }
 
     if (chance < 0.05f) chance = 0.05f;
     if (chance > 0.95f) chance = 0.95f;
-    return chance;
+    out.chance = chance;
+
+    // Wave 28: human-readable reasons, worst problems first.
+    if (loyalty < 0.35f) out.reasons.push_back("devotion is low");
+    if (risk > 0.5f) out.reasons.push_back("insurrection brews");
+    if (distPenalty > 0.1f) out.reasons.push_back("the target is far");
+    if (lunaticFrac > 0.25f) out.reasons.push_back("lunatics howl in the ranks");
+    if (creedAligned) out.reasons.push_back("it matches the creed");
+    else out.reasons.push_back("it strains against the creed");
+    return out;
 }
 
 void CommandSystem::publishIssuedResolved(DirectiveType d, CommandOutcome o,

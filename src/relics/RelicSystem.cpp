@@ -5,25 +5,30 @@ namespace cultulhu {
 
 RelicSystem::RelicSystem(EventBus& bus) : bus_(bus) {}
 
-void RelicSystem::addRelic(float amplifier) {
-    if (amplifier > 0.0f) amplifiers_.push_back(amplifier);
+void RelicSystem::addRelic(float amplifier, const std::string& name) {
+    if (amplifier <= 0.0f) return;
+    HeldRelic r;
+    r.amplifier = amplifier;
+    r.name = name.empty() ? "an unnamed relic" : name;
+    relics_.push_back(r);
 }
 
 void RelicSystem::removeRelic(float amplifier) {
-    for (auto it = amplifiers_.begin(); it != amplifiers_.end(); ++it) {
-        if (*it == amplifier) { amplifiers_.erase(it); return; }
+    for (auto it = relics_.begin(); it != relics_.end(); ++it) {
+        if (it->amplifier == amplifier) { relics_.erase(it); return; }
     }
 }
 
 float RelicSystem::powerMultiplier() const {
     float m = 1.0f;
-    for (float a : amplifiers_) m += a;
+    for (const auto& r : relics_) m += r.amplifier;
+    if (m > MAX_MULTIPLIER) m = MAX_MULTIPLIER;
     return m;
 }
 
 void RelicSystem::seizeRelic(float amplifier, uint64_t claimerId,
                              const std::string& relicName) {
-    addRelic(amplifier);
+    addRelic(amplifier, relicName);
     GameEvent ev(EventType::RelicClaimed);
     ev.sourceId = claimerId;
     ev.amount = amplifier;

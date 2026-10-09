@@ -24,13 +24,23 @@ public:
 
     explicit RelicSystem(EventBus& bus);
 
+    // Wave 28: relics are named records with identity, not anonymous
+    // floats. The total multiplier is capped at 3x — no unbounded
+    // numbers-go-up hole.
+    struct HeldRelic {
+        std::string name;
+        float amplifier = 0.0f;
+    };
+    static constexpr float MAX_MULTIPLIER = 3.0f;
+
     // amplifier: e.g. 0.25 => +25% on all power gains while held.
-    void addRelic(float amplifier);
+    void addRelic(float amplifier, const std::string& name = "");
     void removeRelic(float amplifier);
-    float powerMultiplier() const; // 1 + sum of amplifiers
+    float powerMultiplier() const; // 1 + sum of amplifiers, capped at 3x
     float applyAmplifier(float baseDelta) const {
         return baseDelta * powerMultiplier();
     }
+    const std::vector<HeldRelic>& heldRelics() const { return relics_; }
 
     uint64_t placeCursedArtifact(Vec3 pos, FactionId owner);
     // Springs when an entity of a *different* faction comes within radius.
@@ -47,7 +57,7 @@ public:
 
 private:
     EventBus& bus_;
-    std::vector<float> amplifiers_;
+    std::vector<HeldRelic> relics_;
     std::vector<CursedArtifactTrap> artifacts_;
     uint64_t nextId_ = 1;
 };

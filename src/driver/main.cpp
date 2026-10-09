@@ -28,6 +28,7 @@
 #include "cult/CultManager.h"
 #include "dreams/DreamSystem.h"
 #include "driver/ParseUtil.h"
+#include "beliefs/InteractionMatrix.h"
 #include "combat/KitCaster.h"
 #include "discovery/DiscoveryCodex.h"
 #include "discovery/RelicNames.h"
@@ -215,8 +216,12 @@ struct BetaGame {
         dreams.setExertion(&exertion);
         ambient.setExertion(&exertion); // wave 9c: Dreams/Reconstruction
                                        // synergies for omen-reading/tending
-        bus.subscribe(EventType::Revolt, [](const GameEvent&) {
-            std::cout << "\n!! THE CULT REVOLTS !!\n";
+        bus.subscribe(EventType::Revolt, [](const GameEvent& e) {
+            std::cout << "\n!! THE CULT REVOLTS !!";
+            if (e.amount >= 1.0f)
+                std::cout << " " << static_cast<int>(e.amount)
+                          << " cultist(s) desert";
+            std::cout << "\n";
         });
         bus.subscribe(EventType::Nightmare, [](const GameEvent& e) {
             std::cout << "[nightmare] cultist " << e.sourceId
@@ -466,12 +471,38 @@ struct BetaGame {
             std::cout << " " << beliefName(b) << "="
                       << static_cast<int>(exertion.exertion(b));
         }
+        // Wave 28: surface the live synergies/conflicts — emergence the
+        // player can see.
+        {
+            float ex[static_cast<int>(Belief::Count)];
+            for (int i = 0; i < static_cast<int>(Belief::Count); ++i)
+                ex[i] = exertion.exertion(static_cast<Belief>(i));
+            std::string live;
+            for (int i = 0; i < synergyPairCount(); ++i) {
+                const BeliefPair& p = synergyPairs()[i];
+                if (synergyActive(p.a, p.b, ex))
+                    live += std::string("  ✦ ") + p.name + " (" +
+                            beliefName(p.a) + "×" + beliefName(p.b) + ")";
+            }
+            for (int i = 0; i < conflictPairCount(); ++i) {
+                const BeliefPair& p = conflictPairs()[i];
+                if (conflictActive(p.a, p.b, ex))
+                    live += std::string("  ⚡ ") + p.name + " (" +
+                            beliefName(p.a) + "×" + beliefName(p.b) +
+                            " clash)";
+            }
+            if (!live.empty()) std::cout << "\nresonance:" << live;
+        }
         std::cout << "\n  combatPower x" << exertion.stats().combatPowerMult
                   << "  loyaltyDrift " << exertion.stats().loyaltyDriftPerSec
                   << "/s  convertChance "
                   << exertion.stats().conversionChance << "\n";
         std::cout << "cultists: " << cult.size()
                   << "  resting: " << dreams.restingCount()
+                  << " (dreaming: " << dreams.restingCount()
+                  << " -> +"
+                  << dreams.restingCount() * dreams.powerPerSec()
+                  << " power/s)"
                   << "  ambient acts: " << ambient.actionsPerformed() << "\n";
         std::cout << "directive ops: " << executor.activeCount() << " active"
                   << (executor.defenseActive() ? " (DEFENDING)" : "") << "\n";
@@ -1143,7 +1174,34 @@ static bool processLine(BetaGame& g, NetSession& nets,
         }
 
         if (cmd == "rest") {
-            size_t i; in >> i;
+            std::string arg; in >> arg;
+            // Wave 28: bulk rest — no more per-cultist micromanagement.
+            if (arg == "all" || arg == "wake") {
+                const bool wake = (arg == "wake");
+                size_t n = 0;
+                for (size_t i = 0; i < g.cult.size(); ++i) {
+                    Cultist& c = g.cult.at(i);
+                    if (!c.alive()) continue;
+                    if (wake) {
+                        if (g.dreams.isResting(c.id())) {
+                            g.dreams.endRest(c.id());
+                            ++n;
+                        }
+                    } else if (!g.dreams.isResting(c.id())) {
+                        g.dreams.startRest(c.id());
+                        ++n;
+                    }
+                }
+                std::cout << n << " cultist(s) " << (wake ? "wake" : "rest")
+                          << " (dream-visions)\n";
+                return true;
+            }
+            size_t i = 0;
+            try { i = static_cast<size_t>(std::stoul(arg)); }
+            catch (...) {
+                std::cout << "usage: rest <i|all|wake>\n";
+                return true;
+            }
             if (i >= g.cult.size()) {
                 std::cout << "no cultist " << i << "\n";
                 return true;
@@ -1167,6 +1225,22 @@ static bool processLine(BetaGame& g, NetSession& nets,
                              "<raid|war|convert|sacrifice|defend|relic|dream|rebuild>\n";
                 return true;
             }
+            // Wave 28: show the odds and the why BEFORE the dice land.
+            ObediencePreview pv =
+                g.commands.previewObedience(d, g.avatar.position());
+            std::cout << "the cult will likely "
+                      << (pv.chance >= 0.75f ? "obey" :
+                          pv.chance >= 0.45f ? "waver" : "refuse")
+                      << " (" << static_cast<int>(pv.chance * 100.0f + 0.5f)
+                      << "%)";
+            if (!pv.reasons.empty()) {
+                std::cout << " — ";
+                for (size_t i = 0; i < pv.reasons.size(); ++i) {
+                    if (i) std::cout << "; ";
+                    std::cout << pv.reasons[i];
+                }
+            }
+            std::cout << "\n";
             CommandResult r = g.commands.issueCommand(d,
                                                       g.avatar.position());
             std::cout << commandOutcomeName(r.outcome) << " — "

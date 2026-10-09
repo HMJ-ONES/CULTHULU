@@ -10,6 +10,7 @@
 #include "entities/Entity.h"
 
 #include <string>
+#include <vector>
 
 namespace cultulhu {
 
@@ -52,6 +53,13 @@ struct CommandResult {
     std::string detail;
 };
 
+// Wave 28: obedience preview — the chance plus human-readable reasons,
+// so the player sees the odds (and the why) BEFORE issuing a directive.
+struct ObediencePreview {
+    float chance = 0.0f; // 0.05..0.95
+    std::vector<std::string> reasons; // e.g. "devotion is low", "target is far"
+};
+
 class CommandSystem {
 public:
     CommandSystem(EventBus& bus, RNG& rng, BeliefSystem& beliefs,
@@ -64,6 +72,10 @@ public:
     // follow-through operations (assassination, war) know the enemy.
     CommandResult issueCommand(DirectiveType d, Vec3 target,
                                FactionId targetFaction = FACTION_NEUTRAL);
+
+    // Wave 28: preview the obedience roll with reasons, for display before
+    // issuing. See ObediencePreview.
+    ObediencePreview previewObedience(DirectiveType d, Vec3 target) const;
 
 private:
     // Number of cultists that can receive commands (alive, non-Converted).

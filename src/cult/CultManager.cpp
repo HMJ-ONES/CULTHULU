@@ -3,6 +3,9 @@
 #include "core/GameClock.h"
 #include "core/RNG.h"
 
+#include <algorithm>
+#include <vector>
+
 namespace cultulhu {
 
 namespace {
@@ -106,7 +109,29 @@ bool CultManager::update(double dt) {
     }
     if (risk_ >= REVOLT_THRESHOLD) {
         risk_ = 30.0f; // the revolt burns itself out (tunable)
+        // Wave 28: revolt has teeth — the least devoted quarter of the
+        // cult deserts (lowest devotion first), each publishing CultistLost
+        // so the belief power rules react naturally.
+        std::vector<Cultist*> roster;
+        for (auto& c : cultists_)
+            if (c->alive() && c->state() != CultistState::Converted)
+                roster.push_back(c.get());
+        std::sort(roster.begin(), roster.end(),
+                  [](const Cultist* a, const Cultist* b) {
+                      return a->devotion() < b->devotion();
+                  });
+        size_t deserters = roster.size() / 4;
+        if (!roster.empty() && deserters == 0) deserters = 1;
+        for (size_t i = 0; i < deserters && i < roster.size(); ++i) {
+            roster[i]->takeDamage(roster[i]->hp() + 1.0f); // gone, not dead
+            GameEvent lost(EventType::CultistLost);
+            lost.sourceId = roster[i]->id();
+            lost.tag = "deserted in the revolt";
+            bus_.publish(lost);
+        }
+        dismissDead();
         GameEvent e(EventType::Revolt);
+        e.amount = static_cast<float>(deserters);
         bus_.publish(e);
         return true;
     }

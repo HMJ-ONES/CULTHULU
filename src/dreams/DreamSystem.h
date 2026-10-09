@@ -36,6 +36,7 @@ public:
     void endRest(uint64_t cultistId);
     bool isResting(uint64_t cultistId) const;
     size_t restingCount() const { return resting_.size(); }
+    float powerPerSec() const { return powerPerSec_; } // wave 28: status readout
 
     // Optional hook: pick a distant civilian id for a dream-whisper
     // conversion (0 = abstract, no simulated civilian).
