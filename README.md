@@ -206,8 +206,14 @@ logic is unaffected.
   while uncontested (any enemy on the point pauses ticking); player kills
   score 5 pts; first to 400 wins, 600s limit, tied clock -> sudden-death
   overtime (first score wins, 120s cap).
-- MOBA: waves every 30s (3 melee + 1 ranged; every 3rd wave + siege), 2
-  towers per team per lane (600 HP).
+- MOBA (5v5): waves every 30s (3 melee + 1 ranged; every 3rd wave +
+  siege), 2 towers per team per lane (250 HP, 18 dps). Great Old One:
+  1500 HP, shielded by backdoor protection until one full lane of towers
+  falls; cracking a lane empowers that lane's waves (x1.75 super minions).
+  Waves scale +2% per 30s. Players clear waves fast (2x damage vs minions).
+  20-minute limit, then higher GOO-HP fraction wins (then most towers).
+  Join with `match join [team]`; `move` walks your champion, combat is
+  automatic; `camera fp|tp|switch` works mid-match.
 - Conversion campaigns: ~300s game time per soul at 1.0 efficiency.
 - Breeding: feral-birth chance **35%**.
 - City destruction: ruin = destroyed-HP fraction per district (permanent);

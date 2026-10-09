@@ -51,6 +51,10 @@ public:
     static constexpr float kPlayerSpeed = 5.0f;
     static constexpr float kMeleeRange = 3.0f;
     static constexpr float kMeleeDps = 15.0f;
+    // Waveclear: players (bots and humans) hit minions much harder than
+    // they hit players/structures. This is the push engine — clearing the
+    // enemy wave lets your own wave reach the tower healthy.
+    static constexpr float kWaveclearDps = 30.0f;
     static constexpr double kSwingCooldown = 1.0;
     static constexpr double kCaptureRespawnSec = 5.0;
     static constexpr double kMobaRespawnBaseSec = 5.0;
@@ -70,6 +74,7 @@ public:
         double swingCd = 0.0;
         int lane = 0;        // moba: assigned lane (rosterIndex % 3)
         float laneFrac = 0;  // moba: how far along the lane path (0..1)
+        float facingYaw = 0.0f; // camera boom / FP look reference
     };
 
     Match(EventBus& bus, GameClock& clock, RNG& rng);
@@ -83,6 +88,9 @@ public:
     // team: 0/1; team < 0 auto-balances to the smaller team.
     uint64_t addPlayer(const std::string& name, int team);
     uint64_t addBot(int team); // name: "Bot <n>"
+    // Take over a bot slot on team as the local human ("You"). Returns the
+    // player id, or 0 when no bot on that team can be replaced.
+    uint64_t joinAsHuman(int team);
     // Fill both teams to 5 (bots only, humans keep their slots).
     void botfill();
 
@@ -108,6 +116,8 @@ public:
 
     // Test/GM utility: reposition a player (used by tests to stage fights).
     bool movePlayer(uint64_t id, Vec3 pos);
+    // Human camera control: set a player's facing yaw.
+    bool setFacingYaw(uint64_t id, float yaw);
 
 private:
     EventBus& bus_;
@@ -130,6 +140,8 @@ private:
     void updatePlayer(Player& p, size_t idx, double dt);
     void updateCaptureObjective(Player& p, double dt);
     void updateMobaObjective(Player& p, double dt);
+    // Furthest-advanced live friendly minion in (team, lane); bot escort anchor.
+    bool furthestFriendlyMinion(int team, int lane, Vec3& out) const;
     bool enemyInMeleeRange(const Player& p, size_t idx) const;
     bool attackNearestEnemy(Player& p, size_t idx, double dt);
     void swingAtStructures(Player& p);

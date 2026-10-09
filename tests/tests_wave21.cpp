@@ -7,6 +7,7 @@
 //       -o /tmp/wave21_test && /tmp/wave21_test
 
 #include "achievements/AchievementSystem.h"
+#include "camera/CameraSystem.h"
 #include "core/EventBus.h"
 #include "core/Events.h"
 #include "core/GameClock.h"
@@ -378,7 +379,7 @@ int main() {
         m.botfill();
         for (int i = 0; i < 200; ++i) m.update(1.0);
         CHECK(m.moba()->minionCount() > 0); // waves flowing
-        CHECK(!m.isOver());                // 200s won't topple a 5000-HP GOO
+        CHECK(!m.isOver());                // 200s won't topple a 1500-HP GOO
     }
     // ---------- match: moba respawn scales with match time ----------
     {
@@ -502,6 +503,102 @@ int main() {
             m.update(1.0); ++ticks;
         }
         CHECK(a.isUnlocked("first_blood")); // PlayerKilled sourceId==localId
+    }
+
+    // ---------- moba: per-lane backdoor (wave 22) ----------
+    // Cracking ONE lane's towers opens the GOO; intact lanes don't block.
+    {
+        EventBus bus; GameClock clock; RNG rng(20);
+        MobaDefense moba(bus, clock, rng);
+        moba.setupDefaultMap(); // towers built eagerly
+        CHECK(moba.towerCount() == 12);
+        float hpBefore = moba.baseHp(1);
+        CHECK(!moba.laneOpenFor(1));
+        // Raze both team-1 towers in lane 0 (250 HP each).
+        for (int k = 0; k < 2; ++k)
+            for (int h = 0; h < 6; ++h)
+                moba.playerHitStructures(0, moba.towerPos(1, 0, k),
+                                         5.0f, 50.0f, 777);
+        CHECK(moba.laneTowersDown(1, 0));
+        CHECK(!moba.laneTowersDown(1, 1)); // other lanes still defended
+        CHECK(moba.laneOpenFor(1));
+        moba.playerHitStructures(0, moba.basePos(1), 5.0f, 100.0f, 777);
+        CHECK(moba.baseHp(1) < hpBefore); // damage lands via the open lane
+    }
+    // ---------- moba: super minions empower cracked lanes ----------
+    {
+        EventBus bus; GameClock clock; RNG rng(21);
+        MobaDefense moba(bus, clock, rng);
+        moba.setupDefaultMap();
+        moba.spawnWave(0, 0);
+        float normalHp = moba.minions()[0].maxHp; // t=0: ~120, no scaling
+        // Crack team-1 lane 1, then spawn into it: empowered x1.75.
+        for (int k = 0; k < 2; ++k)
+            for (int h = 0; h < 6; ++h)
+                moba.playerHitStructures(0, moba.towerPos(1, 1, k),
+                                         5.0f, 50.0f, 777);
+        size_t before = moba.minionCount();
+        moba.spawnWave(0, 1);
+        float empHp = moba.minions()[before].maxHp;
+        CHECK(std::fabs(empHp - normalHp * 1.75f) < 1.0f);
+    }
+    // ---------- moba: time limit ends the game ----------
+    {
+        EventBus bus; GameClock clock; RNG rng(22);
+        MobaDefense moba(bus, clock, rng);
+        moba.setupDefaultMap();
+        CHECK(!moba.isOver());
+        for (int i = 0; i <= static_cast<int>(MobaDefense::TIME_LIMIT); ++i)
+            moba.update(1.0);
+        CHECK(moba.isOver());
+        int w = moba.winner();
+        CHECK(w == -1 || w == 0 || w == 1); // GOO HP, then towers, then draw
+    }
+    // ---------- match: joinAsHuman takes over a bot slot ----------
+    {
+        EventBus bus; GameClock clock; RNG rng(23);
+        Match m(bus, clock, rng);
+        CHECK(m.start("moba"));
+        m.botfill();
+        uint64_t hid = m.joinAsHuman(1);
+        CHECK(hid != 0);
+        const auto* hp = m.findPlayer(hid);
+        CHECK(hp && !hp->isBot && hp->name == "You" && hp->team == 1);
+        CHECK(m.playerCount() == 10); // still 5v5: a bot slot, not an 11th
+        Vec3 pos = hp->pos;
+        for (int i = 0; i < 10; ++i) m.update(1.0);
+        // The human holds position: no bot objective AI yanks them around.
+        CHECK(m.findPlayer(hid)->pos.distance(pos) < 0.01f);
+    }
+    // ---------- match: full moba game ends by GOO kill (seed 42) ----------
+    {
+        EventBus bus; GameClock clock; RNG rng(42);
+        Match m(bus, clock, rng);
+        CHECK(m.start("moba"));
+        m.botfill();
+        int t = 0;
+        for (; t < 1200 && !m.isOver(); ++t) m.update(1.0);
+        CHECK(m.isOver());
+        CHECK(t < 1200); // decided by a fallen GOO, not the time limit
+        CHECK(m.winner() == 0);
+        CHECK(m.moba()->baseHp(1) == 0.0f);
+    }
+    // ---------- camera: fp/tp switch works anytime, anywhere ----------
+    {
+        CameraSystem cam;
+        CHECK(cam.mode() == CameraMode::ThirdPerson);
+        Vec3 arenaPos(80.0f, 0.0f, -30.0f); // a match-player-like position
+        CameraPose tp = cam.poseFor(arenaPos, 1.2f);
+        cam.setMode(CameraMode::FirstPerson);
+        CameraPose fp = cam.poseFor(arenaPos, 1.2f);
+        // FP eye sits at the player; the TP boom sits behind and above.
+        CHECK(std::fabs(fp.eye.x - arenaPos.x) < 0.01f);
+        CHECK(tp.eye.y > fp.eye.y);
+        cam.switchCamera();
+        CHECK(cam.mode() == CameraMode::ThirdPerson);
+        cam.switchCamera();
+        CHECK(cam.mode() == CameraMode::FirstPerson);
+        CHECK(cam.crosshairVisible());
     }
 
     if (failures == 0)

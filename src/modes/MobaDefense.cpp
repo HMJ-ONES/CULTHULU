@@ -1,6 +1,10 @@
 #include "modes/MobaDefense.h"
 #include "core/EventBus.h"
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
 namespace cultulhu {
 
 MobaDefense::MobaDefense(EventBus& bus, GameClock& clock, RNG& rng)
@@ -22,19 +26,29 @@ void MobaDefense::setBase(int team, Vec3 pos, float hp) {
 }
 
 MobaDefense::Minion MobaDefense::makeMinion(int team, int lane,
-                                           const std::string& kind, Vec3 pos) {
+                                           const std::string& kind, Vec3 pos,
+                                           float empower) {
     Minion m;
     m.id = nextMinionId_++;
     m.team = team;
     m.lane = lane;
     m.kind = kind;
     m.pos = pos;
+    // Wave scaling (standard MOBA inevitability): later waves are tougher.
+    // +2% HP/DPS per wave interval of elapsed match time; symmetric, so
+    // it amplifies whoever is already winning rather than deciding
+    // anything by itself.
+    float scale = empower *
+        (1.0f + 0.02f * static_cast<float>(elapsed_ / WAVE_INTERVAL));
     if (kind == "ranged") {
-        m.hp = m.maxHp = 70.0f; m.dps = 12.0f; m.range = 9.0f; m.speed = 3.0f;
+        m.hp = m.maxHp = 70.0f * scale; m.dps = 12.0f * scale;
+        m.range = 9.0f; m.speed = 3.0f;
     } else if (kind == "siege") {
-        m.hp = m.maxHp = 300.0f; m.dps = 30.0f; m.range = 6.0f; m.speed = 2.0f;
+        m.hp = m.maxHp = 300.0f * scale; m.dps = 30.0f * scale;
+        m.range = 6.0f; m.speed = 2.0f;
     } else { // melee
-        m.hp = m.maxHp = 120.0f; m.dps = 8.0f; m.range = 4.0f; m.speed = 3.0f;
+        m.hp = m.maxHp = 120.0f * scale; m.dps = 8.0f * scale;
+        m.range = 4.0f; m.speed = 3.0f;
     }
     return m;
 }
@@ -44,6 +58,12 @@ void MobaDefense::spawnWave(int team, int lane) {
     int l = lane % static_cast<int>(lanes_.size());
     ++waveNumber_;
     bool siegeWave = (waveNumber_ % 3 == 0);
+    // Super-minion pressure: cracking the enemy's towers in a lane
+    // empowers our waves in that lane (x1.75 HP/DPS) — the snowball that
+    // actually ends games. Guarded by towersBuilt_ so towerless test maps
+    // don't get phantom empowerment.
+    float empower =
+        (towersBuilt_ && laneTowersDown(1 - team, l)) ? 1.75f : 1.0f;
 
     const auto& wps = lanes_[l];
     Vec3 start = (team == 0) ? wps.front() : wps.back();
@@ -51,9 +71,11 @@ void MobaDefense::spawnWave(int team, int lane) {
         return start + Vec3(rng_.uniform(-2, 2), 0, rng_.uniform(-2, 2));
     };
     // Standard wave: 3 melee + 1 ranged; every 3rd wave adds a siege engine.
-    for (int i = 0; i < 3; ++i) minions_.push_back(makeMinion(team, l, "melee", jitter()));
-    minions_.push_back(makeMinion(team, l, "ranged", jitter()));
-    if (siegeWave) minions_.push_back(makeMinion(team, l, "siege", jitter()));
+    for (int i = 0; i < 3; ++i)
+        minions_.push_back(makeMinion(team, l, "melee", jitter(), empower));
+    minions_.push_back(makeMinion(team, l, "ranged", jitter(), empower));
+    if (siegeWave)
+        minions_.push_back(makeMinion(team, l, "siege", jitter(), empower));
 }
 
 void MobaDefense::setupDefaultMap() {
@@ -63,6 +85,10 @@ void MobaDefense::setupDefaultMap() {
     addLane({Vec3(-150, 0, -40), Vec3(0, 0, -55), Vec3(150, 0, -40)});
     addLane({Vec3(-150, 0, 0), Vec3(0, 0, 55), Vec3(150, 0, 0)});
     addLane({Vec3(-150, 0, 40), Vec3(0, 0, 55), Vec3(150, 0, 40)});
+    // Build towers NOW, not lazily on first update: Match updates players
+    // before the mode, so lazy towers leave backdoor protection vacuous
+    // (and sieging blind) for the opening tick.
+    ensureTowers();
 }
 
 void MobaDefense::setPlayerTargets(const std::vector<PlayerTarget>& targets) {
@@ -207,12 +233,74 @@ bool MobaDefense::pathComplete(const Minion& m) const {
 
 float MobaDefense::baseHp(int team) const { return bases_[team].hp; }
 
+bool MobaDefense::laneTowersDown(int team, int lane) const {
+    for (const auto& t : towers_) {
+        if (t.team == team && t.lane == lane && t.alive()) return false;
+    }
+    return true;
+}
+
+bool MobaDefense::laneOpenFor(int team) const {
+    // No lanes at all: nothing protects the GOO (matches the old
+    // teamTowerAlive()==false semantics for towerless maps).
+    if (lanes_.empty()) return true;
+    for (size_t l = 0; l < lanes_.size(); ++l) {
+        if (laneTowersDown(team, static_cast<int>(l))) return true;
+    }
+    return false;
+}
+
+int MobaDefense::aliveTowerCount(int team) const {
+    int n = 0;
+    for (const auto& t : towers_)
+        if (t.team == team && t.alive()) ++n;
+    return n;
+}
+
+bool MobaDefense::nearestEnemyTowerPos(int team, Vec3 pos, float range,
+                                       Vec3& out) const {
+    int enemy = 1 - team;
+    bool found = false;
+    float bestD = range;
+    for (const auto& t : towers_) {
+        if (t.team != enemy || !t.alive()) continue;
+        float d = pos.distance(t.pos);
+        if (d < bestD) { bestD = d; out = t.pos; found = true; }
+    }
+    return found;
+}
+
+float MobaDefense::laneFraction(int team, int lane, Vec3 pos) const {
+    if (lanes_.empty()) return 0.0f;
+    int l = lane % static_cast<int>(lanes_.size());
+    const auto& wps = lanes_[l];
+    float total = 0.0f;
+    for (size_t i = 1; i < wps.size(); ++i) total += wps[i - 1].distance(wps[i]);
+    if (total < 1e-6f) return 0.0f;
+    float best = 0.0f, bestD = std::numeric_limits<float>::max(), acc = 0.0f;
+    for (size_t i = 1; i < wps.size(); ++i) {
+        Vec3 a = wps[i - 1], b = wps[i];
+        Vec3 ab = b - a;
+        float len = ab.length();
+        float t = 0.0f;
+        if (len > 1e-6f) {
+            Vec3 ap = pos - a;
+            t = (ap.x * ab.x + ap.y * ab.y + ap.z * ab.z) / (len * len);
+            t = std::max(0.0f, std::min(1.0f, t));
+        }
+        float d = pos.distance(a + ab * t);
+        if (d < bestD) { bestD = d; best = (acc + len * t) / total; }
+        acc += len;
+    }
+    return (team == 0) ? best : 1.0f - best;
+}
+
 void MobaDefense::damageBase(int team, float dmg, uint64_t attackerId) {
     Base& b = bases_[team];
     if (!b.gooAlive) return;
-    // Wave 21: backdoor protection. The Great Old One cannot be damaged
-    // while any of its team's towers still stands.
-    if (teamTowerAlive(team)) return;
+    // Backdoor protection. The Great Old One cannot be damaged until at
+    // least one full lane of its team's towers has fallen.
+    if (!laneOpenFor(team)) return;
     b.hp -= dmg;
     if (b.hp <= 0.0f) {
         b.hp = 0.0f;
@@ -234,6 +322,7 @@ void MobaDefense::damageBase(int team, float dmg, uint64_t attackerId) {
 void MobaDefense::update(double dt) {
     float fdt = static_cast<float>(dt);
     ensureTowers();
+    elapsed_ += dt;
 
     // Periodic waves on every lane for both teams. Skipped per team while
     // that team fields more than MINION_CAP_PER_TEAM live minions (light
@@ -333,13 +422,24 @@ void MobaDefense::update(double dt) {
 }
 
 bool MobaDefense::isOver() const {
-    return !bases_[0].gooAlive || !bases_[1].gooAlive;
+    return !bases_[0].gooAlive || !bases_[1].gooAlive ||
+           elapsed_ >= TIME_LIMIT;
 }
 
 int MobaDefense::winner() const {
     if (!bases_[0].gooAlive && !bases_[1].gooAlive) return -1; // draw
     if (!bases_[1].gooAlive) return 0;
     if (!bases_[0].gooAlive) return 1;
+    if (elapsed_ >= TIME_LIMIT) {
+        // Higher surviving GOO-HP fraction wins; then most towers left;
+        // then a draw. Guarantees every match terminates.
+        float f0 = bases_[0].hp / GOO_MAX_HP;
+        float f1 = bases_[1].hp / GOO_MAX_HP;
+        if (std::fabs(f0 - f1) > 1e-6f) return (f0 > f1) ? 0 : 1;
+        int t0 = aliveTowerCount(0), t1 = aliveTowerCount(1);
+        if (t0 != t1) return (t0 > t1) ? 0 : 1;
+        return -1;
+    }
     return -1;
 }
 

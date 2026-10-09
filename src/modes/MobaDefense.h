@@ -59,18 +59,19 @@ public:
         int team = -1;
         int lane = 0;
         Vec3 pos;
-        float hp = 600.0f;
-        float maxHp = 600.0f;
+        float hp = 250.0f;
+        float maxHp = 250.0f;
         float range = 12.0f;
-        float dps = 25.0f;
+        float dps = 18.0f;
         bool alive() const { return hp > 0.0f; }
     };
 
     static constexpr double WAVE_INTERVAL = 30.0; // seconds between waves
-    static constexpr float BASE_DPS_TO_STRUCTURE = 10.0f;
+    static constexpr float BASE_DPS_TO_STRUCTURE = 15.0f;
     static constexpr int TOWERS_PER_TEAM_PER_LANE = 2;
-    static constexpr float GOO_MAX_HP = 5000.0f; // Great Old One stat block
+    static constexpr float GOO_MAX_HP = 1500.0f; // Great Old One stat block
     static constexpr int MINION_CAP_PER_TEAM = 48; // light budget: skip waves above this
+    static constexpr double TIME_LIMIT = 1200.0; // 20 min; then GOO-HP fraction decides
 
     MobaDefense(EventBus& bus, GameClock& clock, RNG& rng);
 
@@ -116,6 +117,19 @@ public:
     // Number of live minions fielded by one team (for the wave cap).
     int liveMinionCount(int team) const;
     bool teamTowerAlive(int team) const;
+    // Backdoor protection (wave 22): the GOO can be damaged once ANY one
+    // lane has both its towers down — no need to raze all six.
+    bool laneOpenFor(int team) const;
+    // Both towers in (team, lane) down. Vacuously true before towers exist.
+    bool laneTowersDown(int team, int lane) const;
+    int aliveTowerCount(int team) const;
+    // Nearest live enemy tower within range of pos (for bot sieging).
+    bool nearestEnemyTowerPos(int team, Vec3 pos, float range,
+                              Vec3& out) const;
+    // Team-oriented lane fraction (0 = own base, 1 = enemy base) of the
+    // point on the lane nearest to pos (for bot marching/escorting).
+    float laneFraction(int team, int lane, Vec3 pos) const;
+    double elapsed() const { return elapsed_; }
 
 protected:
     struct Base {
@@ -133,6 +147,7 @@ protected:
     Base bases_[2];
     RNG& rng_;
     double waveTimer_ = 0.0;
+    double elapsed_ = 0.0;
     uint64_t nextMinionId_ = 1;
     uint64_t waveNumber_ = 0;
     bool towersBuilt_ = false;
@@ -147,7 +162,8 @@ protected:
     Vec3 pathTarget(const Minion& m) const; // next waypoint (team-aware)
     bool pathComplete(const Minion& m) const;
     void damageBase(int team, float dmg, uint64_t attackerId = 0);
-    Minion makeMinion(int team, int lane, const std::string& kind, Vec3 pos);
+    Minion makeMinion(int team, int lane, const std::string& kind, Vec3 pos,
+                      float empower = 1.0f);
 };
 
 } // namespace cultulhu

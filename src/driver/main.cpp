@@ -153,6 +153,7 @@ struct BetaGame {
     // run it with `match capture|moba` — the free-roam world keeps ticking
     // underneath on the same clock, harmlessly.
     std::unique_ptr<Match> match;
+    uint64_t humanMatchId = 0; // local human's match player (0 = not joined)
     CameraSystem camera;
     EldritchAvatar avatar{FACTION_CTHULHU, Vec3{0, 0, 0}, power};
     CommandSystem commands{bus, rng, beliefs, cult};
@@ -334,9 +335,25 @@ struct BetaGame {
         return best;
     }
 
+    // Camera focus: the local human's match player while in a match,
+    // otherwise the free-roam avatar. Works in every mode, FP or TP —
+    // switching mid-match never breaks because CameraSystem is stateless.
+    void cameraFocus(Vec3& pos, float& yaw) const {
+        if (match && match->started() && humanMatchId != 0) {
+            if (const auto* p = match->findPlayer(humanMatchId)) {
+                pos = p->pos;
+                yaw = p->facingYaw;
+                return;
+            }
+        }
+        pos = avatar.position();
+        yaw = avatar.facingYaw();
+    }
+
     void printStatus() {
-        CameraPose pose = camera.poseFor(avatar.position(),
-                                         avatar.facingYaw());
+        Vec3 fpos; float fyaw;
+        cameraFocus(fpos, fyaw);
+        CameraPose pose = camera.poseFor(fpos, fyaw);
         std::cout << "--- status ---\n";
         std::cout << "power: " << power.value() << " / "
                   << PowerSystem::MAX_POWER << "\n";
@@ -481,7 +498,7 @@ struct BetaGame {
         std::cout <<
             "commands:\n"
             "  move <n|s|e|w|ne|nw|se|sw> [steps]  walk the avatar\n"
-            "  camera <fp|tp>                      switch camera\n"
+            "  camera <fp|tp|switch>               switch camera (any mode, anytime)\n"
             "  look                                survey surroundings\n"
             "  spawn <cultist|civilian|monstrosity|sorcerer> [n]\n"
             "  spawn <monstrosity|creature> [species] [n]  (see 'bestiary')\n"
@@ -808,6 +825,33 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 return true;
             }
             nets.pendingMove = d;  // also feeds multiplayer input
+            // In a match with a joined human, move the match player —
+            // combat is automatic (same as bots), positioning is yours.
+            if (g.match && g.match->started() && g.humanMatchId != 0) {
+                const auto* hp = g.match->findPlayer(g.humanMatchId);
+                if (!hp || !hp->alive) {
+                    std::cout << "you are dead (respawning)\n";
+                    return true;
+                }
+                Vec3 dir = d.normalized();
+                for (int i = 0; i < steps; ++i) {
+                    const auto* cur = g.match->findPlayer(g.humanMatchId);
+                    if (!cur || !cur->alive) break;
+                    g.match->movePlayer(g.humanMatchId,
+                                        cur->pos + dir * Match::kPlayerSpeed);
+                    g.match->setFacingYaw(g.humanMatchId,
+                                           std::atan2(dir.z, dir.x));
+                    g.tickSecond();
+                }
+                const auto* now = g.match->findPlayer(g.humanMatchId);
+                if (now)
+                    std::cout << "moved to (" << now->pos.x << ", "
+                              << now->pos.z << ")\n";
+                return true;
+            }
+            if (g.match && g.match->started())
+                std::cout << "(spectating: join the match first — "
+                             "`match join`)\n";
             for (int i = 0; i < steps; ++i) {
                 g.avatar.move(d, 1.0, 8.0f);
                 g.avatar.setFacingYaw(std::atan2(d.z, d.x));
@@ -816,7 +860,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
             g.avatarAnim.requestState(steps > 3 ? AnimationState::Run
                                                 : AnimationState::Walk);
             std::cout << "moved to (" << g.avatar.position().x << ", "
-                      << g.avatar.position().z << ")\n";
+                      << g.avatar.position().z << ")\\n";
             return true;
         }
 
@@ -824,12 +868,16 @@ static bool processLine(BetaGame& g, NetSession& nets,
             std::string m; in >> m;
             if (m == "fp") g.camera.setMode(CameraMode::FirstPerson);
             else if (m == "tp") g.camera.setMode(CameraMode::ThirdPerson);
+            else if (m == "switch") g.camera.switchCamera();
             else {
-                std::cout << "usage: camera <fp|tp>\n";
+                std::cout << "usage: camera <fp|tp|switch>\n";
                 return true;
             }
-            CameraPose p = g.camera.poseFor(g.avatar.position(),
-                                            g.avatar.facingYaw());
+            // Works in every mode: follows the joined match player in a
+            // match, the avatar otherwise. Safe to flip at any time.
+            Vec3 fpos; float fyaw;
+            g.cameraFocus(fpos, fyaw);
+            CameraPose p = g.camera.poseFor(fpos, fyaw);
             std::cout << "camera: " << cameraModeName(g.camera.mode())
                       << " eye=(" << p.eye.x << "," << p.eye.y << ","
                       << p.eye.z << ")\n";
@@ -1189,9 +1237,32 @@ static bool processLine(BetaGame& g, NetSession& nets,
                     std::cout << "unknown mode\n";
                     return true;
                 }
+                g.humanMatchId = 0;
                 g.match->botfill();
                 std::cout << "5v5 " << sub << " match started (10 bots)\n";
                 g.match->printStatus(std::cout);
+            } else if (sub == "join") {
+                if (!g.match || !g.match->started()) {
+                    std::cout << "no active match (match capture|moba first)\n";
+                    return true;
+                }
+                if (g.humanMatchId != 0) {
+                    std::cout << "already joined as a player\n";
+                    return true;
+                }
+                int team = -1;
+                in >> team;
+                uint64_t id = g.match->joinAsHuman(team);
+                if (id == 0) {
+                    std::cout << "no bot slot to take over on that team\n";
+                    return true;
+                }
+                g.humanMatchId = id;
+                const auto* p = g.match->findPlayer(id);
+                std::cout << "joined team " << p->team
+                          << " as \"You\" — move with: move <dir> [steps]; "
+                             "combat is automatic. camera fp|tp|switch "
+                             "works anytime.\n";
             } else if (sub == "addbot") {
                 if (!g.match || !g.match->started()) {
                     std::cout << "no active match (match capture|moba first)\n";
@@ -1215,8 +1286,9 @@ static bool processLine(BetaGame& g, NetSession& nets,
             } else if (sub == "end") {
                 if (g.match) std::cout << "match aborted\n";
                 g.match.reset();
+                g.humanMatchId = 0;
             } else {
-                std::cout << "usage: match <capture|moba|addbot <team>|status|end>\n";
+                std::cout << "usage: match <capture|moba|join [team]|addbot <team>|status|end>\n";
             }
             return true;
         }

@@ -97,6 +97,24 @@ uint64_t Match::addBot(int team) {
     return p.id;
 }
 
+uint64_t Match::joinAsHuman(int team) {
+    if (team < 0) team = (countTeam(0) <= countTeam(1)) ? 0 : 1;
+    team = (team == 0) ? 0 : 1;
+    for (size_t i = 0; i < players_.size(); ++i) {
+        Player& p = players_[i];
+        if (p.isBot && p.team == team) {
+            p.isBot = false;
+            p.name = "You";
+            p.swingCd = 0.0;
+            p.facingYaw = 0.0f;
+            spawnPlayer(p); // fresh spawn at the team base, full HP
+            stats_.setPlayerName(i, p.name);
+            return p.id;
+        }
+    }
+    return 0;
+}
+
 void Match::botfill() {
     while (countTeam(0) < 5 && players_.size() < static_cast<size_t>(kMaxPlayers))
         addBot(0);
@@ -142,13 +160,17 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
         if (p.respawnTimer <= 0.0) spawnPlayer(p);
         return;
     }
-    // An enemy in melee reach pins the bot: stand and fight instead of
+    // An enemy in melee reach pins the player: stand and fight instead of
     // walking off toward the objective.
     if (!enemyInMeleeRange(p, idx)) {
-        if (capture_)
-            updateCaptureObjective(p, dt);
-        else if (moba_)
-            updateMobaObjective(p, dt);
+        // Humans are driven by the driver (`move`); they hold position
+        // otherwise. Everyone still auto-attacks via attackNearestEnemy.
+        if (p.isBot) {
+            if (capture_)
+                updateCaptureObjective(p, dt);
+            else if (moba_)
+                updateMobaObjective(p, dt);
+        }
     }
     // Enemy players first; only then swing at moba structures/minions.
     bool attacked = attackNearestEnemy(p, idx, dt);
@@ -174,27 +196,70 @@ void Match::updateCaptureObjective(Player& p, double dt) {
     float d = to.length();
     if (d > 1.0f) {
         float stepLen = kPlayerSpeed * static_cast<float>(dt);
-        p.pos += (d <= stepLen) ? to : to.normalized() * stepLen;
+        Vec3 step = (d <= stepLen) ? to : to.normalized() * stepLen;
+        p.pos += step;
+        p.facingYaw = std::atan2(step.z, step.x);
     }
 }
 
+bool Match::furthestFriendlyMinion(int team, int lane, Vec3& out) const {
+    if (!moba_) return false;
+    const auto& mins = moba_->minions();
+    Vec3 base = moba_->basePos(team);
+    bool found = false;
+    float bestD = 0.0f;
+    for (const auto& m : mins) {
+        if (m.team != team || m.lane != lane || m.hp <= 0.0f) continue;
+        float d = m.pos.distance(base);
+        if (!found || d > bestD) { found = true; bestD = d; out = m.pos; }
+    }
+    return found;
+}
+
 void Match::updateMobaObjective(Player& p, double dt) {
-    // Advance down my lane toward the enemy base, fighting minions and
-    // towers on the way; the mode handles minion/tower targeting of players.
+    // Push with the minion wave: escort it so the wave tanks the tower,
+    // then siege instead of walking past into the base (the old behavior
+    // fed towers one bot at a time and stalled every lane forever).
     MobaDefense& md = *moba_;
-    float frac = std::min(1.0f, p.laneFrac + 0.05f * static_cast<float>(dt));
-    Vec3 tgt = md.lanePoint(p.team, p.lane, frac);
+    float fdt = static_cast<float>(dt);
+    Vec3 tp;
+    if (md.nearestEnemyTowerPos(p.team, p.pos, 12.0f, tp)) {
+        Vec3 to = tp - p.pos;
+        float d = to.length();
+        if (d > 3.5f) {
+            float stepLen = kPlayerSpeed * fdt;
+            Vec3 step = (d <= stepLen) ? to : to.normalized() * stepLen;
+            // Stop at swing range; overshooting walks into the tower.
+            if (step.length() > d - 3.0f && d > 3.0f)
+                step = to.normalized() * (d - 3.0f);
+            if (step.length() > 0.01f) {
+                p.pos += step;
+                p.facingYaw = std::atan2(step.z, step.x);
+            }
+        }
+        return;
+    }
+    float cur = md.laneFraction(p.team, p.lane, p.pos);
+    Vec3 anchor;
+    Vec3 tgt;
+    if (furthestFriendlyMinion(p.team, p.lane, anchor) &&
+        md.laneFraction(p.team, p.lane, anchor) > cur + 0.02f) {
+        Vec3 baseDir = md.basePos(p.team) - anchor;
+        float bl = baseDir.length();
+        tgt = (bl > 1e-3f) ? anchor + baseDir.normalized() * 2.0f : anchor;
+    } else {
+        // No wave ahead: march down the lane from where we actually are.
+        float frac = std::min(1.0f, cur + 0.05f * fdt);
+        tgt = md.lanePoint(p.team, p.lane, frac);
+    }
     Vec3 to = tgt - p.pos;
     float d = to.length();
-    float stepLen = kPlayerSpeed * static_cast<float>(dt);
-    if (d <= std::max(stepLen, 2.0f)) {
-        p.laneFrac = frac; // reached this waypoint: keep marching
-    } else {
-        p.pos += to.normalized() * stepLen;
+    if (d > 1.0f) {
+        float stepLen = kPlayerSpeed * fdt;
+        Vec3 step = (d <= stepLen) ? to : to.normalized() * stepLen;
+        p.pos += step;
+        p.facingYaw = std::atan2(step.z, step.x);
     }
-    // Hit nearby enemy structures / minions (range 3 melee; structures
-    // need the player to walk up to them). Only when no enemy player was
-    // in reach this tick (attack priority: players first).
 }
 
 void Match::swingAtStructures(Player& p) {
@@ -202,7 +267,8 @@ void Match::swingAtStructures(Player& p) {
     if (p.swingCd > 0.0) return;
     float structHp = md.enemyTowerHpNear(p.team, p.pos, kMeleeRange + 1.0f);
     float dmg = kMeleeDps * static_cast<float>(kSwingCooldown);
-    md.playerHitMinions(p.team, p.pos, kMeleeRange + 1.0f, dmg);
+    float clearDmg = kWaveclearDps * static_cast<float>(kSwingCooldown);
+    md.playerHitMinions(p.team, p.pos, kMeleeRange + 1.0f, clearDmg);
     md.playerHitStructures(p.team, p.pos, kMeleeRange + 1.0f, dmg, p.id);
     if (structHp > 0.0f) p.swingCd = kSwingCooldown;
 }
@@ -297,6 +363,12 @@ void Match::feedMobaPlayerTargets() {
 bool Match::movePlayer(uint64_t id, Vec3 pos) {
     for (auto& p : players_)
         if (p.id == id) { p.pos = pos; return true; }
+    return false;
+}
+
+bool Match::setFacingYaw(uint64_t id, float yaw) {
+    for (auto& p : players_)
+        if (p.id == id) { p.facingYaw = yaw; return true; }
     return false;
 }
 
