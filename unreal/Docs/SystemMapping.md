@@ -71,6 +71,25 @@ replace the custom socket layer for gameplay**; `src/net` stays as the
 headless-tested reference implementation and the design basis for the
 Radmin lobby flow.
 
+## Zone atmosphere → UE5 lighting (wave 32)
+
+`ZoneDef::atmosphere` (authored per zone in the `.map` files via
+`atmosphere <zone> fog=#rrggbb,density ambient=#rrggbb,intensity
+sky=#rrggbb stars=0..1`) is the core's lighting brief for the binding.
+The headless core cannot render, but it authors every number the
+"beautiful but very dark" look depends on:
+
+| Core field | UE5 target | Notes |
+|---|---|---|
+| `fogR/G/B`, `fogDensity` | `AExponentialHeightFog` (per-zone override volume) | Density 0..1 maps to the fog density curve; violet-black default `#0a0618` |
+| `ambR/G/B`, `ambIntensity` | Sky-light / ambient cubemap tint + intensity | Ember shrine runs warm (`#3a1a0e`); caves near-black |
+| `skyR/G/B` | `ASkyAtmosphere` zenith tint / night-sky material | Night is the default; day is the exception |
+| `stars` | Starfield opacity in the sky material | `cavern_mouth` = 0.0 (rock overhead), `cult_base` = 1.0 |
+
+Zone transitions: lerp the active atmosphere record over ~3s when the
+camera crosses a zone boundary (the core exposes the camera's current
+zone via `FreeRoamMode`; smooth the pop).
+
 ## What is intentionally NOT mapped yet
 
 - `Dungeon`/`DungeonInstance` → level streaming / world partition mapping.

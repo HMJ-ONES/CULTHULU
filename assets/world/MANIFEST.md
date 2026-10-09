@@ -171,7 +171,12 @@ New textures (all original, generated in code): `textures/mist-soft.png`
 | `props/ember-cluster.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 768 | 18.1 KB | textures/ember-glow.png (128x128) |
 | `props/beams-collapsed.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 48 | 6.0 KB | textures/wood-dark.png (128x128) |
 | `props/dead-bush.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 100 | 4.9 KB | textures/bark-dead.png (64x64) |
+| `props/stalactite-cluster.glb` | in-house procgen, `procgen/generate_props.py` (wave 32) | n/a (original) | 70 | 5.7 KB | vertex material (dark rock) |
+| `props/stalagmite-cluster.glb` | in-house procgen, `procgen/generate_props.py` (wave 32) | n/a (original) | 42 | 3.7 KB | vertex material (dark rock) |
+| `props/dark-crystal-cluster.glb` | in-house procgen, `procgen/generate_props.py` (wave 32) | n/a (original) | 48 | 4.2 KB | vertex material (black-violet, faint emissive) |
+| `props/hanging-chain.glb` | in-house procgen, `procgen/generate_props.py` (wave 32) | n/a (original) | 1344 | 95.2 KB | vertex material (dark iron) |
 
 Wave-19 new payload: 536 KB decoded GLB (+ ~90 KB new textures).
+Wave-32 new payload: ~109 KB decoded GLB (+ 53 KB detail texture). Procgen pipeline committed: `assets/world/procgen/generate_props.py` (GLB writer + builders) and `generate_detail_texture.py` (512px grime/crack/rune detail layer).
 Map: `assets/maps/eldritch_battlefield.map` extended 72 -> 120 placements.
 `ruined_city.map` untouched.

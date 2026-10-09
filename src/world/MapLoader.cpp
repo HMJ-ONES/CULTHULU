@@ -45,9 +45,15 @@ MapData MapLoader::load(const std::string& path) {
     std::string line;
     while (std::getline(in, line)) {
         ++lineNo;
-        // Strip comments.
-        const size_t hash = line.find('#');
-        if (hash != std::string::npos) line.erase(hash);
+        // Strip comments: '#' starts a comment only at line start or after
+        // whitespace (so #rrggbb hex colors in values survive).
+        for (size_t i = 0; i < line.size(); ++i) {
+            if (line[i] == '#' &&
+                (i == 0 || line[i - 1] == ' ' || line[i - 1] == '\t')) {
+                line.erase(i);
+                break;
+            }
+        }
         const auto toks = tokenize(line);
         if (toks.empty()) continue;
 
@@ -113,10 +119,78 @@ MapData MapLoader::load(const std::string& path) {
                 throw MapParseError(path, lineNo,
                                     "unknown zone '" + p.zone + "'");
             data.placements.push_back(std::move(p));
+        } else if (kw == "atmosphere") {
+            // Wave 32: per-zone lighting/mood data for the UE5 binding.
+            //   atmosphere <zone> fog=#rrggbb,density ambient=#rrggbb,intensity
+            //                      sky=#rrggbb stars=0..1
+            // All keys optional; unset keys keep the dark defaults.
+            if (toks.size() < 2)
+                throw MapParseError(path, lineNo,
+                                    "'atmosphere' needs a zone name");
+            ZoneDef* zd = nullptr;
+            for (auto& z : data.zones)
+                if (z.name == toks[1]) { zd = &z; break; }
+            if (!zd)
+                throw MapParseError(path, lineNo,
+                                    "atmosphere for unknown zone '" +
+                                        toks[1] + "'");
+            auto parseHex = [&](const std::string& h, float& r, float& g,
+                                float& b) {
+                if (h.size() != 7 || h[0] != '#')
+                    throw MapParseError(path, lineNo,
+                                        "color must be #rrggbb, got '" + h +
+                                            "'");
+                const int v = std::stoi(h.substr(1), nullptr, 16);
+                r = ((v >> 16) & 255) / 255.0f;
+                g = ((v >> 8) & 255) / 255.0f;
+                b = (v & 255) / 255.0f;
+            };
+            for (size_t i = 2; i < toks.size(); ++i) {
+                const std::string& kv = toks[i];
+                const size_t eq = kv.find('=');
+                if (eq == std::string::npos)
+                    throw MapParseError(path, lineNo,
+                                        "atmosphere arg must be key=value, got '" +
+                                            kv + "'");
+                const std::string key = kv.substr(0, eq);
+                const std::string val = kv.substr(eq + 1);
+                const size_t comma = val.find(',');
+                const std::string first =
+                    comma == std::string::npos ? val : val.substr(0, comma);
+                const std::string second =
+                    comma == std::string::npos ? "" : val.substr(comma + 1);
+                if (key == "fog") {
+                    parseHex(first, zd->atmosphere.fogR, zd->atmosphere.fogG,
+                             zd->atmosphere.fogB);
+                    if (!second.empty())
+                        zd->atmosphere.fogDensity = parseFloat(
+                            path, lineNo, second, "fog density");
+                } else if (key == "ambient") {
+                    parseHex(first, zd->atmosphere.ambR, zd->atmosphere.ambG,
+                             zd->atmosphere.ambB);
+                    if (!second.empty())
+                        zd->atmosphere.ambIntensity = parseFloat(
+                            path, lineNo, second, "ambient intensity");
+                } else if (key == "sky") {
+                    parseHex(first, zd->atmosphere.skyR, zd->atmosphere.skyG,
+                             zd->atmosphere.skyB);
+                } else if (key == "stars") {
+                    zd->atmosphere.stars =
+                        parseFloat(path, lineNo, first, "stars");
+                    if (zd->atmosphere.stars < 0.0f ||
+                        zd->atmosphere.stars > 1.0f)
+                        throw MapParseError(path, lineNo,
+                                            "stars must be 0..1");
+                } else {
+                    throw MapParseError(path, lineNo,
+                                        "unknown atmosphere key '" + key +
+                                            "' (fog|ambient|sky|stars)");
+                }
+            }
         } else {
             throw MapParseError(path, lineNo,
                                 "unknown directive '" + kw +
-                                    "' (expected map|zone|place)");
+                                    "' (expected map|zone|atmosphere|place)");
         }
     }
 

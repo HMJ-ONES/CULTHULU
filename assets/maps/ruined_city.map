@@ -49,6 +49,16 @@ zone old_city -220 0 -220 220 0 220 45
 # zone: outskirts (ambient fear 28)
 zone outskirts -500 0 -500 500 0 500 28
 
+# --- wave 32: atmosphere (lighting/mood data for the UE5 binding) ---
+# cult_base: your ground — cold violet dark, clear starfield, watchful
+atmosphere cult_base fog=#0a0618,0.4 ambient=#241a3a,0.4 sky=#050214 stars=1.0
+# graveyard: corpse-pale mist, stars guttering behind the haze
+atmosphere graveyard fog=#101418,0.7 ambient=#1a2026,0.25 sky=#060a10 stars=0.3
+# old_city: the drowned avenues — deep blue-black, heavy air
+atmosphere old_city fog=#060a18,0.6 ambient=#141a30,0.3 sky=#030612 stars=0.6
+# outskirts: thin dark, wind-scoured sky
+atmosphere outskirts fog=#080714,0.35 ambient=#1e1630,0.35 sky=#040312 stars=0.95
+
 # -- cult base: the altar plaza --
 place assets/world/cult/altar-stone.glb 0 0 300 0 1.5 cult_base
 place assets/world/cult/wood-structure.glb -30 0 278 15 1.0 cult_base

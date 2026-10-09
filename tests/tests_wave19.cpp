@@ -24,12 +24,15 @@
 #include "world/ValeOfPnath.h"
 
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <tuple>
+#include <vector>
 
 using namespace cultulhu;
 namespace fs = std::filesystem;
@@ -160,9 +163,53 @@ static void testPerfSmoke() {
     }
 }
 
+// Wave 32: atmosphere records parse and carry the authored mood.
+static void testAtmosphere() {
+    const std::string prefix = repoPrefix();
+    auto approx = [](float a, float b) {
+        return std::abs(a - b) < 0.01f;
+    };
+    for (const auto& [map, zone, fogDensity, stars] :
+         std::vector<std::tuple<const char*, const char*, float, float>>{
+             {"assets/maps/eldritch_battlefield.map", "cavern_mouth", 0.85f,
+              0.0f},
+             {"assets/maps/eldritch_battlefield.map", "ember_shrine", 0.55f,
+              0.5f},
+             {"assets/maps/ruined_city.map", "cult_base", 0.4f, 1.0f},
+             {"assets/maps/ruined_city.map", "graveyard", 0.7f, 0.3f},
+         }) {
+        MapData md = MapLoader::load(prefix + map);
+        const ZoneDef* zd = nullptr;
+        for (const auto& z : md.zones)
+            if (z.name == zone) { zd = &z; break; }
+        CHECK(zd != nullptr);
+        if (!zd) continue;
+        CHECK(approx(zd->atmosphere.fogDensity, fogDensity));
+        CHECK(approx(zd->atmosphere.stars, stars));
+        // Sanity: colors are in linear 0..1.
+        CHECK(zd->atmosphere.fogR >= 0.0f && zd->atmosphere.fogR <= 1.0f);
+        CHECK(zd->atmosphere.ambIntensity >= 0.0f &&
+              zd->atmosphere.ambIntensity <= 1.0f);
+    }
+    // Ember shrine glows warm against the dark: its ambient is redder.
+    {
+        MapData md = MapLoader::load(
+            prefix + "assets/maps/eldritch_battlefield.map");
+        const ZoneDef *ember = nullptr, *cavern = nullptr;
+        for (const auto& z : md.zones) {
+            if (z.name == "ember_shrine") ember = &z;
+            if (z.name == "cavern_mouth") cavern = &z;
+        }
+        CHECK(ember && cavern);
+        if (ember && cavern)
+            CHECK(ember->atmosphere.ambR > cavern->atmosphere.ambR);
+    }
+}
+
 int main() {
     testModelBudgets();
     testPerfSmoke();
+    testAtmosphere();
     std::cout << "wave19 checks: " << checks << ", failures: " << failures
               << "\n";
     return failures == 0 ? 0 : 1;

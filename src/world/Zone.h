@@ -25,12 +25,32 @@ struct AmbientParams {
     float relicSpawnChance = 0.0f;  // per-spot relic roll 0..1
 };
 
+// Wave 32: per-zone atmosphere — the lighting/mood data the headless core
+// authors and the UE5 binding consumes (ExponentialHeightFog, sky,
+// ambient). "Beautiful but very dark" lives here: deep violet-black fog,
+// star-choked skies, ember-lit shrines. Zero megabytes: pure data.
+struct Atmosphere {
+    float fogR = 0.039f;   // fog color, linear 0..1 (default: violet-black)
+    float fogG = 0.024f;
+    float fogB = 0.094f;
+    float fogDensity = 0.55f;  // 0..1 mapped to fog density curve
+    float ambR = 0.141f;       // ambient light color
+    float ambG = 0.102f;
+    float ambB = 0.227f;
+    float ambIntensity = 0.35f; // 0..1
+    float skyR = 0.020f;        // sky/zenith tint
+    float skyG = 0.012f;
+    float skyB = 0.051f;
+    float stars = 0.85f;       // star visibility 0..1 (night is default)
+};
+
 struct ZoneDef {
     std::string name;
     Vec3 min;                       // bounds corner (inclusive)
     Vec3 max;                       // bounds corner (inclusive)
     std::vector<SpawnPoint> spawns;
     AmbientParams ambient;
+    Atmosphere atmosphere;          // wave 32: lighting/mood data
     std::vector<Vec3> relicSpots;    // candidate relic spawn locations
 };
 

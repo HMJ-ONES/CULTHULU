@@ -6,7 +6,7 @@
 # ashen_grove (dead forest), ember_shrine (torch-lit shrine).
 # Wave 19 second dark-art pass: +48 atmospheric placements (arches, broken
 # stairs, bones, coffins, mist banks, scorch, embers, dead bushes).
-# 120 placements. All models CC0 (Kenney Graveyard/Nature, KayKit
+# 134 placements + 4 atmosphere records. All models CC0 (Kenney Graveyard/Nature, KayKit
 # Dungeon Remastered/Halloween Bits) or in-house procgen. See
 # assets/world/MANIFEST.md.
 # ============================================================================
@@ -17,6 +17,16 @@ zone shattered_court -60 0 -60 60 0 60 70
 zone cavern_mouth 80 0 -60 200 0 60 65
 zone ashen_grove -200 0 -60 -80 0 60 55
 zone ember_shrine -60 0 80 60 0 200 75
+
+# --- wave 32: atmosphere (lighting/mood data for the UE5 binding) ---
+# shattered_court: open violet-black night, stars burning through the ruin-haze
+atmosphere shattered_court fog=#0a0618,0.45 ambient=#241a3a,0.35 sky=#050214 stars=0.9
+# cavern_mouth: the rock swallows the sky — near-black, choking fog, no stars
+atmosphere cavern_mouth fog=#030208,0.85 ambient=#0d0a18,0.18 sky=#01010a stars=0.0
+# ashen_grove: grey-violet ash-haze, dim drowned stars
+atmosphere ashen_grove fog=#14101f,0.6 ambient=#1c1626,0.28 sky=#070512 stars=0.4
+# ember_shrine: ember-light bleeds into the dark — warm fog, pulsing gloom
+atmosphere ember_shrine fog=#170a08,0.55 ambient=#3a1a0e,0.45 sky=#0a0408 stars=0.5
 
 # --- shattered_court: the ruined heart ---
 place assets/world/props/grave-obelisk.glb 0 0 0 0 1.6 shattered_court
@@ -59,6 +69,22 @@ place assets/world/props/tree-dark-cone.glb 192 0 -45 0 1.0 cavern_mouth
 place assets/world/props/tree-dark-tall.glb 105 0 52 0 1.2 cavern_mouth
 place assets/world/props/dead-trunk.glb 175 0 50 60 1.0 cavern_mouth
 place assets/world/props/bone-pile.glb 145 0 0 0 0.8 cavern_mouth
+
+# --- wave 32: cave vertical dressing (in-house procgen) ---
+place assets/world/props/stalactite-cluster.glb 130 8 -30 0 1.2 cavern_mouth
+place assets/world/props/stalactite-cluster.glb 160 9 -5 120 1.0 cavern_mouth
+place assets/world/props/stalactite-cluster.glb 145 8 25 240 1.4 cavern_mouth
+place assets/world/props/stalagmite-cluster.glb 125 0 -15 0 1.1 cavern_mouth
+place assets/world/props/stalagmite-cluster.glb 168 0 10 90 0.9 cavern_mouth
+place assets/world/props/stalagmite-cluster.glb 148 0 38 180 1.3 cavern_mouth
+place assets/world/props/dark-crystal-cluster.glb 115 0 -40 0 1.0 cavern_mouth
+place assets/world/props/dark-crystal-cluster.glb 180 0 20 150 1.2 cavern_mouth
+place assets/world/props/dark-crystal-cluster.glb -20 0 120 0 1.1 ember_shrine
+place assets/world/props/dark-crystal-cluster.glb 30 0 160 90 0.9 ember_shrine
+place assets/world/props/hanging-chain.glb 138 9 52 0 1.0 cavern_mouth
+place assets/world/props/hanging-chain.glb 142 9 56 90 1.0 cavern_mouth
+place assets/world/props/hanging-chain.glb -30 0 20 0 1.2 shattered_court
+place assets/world/props/hanging-chain.glb 20 0 -40 180 1.0 shattered_court
 
 # --- ashen_grove: the dead forest ---
 place assets/world/props/tree-dead-bare.glb -120 0 0 0 1.2 ashen_grove

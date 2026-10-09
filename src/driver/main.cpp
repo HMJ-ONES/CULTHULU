@@ -416,13 +416,15 @@ struct BetaGame {
         // Wave 4: exertion decay, derived stats, loyalty drift, tensions.
         exertion.update(1.0);
         // Wave 4: ambient sorcerer conversion rituals.
+        // Wave 32: type() + static_cast instead of dynamic_cast — the
+        // per-tick RTTI walk was pure overhead (type_ is a plain enum).
         std::vector<Sorcerer*> sorcs;
         std::vector<Civilian*> civs;
         for (const auto& e : world) {
-            if (auto* s = dynamic_cast<Sorcerer*>(e.get()))
-                sorcs.push_back(s);
-            if (auto* c = dynamic_cast<Civilian*>(e.get()))
-                civs.push_back(c);
+            if (e->type() == EntityType::Sorcerer)
+                sorcs.push_back(static_cast<Sorcerer*>(e.get()));
+            else if (e->type() == EntityType::Civilian)
+                civs.push_back(static_cast<Civilian*>(e.get()));
         }
         for (const auto& c : freeroam.civilians()) civs.push_back(c.get());
         rituals.setSorcerers(sorcs);
