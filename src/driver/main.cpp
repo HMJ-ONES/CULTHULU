@@ -29,6 +29,7 @@
 #include "dreams/DreamSystem.h"
 #include "driver/ParseUtil.h"
 #include "beliefs/InteractionMatrix.h"
+#include "breeding/BreedingSystem.h"
 #include "combat/KitCaster.h"
 #include "discovery/DiscoveryCodex.h"
 #include "discovery/RelicNames.h"
@@ -67,6 +68,18 @@ namespace {
 float dist(Vec3 a, Vec3 b) {
     const float dx = a.x - b.x, dz = a.z - b.z;
     return std::sqrt(dx * dx + dz * dz);
+}
+
+// Wave 29: killing-blow flavor — text-driver game feel.
+const char* killFlavor(RNG& rng) {
+    static const char* lines[] = {
+        "— unmade.", "— scattered to the winds.", "— undone.",
+        "— returned to the dark.", "— utterly unraveled.",
+        "— a red mist, then silence.",
+    };
+    return lines[static_cast<size_t>(
+        rng.intRange(0, static_cast<int>(sizeof(lines) / sizeof(lines[0])) -
+                     1))];
 }
 
 Belief beliefByName(const std::string& n) {
@@ -172,6 +185,9 @@ struct BetaGame {
     // ExertionSystem). Must come after bus/beliefs/power/cult/rng.
     ExertionSystem exertion{bus, beliefs, power, cult, rng};
     RitualCaster rituals{bus, rng, beliefs, exertion, 45.0};
+    // Wave 29: breeding is playable now — the Breeding belief's core
+    // mechanic, wired to exertion skill and christened births.
+    BreedingSystem breeding{bus, rng};
     ActiveEffects fx;
     AssetManager assets;
     AnimationStateMachine avatarAnim;
@@ -255,6 +271,22 @@ struct BetaGame {
             if (e.amount >= 5.0f)
                 std::cout << "[dread] insurrection risk stirs (+"
                           << static_cast<int>(e.amount) << ")\n";
+        });
+        // Wave 29: births are announced — named, or feral and rampaging.
+        bus.subscribe(EventType::MonstrosityBred, [](const GameEvent& e) {
+            std::cout << "[breeding] " << (e.tag.empty() ? "a monstrosity"
+                                                        : e.tag)
+                      << " is born\n";
+        });
+        bus.subscribe(EventType::FeralRampage, [](const GameEvent& e) {
+            std::cout << "[breeding] IT IS FERAL — it turns on the cult!\n";
+            (void)e;
+        });
+        // Wave 29: lunacy is visible fuel — every act feeds Chaos exertion,
+        // so the player sees madness as a weapon, not just a tax.
+        bus.subscribe(EventType::LunaticActed, [](const GameEvent& e) {
+            std::cout << "[chaos] a lunatic " << e.tag
+                      << " — madness feeds the storm (+Chaos exertion)\n";
         });
         bus.subscribe(EventType::DreamWhisper, [](const GameEvent& e) {
             std::cout << "[dream] a distant civilian stirs in their sleep "
@@ -380,6 +412,10 @@ struct BetaGame {
         rituals.setSorcerers(sorcs);
         rituals.setCivilians(civs);
         rituals.update(1.0);
+        // Wave 29: breeding follows the belief; skill follows exertion.
+        breeding.setBreedingActive(beliefs.isActive(Belief::Breeding));
+        breeding.setBreedingSkill(exertion.exertion(Belief::Breeding) /
+                                  100.0f);
         // Wave 5b: directive follow-through operations tick here; their
         // events feed the exertion/power pipeline like any other events.
         executor.update(1.0);
@@ -648,6 +684,8 @@ struct BetaGame {
             "  belief <name> [replace <old>]       adopt a belief\n"
             "  beliefs                             list active beliefs\n"
             "  rest <i>                            toggle rest for cultist i\n"
+            "  rest <all|wake>                     rest/wake the whole cult\n"
+            "  breed <sp> <sp> [name]              breed a monstrosity (Breeding)\n"
             "  command <raid|war|convert|sacrifice|defend|relic|dream|rebuild>\n"
             "  attack                              melee the nearest target\n"
             "  tick <n>                            advance n game-seconds\n"
@@ -1217,8 +1255,53 @@ static bool processLine(BetaGame& g, NetSession& nets,
             return true;
         }
 
-        if (cmd == "command") {
-            std::string what; in >> what;
+        // Wave 29: breeding is playable — cross two species, name the birth.
+        if (cmd == "breed") {
+            auto parseSpecies = [](const std::string& s) {
+                if (s == "human") return Species::Human;
+                if (s == "deepone" || s == "deep_one" || s == "deep-one")
+                    return Species::DeepOne;
+                if (s == "ghoul") return Species::Ghoul;
+                if (s == "beast") return Species::Beast;
+                if (s == "horror") return Species::Horror;
+                return Species::Count;
+            };
+            std::string sa, sb;
+            in >> sa >> sb;
+            std::string name;
+            std::getline(in, name);
+            name.erase(0, name.find_first_not_of(" \t"));
+            Species a = parseSpecies(sa), b = parseSpecies(sb);
+            if (a == Species::Count || b == Species::Count) {
+                std::cout << "usage: breed <human|deepone|ghoul|beast|horror> "
+                             "<species> [name]\n";
+                return true;
+            }
+            if (!g.breeding.breedingActive()) {
+                std::cout << "the Breeding belief sleeps — adopt it first "
+                             "(belief breeding)\n";
+                return true;
+            }
+            if (!BreedingSystem::compatible(a, b)) {
+                std::cout << "those bloodlines refuse to mingle\n";
+                return true;
+            }
+            Vec3 pos{g.avatar.position().x + 4.0f, 0.0f,
+                     g.avatar.position().z};
+            auto m = g.breeding.breed(a, b, FACTION_CTHULHU, pos, name);
+            if (m) {
+                std::cout << (m->feral() ? "feral! " : "")
+                          << "feral chance was "
+                          << static_cast<int>(
+                                 g.breeding.effectiveFeralChance() * 100.0f)
+                          << "%\n";
+                g.world.push_back(std::move(m));
+            }
+            g.tickSecond();
+            return true;
+        }
+
+        if (cmd == "command") {            std::string what; in >> what;
             DirectiveType d = directiveByName(what);
             if (d == DirectiveType::Count) {
                 std::cout << "usage: command "
@@ -1258,7 +1341,9 @@ static bool processLine(BetaGame& g, NetSession& nets,
                                     EventType::CivilianSlain,
                                     g.exertion.stats().combatPowerMult);
             std::cout << "struck for " << dmg << " (target hp " << t->hp()
-                      << ")\n";
+                      << ")";
+            if (!t->alive()) std::cout << " " << killFlavor(g.rng);
+            std::cout << "\n";
             g.tickSecond();
             return true;
         }
@@ -1333,7 +1418,12 @@ static bool processLine(BetaGame& g, NetSession& nets,
                                   << g.avatar.position().x << ", "
                                   << g.avatar.position().z << ")\n";
                     }
-                    if (t) std::cout << "target hp " << t->hp() << "\n";
+                    if (t) {
+                        std::cout << "target hp " << t->hp();
+                        if (!t->alive())
+                            std::cout << " " << killFlavor(g.rng);
+                        std::cout << "\n";
+                    }
                 }
                 g.tickSecond();
                 return true;

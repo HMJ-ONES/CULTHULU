@@ -33,16 +33,22 @@ bool BreedingSystem::compatible(Species a, Species b) {
 }
 
 std::unique_ptr<Monstrosity> BreedingSystem::breed(Species a, Species b,
-                                                  FactionId faction, Vec3 pos) {
+                                                  FactionId faction, Vec3 pos,
+                                                  const std::string& name) {
     if (!active_ || !compatible(a, b)) return nullptr;
 
-    bool feral = rng_.chance(feralChance_);
-    std::string name = std::string(speciesName(a)) + "-" + speciesName(b) + " hybrid";
-    auto m = std::make_unique<Monstrosity>(faction, pos, name, feral);
+    // Wave 29: skill mitigates the feral chance; every birth can be named.
+    bool feral = rng_.chance(effectiveFeralChance());
+    std::string finalName =
+        name.empty()
+            ? std::string(speciesName(a)) + "-" + speciesName(b) + " hybrid"
+            : name;
+    auto m = std::make_unique<Monstrosity>(faction, pos, finalName, feral);
 
     GameEvent bred(EventType::MonstrosityBred);
     bred.sourceId = m->id();
     bred.faction = faction;
+    bred.tag = finalName;
     bus_.publish(bred);
 
     if (feral) {
