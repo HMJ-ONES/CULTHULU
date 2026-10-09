@@ -21,6 +21,12 @@ struct Vec3 {
 
     float length() const { return std::sqrt(x * x + y * y + z * z); }
     float distance(const Vec3& o) const { return (*this - o).length(); }
+    // Wave 32: squared distance for radius comparisons — skips the sqrt
+    // in hot proximity loops (MOBA targeting, civilian threat scans).
+    float distanceSq(const Vec3& o) const {
+        const Vec3 d = *this - o;
+        return d.x * d.x + d.y * d.y + d.z * d.z;
+    }
 
     Vec3 normalized() const {
         float l = length();

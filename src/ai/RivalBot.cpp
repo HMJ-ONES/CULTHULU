@@ -4,16 +4,17 @@
 namespace cultulhu {
 
 Entity* RivalBot::nearestEnemy(const Context& ctx) const {
+    // Wave 32: squared distances — no sqrt per check.
     Entity* best = nullptr;
-    float bestD = SIGHT_RANGE;
+    float bestDSq = SIGHT_RANGE * SIGHT_RANGE;
     if (ctx.avatar && ctx.avatar->alive()) {
-        float d = position().distance(ctx.avatar->position());
-        if (d < bestD) { bestD = d; best = ctx.avatar; }
+        float dSq = position().distanceSq(ctx.avatar->position());
+        if (dSq < bestDSq) { bestDSq = dSq; best = ctx.avatar; }
     }
     for (Entity* c : ctx.creatures) {
         if (!c || !c->alive()) continue;
-        float d = position().distance(c->position());
-        if (d < bestD) { bestD = d; best = c; }
+        float dSq = position().distanceSq(c->position());
+        if (dSq < bestDSq) { bestDSq = dSq; best = c; }
     }
     return best;
 }

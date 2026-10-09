@@ -339,22 +339,23 @@ void MobaDefense::update(double dt) {
     }
 
     // Towers shoot the nearest enemy in range — minions and players alike.
+    // Wave 32: squared distances (no sqrt per check).
     for (size_t ti = 0; ti < towers_.size(); ++ti) {
         auto& t = towers_[ti];
         if (!t.alive()) continue;
         uint64_t towerId = kTowerIdBase + ti;
         Minion* bestMinion = nullptr;
         const PlayerTarget* bestPlayer = nullptr;
-        float bestD = t.range;
+        float bestDSq = t.range * t.range;
         for (auto& m : minions_) {
             if (m.team == t.team || m.hp <= 0) continue;
-            float d = t.pos.distance(m.pos);
-            if (d < bestD) { bestD = d; bestMinion = &m; bestPlayer = nullptr; }
+            float dSq = t.pos.distanceSq(m.pos);
+            if (dSq < bestDSq) { bestDSq = dSq; bestMinion = &m; bestPlayer = nullptr; }
         }
         for (const auto& p : playerTargets_) {
             if (p.team == t.team || !p.alive) continue;
-            float d = t.pos.distance(p.pos);
-            if (d < bestD) { bestD = d; bestMinion = nullptr; bestPlayer = &p; }
+            float dSq = t.pos.distanceSq(p.pos);
+            if (dSq < bestDSq) { bestDSq = dSq; bestMinion = nullptr; bestPlayer = &p; }
         }
         float dmg = t.dps * fdt;
         if (bestMinion) bestMinion->hp -= dmg;
@@ -364,23 +365,33 @@ void MobaDefense::update(double dt) {
 
     // Minions: fight nearest enemy in range (minions, players, towers),
     // else march; hit structures at lane end.
+    // Wave 32: squared distances (no sqrt per check). Strictly
+    // behavior-preserving — the same targeting decisions, faster.
     for (auto it = minions_.begin(); it != minions_.end();) {
         Minion& m = *it;
 
         // Nearest enemy minion in range.
         Minion* foe = nullptr;
         const PlayerTarget* foePlayer = nullptr;
-        float bestD = m.range;
+        float bestDSq = m.range * m.range;
         for (auto& o : minions_) {
             if (o.team == m.team || o.hp <= 0) continue;
-            float d = m.pos.distance(o.pos);
-            if (d < bestD) { bestD = d; foe = &o; foePlayer = nullptr; }
+            const float dSq = m.pos.distanceSq(o.pos);
+            if (dSq < bestDSq) {
+                bestDSq = dSq;
+                foe = &o;
+                foePlayer = nullptr;
+            }
         }
         // Players are fair game too.
         for (const auto& p : playerTargets_) {
             if (p.team == m.team || !p.alive) continue;
-            float d = m.pos.distance(p.pos);
-            if (d < bestD) { bestD = d; foe = nullptr; foePlayer = &p; }
+            const float dSq = m.pos.distanceSq(p.pos);
+            if (dSq < bestDSq) {
+                bestDSq = dSq;
+                foe = nullptr;
+                foePlayer = &p;
+            }
         }
         if (foe) {
             foe->hp -= m.dps * fdt;
@@ -389,11 +400,11 @@ void MobaDefense::update(double dt) {
         } else {
             // Nearest enemy tower in range.
             Tower* tower = nullptr;
-            bestD = m.range;
+            bestDSq = m.range * m.range;
             for (auto& t : towers_) {
                 if (t.team == m.team || !t.alive()) continue;
-                float d = m.pos.distance(t.pos);
-                if (d < bestD) { bestD = d; tower = &t; }
+                const float dSq = m.pos.distanceSq(t.pos);
+                if (dSq < bestDSq) { bestDSq = dSq; tower = &t; }
             }
             if (tower) {
                 tower->hp -= m.dps * fdt;

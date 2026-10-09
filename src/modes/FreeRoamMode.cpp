@@ -85,22 +85,23 @@ void FreeRoamMode::updateCivilians(double dt) {
     for (auto& c : civilians_) {
         if (!c->alive()) continue;
         // Nearest threat: the player's avatar or a rival bot.
+        // Wave 32: squared-distance comparisons — no sqrt per check.
         Vec3 threatPos{0, 0, 0};
         bool hasThreat = false;
-        float bestD = 12.0f;
+        float bestDSq = 12.0f * 12.0f;
         if (avatar_ && avatar_->alive()) {
-            float d = c->position().distance(avatar_->position());
-            if (d < bestD) {
-                bestD = d;
+            float dSq = c->position().distanceSq(avatar_->position());
+            if (dSq < bestDSq) {
+                bestDSq = dSq;
                 threatPos = avatar_->position();
                 hasThreat = true;
             }
         }
         for (const auto& b : bots_) {
             if (!b->alive()) continue;
-            float d = c->position().distance(b->position());
-            if (d < bestD) {
-                bestD = d;
+            float dSq = c->position().distanceSq(b->position());
+            if (dSq < bestDSq) {
+                bestDSq = dSq;
                 threatPos = b->position();
                 hasThreat = true;
             }
