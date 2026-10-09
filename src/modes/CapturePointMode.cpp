@@ -9,6 +9,12 @@ void CapturePointMode::addPoint(Vec3 pos, float radius) {
     points_.push_back(p);
 }
 
+void CapturePointMode::setupDefaultPoints() {
+    addPoint(Vec3(0, 0, 0), 10.0f);      // shattered_court
+    addPoint(Vec3(140, 0, 0), 10.0f);    // cavern_mouth
+    addPoint(Vec3(0, 0, 140), 10.0f);    // ember_shrine
+}
+
 void CapturePointMode::setOccupants(size_t pointIdx, int team0, int team1) {
     Point& p = points_.at(pointIdx);
     p.occupants[0] = team0;
@@ -16,7 +22,9 @@ void CapturePointMode::setOccupants(size_t pointIdx, int team0, int team1) {
 }
 
 void CapturePointMode::update(double dt) {
-    noteMatchTick("capture");
+    // noteMatchTick runs LAST: isOver()/winner() must see this tick's
+    // state (a time-limit expiry inside this update still ends the match).
+    elapsed_ += dt;
     size_t pointIdx = 0;
     for (auto& p : points_) {
         int net = p.occupants[0] - p.occupants[1];
@@ -63,15 +71,22 @@ void CapturePointMode::update(double dt) {
         for (const auto& p : points_)
             if (p.owner == 0 || p.owner == 1) score_[p.owner] += 1.0f;
     }
+    noteMatchTick("capture");
 }
 
 bool CapturePointMode::isOver() const {
-    return score_[0] >= TARGET_SCORE || score_[1] >= TARGET_SCORE;
+    return score_[0] >= TARGET_SCORE || score_[1] >= TARGET_SCORE ||
+           elapsed_ >= TIME_LIMIT;
 }
 
 int CapturePointMode::winner() const {
     if (score_[0] >= TARGET_SCORE) return 0;
     if (score_[1] >= TARGET_SCORE) return 1;
+    if (elapsed_ >= TIME_LIMIT) {
+        if (score_[0] > score_[1]) return 0;
+        if (score_[1] > score_[0]) return 1;
+        return -1; // draw
+    }
     return -1;
 }
 

@@ -72,6 +72,15 @@ public:
 
     // Broadcasts snapshots at kSnapshotHz; collects client inputs.
     // Call often (every driver tick). Dead clients are dropped.
+    //
+    // Wave 21 hook note: when a 5v5 match is active the host should ALSO
+    // broadcast a MsgType::ModeState packet at ~1 Hz (mode tag, scores,
+    // point owners / tower HPs — see Match::modeStateMessage() in
+    // modes/Match.h and encodeModeState/decodeModeState in
+    // net/Protocol.h). The natural home is a ModeStateProvider alongside
+    // the existing KdaProvider, broadcast inside this poll() next to the
+    // KDA block. Deliberately not rewired yet: NetHost internals are
+    // untouched; the driver host can send the message manually for now.
     void poll(double nowSeconds, SnapshotProvider provide);
 
     // Latest input per client index (matches takeClientSockets() order).

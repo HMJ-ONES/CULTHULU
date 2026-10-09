@@ -23,6 +23,9 @@
 //   Disconnect   *->*  {id, reason}
 //   PlayerKda    H->C  {n, e0, e1, ...}           ~1 Hz KDA standings;
 //                                   each eK = "playerIdx,kills,deaths,assists,name"
+//   ModeState    H->C  {mode, ...}                ~1 Hz match mode state;
+//                                   capture: scores + per-point owner/progress
+//                                   moba: base HPs + tower HPs + minion count
 
 #include <cstdint>
 #include <map>
@@ -46,6 +49,7 @@ enum class MsgType : uint8_t {
     HostSnapshot = 7,
     Disconnect = 8,
     PlayerKda = 9,
+    ModeState = 10,
 };
 
 constexpr int kProtocolVersion = 1;
@@ -91,6 +95,26 @@ struct KdaEntry {
 // Host -> clients standings broadcast.
 Message encodePlayerKda(const std::vector<KdaEntry>& entries);
 bool decodePlayerKda(const Message& m, std::vector<KdaEntry>& out);
+
+// Host -> clients match mode state (wave 21). Compact view of the active
+// 5v5 mode for clients: mode tag ("capture"/"moba"), scores, and
+// mode-specific details. The host's NetHost::poll should broadcast one at
+// ~1 Hz whenever a match is active (see Netcode.h hook note).
+struct ModeState {
+    std::string mode = "none"; // "capture" | "moba" | "none"
+    // Capture: scores; per-point owner (-1 neutral) + capture progress.
+    float score0 = 0.0f, score1 = 0.0f;
+    std::vector<int> pointOwners;
+    std::vector<float> pointProg0, pointProg1;
+    // MOBA: base HPs, flat tower HP list (team 0/1 x lane x idx), live
+    // minion count.
+    float baseHp0 = 0.0f, baseHp1 = 0.0f;
+    std::vector<float> towerHps;
+    int minionCount = 0;
+};
+
+Message encodeModeState(const ModeState& s);
+bool decodeModeState(const Message& m, ModeState& out);
 
 } // namespace net
 } // namespace cultulhu

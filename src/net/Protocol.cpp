@@ -177,5 +177,63 @@ bool decodePlayerKda(const Message& m, std::vector<KdaEntry>& out) {
     return true;
 }
 
+Message encodeModeState(const ModeState& s) {
+    Message m;
+    m.type = MsgType::ModeState;
+    m.fields["mode"] = s.mode;
+    m.fields["s0"] = std::to_string(s.score0);
+    m.fields["s1"] = std::to_string(s.score1);
+    m.fields["np"] = std::to_string(s.pointOwners.size());
+    for (size_t i = 0; i < s.pointOwners.size(); ++i) {
+        m.fields["p" + std::to_string(i)] =
+            std::to_string(s.pointOwners[i]) + "," +
+            std::to_string(i < s.pointProg0.size() ? s.pointProg0[i] : 0.0f) + "," +
+            std::to_string(i < s.pointProg1.size() ? s.pointProg1[i] : 0.0f);
+    }
+    m.fields["b0"] = std::to_string(s.baseHp0);
+    m.fields["b1"] = std::to_string(s.baseHp1);
+    m.fields["nt"] = std::to_string(s.towerHps.size());
+    for (size_t i = 0; i < s.towerHps.size(); ++i)
+        m.fields["t" + std::to_string(i)] = std::to_string(s.towerHps[i]);
+    m.fields["nm"] = std::to_string(s.minionCount);
+    return m;
+}
+
+bool decodeModeState(const Message& m, ModeState& out) {
+    if (m.type != MsgType::ModeState) return false;
+    out.mode = fieldStr(m, "mode", "none");
+    out.score0 = fieldFloat(m, "s0", 0.0f);
+    out.score1 = fieldFloat(m, "s1", 0.0f);
+    out.pointOwners.clear();
+    out.pointProg0.clear();
+    out.pointProg1.clear();
+    int np = fieldInt(m, "np", 0);
+    for (int i = 0; i < np; ++i) {
+        const std::string s = fieldStr(m, "p" + std::to_string(i));
+        int owner = -1;
+        float g0 = 0.0f, g1 = 0.0f;
+        try {
+            size_t c1 = s.find(',');
+            size_t c2 = s.find(',', c1 + 1);
+            owner = std::stoi(s.substr(0, c1));
+            g0 = std::stof(s.substr(c1 + 1, c2 - c1 - 1));
+            g1 = std::stof(s.substr(c2 + 1));
+        } catch (...) {
+            continue;
+        }
+        out.pointOwners.push_back(owner);
+        out.pointProg0.push_back(g0);
+        out.pointProg1.push_back(g1);
+    }
+    out.baseHp0 = fieldFloat(m, "b0", 0.0f);
+    out.baseHp1 = fieldFloat(m, "b1", 0.0f);
+    out.towerHps.clear();
+    int nt = fieldInt(m, "nt", 0);
+    for (int i = 0; i < nt; ++i)
+        out.towerHps.push_back(fieldFloat(m, "t" + std::to_string(i), 0.0f));
+    out.minionCount = fieldInt(m, "nm", 0);
+    return true;
+}
+
 } // namespace net
 } // namespace cultulhu
