@@ -56,75 +56,86 @@ static int countKind(const MobaDefense& m, const std::string& kind) {
 }
 
 int main() {
-    // ---------- capture: default points ----------
+    // ---------- capture: onslaught default point ----------
     {
         EventBus bus; GameClock clock;
         CapturePointMode mode(bus, clock);
-        mode.setupDefaultPoints();
-        CHECK(mode.pointCount() == 3);
+        mode.setupOnslaughtPoint();
+        CHECK(mode.pointCount() == 1);
         CHECK(std::fabs(mode.pointPos(0).x - 0.0f) < 0.01f);
-        CHECK(std::fabs(mode.pointPos(1).x - 140.0f) < 0.01f);
-        CHECK(std::fabs(mode.pointPos(2).z - 140.0f) < 0.01f);
-        for (int i = 0; i < 3; ++i)
-            CHECK(std::fabs(mode.pointRadius(i) - 10.0f) < 0.01f);
+        CHECK(std::fabs(mode.pointPos(0).z - 0.0f) < 0.01f);
+        CHECK(std::fabs(mode.pointRadius(0) - CapturePointMode::POINT_RADIUS) < 0.01f);
+        CHECK(mode.holder() == -1);
     }
-    // ---------- capture: majority fills, contested pauses ----------
+    // ---------- capture: holding banks, contest pauses, empty idles ----
     {
         EventBus bus; GameClock clock;
         CapturePointMode mode(bus, clock);
         mode.addPoint(Vec3{0, 0, 0});
-        mode.setOccupants(0, 2, 1);
-        mode.update(1.0);
-        CHECK(mode.pointProgress(0, 0) > 0.0f);   // net +1 majority fills
-        CHECK(mode.pointProgress(0, 1) == 0.0f);
+        mode.setOccupants(0, 2, 0);
+        mode.update(10.0);
+        CHECK(mode.holder() == 0);
+        CHECK(std::fabs(mode.score(0) - 10.0f) < 0.01f); // 1 pt/s uncontested
+        float s = mode.score(0);
         mode.setOccupants(0, 1, 1);
-        mode.update(1.0);
-        CHECK(mode.pointProgress(0, 0) == 0.0f);  // contested: paused/reset
-        CHECK(mode.pointProgress(0, 1) == 0.0f);
+        mode.update(10.0);
+        CHECK(mode.holder() == -1);              // contested: nobody banks
+        CHECK(mode.contested());
+        CHECK(mode.score(0) == s);
+        mode.setOccupants(0, 0, 0);
+        mode.update(10.0);
+        CHECK(mode.holder() == -1);
+        CHECK(!mode.contested());
+        CHECK(mode.score(0) == s);                // empty: still nothing
     }
-    // ---------- capture: flip publishes PointCaptured w/ faction ----------
+    // ---------- capture: kills score for the killer's team -------------
+    {
+        EventBus bus; GameClock clock;
+        CapturePointMode mode(bus, clock);
+        mode.addPoint(Vec3{0, 0, 0});
+        mode.notePlayerKill(0);
+        mode.notePlayerKill(0);
+        mode.notePlayerKill(1);
+        CHECK(std::fabs(mode.score(0) - 2.0f * CapturePointMode::KILL_POINTS) < 0.01f);
+        CHECK(std::fabs(mode.score(1) - CapturePointMode::KILL_POINTS) < 0.01f);
+        mode.notePlayerKill(7); // invalid team ignored
+        CHECK(std::fabs(mode.score(0) - 2.0f * CapturePointMode::KILL_POINTS) < 0.01f);
+    }
+    // ---------- capture: seizing publishes PointCaptured ---------------
     {
         EventBus bus; GameClock clock;
         Recorder r; r.attach(bus, EventType::PointCaptured);
         CapturePointMode mode(bus, clock);
         mode.addPoint(Vec3{0, 0, 0});
         mode.setOccupants(0, 3, 0);
-        mode.update(2.0); // 0.25 * 2s * net3 = 1.5 >= 1
-        CHECK(mode.pointOwner(0) == 0);
+        mode.update(1.0);
+        CHECK(mode.holder() == 0);
         CHECK(r.count(EventType::PointCaptured) == 1);
         CHECK(r.events[0].faction == 0);
         CHECK(r.events[0].targetId == 0);
-        // Re-flip to team 1.
+        // Enemy steps in: contested, no new event, nobody holds.
+        mode.setOccupants(0, 3, 1);
+        mode.update(1.0);
+        CHECK(mode.holder() == -1);
+        CHECK(r.count(EventType::PointCaptured) == 1);
+        // Team 1 drives team 0 off and seizes it.
         mode.setOccupants(0, 0, 3);
-        mode.update(2.0);
-        CHECK(mode.pointOwner(0) == 1);
+        mode.update(1.0);
+        CHECK(mode.holder() == 1);
         CHECK(r.count(EventType::PointCaptured) == 2);
         CHECK(r.events[1].faction == 1);
     }
-    // ---------- capture: scoring ticks ----------
-    {
-        EventBus bus; GameClock clock;
-        CapturePointMode mode(bus, clock);
-        mode.addPoint(Vec3{0, 0, 0});
-        mode.setOccupants(0, 3, 0);
-        mode.update(2.0); // flips to team 0, scoring tick at 2.0s boundary
-        CHECK(mode.score(0) >= 1.0f); // 1 pt per owned point per tick
-        float s = mode.score(0);
-        mode.setOccupants(0, 0, 0);
-        mode.update(2.0);
-        CHECK(mode.score(0) == s + 1.0f);
-    }
-    // ---------- capture: target-score winner ----------
+    // ---------- capture: target-score winner ---------------------------
     {
         EventBus bus; GameClock clock;
         Recorder r;
         r.attach(bus, EventType::MatchStarted);
         r.attach(bus, EventType::MatchEnded);
         CapturePointMode mode(bus, clock);
-        mode.setupDefaultPoints();
-        for (int i = 0; i < 3; ++i) mode.setOccupants(i, 5, 0);
+        mode.setupOnslaughtPoint();
+        mode.setOccupants(0, 5, 0);
         int ticks = 0;
-        while (!mode.isOver() && ticks < 1000) { mode.update(2.0); ++ticks; }
+        while (!mode.isOver() && ticks < 1000) { mode.update(10.0); ++ticks; }
         CHECK(mode.isOver());
         CHECK(mode.winner() == 0);
         CHECK(mode.score(0) >= CapturePointMode::TARGET_SCORE);
@@ -134,34 +145,58 @@ int main() {
         CHECK(me && me->faction == 0); // MatchEnded carries the winner
         CHECK(me && me->tag == "capture");
     }
-    // ---------- capture: time limit draw ----------
+    // ---------- capture: time limit, higher score wins -----------------
     {
         EventBus bus; GameClock clock;
         Recorder r; r.attach(bus, EventType::MatchEnded);
         CapturePointMode mode(bus, clock);
         mode.addPoint(Vec3{0, 0, 0});
-        mode.update(CapturePointMode::TIME_LIMIT);
+        mode.setOccupants(0, 3, 0);
+        mode.update(250.0);              // team 0 banks 250 < 400
+        CHECK(!mode.isOver());
+        mode.setOccupants(0, 0, 3);
+        mode.update(100.0);              // team 1 banks 100
+        mode.setOccupants(0, 0, 0);
+        mode.update(250.0);              // elapsed hits 600 -> time limit
         CHECK(mode.isOver());
-        CHECK(mode.winner() == -1); // scoreless tie -> draw
+        CHECK(!mode.overtime());         // not tied: no overtime
+        CHECK(mode.winner() == 0);       // 250 > 100
+        CHECK(mode.score(0) < CapturePointMode::TARGET_SCORE);
         CHECK(r.count(EventType::MatchEnded) == 1);
-        CHECK(r.events[0].faction == -1);
+        CHECK(r.events[0].faction == 0);
     }
-    // ---------- capture: time limit winner (no target score) ----------
+    // ---------- capture: tie at time limit -> sudden-death overtime ----
     {
         EventBus bus; GameClock clock;
         CapturePointMode mode(bus, clock);
         mode.addPoint(Vec3{0, 0, 0});
         mode.setOccupants(0, 3, 0);
-        mode.update(400.0);              // team 0 banks 200 < 300
-        CHECK(!mode.isOver());
+        mode.update(100.0);              // 100-0
         mode.setOccupants(0, 0, 3);
-        mode.update(2.0);                // team 1 flips it
-        CHECK(mode.pointOwner(0) == 1);
+        mode.update(100.0);              // 100-100
         mode.setOccupants(0, 0, 0);
-        mode.update(200.0);              // elapsed > 600 -> time limit
+        mode.update(400.0);              // clock hits 600 tied
+        CHECK(!mode.isOver());           // overtime, not a draw
+        CHECK(mode.overtime());
+        CHECK(mode.winner() == -1);
+        mode.notePlayerKill(1);          // first blood in overtime decides
         CHECK(mode.isOver());
-        CHECK(mode.winner() == 0);       // 200 > 100
-        CHECK(mode.score(0) < CapturePointMode::TARGET_SCORE);
+        CHECK(mode.winner() == 1);
+    }
+    // ---------- capture: scoreless overtime expires as a draw ----------
+    {
+        EventBus bus; GameClock clock;
+        Recorder r; r.attach(bus, EventType::MatchEnded);
+        CapturePointMode mode(bus, clock);
+        mode.addPoint(Vec3{0, 0, 0});
+        mode.update(CapturePointMode::TIME_LIMIT); // 0-0 at the whistle
+        CHECK(mode.overtime());
+        CHECK(!mode.isOver());
+        mode.update(CapturePointMode::OVERTIME_LIMIT);
+        CHECK(mode.isOver());
+        CHECK(mode.winner() == -1);      // nobody scored: draw
+        CHECK(r.count(EventType::MatchEnded) == 1);
+        CHECK(r.events[0].faction == -1);
     }
     // ---------- moba: default map ----------
     {
@@ -306,6 +341,12 @@ int main() {
         CHECK(e.sourceId == a);          // killer is player a
         CHECK(e.targetId == b);          // victim is player b
         CHECK(e.faction == 1);           // victim's team
+        // Onslaught: the PvP kill scored for the killer's team. The killing
+        // tick also banks 1 hold point: the victim died before occupancy was
+        // fed, so the killer stood alone on the point that tick.
+        CHECK(std::fabs(m.capture()->score(0) -
+                        (CapturePointMode::KILL_POINTS + 1.0f)) < 0.01f);
+        CHECK(m.capture()->score(1) == 0.0f);
         auto rows = m.stats().rows();
         CHECK(rows.size() == 2);
         CHECK(rows[0].kills == 1 && rows[0].deaths == 0);
@@ -407,7 +448,7 @@ int main() {
         net::ModeState s;
         CHECK(net::decodeModeState(m.modeStateMessage(), s));
         CHECK(s.mode == "capture");
-        CHECK(s.pointOwners.size() == 3);
+        CHECK(s.pointOwners.size() == 1); // Onslaught: single point
         Match m2(bus, clock, rng);
         CHECK(m2.start("moba"));
         m2.botfill();

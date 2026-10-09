@@ -26,7 +26,7 @@ bool Match::start(const std::string& mode) {
     moba_ = nullptr;
     if (mode == "capture") {
         auto m = std::make_unique<CapturePointMode>(bus_, clock_);
-        m->setupDefaultPoints();
+        m->setupOnslaughtPoint();
         capture_ = m.get();
         mode_ = std::move(m);
         teamBase_[0] = Vec3(-80, 0, -80);
@@ -124,6 +124,7 @@ const Match::Player* Match::findPlayer(uint64_t id) const {
 
 void Match::update(double dt) {
     if (!mode_) return;
+    if (isOver()) return; // freeze the final state for scoreboard/status
     elapsed_ += dt;
     for (size_t i = 0; i < players_.size(); ++i) updatePlayer(players_[i], i, dt);
     if (capture_) {
@@ -165,23 +166,10 @@ bool Match::enemyInMeleeRange(const Player& p, size_t idx) const {
 }
 
 void Match::updateCaptureObjective(Player& p, double dt) {
-    // Head for the nearest point my team doesn't own.
+    // Onslaught: everyone converges on the single central point; the
+    // melee-pinning in updatePlayer handles the brawl once they arrive.
     const CapturePointMode& cm = *capture_;
-    size_t best = 0;
-    float bestD = std::numeric_limits<float>::max();
-    bool foundUnowned = false;
-    for (size_t i = 0; i < cm.pointCount(); ++i) {
-        float d = p.pos.distance(cm.pointPos(i));
-        if (cm.pointOwner(static_cast<int>(i)) == p.team) continue;
-        if (!foundUnowned || d < bestD) { foundUnowned = true; bestD = d; best = i; }
-    }
-    if (!foundUnowned) { // all ours: drift to the nearest point anyway
-        for (size_t i = 0; i < cm.pointCount(); ++i) {
-            float d = p.pos.distance(cm.pointPos(i));
-            if (d < bestD) { bestD = d; best = i; }
-        }
-    }
-    Vec3 tgt = cm.pointPos(best);
+    Vec3 tgt = cm.pointPos(0);
     Vec3 to = tgt - p.pos;
     float d = to.length();
     if (d > 1.0f) {
@@ -265,6 +253,8 @@ void Match::killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId)
         e.faction = v.team;
         e.pos = v.pos;
         bus_.publish(e);
+        // Onslaught scores player kills (MOBA's default hook ignores it).
+        if (mode_) mode_->notePlayerKill(k.team);
     } else {
         GameEvent e(EventType::PlayerKilled);
         e.sourceId = killerEntityId; // minion/tower id (not a player id)
@@ -316,11 +306,11 @@ net::Message Match::modeStateMessage() const {
         s.mode = "capture";
         s.score0 = capture_->score(0);
         s.score1 = capture_->score(1);
-        for (size_t i = 0; i < capture_->pointCount(); ++i) {
-            s.pointOwners.push_back(capture_->pointOwner(static_cast<int>(i)));
-            s.pointProg0.push_back(capture_->pointProgress(static_cast<int>(i), 0));
-            s.pointProg1.push_back(capture_->pointProgress(static_cast<int>(i), 1));
-        }
+        // Onslaught: single point; owner slot carries the current holder
+        // (-1 = open/contested), progress slots unused (no capture bar).
+        s.pointOwners.push_back(capture_->holder());
+        s.pointProg0.push_back(0.0f);
+        s.pointProg1.push_back(0.0f);
     } else if (moba_) {
         s.mode = "moba";
         s.baseHp0 = moba_->baseHp(0);
@@ -342,10 +332,17 @@ void Match::printStatus(std::ostream& os) const {
     if (capture_) {
         os << " score " << capture_->score(0) << "-" << capture_->score(1)
            << " (target " << CapturePointMode::TARGET_SCORE << ")\n";
-        for (size_t i = 0; i < capture_->pointCount(); ++i)
-            os << "  point " << i << " owner=" << capture_->pointOwner(static_cast<int>(i))
-               << " prog0=" << capture_->pointProgress(static_cast<int>(i), 0)
-               << " prog1=" << capture_->pointProgress(static_cast<int>(i), 1) << "\n";
+        os << "  point: ";
+        if (capture_->overtime())
+            os << "OVERTIME " << static_cast<int>(capture_->overtimeElapsed()) << "s";
+        else if (capture_->contested())
+            os << "contested (ticking paused)";
+        else if (capture_->holder() >= 0)
+            os << "team " << capture_->holder() << " holding";
+        else
+            os << "open";
+        os << " | t=" << static_cast<int>(capture_->elapsed()) << "s"
+           << " (limit " << static_cast<int>(CapturePointMode::TIME_LIMIT) << "s)\n";
     } else if (moba_) {
         os << " baseHP " << moba_->baseHp(0) << "/" << moba_->baseHp(1)
            << " minions=" << moba_->minionCount() << "\n";

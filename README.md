@@ -92,8 +92,8 @@ logic is unaffected.
 - `src/power/` — `PowerSystem`: Cthulhu's power 0–1000, clamped
 - `src/cult/` — `CultManager`: follower roster, conversion campaigns,
   insurrection risk 0–100, revolt events at 80+
-- `src/modes/` — `GameMode` base; `CapturePointMode` (5v5, capture progress,
-  5s scoring ticks, first to 100); `MobaDefense` (lanes, minion waves,
+- `src/modes/` — `GameMode` base; `CapturePointMode` (5v5 Onslaught: single
+  point, hold ticks, kill points, first to 400); `MobaDefense` (lanes, minion waves,
   base structures, Great Old One survival); **`FreeRoamMode`** (open map,
   no objectives, civilian/creature spawn points, relic sites, day/night
   clock — never ends)
@@ -202,8 +202,10 @@ logic is unaffected.
   Death 2.0s) auto-return to Idle when unbound; locomotion/idle loop.
 - **Free roam**: 10-minute day (22:00–06:00 night); spawns every 20s up to
   30 civilians / 12 creatures; map bounds ±500m.
-- Capture-the-point: capture rate 0.25/s per net occupant; +1 score per owned
-  point every 5s; first to 100 wins.
+- Onslaught (5v5 capture): one central point; the holding team banks 1 pt/s
+  while uncontested (any enemy on the point pauses ticking); player kills
+  score 5 pts; first to 400 wins, 600s limit, tied clock -> sudden-death
+  overtime (first score wins, 120s cap).
 - MOBA: waves every 30s (3 melee + 1 ranged; every 3rd wave + siege), 2
   towers per team per lane (600 HP).
 - Conversion campaigns: ~300s game time per soul at 1.0 efficiency.

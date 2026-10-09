@@ -13,6 +13,9 @@ public:
 
     virtual void update(double dt) = 0;
     virtual bool isOver() const = 0;
+    // Match calls this for every player-vs-player kill (killerTeam 0/1).
+    // Default: modes that don't score kills ignore it.
+    virtual void notePlayerKill(int killerTeam) { (void)killerTeam; }
     // Winning team index (0/1), or -1 if no winner yet.
     virtual int winner() const { return -1; }
 

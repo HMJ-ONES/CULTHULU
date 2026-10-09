@@ -169,21 +169,26 @@ static void test_war_scaling() {
 static void test_capture_point_scoring() {
     EventBus bus; GameClock clock; RNG rng(9);
     CapturePointMode mode(bus, clock);
-    mode.addPoint(Vec3(0, 0, 0));
+    mode.setupOnslaughtPoint();
+    CHECK(mode.pointCount() == 1);
     mode.setOccupants(0, 3, 0);                 // team 0 holds the point
-    mode.update(5.0);                           // 0.25 * 5 * 3 = 3.75 -> captured
-    CHECK(mode.pointOwner(0) == 0);
-    float s0 = mode.score(0);
-    mode.update(30.0);                          // 6 scoring ticks
-    CHECK(mode.score(0) > s0);
+    mode.update(5.0);                           // 5 s uncontested -> 5 pts
+    CHECK(mode.holder() == 0);
+    CHECK_CLOSE(mode.score(0), 5.0f, 0.01f);
     CHECK(mode.score(1) == 0.0f);
     CHECK(!mode.isOver());
 
-    // Contested point: no capture progress for the other team.
-    mode.addPoint(Vec3(100, 0, 0));
-    mode.setOccupants(1, 2, 2);
+    // Contested point: an enemy presence stops the ticking.
+    mode.setOccupants(0, 2, 2);
+    float s0 = mode.score(0);
     mode.update(30.0);
-    CHECK(mode.pointOwner(1) == -1);
+    CHECK(mode.holder() == -1);
+    CHECK(mode.contested());
+    CHECK(mode.score(0) == s0);
+
+    // Player kills score for the killer's team.
+    mode.notePlayerKill(1);
+    CHECK_CLOSE(mode.score(1), CapturePointMode::KILL_POINTS, 0.01f);
 }
 
 static void test_sacrifice_ritual() {
