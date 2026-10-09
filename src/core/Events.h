@@ -213,9 +213,10 @@ enum class EventType {
     AchievementUnlocked, // tag = achievement id; the dark takes note
 
     // Wave 26: discovery codex — first-time finds in the world.
+    // Wave 31: pure journal, no power granted.
     DiscoveryMade,   // first discovery logged; tag = discovery id
-                     // ("kind:slug"); amount = power granted;
-                     // faction = 1 when found at night, else 0; pos = site
+                     // ("kind:slug"); faction = 1 when found at night,
+                     // else 0; pos = site
 
     // Wave 18: behavior-hook animation events.
     SacrificeStarted,    // a sacrifice rite begins: sourceId = performer

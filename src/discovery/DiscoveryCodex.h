@@ -1,15 +1,16 @@
 #pragma once
 
-// CULT-ULHU wave 26: the Discovery Codex — the No-Man's-Sky heart of the
-// game. The first time the avatar enters a landmark's radius, sights a new
-// species, claims a named relic, or (later) delves a new dungeon depth, the
-// codex logs it forever: name, flavor, where, when, and whether it happened
-// under starlight. Discoveries grant power (knowledge is power, literally)
-// and feed exploration achievements. Players can rename discoveries, NMS
-// style; names persist through saves.
+// CULT-ULHU wave 26 (revised wave 31): the Discovery Codex — a pure
+// exploration journal. The first time the avatar enters a landmark's
+// radius, sights a new species, or claims a named relic, the codex logs it
+// forever: a game-invented R'lyehian name, a flavor line, where, when, and
+// whether it happened under starlight. Discoveries grant no power and
+// cannot be renamed — they are simply neat things to find. The codex feeds
+// exploration achievements and persists through saves.
 //
 // The codex is feed-driven: call discover() (the driver polls landmarks,
-// species, and relics each tick) or subscribe to its DiscoveryMade event.
+// species, and relic claims each tick) or subscribe to its DiscoveryMade
+// event.
 
 #include "core/EventBus.h"
 #include "core/Events.h"
@@ -44,14 +45,13 @@ inline const char* discoveryKindName(DiscoveryKind k) {
 }
 
 struct Discovery {
-    std::string id;      // "landmark:the_shattered_court" (stable)
+    std::string id;      // "landmark:r_lyeh" (stable)
     DiscoveryKind kind = DiscoveryKind::Landmark;
-    std::string name;    // display name — player-renamable
+    std::string name;    // game-invented R'lyehian name (not player-renamable)
     std::string flavor;  // one evocative line
     Vec3 pos;
     double gameTime = 0.0;
-    bool night = false;  // discovered under starlight (richer reward)
-    bool renamed = false;
+    bool night = false;  // discovered under starlight
 };
 
 class DiscoveryCodex {
@@ -59,14 +59,12 @@ public:
     explicit DiscoveryCodex(EventBus& bus);
 
     // Log a discovery. Returns true on FIRST discovery (publishes
-    // DiscoveryMade: tag = id, amount = power granted, faction = night?1:0,
-    // pos = location). Repeats return false and change nothing.
+    // DiscoveryMade: tag = id, faction = night?1:0, pos = location).
+    // Repeats return false and change nothing. Discoveries grant no power —
+    // the log itself is the reward.
     bool discover(DiscoveryKind kind, const std::string& key,
                   const std::string& name, const std::string& flavor,
                   Vec3 pos, double gameTime, bool night);
-
-    // NMS-style renaming. Returns false for unknown ids.
-    bool rename(const std::string& id, const std::string& newName);
 
     const Discovery* find(const std::string& id) const;
     const std::vector<Discovery>& all() const { return discoveries_; }
@@ -76,8 +74,6 @@ public:
     void saveTo(GameState& s) const;
     void loadFrom(const GameState& s);
 
-    // Power granted per discovery (night discoveries pay more).
-    static float powerReward(bool night) { return night ? 25.0f : 15.0f; }
     // Stable id for a kind+key (used to check "already discovered?").
     static std::string idFor(DiscoveryKind k, const std::string& key) {
         return makeId(k, key);

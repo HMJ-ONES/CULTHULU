@@ -47,23 +47,10 @@ bool DiscoveryCodex::discover(DiscoveryKind kind, const std::string& key,
 
     GameEvent e(EventType::DiscoveryMade);
     e.tag = id;
-    e.amount = powerReward(night);
     e.faction = night ? 1 : 0;
     e.pos = pos;
     bus_.publish(e);
     return true;
-}
-
-bool DiscoveryCodex::rename(const std::string& id, const std::string& newName) {
-    if (newName.empty()) return false;
-    for (auto& d : discoveries_) {
-        if (d.id == id) {
-            d.name = newName;
-            d.renamed = true;
-            return true;
-        }
-    }
-    return false;
 }
 
 const Discovery* DiscoveryCodex::find(const std::string& id) const {
@@ -90,7 +77,6 @@ void DiscoveryCodex::saveTo(GameState& s) const {
         r.pos = d.pos;
         r.gameTime = d.gameTime;
         r.night = d.night;
-        r.renamed = d.renamed;
         s.discoveries.push_back(r);
     }
 }
@@ -108,7 +94,6 @@ void DiscoveryCodex::loadFrom(const GameState& s) {
         d.pos = r.pos;
         d.gameTime = r.gameTime;
         d.night = r.night;
-        d.renamed = r.renamed;
         discoveries_.push_back(d);
     }
 }

@@ -87,13 +87,13 @@ bool SaveSystem::save(const GameState& s, const std::string& path) {
     for (const auto& id : s.unlockedAchievements) f << "achievement=" << id << "\n";
     for (const auto& kv : s.achievementProgress)
         f << "achprogress=" << kv.first << " " << kv.second << "\n";
-    // Wave 26: discovery codex records.
+    // Wave 26: discovery codex records (wave 31: 7 fields; old 8-field
+    // lines with a trailing renamed flag still load).
     for (const auto& r : s.discoveries) {
         f << "discovery=" << escField(r.id) << "\t" << r.kind << "\t"
           << escField(r.name) << "\t" << escField(r.flavor) << "\t"
           << r.pos.x << " " << r.pos.y << " " << r.pos.z << "\t"
-          << r.gameTime << "\t" << (r.night ? 1 : 0) << "\t"
-          << (r.renamed ? 1 : 0) << "\n";
+          << r.gameTime << "\t" << (r.night ? 1 : 0) << "\n";
     }
     return static_cast<bool>(f);
 }
@@ -149,28 +149,28 @@ bool SaveSystem::load(const std::string& path, GameState& out) {
                     s.achievementProgress[name] = value;
             } else if (line.rfind("discovery=", 0) == 0) {
                 // Wave 26: codex record; malformed lines are skipped.
+                // Wave 31: 7 fields; pre-wave-31 saves had 8 (trailing
+                // renamed flag) and still load — the extra field is ignored.
                 const std::vector<std::string> p =
                     splitTab(line.substr(10));
-                if (p.size() == 8) {
+                if (p.size() == 7 || p.size() == 8) {
                     GameState::DiscoveryRec r;
                     r.id = unescField(p[0]);
                     r.name = unescField(p[2]);
                     r.flavor = unescField(p[3]);
                     std::stringstream ps(p[4]);
                     float x = 0, y = 0, z = 0;
-                    int kind = 0, night = 0, renamed = 0;
+                    int kind = 0, night = 0;
                     double t = 0;
                     if (ps >> x >> y >> z &&
                         (std::stringstream(p[1]) >> kind) &&
                         (std::stringstream(p[5]) >> t) &&
                         (std::stringstream(p[6]) >> night) &&
-                        (std::stringstream(p[7]) >> renamed) &&
                         !r.id.empty()) {
                         r.kind = kind;
                         r.pos = Vec3{x, y, z};
                         r.gameTime = t;
                         r.night = night != 0;
-                        r.renamed = renamed != 0;
                         s.discoveries.push_back(r);
                     }
                 }

@@ -32,6 +32,7 @@
 #include "breeding/BreedingSystem.h"
 #include "combat/KitCaster.h"
 #include "discovery/DiscoveryCodex.h"
+#include "discovery/LandmarkNames.h"
 #include "discovery/RelicNames.h"
 #include "entities/Structures.h"
 #include "entities/Units.h"
@@ -296,7 +297,9 @@ struct BetaGame {
             std::cout << "[city] a district lies in ruins\n";
             (void)e;
         });
-        // Wave 26: discovery banner + power reward. Knowledge is power.
+        // Wave 26: the Discovery Codex — first finds are logged forever.
+        // Wave 31: discoveries grant no power and can't be renamed; the
+        // game invents R'lyehian names for its wonders.
         bus.subscribe(EventType::DiscoveryMade, [this](const GameEvent& e) {
             const Discovery* d = codex.find(e.tag);
             const std::string name = d ? d->name : e.tag;
@@ -304,9 +307,8 @@ struct BetaGame {
             const bool night = e.faction == 1;
             std::cout << "\n  ✦ DISCOVERY — " << name << "\n";
             if (!flavor.empty()) std::cout << "    \"" << flavor << "\"\n";
-            std::cout << "    +" << e.amount << " power"
-                      << (night ? " (found under starlight)" : "") << "\n\n";
-            power.add(e.amount);
+            if (night) std::cout << "    (found under starlight)\n";
+            std::cout << "\n";
         });
     }
 
@@ -323,15 +325,29 @@ struct BetaGame {
                                generateRelicName(rng));
 
         // Wave 26: landmarks — named places worth walking toward. First
-        // visits are logged in the Discovery Codex.
-        freeroam.addLandmark("The Shattered Court", Vec3{220, 0, -140}, 18.0f,
-                             "Where the old court fell, the stones still kneel.");
-        freeroam.addLandmark("Drowned Bell Tower", Vec3{-200, 0, 180}, 18.0f,
-                             "It tolls for ships that never sailed home.");
-        freeroam.addLandmark("The Weeping Stones", Vec3{40, 0, 230}, 15.0f,
-                             "The monoliths sweat black water at dusk.");
-        freeroam.addLandmark("Hollow of Whispers", Vec3{-90, 0, -220}, 15.0f,
-                             "The wind here knows your name. Do not answer.");
+        // visits are logged in the Discovery Codex. Wave 31: the game
+        // invents R'lyehian names for them (unique per landmark).
+        {
+            const std::vector<std::pair<Vec3, std::string>> seeds = {
+                {Vec3{220, 0, -140}, "Where the old court fell, the stones still kneel."},
+                {Vec3{-200, 0, 180}, "It tolls for ships that never sailed home."},
+                {Vec3{40, 0, 230}, "The monoliths sweat black water at dusk."},
+                {Vec3{-90, 0, -220}, "The wind here knows your name. Do not answer."},
+            };
+            std::vector<std::string> used;
+            for (const auto& s : seeds) {
+                std::string name;
+                for (int tries = 0; tries < 20; ++tries) {
+                    name = generateLandmarkName(rng);
+                    bool dup = false;
+                    for (const auto& u : used)
+                        if (u == name) { dup = true; break; }
+                    if (!dup) break;
+                }
+                used.push_back(name);
+                freeroam.addLandmark(name, s.first, 18.0f, s.second);
+            }
+        }
 
         // Beta starts with Dreams and Conversion already adopted.
         beliefs.requestChange(Belief::Dreams, Belief::Count);
@@ -716,7 +732,7 @@ struct BetaGame {
             "  character <list|validate> [id]      deep package report\n"
             "  achievements [setplayer <id> [faction] [team]]\n"
             "                                          deeds & unlocks\n"
-            "  codex | codex rename <id> <name>  discovery log & renaming\n"
+            "  codex                               discovery log\n"
             "  kda                                 demo KDA tracking\n"
             "  interact                            E-interact demo\n"
             "  jump | sprint <on|off>              input state demos\n"
@@ -2161,30 +2177,14 @@ static bool processLine(BetaGame& g, NetSession& nets,
             return true;
         }
 
-        // Wave 26: the Discovery Codex.
+        // Wave 26: the Discovery Codex (wave 31: no renaming — the
+        // game's names stand).
         if (cmd == "codex") {
-            std::string sub; in >> sub;
-            if (sub == "rename") {
-                std::string id; in >> id;
-                std::string name;
-                std::getline(in, name);
-                name.erase(0, name.find_first_not_of(" \t"));
-                if (id.empty() || name.empty()) {
-                    std::cout << "usage: codex rename <id> <new name>\n";
-                    return true;
-                }
-                if (g.codex.rename(id, name))
-                    std::cout << "the codex now calls it \"" << name
-                              << "\"\n";
-                else
-                    std::cout << "no discovery with id '" << id << "'\n";
-                return true;
-            }
             const auto& all = g.codex.all();
             if (all.empty()) {
                 std::cout << "the codex is blank. Walk the world — "
                              "landmarks, beasts, and relics wait to be "
-                             "named.\n";
+                             "found.\n";
                 return true;
             }
             std::cout << "── the Discovery Codex (" << all.size()
@@ -2192,8 +2192,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
             for (const auto& d : all) {
                 std::cout << "  [" << discoveryKindName(d.kind) << "] "
                           << d.name << "  <" << d.id << ">"
-                          << (d.night ? " ✦" : "")
-                          << (d.renamed ? " (renamed)" : "") << "\n";
+                          << (d.night ? " ✦" : "") << "\n";
                 if (!d.flavor.empty())
                     std::cout << "      \"" << d.flavor << "\"\n";
             }

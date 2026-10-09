@@ -6,6 +6,7 @@
 #include "core/GameClock.h"
 #include "core/RNG.h"
 #include "discovery/DiscoveryCodex.h"
+#include "discovery/LandmarkNames.h"
 #include "discovery/RelicNames.h"
 #include "modes/FreeRoamMode.h"
 #include "save/SaveSystem.h"
@@ -55,41 +56,28 @@ static void testFirstDiscovery() {
 
     const GameEvent& e = tap.events[0];
     CHECK(e.tag == "landmark:the_shattered_court");
-    CHECK(e.amount == DiscoveryCodex::powerReward(false));
     CHECK(e.faction == 0);
     CHECK(e.pos.x == 1.0f && e.pos.z == 2.0f);
 
     const Discovery* d = codex.find("landmark:the_shattered_court");
     CHECK(d != nullptr);
     CHECK(d->name == "The Shattered Court");
-    CHECK(!d->renamed);
     CHECK(codex.find("landmark:nope") == nullptr);
 }
 
-static void testNightDiscoveryPaysMore() {
+static void testNightFlagKept() {
+    // Wave 31: discoveries grant no power — the night flag is pure flavor
+    // (and feeds the Night Pilgrim achievement).
     EventBus bus;
     EventTap tap;
     tap.attach(bus, EventType::DiscoveryMade);
     DiscoveryCodex codex{bus};
-    CHECK(DiscoveryCodex::powerReward(false) == 15.0f);
-    CHECK(DiscoveryCodex::powerReward(true) == 25.0f);
     CHECK(codex.discover(DiscoveryKind::Species, "dhole", "Dhole",
                          "All hunger, no eyes.", Vec3{}, 50.0, true));
     CHECK(tap.events.size() == 1);
     CHECK(tap.events[0].faction == 1); // night flag rides along
+    CHECK(tap.events[0].amount == 0.0f); // no power granted
     CHECK(codex.find("species:dhole")->night);
-}
-
-static void testRename() {
-    EventBus bus;
-    DiscoveryCodex codex{bus};
-    codex.discover(DiscoveryKind::Relic, "the Chalice of Embers",
-                   "the Chalice of Embers", "Warm.", Vec3{}, 10.0, false);
-    CHECK(codex.rename("relic:the_chalice_of_embers", "Bob's Cup"));
-    const Discovery* d = codex.find("relic:the_chalice_of_embers");
-    CHECK(d != nullptr && d->name == "Bob's Cup" && d->renamed);
-    CHECK(!codex.rename("relic:missing", "X"));
-    CHECK(!codex.rename("relic:the_chalice_of_embers", ""));
 }
 
 static void testCodexSaveLoad() {
@@ -97,7 +85,6 @@ static void testCodexSaveLoad() {
     DiscoveryCodex codex{bus};
     codex.discover(DiscoveryKind::Landmark, "Hollow", "Hollow of Whispers",
                    "Do not answer.", Vec3{3, 0, 4}, 77.0, true);
-    codex.rename("landmark:hollow", "My Hollow");
 
     GameState s;
     codex.saveTo(s);
@@ -108,7 +95,7 @@ static void testCodexSaveLoad() {
     CHECK(codex2.count() == 1);
     const Discovery* d = codex2.find("landmark:hollow");
     CHECK(d != nullptr);
-    CHECK(d->name == "My Hollow" && d->renamed && d->night);
+    CHECK(d->name == "Hollow of Whispers" && d->night);
     CHECK(d->flavor == "Do not answer.");
     CHECK(d->pos.x == 3.0f && d->pos.z == 4.0f);
     CHECK(d->gameTime == 77.0);
@@ -216,16 +203,45 @@ static void testDiscoveryAchievements() {
     CHECK(pr2.first == 2.0 && pr2.second == 10.0);
 }
 
+static void testLandmarkNames() {
+    // Wave 31: the game invents R'lyehian names — deterministic per seed,
+    // varied, and never empty.
+    RNG a{42}, b{42};
+    CHECK(generateLandmarkName(a) == generateLandmarkName(b));
+    std::vector<std::string> seen;
+    RNG r{1234};
+    for (int i = 0; i < 40; ++i) {
+        const std::string n = generateLandmarkName(r);
+        CHECK(!n.empty());
+        seen.push_back(n);
+    }
+    size_t uniq = 0;
+    for (size_t i = 0; i < seen.size(); ++i) {
+        bool dup = false;
+        for (size_t j = 0; j < i; ++j)
+            if (seen[j] == seen[i]) { dup = true; break; }
+        if (!dup) ++uniq;
+    }
+    CHECK(uniq > 25); // good variety across the 4 name patterns
+    // R'lyehian texture: apostrophes and hyphens appear across draws.
+    bool apos = false, hyph = false;
+    for (const auto& n : seen) {
+        if (n.find('\'') != std::string::npos) apos = true;
+        if (n.find('-') != std::string::npos) hyph = true;
+    }
+    CHECK(apos && hyph);
+}
+
 int main() {
     std::cout << "== wave26: discovery codex ==\n";
     testFirstDiscovery();
-    testNightDiscoveryPaysMore();
-    testRename();
+    testNightFlagKept();
     testCodexSaveLoad();
     testSaveFileRoundTrip();
     testRelicNames();
     testLandmarksAndRelicClaim();
     testDiscoveryAchievements();
+    testLandmarkNames();
     std::cout << checks << " checks, " << failures << " failures\n";
     return failures == 0 ? 0 : 1;
 }
