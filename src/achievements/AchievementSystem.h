@@ -66,6 +66,8 @@ public:
     static const char* kPvpKillsLifetime;
     static const char* kMatchPvpKills;
     static const char* kMatchDeaths;
+    static const char* kDiscoveries;      // wave 26: codex first-finds
+    static const char* kNightDiscoveries; // wave 26: found under starlight
 
 private:
     void onEvent(const GameEvent& e);

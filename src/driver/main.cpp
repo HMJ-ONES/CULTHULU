@@ -28,6 +28,8 @@
 #include "cult/CultManager.h"
 #include "dreams/DreamSystem.h"
 #include "driver/ParseUtil.h"
+#include "discovery/DiscoveryCodex.h"
+#include "discovery/RelicNames.h"
 #include "entities/Structures.h"
 #include "entities/Units.h"
 #include "exertion/ExertionSystem.h"
@@ -149,6 +151,9 @@ struct BetaGame {
     DreamSystem dreams{bus, rng, beliefs, cult};
     LunaticSystem lunatics{bus, rng, beliefs, cult};
     FreeRoamMode freeroam{bus, clock, rng};
+    // Wave 26: the Discovery Codex — first finds are logged forever and
+    // grant power. Knowledge is power, literally.
+    DiscoveryCodex codex{bus};
     // Wave 21: active 5v5 match (null when none). Ticked in tickSecond();
     // run it with `match capture|moba` — the free-roam world keeps ticking
     // underneath on the same clock, harmlessly.
@@ -230,6 +235,18 @@ struct BetaGame {
             std::cout << "[city] a district lies in ruins\n";
             (void)e;
         });
+        // Wave 26: discovery banner + power reward. Knowledge is power.
+        bus.subscribe(EventType::DiscoveryMade, [this](const GameEvent& e) {
+            const Discovery* d = codex.find(e.tag);
+            const std::string name = d ? d->name : e.tag;
+            const std::string flavor = d ? d->flavor : "";
+            const bool night = e.faction == 1;
+            std::cout << "\n  ✦ DISCOVERY — " << name << "\n";
+            if (!flavor.empty()) std::cout << "    \"" << flavor << "\"\n";
+            std::cout << "    +" << e.amount << " power"
+                      << (night ? " (found under starlight)" : "") << "\n\n";
+            power.add(e.amount);
+        });
     }
 
     void setupWorld() {
@@ -239,8 +256,21 @@ struct BetaGame {
         freeroam.addCivilianSpawn(Vec3{150, 0, -60});
         freeroam.addCreatureSpawn(Vec3{-120, 0, -90}, "ghoul");
         freeroam.addCreatureSpawn(Vec3{200, 0, 80}, "deep one");
-        freeroam.addRelicSpawn(Vec3{90, 0, -40}, 0.25f);
-        freeroam.addRelicSpawn(Vec3{-150, 0, 60}, 0.15f);
+        freeroam.addRelicSpawn(Vec3{90, 0, -40}, 0.25f,
+                               generateRelicName(rng));
+        freeroam.addRelicSpawn(Vec3{-150, 0, 60}, 0.15f,
+                               generateRelicName(rng));
+
+        // Wave 26: landmarks — named places worth walking toward. First
+        // visits are logged in the Discovery Codex.
+        freeroam.addLandmark("The Shattered Court", Vec3{220, 0, -140}, 18.0f,
+                             "Where the old court fell, the stones still kneel.");
+        freeroam.addLandmark("Drowned Bell Tower", Vec3{-200, 0, 180}, 18.0f,
+                             "It tolls for ships that never sailed home.");
+        freeroam.addLandmark("The Weeping Stones", Vec3{40, 0, 230}, 15.0f,
+                             "The monoliths sweat black water at dusk.");
+        freeroam.addLandmark("Hollow of Whispers", Vec3{-90, 0, -220}, 15.0f,
+                             "The wind here knows your name. Do not answer.");
 
         // Beta starts with Dreams and Conversion already adopted.
         beliefs.requestChange(Belief::Dreams, Belief::Count);
@@ -254,6 +284,44 @@ struct BetaGame {
         auto sorc = std::make_unique<Sorcerer>(FACTION_CTHULHU,
                                                Vec3{-4, 0, 3});
         world.push_back(std::move(sorc));
+    }
+
+    // Wave 26: poll the world for first-discovery moments — landmarks,
+    // new species, and relic claims. The codex dedups; repeats are free.
+    void pollDiscoveries() {
+        const Vec3 ap = avatar.position();
+        const double now = clock.now();
+        const bool night = freeroam.isNight();
+        for (const auto& lm : freeroam.landmarks()) {
+            if (ap.distance(lm.pos) <= lm.radius)
+                codex.discover(DiscoveryKind::Landmark, lm.name, lm.name,
+                               lm.flavor, lm.pos, now, night);
+        }
+        for (const auto& cr : freeroam.creatures()) {
+            if (!cr->alive()) continue;
+            if (ap.distance(cr->position()) <= 30.0f) {
+                const std::string& sp = cr->species();
+                codex.discover(DiscoveryKind::Species, sp, prettySpecies(sp),
+                               speciesFlavor(sp), cr->position(), now, night);
+            }
+        }
+        float amp = 0.0f;
+        std::string rname;
+        if (freeroam.claimRelicNear(ap, 6.0f, amp, rname)) {
+            if (rname.empty()) rname = generateRelicName(rng);
+            GameEvent e(EventType::RelicClaimed);
+            e.sourceId = avatar.id();
+            e.amount = amp;
+            e.tag = rname;
+            e.pos = ap;
+            bus.publish(e);
+            codex.discover(DiscoveryKind::Relic, rname, rname,
+                           "Claimed by the dreaming god.", ap, now, night);
+            const float blessing = 30.0f * (1.0f + amp);
+            power.add(blessing);
+            std::cout << "[relic] claimed " << rname << " (+" << blessing
+                      << " power)\n";
+        }
     }
 
     // One game-second of simulation.
@@ -288,6 +356,7 @@ struct BetaGame {
         executor.update(1.0);
         freeroam.setAvatar(&avatar); // civilian flee / rival-bot targeting
         freeroam.update(1.0);
+        pollDiscoveries(); // wave 26: landmarks, species, relic claims
         fx.tick(1.0);
         avatarAnim.update(1.0);
         animDirector.tick(1.0); // wave 18: advance tracked entity anims
@@ -440,6 +509,7 @@ struct BetaGame {
             s.entities.push_back(rec(cult.at(i)));
         for (const auto& e : world) s.entities.push_back(rec(*e));
         achievements.saveTo(s); // wave 16
+        codex.saveTo(s);          // wave 26
         return s;
     }
 
@@ -455,6 +525,7 @@ struct BetaGame {
         beliefs.restoreActive(s.activeBeliefs);
         cult.addRisk(s.insurrectionRisk - cult.insurrectionRisk());
         achievements.loadFrom(s); // wave 16
+        codex.loadFrom(s);          // wave 26
         cult.clear();
         world.clear();
         // Wave 18: the old entities are gone; drop their anim tracking
@@ -541,6 +612,7 @@ struct BetaGame {
             "  character <list|validate> [id]      deep package report\n"
             "  achievements [setplayer <id> [faction] [team]]\n"
             "                                          deeds & unlocks\n"
+            "  codex | codex rename <id> <name>  discovery log & renaming\n"
             "  kda                                 demo KDA tracking\n"
             "  interact                            E-interact demo\n"
             "  jump | sprint <on|off>              input state demos\n"
@@ -1764,6 +1836,45 @@ static bool processLine(BetaGame& g, NetSession& nets,
             }
             std::cout << unlocked << "/" << defs.size()
                       << " deeds recorded in the dark.\n";
+            return true;
+        }
+
+        // Wave 26: the Discovery Codex.
+        if (cmd == "codex") {
+            std::string sub; in >> sub;
+            if (sub == "rename") {
+                std::string id; in >> id;
+                std::string name;
+                std::getline(in, name);
+                name.erase(0, name.find_first_not_of(" \t"));
+                if (id.empty() || name.empty()) {
+                    std::cout << "usage: codex rename <id> <new name>\n";
+                    return true;
+                }
+                if (g.codex.rename(id, name))
+                    std::cout << "the codex now calls it \"" << name
+                              << "\"\n";
+                else
+                    std::cout << "no discovery with id '" << id << "'\n";
+                return true;
+            }
+            const auto& all = g.codex.all();
+            if (all.empty()) {
+                std::cout << "the codex is blank. Walk the world — "
+                             "landmarks, beasts, and relics wait to be "
+                             "named.\n";
+                return true;
+            }
+            std::cout << "── the Discovery Codex (" << all.size()
+                      << ") ──\n";
+            for (const auto& d : all) {
+                std::cout << "  [" << discoveryKindName(d.kind) << "] "
+                          << d.name << "  <" << d.id << ">"
+                          << (d.night ? " ✦" : "")
+                          << (d.renamed ? " (renamed)" : "") << "\n";
+                if (!d.flavor.empty())
+                    std::cout << "      \"" << d.flavor << "\"\n";
+            }
             return true;
         }
 

@@ -223,14 +223,20 @@ private:
 class Relic : public Entity {
 public:
     // amplifier: e.g. 0.25 => +25% power gain while held/in territory.
-    Relic(Vec3 pos, float amplifier)
+    // Wave 26: relics carry names ("the Chalice of Gnawing Shadows") so
+    // claiming one is a discovery moment, not a stat pickup.
+    Relic(Vec3 pos, float amplifier, std::string name = "")
         : Entity(EntityType::Relic, FACTION_NEUTRAL, pos, 50.0f),
-          amplifier_(amplifier) {}
+          amplifier_(amplifier),
+          name_(std::move(name)) {}
 
     float amplifier() const { return amplifier_; }
+    const std::string& name() const { return name_; }
+    void setName(std::string n) { name_ = std::move(n); }
 
 private:
     float amplifier_;
+    std::string name_;
 };
 
 class Artifact : public Entity {

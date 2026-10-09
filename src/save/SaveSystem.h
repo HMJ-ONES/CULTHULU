@@ -29,6 +29,18 @@ struct GameState {
     // Wave 16: achievements — unlocked ids + named progress counters.
     std::vector<std::string> unlockedAchievements;
     std::map<std::string, double> achievementProgress;
+    // Wave 26: discovery codex records.
+    struct DiscoveryRec {
+        std::string id;
+        int kind = 0; // DiscoveryKind as int
+        std::string name;
+        std::string flavor;
+        Vec3 pos;
+        double gameTime = 0.0;
+        bool night = false;
+        bool renamed = false;
+    };
+    std::vector<DiscoveryRec> discoveries;
 };
 
 // Simple human-readable text format (see SaveSystem.cpp header comment).

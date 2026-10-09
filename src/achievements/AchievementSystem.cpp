@@ -18,6 +18,8 @@ const char* AchievementSystem::kDholesSlain = "dholes_slain";
 const char* AchievementSystem::kPvpKillsLifetime = "pvp_kills_lifetime";
 const char* AchievementSystem::kMatchPvpKills = "match_pvp_kills";
 const char* AchievementSystem::kMatchDeaths = "match_deaths";
+const char* AchievementSystem::kDiscoveries = "discoveries";
+const char* AchievementSystem::kNightDiscoveries = "night_discoveries";
 
 namespace {
 
@@ -54,6 +56,19 @@ std::vector<AchievementDef> buildDefs() {
         {"unmaker_of_worlds", "Unmaker of Worlds",
          "Raze 5 cities. Nothing remains.",
          "cities", 5.0, false},
+        // ---- wave 26: exploration ----
+        {"first_wonder", "First Wonder",
+         "Log your first discovery in the codex.",
+         "discoveries", 1.0, false},
+        {"cartographer", "Cartographer",
+         "Log 10 discoveries in the codex.",
+         "discoveries", 10.0, false},
+        {"lorekeeper", "Lorekeeper",
+         "Log 25 discoveries in the codex.",
+         "discoveries", 25.0, false},
+        {"night_pilgrim", "Night Pilgrim",
+         "Make a discovery under starlight.",
+         "", 0.0, false},
         // ---- multiplayer ----
         {"first_blood", "First Blood",
          "Draw first blood against another player.",
@@ -110,6 +125,8 @@ AchievementSystem::AchievementSystem(EventBus& bus)
                    [this](const GameEvent& e) { onEvent(e); });
     bus_.subscribe(EventType::MatchEnded,
                    [this](const GameEvent& e) { onEvent(e); });
+    bus_.subscribe(EventType::DiscoveryMade,
+                   [this](const GameEvent& e) { onEvent(e); });
 }
 
 void AchievementSystem::setLocalPlayer(uint64_t entityId, int faction,
@@ -154,6 +171,9 @@ std::pair<double, double> AchievementSystem::progress(
     else if (id == "architect_of_desolation") cur = counter(kBuildingsDestroyed);
     else if (id == "unmaker_of_worlds") cur = counter(kCitiesDestroyed);
     else if (id == "reaper") cur = counter(kMatchPvpKills);
+    else if (id == "first_wonder" || id == "cartographer" ||
+             id == "lorekeeper")
+        cur = counter(kDiscoveries);
     if (cur > def->progressTarget) cur = def->progressTarget;
     return {cur, def->progressTarget};
 }
@@ -236,6 +256,16 @@ void AchievementSystem::onEvent(const GameEvent& e) {
     case EventType::MatchStarted:
         counters_[kMatchPvpKills] = 0.0;
         counters_[kMatchDeaths] = 0.0;
+        break;
+    case EventType::DiscoveryMade:
+        bump(kDiscoveries, 1.0);
+        if (e.faction == 1) {
+            bump(kNightDiscoveries, 1.0);
+            unlock("night_pilgrim");
+        }
+        if (counter(kDiscoveries) >= 1.0) unlock("first_wonder");
+        if (counter(kDiscoveries) >= 10.0) unlock("cartographer");
+        if (counter(kDiscoveries) >= 25.0) unlock("lorekeeper");
         break;
     case EventType::MatchEnded:
         if (localTeam_ >= 0 && e.faction == localTeam_) {

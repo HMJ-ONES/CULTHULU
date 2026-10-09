@@ -31,6 +31,37 @@ void FreeRoamMode::addRelicSpawn(Vec3 p, float amplifier) {
     relics_.push_back(std::make_unique<Relic>(clampToBounds(p), amplifier));
 }
 
+void FreeRoamMode::addRelicSpawn(Vec3 p, float amplifier, std::string name) {
+    relics_.push_back(
+        std::make_unique<Relic>(clampToBounds(p), amplifier, std::move(name)));
+}
+
+// Wave 26: landmarks — named places worth walking toward.
+void FreeRoamMode::addLandmark(std::string name, Vec3 pos, float radius,
+                               std::string flavor) {
+    Landmark lm;
+    lm.name = std::move(name);
+    lm.flavor = std::move(flavor);
+    lm.pos = clampToBounds(pos);
+    lm.radius = radius;
+    landmarks_.push_back(std::move(lm));
+}
+
+// Wave 26: claim (remove) the first live relic within radius of pos.
+bool FreeRoamMode::claimRelicNear(Vec3 pos, float radius, float& amplifierOut,
+                                  std::string& nameOut) {
+    for (auto it = relics_.begin(); it != relics_.end(); ++it) {
+        if (!(*it)->alive()) continue;
+        if ((*it)->position().distance(pos) <= radius) {
+            amplifierOut = (*it)->amplifier();
+            nameOut = (*it)->name();
+            relics_.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
 double FreeRoamMode::hourOfDay() const {
     if (dayLength_ <= 0.0) return 12.0;
     const double dayFrac =

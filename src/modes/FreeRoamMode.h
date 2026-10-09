@@ -30,6 +30,25 @@ public:
     void addCivilianSpawn(Vec3 p, float radius = 10.0f);
     void addCreatureSpawn(Vec3 p, std::string species, float radius = 10.0f);
     void addRelicSpawn(Vec3 p, float amplifier);
+    // Wave 26: named relic spawns (empty name = generated at claim time).
+    void addRelicSpawn(Vec3 p, float amplifier, std::string name);
+
+    // Wave 26: landmarks — named places worth walking toward. The driver
+    // polls them each tick and logs first visits in the DiscoveryCodex.
+    struct Landmark {
+        std::string name;
+        std::string flavor;
+        Vec3 pos;
+        float radius = 15.0f;
+    };
+    void addLandmark(std::string name, Vec3 pos, float radius,
+                     std::string flavor);
+    const std::vector<Landmark>& landmarks() const { return landmarks_; }
+
+    // Wave 26: claim (remove) the first live relic within radius of pos.
+    // Fills amplifier/name and returns true when one was claimed.
+    bool claimRelicNear(Vec3 pos, float radius, float& amplifierOut,
+                        std::string& nameOut);
 
     // Day/night clock: hourOfDay in [0,24), derived from game time.
     double hourOfDay() const;
@@ -79,6 +98,7 @@ private:
     std::vector<std::unique_ptr<Creature>> creatures_;
     std::vector<std::unique_ptr<RivalBot>> bots_;
     std::vector<std::unique_ptr<Relic>> relics_;
+    std::vector<Landmark> landmarks_; // wave 26: named places to discover
     Entity* avatar_ = nullptr; // not owned; set by the driver
 
     double dayLength_ = 600.0; // one full day = 10 game-minutes by default

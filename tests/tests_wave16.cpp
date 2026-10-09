@@ -372,7 +372,7 @@ int main() {
     {
         EventBus bus;
         AchievementSystem a(bus);
-        CHECK(a.defs().size() == 17);
+        CHECK(a.defs().size() == 21); // 17 classic + 4 wave-26 exploration
         size_t mp = 0;
         for (const auto& d : a.defs()) if (d.multiplayer) ++mp;
         CHECK(mp == 7);

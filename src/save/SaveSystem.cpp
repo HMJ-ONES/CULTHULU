@@ -11,8 +11,59 @@
 //   entity=<id> <type> <faction> <x> <y> <z> <hp> <maxHp>
 //   achievement=<id>              (wave 16: unlocked achievement)
 //   achprogress=<name> <value>    (wave 16: named progress counter)
+//   discovery=<tab-separated fields, wave 26: codex record; text fields use
+//             backslash escapes for tab/newline/backslash>
 
 namespace cultulhu {
+
+namespace {
+
+// Wave 26: escape free-text save fields (names/flavors may hold anything).
+std::string escField(const std::string& s) {
+    std::string out;
+    for (char ch : s) {
+        if (ch == '\\') out += "\\\\";
+        else if (ch == '\t') out += "\\t";
+        else if (ch == '\n') out += "\\n";
+        else out += ch;
+    }
+    return out;
+}
+
+std::string unescField(const std::string& s) {
+    std::string out;
+    for (size_t i = 0; i < s.size(); ++i) {
+        if (s[i] == '\\' && i + 1 < s.size()) {
+            const char n = s[++i];
+            if (n == 't') out += '\t';
+            else if (n == 'n') out += '\n';
+            else out += n; // '\\' and anything else: literal
+        } else {
+            out += s[i];
+        }
+    }
+    return out;
+}
+
+std::vector<std::string> splitTab(const std::string& s) {
+    std::vector<std::string> parts;
+    std::string cur;
+    for (size_t i = 0; i < s.size(); ++i) {
+        if (s[i] == '\\' && i + 1 < s.size()) {
+            cur += s[i];
+            cur += s[++i]; // keep escapes intact; unescape per-field later
+        } else if (s[i] == '\t') {
+            parts.push_back(cur);
+            cur.clear();
+        } else {
+            cur += s[i];
+        }
+    }
+    parts.push_back(cur);
+    return parts;
+}
+
+} // namespace
 
 bool SaveSystem::save(const GameState& s, const std::string& path) {
     std::ofstream f(path);
@@ -36,6 +87,14 @@ bool SaveSystem::save(const GameState& s, const std::string& path) {
     for (const auto& id : s.unlockedAchievements) f << "achievement=" << id << "\n";
     for (const auto& kv : s.achievementProgress)
         f << "achprogress=" << kv.first << " " << kv.second << "\n";
+    // Wave 26: discovery codex records.
+    for (const auto& r : s.discoveries) {
+        f << "discovery=" << escField(r.id) << "\t" << r.kind << "\t"
+          << escField(r.name) << "\t" << escField(r.flavor) << "\t"
+          << r.pos.x << " " << r.pos.y << " " << r.pos.z << "\t"
+          << r.gameTime << "\t" << (r.night ? 1 : 0) << "\t"
+          << (r.renamed ? 1 : 0) << "\n";
+    }
     return static_cast<bool>(f);
 }
 
@@ -88,6 +147,33 @@ bool SaveSystem::load(const std::string& path, GameState& out) {
                 double value = 0.0;
                 if (ss >> name >> value && !name.empty())
                     s.achievementProgress[name] = value;
+            } else if (line.rfind("discovery=", 0) == 0) {
+                // Wave 26: codex record; malformed lines are skipped.
+                const std::vector<std::string> p =
+                    splitTab(line.substr(10));
+                if (p.size() == 8) {
+                    GameState::DiscoveryRec r;
+                    r.id = unescField(p[0]);
+                    r.name = unescField(p[2]);
+                    r.flavor = unescField(p[3]);
+                    std::stringstream ps(p[4]);
+                    float x = 0, y = 0, z = 0;
+                    int kind = 0, night = 0, renamed = 0;
+                    double t = 0;
+                    if (ps >> x >> y >> z &&
+                        (std::stringstream(p[1]) >> kind) &&
+                        (std::stringstream(p[5]) >> t) &&
+                        (std::stringstream(p[6]) >> night) &&
+                        (std::stringstream(p[7]) >> renamed) &&
+                        !r.id.empty()) {
+                        r.kind = kind;
+                        r.pos = Vec3{x, y, z};
+                        r.gameTime = t;
+                        r.night = night != 0;
+                        r.renamed = renamed != 0;
+                        s.discoveries.push_back(r);
+                    }
+                }
             }
             // Unknown lines are ignored for forward compatibility.
         }
