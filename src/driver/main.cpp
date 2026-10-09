@@ -686,6 +686,7 @@ struct BetaGame {
             "  rest <i>                            toggle rest for cultist i\n"
             "  rest <all|wake>                     rest/wake the whole cult\n"
             "  breed <sp> <sp> [name]              breed a monstrosity (Breeding)\n"
+            "  ritual <target|clear>               aim the next sorcerer ritual\n"
             "  command <raid|war|convert|sacrifice|defend|relic|dream|rebuild>\n"
             "  attack                              melee the nearest target\n"
             "  tick <n>                            advance n game-seconds\n"
@@ -1298,6 +1299,31 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 g.world.push_back(std::move(m));
             }
             g.tickSecond();
+            return true;
+        }
+
+        // Wave 30: direct your sorcerers' rituals — freedom to aim your magic.
+        if (cmd == "ritual") {
+            std::string sub; in >> sub;
+            if (sub == "target") {
+                Entity* t = g.nearestTarget(g.avatar.position(), 200.0f);
+                Vec3 p = t ? t->position() : g.avatar.position();
+                g.rituals.setDirectedPoint(p);
+                std::cout << "the next ritual will seek souls near ("
+                          << p.x << ", " << p.z << ")\n";
+                return true;
+            }
+            if (sub == "clear") {
+                g.rituals.clearDirectedPoint();
+                std::cout << "rituals return to their own whims\n";
+                return true;
+            }
+            std::cout << "rituals: " << g.rituals.ritualsAttempted()
+                      << " attempted, " << g.rituals.ritualsSucceeded()
+                      << " souls turned"
+                      << (g.rituals.hasDirectedPoint() ? " (aimed)"
+                                                       : " (unaimed)")
+                      << "\n  usage: ritual target | ritual clear\n";
             return true;
         }
 
@@ -2197,28 +2223,55 @@ static bool processLine(BetaGame& g, NetSession& nets,
         }
 
         if (cmd == "interact") {
-            InputManager im;
-            InputState s;
-            s.e.held = true;
-            s.e.pressed = true;  // latch E for one frame
-            im.update(s, 1.0f / 60.0f);
-            Vec3 ap = g.avatar.position();
-            std::vector<Interactable> cands = {
-                {501, Interactable::Kind::Altar, "E: perform ritual",
-                 Vec3{ap.x + 2.0f, 0, ap.z}},
-                {502, Interactable::Kind::Relic, "E: claim relic",
-                 Vec3{ap.x - 10.0f, 0, ap.z}},
+            // Wave 30: real interaction — the nearest civilian shares a
+            // rumor pointing at the nearest UNDISCOVERED landmark, closing
+            // the NMS loop (rumor -> horizon -> discovery -> codex).
+            const Vec3 ap = g.avatar.position();
+            const Civilian* near = nullptr;
+            float nearD = 8.0f; // talk radius (generous; they're skittish)
+            auto consider = [&](const Civilian* c) {
+                if (!c || !c->alive()) return;
+                const float d = dist(ap, c->position());
+                if (d < nearD) { nearD = d; near = c; }
             };
-            const Interactable* t = im.findInteractable(ap, cands);
-            if (t) {
-                im.setInteractTarget(t->entityId);
-                std::cout << "E pressed -> target entity " << t->entityId
-                          << " (" << t->prompt << "); lastInteractTarget="
-                          << im.lastInteractTarget() << "\n";
-            } else {
-                std::cout << "E pressed -> nothing within "
-                          << InputManager::INTERACT_RADIUS << "m\n";
+            for (const auto& c : g.freeroam.civilians()) consider(c.get());
+            for (const auto& e : g.world)
+                if (e->type() == EntityType::Civilian)
+                    consider(static_cast<const Civilian*>(e.get()));
+            if (!near) {
+                std::cout << "no one within earshot — the wind answers "
+                             "nothing\n";
+                return true;
             }
+            // Nearest landmark the codex hasn't logged yet.
+            const FreeRoamMode::Landmark* target = nullptr;
+            float targetD = 1e9f;
+            for (const auto& lm : g.freeroam.landmarks()) {
+                if (g.codex.find(DiscoveryCodex::idFor(
+                        DiscoveryKind::Landmark, lm.name)))
+                    continue; // already discovered
+                const float d = dist(ap, lm.pos);
+                if (d < targetD) { targetD = d; target = &lm; }
+            }
+            std::cout << "a civilian glances up, trembling:\n";
+            if (target) {
+                std::cout << "  \"they say " << target->name << " lies "
+                          << static_cast<int>(targetD + 0.5f) << "m "
+                          << (target->pos.x >= ap.x ? "east" : "west") << "-"
+                          << (target->pos.z >= ap.z ? "south" : "north")
+                          << ". " << target->flavor << "\"\n";
+            } else {
+                static const char* done[] = {
+                    "\"you've seen all the wonders. What did they cost you?\"",
+                    "\"the dark is quiet tonight. Enjoy it.\"",
+                    "\"they say the god walks among us. I believe them now.\"",
+                };
+                std::cout << "  " << done[g.rng.intRange(
+                    0, static_cast<int>(sizeof(done) / sizeof(done[0])) -
+                           1)]
+                          << "\n";
+            }
+            g.tickSecond();
             return true;
         }
 

@@ -37,6 +37,16 @@ public:
     uint64_t ritualsAttempted() const { return attempted_; }
     uint64_t ritualsSucceeded() const { return succeeded_; }
 
+    // Wave 30: player-directed rituals — the next ritual aims near the
+    // directed point instead of a random nearby soul. Expires after 120s.
+    void setDirectedPoint(Vec3 p) {
+        directed_ = p;
+        hasDirected_ = true;
+        directedAge_ = 0.0;
+    }
+    void clearDirectedPoint() { hasDirected_ = false; }
+    bool hasDirectedPoint() const { return hasDirected_; }
+
 private:
     EventBus& bus_;
     RNG& rng_;
@@ -51,6 +61,10 @@ private:
     double timer_ = 0.0;
     uint64_t attempted_ = 0;
     uint64_t succeeded_ = 0;
+    // Wave 30: directed ritual state.
+    Vec3 directed_{0, 0, 0};
+    bool hasDirected_ = false;
+    double directedAge_ = 0.0;
 
     static constexpr float RANGE = 200.0f;
     static constexpr float MANA_COST = 25.0f;

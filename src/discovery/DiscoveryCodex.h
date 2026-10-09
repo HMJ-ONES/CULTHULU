@@ -78,6 +78,10 @@ public:
 
     // Power granted per discovery (night discoveries pay more).
     static float powerReward(bool night) { return night ? 25.0f : 15.0f; }
+    // Stable id for a kind+key (used to check "already discovered?").
+    static std::string idFor(DiscoveryKind k, const std::string& key) {
+        return makeId(k, key);
+    }
 
 private:
     static std::string makeId(DiscoveryKind k, const std::string& key);

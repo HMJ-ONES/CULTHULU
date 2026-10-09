@@ -19,6 +19,11 @@ RitualCaster::RitualCaster(EventBus& bus, RNG& rng, BeliefSystem& beliefs,
 
 void RitualCaster::update(double dt) {
     timer_ += dt;
+    // Wave 30: directed rituals expire after two minutes.
+    if (hasDirected_) {
+        directedAge_ += dt;
+        if (directedAge_ > 120.0) hasDirected_ = false;
+    }
     if (timer_ < interval_) return;
     while (timer_ >= interval_) timer_ -= interval_;
 
@@ -48,8 +53,21 @@ void RitualCaster::update(double dt) {
         }
         if (near.empty()) continue;
 
-        Entity* target = near[rng_.intRange(
-            0, static_cast<int>(near.size()) - 1)];
+        Entity* target;
+        if (hasDirected_) {
+            // Wave 30: aim at the soul nearest the directed point.
+            target = near[0];
+            float best = 1e9f;
+            for (Entity* e : near) {
+                const float dx = e->position().x - directed_.x;
+                const float dz = e->position().z - directed_.z;
+                const float d = std::sqrt(dx * dx + dz * dz);
+                if (d < best) { best = d; target = e; }
+            }
+        } else {
+            target = near[rng_.intRange(
+                0, static_cast<int>(near.size()) - 1)];
+        }
         s->setMana(s->mana() - MANA_COST);
         ++attempted_;
 
