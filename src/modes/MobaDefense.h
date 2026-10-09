@@ -42,14 +42,25 @@ public:
         bool alive = true;
     };
     // Wave 33: MOBA relic pickups — the SAME named artifacts players find
-    // in free-roam (generateRelicName pool). Claimed by walking over them;
-    // each grants its holder a damage amplifier while held.
+    // in free-roam (generateRelicName pool). Wave 34: tiered and hard to
+    // get. Tier 1 (invoke 10+): side jungle, walk-over claim. Tier 2
+    // (invoke 20+): mid jungle, 4s channel to claim. Tier 3 (invoke 30,
+    // late-game): center, manifests at 10:00 with a global announcement,
+    // 6s channel. Leaving the radius cancels the channel.
     struct RelicPickup {
         Vec3 pos;
         std::string name;
-        float amplifier = 0.2f; // +20% damage while held
-        uint64_t claimedBy = 0; // player id, 0 = unclaimed
+        float amplifier = 0.2f;
+        int tier = 1;                 // 1, 2, or 3
+        uint64_t claimedBy = 0;       // player id, 0 = unclaimed
+        double spawnTime = 0.0;       // match seconds when it manifests
+        bool announced = false;
+        uint64_t channelBy = 0;       // player currently channeling
+        double channelT = 0.0;        // channel progress seconds
     };
+    static constexpr int kTier1Level = 10;
+    static constexpr int kTier2Level = 20;
+    static constexpr int kTier3Level = 30;
     struct Minion {
         uint64_t id = 0;
         int team = 0;
@@ -117,6 +128,13 @@ public:
     // Player melee vs minions / towers / enemy base (GOO). attackerId is the
     // player id — it becomes GreatOldOneSlain.sourceId (Godslayer).
     void playerHitMinions(int attackerTeam, Vec3 pos, float range, float dmg);
+    // Wave 34: variant reporting the victim's id when the hit kills, for
+    // XP credit. Returns 0 when nothing dies.
+    uint64_t playerHitMinionsCredit(int attackerTeam, Vec3 pos, float range,
+                                    float dmg);
+    // Wave 34: returns true when the hit destroys a tower (XP credit).
+    bool playerHitStructuresCredit(int attackerTeam, Vec3 pos, float range,
+                                   float dmg, uint64_t attackerId);
     void playerHitStructures(int attackerTeam, Vec3 pos, float range,
                              float dmg, uint64_t attackerId);
     // Total HP of live enemy towers of team `defender` within range of pos

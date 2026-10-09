@@ -82,14 +82,19 @@ public:
         // (same pool as free-roam), capped like free-roam's 3x.
         float dmgMult = 1.0f;
         std::vector<std::string> relicNames;
-        // Wave 33: levels and base invocation. Kills level you up; each
-        // level grants one invoke charge: spend 20s channeling at your
-        // base to call down an artifact, even one never found in the
-        // jungle. No money, no shop — just blood and patience.
+        // Wave 33/34: levels and base invocation. XP from kills, minion
+        // kills, and tower takedowns; level = 1 + xp/100. Each level
+        // grants one invoke charge: spend 20s channeling at your base to
+        // call down an artifact, even one never found in the jungle.
+        // Wave 34: artifacts have tiers — invoke tier 1 at 10+, tier 2
+        // at 20+, late-game tier 3 at 30. No money, no shop.
+        int xp = 0;
         int level = 1;
         int pendingInvokes = 0;
         double invokeTimer = 0.0;
         bool invoking = false;
+        // Wave 34: cooldown between invoke trips (prevents yo-yoing).
+        double lastInvokeTrip = -1000.0;
     };
 
     Match(EventBus& bus, GameClock& clock, RNG& rng);
@@ -163,6 +168,10 @@ private:
     void damagePlayer(size_t victimIdx, float dmg);
     // killerIdx < 0 = non-player killer (entityId names it in the event).
     void killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId);
+    // Wave 34: XP economy. Minion kills 60, tower destructions 800,
+    // player kills scale with victim level (50 + 25*lvl). Level = 1 + xp/50.
+    // every level-up grants one invoke charge.
+    void addXp(size_t playerIdx, int amount);
     void feedCaptureOccupants();
     void feedMobaPlayerTargets();
 };

@@ -200,6 +200,9 @@ enum class EventType {
     // Wave 16: achievements — new instrumentation events.
     RelicClaimed,        // sourceId = claimer entity id; amount = amplifier;
                          // tag = relic name/kind ("" when unnamed)
+    // Wave 34: a tier-3 MOBA relic manifests — tag = name, pos = site,
+    // amount = tier. Global announcement: fight for it.
+    RelicManifested,
     MonstrositySlain,    // targetId = monstrosity id; faction = its faction;
                          // tag = species (e.g. "dhole")
     CityDestroyed,       // tag = city name; amount = 1; all districts razed

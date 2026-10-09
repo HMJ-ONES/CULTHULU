@@ -90,21 +90,29 @@ void MobaDefense::setupDefaultMap() {
     // before the mode, so lazy towers leave backdoor protection vacuous
     // (and sieging blind) for the opening tick.
     ensureTowers();
-    // Wave 33: relic pickups in the neutral jungle between the lanes —
-    // the SAME named artifacts as free-roam (generateRelicName pool).
-    // Contested: mid-jungle is equidistant, side spots lean slightly.
+    // Wave 33/34: tiered relic pickups in the neutral jungle — the SAME
+    // named artifacts as free-roam (generateRelicName pool). Harder
+    // tiers sit deeper, need a channel, and the mythic one manifests
+    // late with a global announcement.
     relics_.clear();
-    const std::vector<Vec3> spots = {
-        Vec3(0, 0, -27), Vec3(0, 0, 27),
-        Vec3(-75, 0, -20), Vec3(75, 0, 20),
-    };
-    for (const Vec3& sp : spots) {
+    auto addRelic = [&](Vec3 pos, int tier, float ampLo, float ampHi,
+                        double spawnTime) {
         RelicPickup r;
-        r.pos = sp;
+        r.pos = pos;
+        r.tier = tier;
         r.name = generateRelicName(rng_);
-        r.amplifier = 0.15f + rng_.uniform(0.0f, 0.10f); // 15-25%, like free-roam
+        r.amplifier = ampLo + rng_.uniform(0.0f, ampHi - ampLo);
+        r.spawnTime = spawnTime;
         relics_.push_back(r);
-    }
+    };
+    // Tier 1: side jungles, from the start, walk-over claim.
+    addRelic(Vec3(-75, 0, -20), 1, 0.10f, 0.15f, 0.0);
+    addRelic(Vec3(75, 0, 20), 1, 0.10f, 0.15f, 0.0);
+    // Tier 2: mid jungle (contested), from the start, 4s channel.
+    addRelic(Vec3(0, 0, -27), 2, 0.18f, 0.28f, 0.0);
+    addRelic(Vec3(0, 0, 27), 2, 0.18f, 0.28f, 0.0);
+    // Tier 3: the center, manifests at 10:00, 6s channel.
+    addRelic(Vec3(0, 0, 0), 3, 0.30f, 0.45f, 600.0);
 }
 
 void MobaDefense::setPlayerTargets(const std::vector<PlayerTarget>& targets) {
@@ -138,6 +146,11 @@ Vec3 MobaDefense::lanePoint(int team, int lane, float fraction) const {
 
 void MobaDefense::playerHitMinions(int attackerTeam, Vec3 pos, float range,
                                    float dmg) {
+    (void)playerHitMinionsCredit(attackerTeam, pos, range, dmg);
+}
+
+uint64_t MobaDefense::playerHitMinionsCredit(int attackerTeam, Vec3 pos,
+                                             float range, float dmg) {
     Minion* best = nullptr;
     float bestD = range;
     for (auto& m : minions_) {
@@ -145,11 +158,20 @@ void MobaDefense::playerHitMinions(int attackerTeam, Vec3 pos, float range,
         float d = pos.distance(m.pos);
         if (d < bestD) { bestD = d; best = &m; }
     }
-    if (best) best->hp -= dmg;
+    if (!best) return 0;
+    best->hp -= dmg;
+    return best->hp <= 0.0f ? best->id : 0;
 }
 
 void MobaDefense::playerHitStructures(int attackerTeam, Vec3 pos, float range,
                                       float dmg, uint64_t attackerId) {
+    (void)playerHitStructuresCredit(attackerTeam, pos, range, dmg,
+                                    attackerId);
+}
+
+bool MobaDefense::playerHitStructuresCredit(int attackerTeam, Vec3 pos,
+                                            float range, float dmg,
+                                            uint64_t attackerId) {
     int enemy = 1 - attackerTeam;
     Tower* best = nullptr;
     float bestD = range;
@@ -158,10 +180,14 @@ void MobaDefense::playerHitStructures(int attackerTeam, Vec3 pos, float range,
         float d = pos.distance(t.pos);
         if (d < bestD) { bestD = d; best = &t; }
     }
-    if (best) { best->hp -= dmg; return; }
+    if (best) {
+        best->hp -= dmg;
+        return !best->alive(); // true when this blow destroys it
+    }
     // No tower in reach: swing at the enemy base (GOO) if close.
     const Base& b = bases_[enemy];
     if (b.set && pos.distance(b.pos) <= range) damageBase(enemy, dmg, attackerId);
+    return false;
 }
 
 float MobaDefense::enemyTowerHpNear(int attackerTeam, Vec3 pos,
@@ -443,25 +469,63 @@ void MobaDefense::update(double dt) {
         if (m.hp <= 0.0f) it = minions_.erase(it);
         else ++it;
     }
-    // Wave 33: relic claims — walk within 6m (free-roam radius) to take
-    // a relic. First soul there claims it; publishes RelicClaimed
-    // (sourceId = player id, amount = amplifier, tag = relic name).
+    // Wave 33/34: relic claims. Tier 1 is a walk-over pickup; tiers 2-3
+    // demand a channel (4s / 6s) — leaving the radius cancels it.
+    // Tier 3 manifests at 10:00 with a global announcement.
     const float claimRSq = kRelicClaimRadius * kRelicClaimRadius;
     for (auto& r : relics_) {
         if (r.claimedBy != 0) continue;
+        if (elapsed_ < r.spawnTime) continue;
+        if (!r.announced && r.spawnTime > 0.0) {
+            r.announced = true;
+            GameEvent ann(EventType::RelicManifested);
+            ann.tag = r.name;
+            ann.pos = r.pos;
+            ann.amount = r.tier;
+            bus_.publish(ann);
+        }
+        // Find a claimant in radius.
+        uint64_t claimant = 0;
         for (const auto& p : playerTargets_) {
             if (!p.alive) continue;
             if (p.pos.distanceSq(r.pos) <= claimRSq) {
-                r.claimedBy = p.id;
+                claimant = p.id;
+                break;
+            }
+        }
+        const double need = r.tier == 1 ? 0.0 : (r.tier == 2 ? 4.0 : 6.0);
+        if (need == 0.0) {
+            if (claimant != 0) {
+                r.claimedBy = claimant;
                 GameEvent e(EventType::RelicClaimed);
-                e.sourceId = p.id;
+                e.sourceId = claimant;
                 e.amount = r.amplifier;
                 e.tag = r.name;
                 e.pos = r.pos;
-                e.faction = p.team;
                 bus_.publish(e);
-                break;
             }
+            continue;
+        }
+        // Channeled claim.
+        if (claimant != 0 && claimant == r.channelBy) {
+            r.channelT += dt;
+        } else if (claimant != 0) {
+            r.channelBy = claimant;
+            r.channelT = dt;
+        } else {
+            r.channelBy = 0;
+            r.channelT = 0.0;
+        }
+        if (r.channelBy != 0 && r.channelT >= need) {
+            r.claimedBy = r.channelBy;
+            GameEvent e(EventType::RelicClaimed);
+            e.sourceId = r.channelBy;
+            e.amount = r.amplifier;
+            e.tag = r.name;
+            e.pos = r.pos;
+            bus_.publish(e);
+            r.channelBy = 0;
+            r.channelT = 0.0;
         }
     }
     // Last: match lifecycle sees this tick's final state (a GOO falling

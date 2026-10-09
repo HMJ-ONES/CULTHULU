@@ -175,10 +175,13 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
         if (p.respawnTimer <= 0.0) spawnPlayer(p);
         return;
     }
-    // Wave 33: base invocation. A leveled player (pendingInvokes > 0)
-    // standing at their base channels for 20s; leaving or dying cancels.
-    // Completion calls down a free-roam artifact, found or not.
-    if (moba_ && p.pendingInvokes > 0) {
+    // Wave 33/34: base invocation. A player with invoke charges AND
+    // level 10+ standing at their base channels for 20s; leaving or
+    // dying cancels. Completion calls down a free-roam artifact of the
+    // highest tier the player's level unlocks (10/20/30) — even one
+    // never found in the jungle.
+    if (moba_ && p.pendingInvokes > 0 &&
+        p.level >= MobaDefense::kTier1Level) {
         const Vec3 base = moba_->basePos(p.team);
         if (p.pos.distance(base) <= kBaseInvokeRadius) {
             if (!p.invoking) {
@@ -190,9 +193,15 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
                 p.invoking = false;
                 p.invokeTimer = 0.0;
                 --p.pendingInvokes;
+                const int tier = p.level >= MobaDefense::kTier3Level ? 3
+                                 : p.level >= MobaDefense::kTier2Level ? 2
+                                                                      : 1;
                 GameEvent e(EventType::RelicClaimed);
                 e.sourceId = p.id;
-                e.amount = 0.15f + rng_.uniform(0.0f, 0.10f);
+                // Tier amplifiers mirror the jungle tiers.
+                e.amount = tier == 3 ? 0.30f + rng_.uniform(0.0f, 0.15f)
+                           : tier == 2 ? 0.18f + rng_.uniform(0.0f, 0.10f)
+                                       : 0.10f + rng_.uniform(0.0f, 0.05f);
                 e.tag = generateRelicName(rng_);
                 e.pos = p.pos;
                 e.faction = p.team;
@@ -262,9 +271,13 @@ bool Match::furthestFriendlyMinion(int team, int lane, Vec3& out) const {
 void Match::updateMobaObjective(Player& p, double dt) {
     MobaDefense& md = *moba_;
     float fdt = static_cast<float>(dt);
-    // Wave 33: a bot holding an invoke charge returns to base to channel.
-    // (The channel itself runs in updatePlayer once in radius.)
-    if (p.pendingInvokes > 0 && !p.invoking) {
+    // Wave 33/34: a bot holding 2+ invoke charges AND level 10+ returns
+    // to base to channel them all. (The channel itself runs in
+    // updatePlayer.) Threshold of 2 + 180s trip cooldown prevents
+    // yo-yoing home every level.
+    if (p.pendingInvokes >= 2 && p.level >= MobaDefense::kTier1Level &&
+        !p.invoking && (elapsed_ - p.lastInvokeTrip) >= 180.0) {
+        p.lastInvokeTrip = elapsed_;
         const Vec3 base = md.basePos(p.team);
         Vec3 to = base - p.pos;
         float d = to.length();
@@ -325,9 +338,22 @@ void Match::swingAtStructures(Player& p) {
     float dmg = kMeleeDps * static_cast<float>(kSwingCooldown) * p.dmgMult;
     float clearDmg =
         kWaveclearDps * static_cast<float>(kSwingCooldown) * p.dmgMult;
-    md.playerHitMinions(p.team, p.pos, kMeleeRange + 1.0f, clearDmg);
-    md.playerHitStructures(p.team, p.pos, kMeleeRange + 1.0f, dmg, p.id);
-    if (structHp > 0.0f) p.swingCd = kSwingCooldown;
+    // Wave 34: minion kills grant 15 XP; tower destructions grant 150 XP.
+    size_t idx = 0;
+    for (; idx < players_.size(); ++idx)
+        if (players_[idx].id == p.id) break;
+    if (md.playerHitMinionsCredit(p.team, p.pos, kMeleeRange + 1.0f,
+                                  clearDmg) != 0 &&
+        idx < players_.size())
+        addXp(idx, 60);
+    if (md.playerHitStructuresCredit(p.team, p.pos, kMeleeRange + 1.0f, dmg,
+                                     p.id) &&
+        idx < players_.size())
+        addXp(idx, 800);
+    // Wave 34 fix: the swing always costs its cooldown, even when only
+    // minions were in reach (previously minions could be machine-gunned
+    // every tick — harmless before XP existed, an exploit now).
+    p.swingCd = kSwingCooldown;
 }
 
 bool Match::attackNearestEnemy(Player& p, size_t idx, double dt) {
@@ -359,6 +385,19 @@ void Match::damagePlayer(size_t victimIdx, float dmg) {
     if (v.hp <= 0.0f) { v.hp = 0.0f; v.alive = false; }
 }
 
+// Wave 34: XP economy. Level = 1 + xp/100; each level-up grants one
+// invoke charge.
+void Match::addXp(size_t playerIdx, int amount) {
+    if (playerIdx >= players_.size() || amount <= 0) return;
+    Player& p = players_[playerIdx];
+    const int oldLevel = p.level;
+    p.xp += amount;
+    p.level = 1 + p.xp / 50;
+    if (p.level > oldLevel) {
+        p.pendingInvokes += (p.level - oldLevel);
+    }
+}
+
 void Match::killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId) {
     Player& v = players_[victimIdx];
     double respawn = kCaptureRespawnSec;
@@ -372,9 +411,10 @@ void Match::killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId)
         Player& k = players_[static_cast<size_t>(killerIdx)];
         stats_.recordKill(static_cast<size_t>(killerIdx), victimIdx,
                           v.id, clock_.now());
-        // Wave 33: kills level you up — each level grants one base invoke.
-        ++k.level;
-        ++k.pendingInvokes;
+        // Wave 34: kill XP scales with the victim's level — early kills
+        // on level-1 players are worth little; slaying a level-20 is
+        // worth a fortune. (Prevents 3 early kills = level 10.)
+        addXp(static_cast<size_t>(killerIdx), 50 + 25 * v.level);
         GameEvent e(EventType::PlayerKilled);
         e.sourceId = k.id;
         e.targetId = v.id;
@@ -498,8 +538,8 @@ void Match::printStatus(std::ostream& os) const {
            << (pl.alive ? "" : " DEAD") << " "
            << rows[i].kills << "/" << rows[i].deaths << "/"
            << rows[i].assists;
-        // Wave 33: level, relics, invoke state.
-        os << " lv" << pl.level;
+        // Wave 33/34: level, relics, invoke state.
+        os << " lv" << pl.level << " (" << pl.xp << "xp)";
         if (!pl.relicNames.empty()) {
             os << " [";
             for (size_t r = 0; r < pl.relicNames.size(); ++r) {
@@ -510,18 +550,23 @@ void Match::printStatus(std::ostream& os) const {
         }
         if (pl.invoking)
             os << " (invoking " << static_cast<int>(pl.invokeTimer) << "/20s)";
-        else if (pl.pendingInvokes > 0)
+        else if (pl.pendingInvokes > 0 && pl.level >= MobaDefense::kTier1Level)
             os << " (" << pl.pendingInvokes << " invoke ready — return to base)";
         os << "\n";
     }
     if (moba_) {
         os << "  relics on the map:\n";
         for (const auto& r : moba_->relics()) {
-            os << "    " << r.name << " (+" 
+            os << "    [t" << r.tier << "] " << r.name << " (+" 
                << static_cast<int>(r.amplifier * 100) << "%) at ("
                << static_cast<int>(r.pos.x) << "," << static_cast<int>(r.pos.z)
                << ")";
-            if (r.claimedBy != 0) os << " — claimed";
+            if (r.claimedBy != 0)
+                os << " — claimed";
+            else if (r.spawnTime > 0.0)
+                os << " — manifests at " << static_cast<int>(r.spawnTime) << "s";
+            else if (r.tier > 1)
+                os << " — channel " << (r.tier == 2 ? "4" : "6") << "s to claim";
             os << "\n";
         }
     }
