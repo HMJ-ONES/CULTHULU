@@ -10,6 +10,13 @@ Entity::Entity(EntityType type, FactionId faction, Vec3 pos, float maxHp)
 
 bool Entity::takeDamage(float amount, bool oneHit) {
     if (!alive() || amount <= 0.0f) return false;
+    // Wave 27: wards absorb damage before HP does.
+    if (ward_ > 0.0f) {
+        const float absorbed = amount < ward_ ? amount : ward_;
+        ward_ -= absorbed;
+        amount -= absorbed;
+        if (amount <= 0.0f) return false;
+    }
     // A "one-hit kill" only counts if a single blow destroys a healthy target.
     if (oneHit && hp_ >= maxHp_) oneHitKilled_ = true;
     hp_ -= amount;

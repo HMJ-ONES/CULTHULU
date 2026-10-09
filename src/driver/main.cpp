@@ -28,6 +28,7 @@
 #include "cult/CultManager.h"
 #include "dreams/DreamSystem.h"
 #include "driver/ParseUtil.h"
+#include "combat/KitCaster.h"
 #include "discovery/DiscoveryCodex.h"
 #include "discovery/RelicNames.h"
 #include "entities/Structures.h"
@@ -190,6 +191,12 @@ struct BetaGame {
     // assets/characters/; `chars`/`addchar`/`validate` manage them.
     CharacterRegistry charReg;
     CharacterPackageLoader charLoader{charReg};
+    // Wave 27: the active kit — `character select <id>` chooses whose
+    // Q/F/R the avatar casts. Cooldowns + timed buffs live here.
+    std::string activeKitId = "cthulhu_avatar";
+    std::map<std::string, double> kitCooldowns_; // spell id -> ready time
+    float kitBuffMult_ = 1.0f;
+    double kitBuffExpiry_ = 0.0;
 
     // Wave 7: RMB state-machine demo (Cthulhu Avatar's Wave of Domination).
     // The ability is persistent; the context is re-pointed at the current
@@ -226,6 +233,23 @@ struct BetaGame {
         });
         bus.subscribe(EventType::DirectiveCompleted, [](const GameEvent& e) {
             std::cout << "[directive] " << e.tag << " completed\n";
+        });
+        // Wave 27: the world narrates itself — conversions, losses, and
+        // rising dread are no longer silent between ticks.
+        bus.subscribe(EventType::ConversionPerformed, [](const GameEvent& e) {
+            if (e.amount >= 1.0f)
+                std::cout << "[cult] " << static_cast<int>(e.amount)
+                          << " soul(s) kneel before the dream\n";
+        });
+        bus.subscribe(EventType::CultistLost, [](const GameEvent& e) {
+            std::cout << "[cult] a cultist is lost to the dark ("
+                      << e.tag << ")\n";
+            (void)e;
+        });
+        bus.subscribe(EventType::InsurrectionRiskUp, [](const GameEvent& e) {
+            if (e.amount >= 5.0f)
+                std::cout << "[dread] insurrection risk stirs (+"
+                          << static_cast<int>(e.amount) << ")\n";
         });
         bus.subscribe(EventType::DreamWhisper, [](const GameEvent& e) {
             std::cout << "[dream] a distant civilian stirs in their sleep "
@@ -573,10 +597,21 @@ struct BetaGame {
 
     void printHelp() {
         std::cout <<
+            "FIRST STEPS — the dreaming god wakes:\n"
+            "  1. look                  see what surrounds you\n"
+            "  2. move e 10            walk toward the nearest wonder\n"
+            "  3. character select <id> choose whose body you wear (see 'chars')\n"
+            "  4. cast q               unleash your first ability\n"
+            "  5. command raid         send the cult to raid a city\n"
+            "  6. codex               browse everything you have discovered\n"
+            "\n"
             "commands:\n"
             "  move <n|s|e|w|ne|nw|se|sw> [steps]  walk the avatar\n"
             "  camera <fp|tp|switch>               switch camera (any mode, anytime)\n"
             "  look                                survey surroundings\n"
+            "  cast <q|f|r>                        cast the active kit's ability\n"
+            "  cast <fireball|fear>                legacy sorcerer spells\n"
+            "  character <list|validate|select> [id]  kits & who you walk as\n"
             "  spawn <cultist|civilian|monstrosity|sorcerer|bot> [n]\n"
             "  spawn <monstrosity|creature> [species] [n]  (see 'bestiary')\n"
             "  belief <name> [replace <old>]       adopt a belief\n"
@@ -584,7 +619,6 @@ struct BetaGame {
             "  rest <i>                            toggle rest for cultist i\n"
             "  command <raid|war|convert|sacrifice|defend|relic|dream|rebuild>\n"
             "  attack                              melee the nearest target\n"
-            "  cast <fireball|fear>                sorcerer spell + CC\n"
             "  tick <n>                            advance n game-seconds\n"
             "  save <file>                         save game to file\n"
             "  load <file>                         load game from file\n"
@@ -621,6 +655,9 @@ struct BetaGame {
             "  help | quit\n";
     }
 };
+
+// Wave 27: one-line arrival survey after every `move` (defined near main).
+void printArrivalSurvey(BetaGame& g);
 
 // Wave 9c driver commands (`ambient`, `dungeon`): header-inline module;
 // the implementation compiles into this TU via the include below.
@@ -938,7 +975,10 @@ static bool processLine(BetaGame& g, NetSession& nets,
             g.avatarAnim.requestState(steps > 3 ? AnimationState::Run
                                                 : AnimationState::Walk);
             std::cout << "moved to (" << g.avatar.position().x << ", "
-                      << g.avatar.position().z << ")\\n";
+                      << g.avatar.position().z << ")\n";
+            // Wave 27: every arrival surveys the surroundings — no more
+            // coordinate voids.
+            printArrivalSurvey(g);
             return true;
         }
 
@@ -1151,6 +1191,79 @@ static bool processLine(BetaGame& g, NetSession& nets,
 
         if (cmd == "cast") {
             std::string spell; in >> spell;
+            // Wave 27: cast the active kit's abilities — q/f/r resolve
+            // through the character registry with real cooldowns.
+            if (spell == "q" || spell == "f" || spell == "r") {
+                const CharacterDef* kit = g.charReg.get(g.activeKitId);
+                if (!kit) {
+                    std::cout << "no active kit (character select <id>)\n";
+                    return true;
+                }
+                const SpellDef* sp = spell == "q" ? &kit->qAbility
+                                     : spell == "f" ? &kit->fAbility
+                                                   : &kit->rAbility;
+                if (sp->id.empty()) {
+                    std::cout << kit->displayName << " has no "
+                              << spell << " ability\n";
+                    return true;
+                }
+                const double now = g.clock.now();
+                auto cdIt = g.kitCooldowns_.find(sp->id);
+                if (cdIt != g.kitCooldowns_.end() && cdIt->second > now) {
+                    std::cout << sp->name << " is not ready ("
+                              << static_cast<int>(cdIt->second - now + 0.5)
+                              << "s)\n";
+                    return true;
+                }
+                // Timed damage buffs (from buff-kind casts) apply here.
+                if (g.kitBuffMult_ != 1.0f && g.kitBuffExpiry_ <= now)
+                    g.kitBuffMult_ = 1.0f;
+                Entity* t = g.nearestTarget(g.avatar.position());
+                std::vector<Entity*> foes;
+                for (const auto& b : g.freeroam.bots())
+                    if (b->alive()) foes.push_back(b.get());
+                for (const auto& c : g.freeroam.creatures())
+                    if (c->alive() &&
+                        c->faction() != FACTION_CTHULHU)
+                        foes.push_back(c.get());
+                g.avatarAnim.requestState(AnimationState::Cast);
+                KitCastResult r = castKitSpell(
+                    *sp, g.avatar, t, foes, g.beliefs, g.bus, g.fx,
+                    g.exertion.stats().combatPowerMult * g.kitBuffMult_);
+                std::cout << r.message << "\n";
+                if (r.ok) {
+                    g.kitCooldowns_[sp->id] = now + sp->cooldownSec;
+                    if (r.buffSeconds > 0.0f) {
+                        g.kitBuffMult_ = r.buffMult;
+                        g.kitBuffExpiry_ = now + r.buffSeconds;
+                    }
+                    for (const auto& s : r.summons) {
+                        for (int i = 0; i < s.second; ++i) {
+                            auto c = std::make_unique<Creature>(
+                                FACTION_CTHULHU,
+                                Vec3{g.avatar.position().x +
+                                         (i * 2 - s.second),
+                                     0.0f,
+                                     g.avatar.position().z + 3.0f},
+                                s.first, 120.0f);
+                            std::cout << "  a " << s.first
+                                      << " answers the call\n";
+                            g.world.push_back(std::move(c));
+                        }
+                    }
+                    if (r.dash.x != 0.0f || r.dash.z != 0.0f) {
+                        g.avatar.setPosition(Vec3{
+                            g.avatar.position().x + r.dash.x, 0.0f,
+                            g.avatar.position().z + r.dash.z});
+                        std::cout << "  moved to ("
+                                  << g.avatar.position().x << ", "
+                                  << g.avatar.position().z << ")\n";
+                    }
+                    if (t) std::cout << "target hp " << t->hp() << "\n";
+                }
+                g.tickSecond();
+                return true;
+            }
             Entity* t = g.nearestTarget(g.avatar.position());
             if (!t) { std::cout << "no target in range\n"; return true; }
             // The avatar channels through its sorcerer attendant's craft.
@@ -1171,7 +1284,9 @@ static bool processLine(BetaGame& g, NetSession& nets,
                                 g.exertion.stats().combatPowerMult);
                 std::cout << "fireball for " << dmg << "\n";
             } else {
-                std::cout << "usage: cast <fireball|fear>\n";
+                std::cout << "usage: cast <q|f|r> | cast <fireball|fear>\n"
+                          << "  q/f/r casts the active kit's ability "
+                             "(character select <id>)\n";
                 return true;
             }
             std::cout << "target hp " << t->hp() << "\n";
@@ -1797,7 +1912,24 @@ static bool processLine(BetaGame& g, NetSession& nets,
                                  .summary();
                 return true;
             }
-            std::cout << "usage: character <list|validate> [character-id]\n";
+            if (sub == "select") {
+                // Wave 27: choose whose kit the avatar casts.
+                std::string id; in >> id;
+                const CharacterDef* d = g.charReg.get(id);
+                if (!d) {
+                    std::cout << "no character '" << id << "'\n";
+                    return true;
+                }
+                g.activeKitId = id;
+                g.kitCooldowns_.clear();
+                std::cout << "you now walk as " << d->displayName << "\n"
+                          << "  Q: " << d->qAbility.name << "  F: "
+                          << d->fAbility.name << "  R: " << d->rAbility.name
+                          << "\n  cast with: cast q | cast f | cast r\n";
+                return true;
+            }
+            std::cout << "usage: character <list|validate|select> "
+                         "[character-id]\n";
             return true;
         }
 
@@ -2138,13 +2270,50 @@ static bool processLine(BetaGame& g, NetSession& nets,
     return true;
 }
 
+// Wave 27: one-line arrival survey after every `move`.
+void printArrivalSurvey(BetaGame& g) {
+    const Vec3 ap = g.avatar.position();
+    std::string bits;
+    const FreeRoamMode::Landmark* near = nullptr;
+    float nearD = 1e9f;
+    for (const auto& lm : g.freeroam.landmarks()) {
+        const float d = dist(ap, lm.pos);
+        if (d < nearD) { nearD = d; near = &lm; }
+    }
+    if (near) {
+        std::ostringstream ss;
+        ss << "  nearest wonder: " << near->name << " ("
+           << static_cast<int>(nearD + 0.5f) << "m "
+           << (near->pos.x >= ap.x ? "east" : "west") << "-"
+           << (near->pos.z >= ap.z ? "south" : "north") << ")\n";
+        bits += ss.str();
+    }
+    int relics = 0, civs = 0, beasts = 0;
+    for (const auto& r : g.freeroam.relics())
+        if (r->alive() && dist(ap, r->position()) < 30.0f) ++relics;
+    for (const auto& c : g.freeroam.civilians())
+        if (c->alive() && dist(ap, c->position()) < 40.0f) ++civs;
+    for (const auto& c : g.freeroam.creatures())
+        if (c->alive() && dist(ap, c->position()) < 40.0f) ++beasts;
+    if (relics)
+        bits += "  " + std::to_string(relics) +
+                " relic(s) glint nearby — walk close to claim\n";
+    if (civs) bits += "  " + std::to_string(civs) + " civilians mill about\n";
+    if (beasts)
+        bits += "  " + std::to_string(beasts) + " wild creature(s) stir\n";
+    if (!bits.empty()) std::cout << bits;
+}
+
 int main() {
     BetaGame g;
     g.setupWorld();
     NetSession nets;
 
     std::cout << "CULT-ULHU playable beta — free roam\n"
-              << "Your eldritch avatar stalks the map. Type 'help'.\n";
+              << "Your eldritch avatar stalks the map.\n"
+              << "  first steps: look | move e 10 | character select "
+                 "cthulhu_avatar | cast q\n"
+              << "  (type 'help' for the full grimoire)\n";
 
     // Wave 7: auto-load character packages. The binary is usually run as
     // ./build/cultulhu_play from the repo root (assets/characters), but
@@ -2156,18 +2325,19 @@ int main() {
             if (!probe) root = "../assets/characters";
         }
         const int n = g.charLoader.scanAndLoad(root);
-        std::cout << "characters: " << n << " package(s) from " << root
-                  << "\n";
+        size_t warnTotal = 0, invalidTotal = 0;
         for (const auto& p : g.charLoader.packages()) {
             ValidationReport rep = CharacterValidator::validate(p);
-            std::cout << "  " << p.folderName << " -> '" << p.def.id
-                      << "': " << (rep.ok ? "OK" : "INVALID");
-            if (!rep.warnings.empty())
-                std::cout << " (" << rep.warnings.size() << " warning(s))";
-            std::cout << "\n";
-            for (const auto& w : rep.warnings)
-                std::cout << "      ! " << w << "\n";
+            warnTotal += rep.warnings.size();
+            if (!rep.ok) ++invalidTotal;
         }
+        // Wave 27: collapse boot noise — one line, details on demand.
+        std::cout << "characters: " << n << " kit(s) loaded";
+        if (invalidTotal) std::cout << ", " << invalidTotal << " INVALID";
+        if (warnTotal)
+            std::cout << " (" << warnTotal
+                      << " warnings — 'character validate <id>' for details)";
+        std::cout << "\n";
         for (const auto& e : g.charLoader.loadErrors())
             std::cout << "  load error: " << e << "\n";
     }

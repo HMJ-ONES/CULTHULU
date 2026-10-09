@@ -58,6 +58,11 @@ public:
     virtual bool takeDamage(float amount, bool oneHit = false);
     virtual void heal(float amount);
 
+    // Wave 27: wards — damage is absorbed by the ward before touching HP.
+    // Used by shield-kind kit abilities (e.g. Rhan-Tegoth's Chitin Wall).
+    void addWard(float amount) { ward_ += amount; }
+    float ward() const { return ward_; }
+
     // Bring a dead entity back at 'hp' (clamped to maxHp). Used by the
     // Sacrifice belief's deny-death mechanic; healing cannot revive.
     void revive(float hp) {
@@ -93,6 +98,7 @@ protected:
     float hp_;
     float maxHp_;
     bool oneHitKilled_ = false;
+    float ward_ = 0.0f; // wave 27: shield-kind ward HP, absorbs first
 
     AnimationStateMachine anim_; // wave 18: per-entity animation state
     std::string animPackDir_;     // wave 18: custom .canim clips dir ("")
