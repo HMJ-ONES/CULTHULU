@@ -105,8 +105,15 @@ standalone asset pack.
 ### 8. In-house procedural props (wave 19, original work)
 - `props/mist-bank.glb`, `terrain/scorched-patch.glb`,
   `props/ember-cluster.glb`, `props/beams-collapsed.glb`,
-  `props/dead-bush.glb` and their textures (`textures/mist-soft.png`,
-  `textures/scorch-dark.png`, `textures/ember-glow.png`,
-  `textures/wood-dark.png`, `textures/bark-dead.png`) were generated in
-  code for this project — no third-party source, no license to verify.
+  `props/dead-bush.glb` were generated in code for this project — no
+  third-party source, no license to verify.
 - Original work by the CULT-ULHU project; treat as project-owned assets.
+
+### 8b. In-house texture atlas (wave 37, original work)
+- The five per-prop textures formerly used by the wave-19 props
+  (`mist-soft.png`, `scorch-dark.png`, `ember-glow.png`, `wood-dark.png`,
+  `bark-dead.png`) were packed into the single 512x512 RGBA atlas
+  `textures/prop-fx-atlas.png` (build script:
+  `procgen/build_prop_fx_atlas.py`; model UVs remapped with a half-texel
+  inset) to cut texture binds from 5 to 1. Project-owned, no license to
+  verify.

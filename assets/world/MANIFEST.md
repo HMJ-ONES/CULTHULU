@@ -149,6 +149,9 @@ New textures (all original, generated in code): `textures/mist-soft.png`
 (256x256 RGBA), `textures/scorch-dark.png` (256x256 RGBA),
 `textures/ember-glow.png` (128x128), `textures/wood-dark.png` (128x128),
 `textures/bark-dead.png` (64x64).
+*Wave 37 note: these five textures were packed into the single 512x512
+RGBA atlas `textures/prop-fx-atlas.png` (5 texture binds -> 1); the
+individual files were retired and the five models' UVs remapped.*
 
 | File | Source pack | License | Triangles | Size | Palette |
 |---|---|---|---|---|---|
@@ -166,11 +169,11 @@ New textures (all original, generated in code): `textures/mist-soft.png`
 | `props/broken-step.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 94 | 21.7 KB | textures/kaykit-dungeon-atlas.png (512x512) |
 | `buildings/arch-dungeon.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 724 | 67.5 KB | textures/kaykit-dungeon-atlas.png (512x512) |
 | `buildings/wall-broken.glb` | [KayKit Dungeon Remastered](https://kaylousberg.itch.io/kaykit-dungeon-remastered) | CC0 1.0 | 784 | 67.7 KB | textures/kaykit-dungeon-atlas.png (512x512) |
-| `props/mist-bank.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 2 | 1.3 KB | textures/mist-soft.png (256x256) |
-| `terrain/scorched-patch.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 2 | 1.3 KB | textures/scorch-dark.png (256x256) |
-| `props/ember-cluster.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 768 | 18.1 KB | textures/ember-glow.png (128x128) |
-| `props/beams-collapsed.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 48 | 6.0 KB | textures/wood-dark.png (128x128) |
-| `props/dead-bush.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 100 | 4.9 KB | textures/bark-dead.png (64x64) |
+| `props/mist-bank.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 2 | 1.3 KB | textures/prop-fx-atlas.png (wave-37 atlas) |
+| `terrain/scorched-patch.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 2 | 1.3 KB | textures/prop-fx-atlas.png (wave-37 atlas) |
+| `props/ember-cluster.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 768 | 18.1 KB | textures/prop-fx-atlas.png (wave-37 atlas) |
+| `props/beams-collapsed.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 48 | 6.0 KB | textures/prop-fx-atlas.png (wave-37 atlas) |
+| `props/dead-bush.glb` | in-house procgen (original work, no third-party IP) | n/a (original) | 100 | 4.9 KB | textures/prop-fx-atlas.png (wave-37 atlas) |
 | `props/stalactite-cluster.glb` | in-house procgen, `procgen/generate_props.py` (wave 32) | n/a (original) | 70 | 5.7 KB | vertex material (dark rock) |
 | `props/stalagmite-cluster.glb` | in-house procgen, `procgen/generate_props.py` (wave 32) | n/a (original) | 42 | 3.7 KB | vertex material (dark rock) |
 | `props/dark-crystal-cluster.glb` | in-house procgen, `procgen/generate_props.py` (wave 32) | n/a (original) | 48 | 4.2 KB | vertex material (black-violet, faint emissive) |
