@@ -49,6 +49,7 @@
 #include "power/PowerSystem.h"
 #include "save/SaveSystem.h"
 #include "ui/CommandMenu.h"
+#include "ui/StatsPanel.h"
 #include "world/MapLoader.h"
 
 #include <cmath>
@@ -560,11 +561,43 @@ struct BetaGame {
                   << "  ambient acts: " << ambient.actionsPerformed() << "\n";
         std::cout << "directive ops: " << executor.activeCount() << " active"
                   << (executor.defenseActive() ? " (DEFENDING)" : "") << "\n";
+        // At-a-glance kit cooldowns for the active character (q/f/r) —
+        // no need to burn a cast to learn something is on cooldown.
+        std::cout << "kit: ";
+        {
+            const CharacterDef* kit = charReg.get(activeKitId);
+            if (!kit) {
+                std::cout << "none";
+            } else {
+                const double now = clock.now();
+                const char* keys[3] = {"q", "f", "r"};
+                const SpellDef* spells[3] = {&kit->qAbility,
+                                             &kit->fAbility, &kit->rAbility};
+                for (int i = 0; i < 3; ++i) {
+                    if (i > 0) std::cout << "  ";
+                    const SpellDef* sp = spells[i];
+                    if (sp->id.empty()) {
+                        std::cout << keys[i] << " -";
+                        continue;
+                    }
+                    auto cdIt = kitCooldowns_.find(sp->id);
+                    if (cdIt == kitCooldowns_.end() ||
+                        cdIt->second <= now) {
+                        std::cout << keys[i] << " READY";
+                    } else {
+                        std::cout << keys[i] << " "
+                                  << static_cast<int>(cdIt->second - now + 0.5)
+                                  << "s";
+                    }
+                }
+            }
+        }
+        std::cout << "\n";
         for (size_t i = 0; i < cult.size(); ++i) {
             const Cultist& c = cult.at(i);
             std::cout << "  [" << i << "] id=" << c.id()
                       << " hp=" << c.hp()
-                      << " state=" << static_cast<int>(c.state())
+                      << " state=" << cultistStateName(c.state())
                       << " dev=" << c.devotion()
                       << (dreams.isResting(c.id()) ? " RESTING" : "")
                       << "\n";

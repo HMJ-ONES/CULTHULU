@@ -7,7 +7,7 @@
 
 namespace cultulhu {
 
-static const char* cultistStateName(CultistState s) {
+const char* cultistStateName(CultistState s) {
     switch (s) {
         case CultistState::Loyal:      return "Loyal";
         case CultistState::Infringer:  return "Infringer";

@@ -20,6 +20,7 @@
 //   kdaTable ........... per-player kill/death/assist rows (net::KdaRow)
 
 #include "beliefs/Belief.h"
+#include "entities/Units.h"
 #include "net/Kda.h"
 
 #include <map>
@@ -40,6 +41,10 @@ struct StatsData {
     float beliefGauges[static_cast<int>(Belief::Count)] = {};
     std::vector<net::KdaRow> kdaTable;
 };
+
+// Human-readable name for a cultist state ("Loyal", "Infringer", ...).
+// Shared with the driver's status display so both render the same names.
+const char* cultistStateName(CultistState s);
 
 class StatsPanel {
 public:
