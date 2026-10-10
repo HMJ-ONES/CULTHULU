@@ -1,0 +1,9 @@
+# Balance-sim run artifacts (CSVs). The written analysis is committed separately.
+sim_reports/
+# Decoded binary assets: the .b64 sidecars are tracked; the decoded .glb
+# working copies are not (decode via python assets/decode_assets.py).
+*.glb
+# Decoded textures: same deal, .png.b64 sidecars are tracked instead.
+assets/world/textures/*.png
+# Local build tree.
+build/

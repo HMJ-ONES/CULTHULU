@@ -1,0 +1,10 @@
+# Town Guard — city watch / militia NPC.
+# NPC package: model wired, logic-only otherwise (procedural anim fallback).
+# Model: KayKit Adventurers "Knight" (CC0), animations stripped for size.
+
+id = civilian_guard
+display_name = Town Guard
+flavor = It patrols the walls and tries not to look at the sea.
+max_hp = 80
+move_speed = 4.5
+max_stamina = 70

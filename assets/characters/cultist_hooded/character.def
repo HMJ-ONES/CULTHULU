@@ -1,0 +1,10 @@
+# Hooded Acolyte — rank-and-file cultist.
+# NPC package: model wired, logic-only otherwise (procedural anim fallback).
+# Model: KayKit Adventurers "Rogue_Hooded" (CC0), animations stripped for size.
+
+id = cultist_hooded
+display_name = Hooded Acolyte
+flavor = A faceless shape in the procession. It has already forgotten its name.
+max_hp = 60
+move_speed = 4.5
+max_stamina = 60

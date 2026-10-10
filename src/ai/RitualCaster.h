@@ -1,0 +1,73 @@
+#pragma once
+
+// Wave 4: ambient magic conversion rituals. Sorcerers in the world
+// periodically attempt to convert nearby civilians through ritual magic —
+// the "random magic conversion rituals" complement to player-directed
+// conversion campaigns. Success uses the exertion-derived conversion
+// chance (Conversion/Trickery/Magic exertion + Infiltration synergy,
+// minus Chaos Sabotage), so the cult's creed literally shapes how well
+// its sorcerers convert.
+
+#include "core/Events.h"
+#include "entities/Units.h"
+
+#include <cstdint>
+#include <vector>
+
+namespace cultulhu {
+
+class EventBus;
+class RNG;
+class BeliefSystem;
+class ExertionSystem;
+
+class RitualCaster {
+public:
+    RitualCaster(EventBus& bus, RNG& rng, BeliefSystem& beliefs,
+                 ExertionSystem& exertion, double intervalSeconds = 45.0);
+
+    // World state (raw pointers; the driver refreshes these each tick).
+    void setSorcerers(const std::vector<Sorcerer*>& s) { sorcerers_ = s; }
+    void setCivilians(const std::vector<Civilian*>& c) { civilians_ = c; }
+    // Wave 16: enemy cultists in range may be turned (Turncoat achievement).
+    void setCultists(const std::vector<Cultist*>& c) { cultists_ = c; }
+
+    void update(double dt);
+
+    uint64_t ritualsAttempted() const { return attempted_; }
+    uint64_t ritualsSucceeded() const { return succeeded_; }
+
+    // Wave 30: player-directed rituals — the next ritual aims near the
+    // directed point instead of a random nearby soul. Expires after 120s.
+    void setDirectedPoint(Vec3 p) {
+        directed_ = p;
+        hasDirected_ = true;
+        directedAge_ = 0.0;
+    }
+    void clearDirectedPoint() { hasDirected_ = false; }
+    bool hasDirectedPoint() const { return hasDirected_; }
+
+private:
+    EventBus& bus_;
+    RNG& rng_;
+    BeliefSystem& beliefs_;
+    ExertionSystem& exertion_;
+
+    std::vector<Sorcerer*> sorcerers_;
+    std::vector<Civilian*> civilians_;
+    std::vector<Cultist*> cultists_; // wave 16: turnable enemy cultists
+
+    double interval_;
+    double timer_ = 0.0;
+    uint64_t attempted_ = 0;
+    uint64_t succeeded_ = 0;
+    // Wave 30: directed ritual state.
+    Vec3 directed_{0, 0, 0};
+    bool hasDirected_ = false;
+    double directedAge_ = 0.0;
+
+    static constexpr float RANGE = 200.0f;
+    static constexpr float MANA_COST = 25.0f;
+};
+
+} // namespace cultulhu

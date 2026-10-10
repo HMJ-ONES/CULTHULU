@@ -1,0 +1,291 @@
+# ============================================================================
+# CULT-ULHU map file: eldritch_battlefield
+#
+# Wave 17 art pass: a dark eldritch battlefield in four zones —
+# shattered_court (ruined courtyard), cavern_mouth (cave rocks),
+# ashen_grove (dead forest), ember_shrine (torch-lit shrine).
+# Wave 19 second dark-art pass: +48 atmospheric placements (arches, broken
+# stairs, bones, coffins, mist banks, scorch, embers, dead bushes).
+# Wave 35 forest/deep-ruins procgen pass: +28 placements (ash-thicket,
+# hanging-moss, fungal-shelf, root-tangle in ashen_grove; ruined-column-b,
+# fallen-lintel, flagstone-slab, broken-obelisk in shattered_court and at
+# the cavern_mouth deep-ruins edge).
+# 162 placements + 4 atmosphere records. All models CC0 (Kenney Graveyard/Nature, KayKit
+# Dungeon Remastered/Halloween Bits) or in-house procgen. See
+# assets/world/MANIFEST.md.
+#
+# FORMAT: see the format block at the top of ruined_city.map. Wave 38 adds
+#   lod <model> hide=<m> [low=<m>]
+# and optional per-placement culling hints:
+#   place <model> <x> <y> <z> <rotYdeg> <scale> <zone> [cull=<m>] [nevercull]
+# (hide past <m> meters / pin visible at any distance).
+# ============================================================================
+
+map eldritch_battlefield
+
+zone shattered_court -60 0 -60 60 0 60 70
+zone cavern_mouth 80 0 -60 200 0 60 65
+zone ashen_grove -200 0 -60 -80 0 60 55
+zone ember_shrine -60 0 80 60 0 200 75
+
+# --- wave 32: atmosphere (lighting/mood data for the UE5 binding) ---
+# shattered_court: open violet-black night, stars burning through the ruin-haze
+atmosphere shattered_court fog=#0a0618,0.45 ambient=#241a3a,0.35 sky=#050214 stars=0.9
+# cavern_mouth: the rock swallows the sky — near-black, choking fog, no stars
+atmosphere cavern_mouth fog=#030208,0.85 ambient=#0d0a18,0.18 sky=#01010a stars=0.0
+# ashen_grove: grey-violet ash-haze, dim drowned stars
+atmosphere ashen_grove fog=#14101f,0.6 ambient=#1c1626,0.28 sky=#070512 stars=0.4
+# ember_shrine: ember-light bleeds into the dark — warm fog, pulsing gloom
+atmosphere ember_shrine fog=#170a08,0.55 ambient=#3a1a0e,0.45 sky=#0a0408 stars=0.5
+
+
+# --- wave 38: LOD distances (hide = hide past this range in meters,
+# low = switch to low-detail past this range; 0 = none) ---
+# Tuned from measured GLB triangle counts: detail(<120) 150/60,
+# props(<=450) 250/120, set pieces(<=900) 400/200, large 600/250,
+# landmarks 900/300, ground fx 50-60, lit props 200-300.
+# The engine binding consumes these (see unreal/Docs/SystemMapping.md).
+lod assets/world/props/grave-obelisk.glb hide=150 low=60
+lod assets/world/buildings/crypt-ruined.glb hide=150 low=60
+lod assets/world/buildings/crypt-small.glb hide=250 low=120
+lod assets/world/props/dungeon-pillar.glb hide=250 low=120
+lod assets/world/props/banner-tattered.glb hide=400 low=200
+lod assets/world/props/spike-trap.glb hide=400 low=200
+lod assets/world/props/bone-pile.glb hide=400 low=200
+lod assets/world/props/rocks-tall.glb hide=250 low=120
+lod assets/world/props/cave-wall-rock.glb hide=150 low=60
+lod assets/world/props/cave-boulder-a.glb hide=150 low=60
+lod assets/world/props/cave-boulder-c.glb hide=150 low=60
+lod assets/world/props/cave-rock-tall-a.glb hide=250 low=120
+lod assets/world/props/cave-rock-tall-c.glb hide=150 low=60
+lod assets/world/props/tree-dark-oak.glb hide=250 low=120
+lod assets/world/props/tree-dark-cone.glb hide=250 low=120
+lod assets/world/props/tree-dark-tall.glb hide=150 low=60
+lod assets/world/props/dead-trunk.glb hide=250 low=120
+lod assets/world/props/stalactite-cluster.glb hide=150 low=60
+lod assets/world/props/stalagmite-cluster.glb hide=150 low=60
+lod assets/world/props/dark-crystal-cluster.glb hide=150 low=60
+lod assets/world/props/hanging-chain.glb hide=600 low=250
+lod assets/world/props/tree-dead-bare.glb hide=250 low=120
+lod assets/world/props/dead-trunk-long.glb hide=250 low=120
+lod assets/world/props/tombstone-carved.glb hide=250 low=120
+lod assets/world/props/tombstone-weathered.glb hide=250 low=120
+lod assets/world/props/pine-dead-crooked.glb hide=250 low=120
+lod assets/world/props/ash-thicket.glb hide=250 low=120
+lod assets/world/props/hanging-moss.glb hide=150 low=60
+lod assets/world/props/fungal-shelf.glb hide=150 low=60
+lod assets/world/props/root-tangle.glb hide=250 low=120
+lod assets/world/props/ruined-column-b.glb hide=150 low=60
+lod assets/world/props/fallen-lintel.glb hide=150 low=60
+lod assets/world/props/flagstone-slab.glb hide=150 low=60
+lod assets/world/props/broken-obelisk.glb hide=150 low=60
+lod assets/world/props/torch-stand.glb hide=300 low=150
+lod assets/world/props/torch-wall.glb hide=300 low=150
+lod assets/world/props/lantern-iron.glb hide=300 low=150
+lod assets/world/props/candles-cluster.glb hide=200 low=100
+lod assets/world/props/chest-old.glb hide=400 low=200
+lod assets/world/props/arch-ruined.glb hide=250 low=120
+lod assets/world/buildings/arch-dungeon.glb hide=900 low=300
+lod assets/world/buildings/stairs-ruined.glb hide=250 low=120
+lod assets/world/props/rubble-large.glb hide=400 low=200
+lod assets/world/props/broken-step.glb hide=150 low=60
+lod assets/world/buildings/wall-broken.glb hide=400 low=200
+lod assets/world/props/ribcage.glb hide=600 low=250
+lod assets/world/props/skull.glb hide=250 low=120
+lod assets/world/props/skull-candle.glb hide=200 low=100
+lod assets/world/props/bones-scattered.glb hide=250 low=120
+lod assets/world/props/coffin-stone.glb hide=250 low=120
+lod assets/world/props/mist-bank.glb hide=60 low=0
+lod assets/world/props/arch-gate.glb hide=900 low=300
+lod assets/world/props/beams-collapsed.glb hide=150 low=60
+lod assets/world/props/dead-bush.glb hide=150 low=60
+lod assets/world/terrain/scorched-patch.glb hide=50 low=0
+lod assets/world/props/tree-dead-large.glb hide=250 low=120
+lod assets/world/props/ember-cluster.glb hide=200 low=100
+lod assets/world/props/fence-broken.glb hide=250 low=120
+
+# --- shattered_court: the ruined heart ---
+place assets/world/props/grave-obelisk.glb 0 0 0 0 1.6 shattered_court nevercull
+place assets/world/buildings/crypt-ruined.glb -28 0 -24 20 1.0 shattered_court
+place assets/world/buildings/crypt-ruined.glb 28 0 -24 340 1.0 shattered_court
+place assets/world/buildings/crypt-small.glb -28 0 24 160 1.0 shattered_court
+place assets/world/buildings/crypt-small.glb 28 0 24 200 1.0 shattered_court
+place assets/world/props/dungeon-pillar.glb -14 0 -14 0 1.0 shattered_court
+place assets/world/props/dungeon-pillar.glb 14 0 -14 90 1.0 shattered_court
+place assets/world/props/dungeon-pillar.glb -14 0 14 180 1.0 shattered_court
+place assets/world/props/dungeon-pillar.glb 14 0 14 270 1.0 shattered_court
+place assets/world/props/banner-tattered.glb -40 0 0 90 1.0 shattered_court
+place assets/world/props/banner-tattered.glb 40 0 0 270 1.0 shattered_court
+place assets/world/props/banner-tattered.glb 0 0 -40 0 1.0 shattered_court
+place assets/world/props/banner-tattered.glb 0 0 40 180 1.0 shattered_court
+place assets/world/props/spike-trap.glb -8 0 30 45 1.0 shattered_court
+place assets/world/props/spike-trap.glb 10 0 -32 135 1.0 shattered_court
+place assets/world/props/spike-trap.glb -35 0 8 225 1.0 shattered_court
+place assets/world/props/spike-trap.glb 34 0 10 315 1.0 shattered_court
+place assets/world/props/bone-pile.glb -20 0 34 30 1.0 shattered_court
+place assets/world/props/bone-pile.glb 22 0 -34 210 1.0 shattered_court
+place assets/world/props/rocks-tall.glb -45 0 -45 0 1.2 shattered_court
+
+# --- cavern_mouth: where the rock splits ---
+place assets/world/props/cave-wall-rock.glb 140 0 -50 0 2.0 cavern_mouth
+place assets/world/props/cave-wall-rock.glb 170 0 -52 30 2.2 cavern_mouth
+place assets/world/props/cave-wall-rock.glb 110 0 -50 330 1.8 cavern_mouth
+place assets/world/props/cave-boulder-a.glb 120 0 -20 0 1.0 cavern_mouth
+place assets/world/props/cave-boulder-a.glb 155 0 -10 120 1.3 cavern_mouth
+place assets/world/props/cave-boulder-c.glb 135 0 15 200 1.1 cavern_mouth
+place assets/world/props/cave-boulder-c.glb 165 0 25 45 0.9 cavern_mouth
+place assets/world/props/cave-rock-tall-a.glb 100 0 10 0 1.0 cavern_mouth
+place assets/world/props/cave-rock-tall-a.glb 185 0 -5 180 1.2 cavern_mouth
+place assets/world/props/cave-rock-tall-c.glb 125 0 40 90 1.0 cavern_mouth
+place assets/world/props/cave-rock-tall-c.glb 150 0 45 270 1.1 cavern_mouth
+place assets/world/props/rocks-tall.glb 95 0 -30 0 1.0 cavern_mouth
+place assets/world/props/rocks-tall.glb 190 0 35 140 1.0 cavern_mouth
+place assets/world/props/tree-dark-oak.glb 88 0 50 0 1.0 cavern_mouth
+place assets/world/props/tree-dark-cone.glb 192 0 -45 0 1.0 cavern_mouth
+place assets/world/props/tree-dark-tall.glb 105 0 52 0 1.2 cavern_mouth
+place assets/world/props/dead-trunk.glb 175 0 50 60 1.0 cavern_mouth
+place assets/world/props/bone-pile.glb 145 0 0 0 0.8 cavern_mouth
+
+# --- wave 32: cave vertical dressing (in-house procgen) ---
+place assets/world/props/stalactite-cluster.glb 130 8 -30 0 1.2 cavern_mouth
+place assets/world/props/stalactite-cluster.glb 160 9 -5 120 1.0 cavern_mouth
+place assets/world/props/stalactite-cluster.glb 145 8 25 240 1.4 cavern_mouth
+place assets/world/props/stalagmite-cluster.glb 125 0 -15 0 1.1 cavern_mouth
+place assets/world/props/stalagmite-cluster.glb 168 0 10 90 0.9 cavern_mouth
+place assets/world/props/stalagmite-cluster.glb 148 0 38 180 1.3 cavern_mouth
+place assets/world/props/dark-crystal-cluster.glb 115 0 -40 0 1.0 cavern_mouth
+place assets/world/props/dark-crystal-cluster.glb 180 0 20 150 1.2 cavern_mouth
+place assets/world/props/dark-crystal-cluster.glb -20 0 120 0 1.1 ember_shrine
+place assets/world/props/dark-crystal-cluster.glb 30 0 160 90 0.9 ember_shrine
+place assets/world/props/hanging-chain.glb 138 9 52 0 1.0 cavern_mouth
+place assets/world/props/hanging-chain.glb 142 9 56 90 1.0 cavern_mouth
+place assets/world/props/hanging-chain.glb -30 0 20 0 1.2 shattered_court
+place assets/world/props/hanging-chain.glb 20 0 -40 180 1.0 shattered_court
+
+# --- ashen_grove: the dead forest ---
+place assets/world/props/tree-dead-bare.glb -120 0 0 0 1.2 ashen_grove
+place assets/world/props/tree-dead-bare.glb -150 0 -25 90 1.0 ashen_grove
+place assets/world/props/tree-dead-bare.glb -110 0 30 180 1.1 ashen_grove
+place assets/world/props/tree-dead-bare.glb -165 0 20 270 0.9 ashen_grove
+place assets/world/props/tree-dark-oak.glb -135 0 -40 0 1.3 ashen_grove
+place assets/world/props/tree-dark-oak.glb -100 0 -15 120 1.0 ashen_grove
+place assets/world/props/tree-dark-oak.glb -175 0 -5 240 1.1 ashen_grove
+place assets/world/props/tree-dark-cone.glb -145 0 40 0 1.0 ashen_grove
+place assets/world/props/tree-dark-cone.glb -125 0 -10 180 1.2 ashen_grove
+place assets/world/props/tree-dark-cone.glb -160 0 45 90 1.0 ashen_grove
+place assets/world/props/tree-dark-tall.glb -115 0 -45 0 1.0 ashen_grove
+place assets/world/props/tree-dark-tall.glb -185 0 30 0 1.4 ashen_grove
+place assets/world/props/dead-trunk.glb -140 0 10 45 1.0 ashen_grove
+place assets/world/props/dead-trunk-long.glb -155 0 -35 135 1.0 ashen_grove
+place assets/world/props/tombstone-carved.glb -130 0 25 0 1.0 ashen_grove
+place assets/world/props/tombstone-carved.glb -170 0 -20 180 1.0 ashen_grove
+place assets/world/props/tombstone-weathered.glb -105 0 15 90 1.0 ashen_grove
+place assets/world/props/pine-dead-crooked.glb -190 0 -40 0 1.0 ashen_grove
+
+# Wave 35: +28 procgen placements — forest mid-storey dressing in ashen_grove
+# (ash-thicket, hanging-moss, fungal-shelf, root-tangle) and deep-ruins
+# masonry in shattered_court (ruined-column-b, fallen-lintel, flagstone-slab,
+# broken-obelisk), with a deep-ruins edge at the cavern_mouth cave mouth.
+# ashen_grove: the forest grows teeth — thickets, moss, fungus, roots
+place assets/world/props/ash-thicket.glb -95 0 -50 0 1.1 ashen_grove
+place assets/world/props/ash-thicket.glb -180 0 50 120 1.2 ashen_grove
+place assets/world/props/ash-thicket.glb -135 0 5 240 0.9 ashen_grove
+place assets/world/props/ash-thicket.glb -192 0 8 60 1.0 ashen_grove
+place assets/world/props/hanging-moss.glb -155 0 -8 0 1.0 ashen_grove
+place assets/world/props/hanging-moss.glb -105 0 -35 180 1.1 ashen_grove
+place assets/world/props/hanging-moss.glb -140 0 -48 45 1.0 ashen_grove
+place assets/world/props/fungal-shelf.glb -148 0 28 0 1.0 ashen_grove
+place assets/world/props/fungal-shelf.glb -118 0 -28 90 1.0 ashen_grove
+place assets/world/props/fungal-shelf.glb -172 0 38 180 1.0 ashen_grove
+place assets/world/props/root-tangle.glb -128 0 48 0 1.0 ashen_grove
+place assets/world/props/root-tangle.glb -182 0 -18 90 1.0 ashen_grove
+place assets/world/props/root-tangle.glb -98 0 42 180 1.0 ashen_grove
+place assets/world/props/root-tangle.glb -112 0 -52 270 1.0 ashen_grove
+# shattered_court: older stones beneath the ruin — columns, lintels, slabs
+place assets/world/props/ruined-column-b.glb -8 0 -8 0 1.0 shattered_court
+place assets/world/props/ruined-column-b.glb 8 0 8 180 1.1 shattered_court
+place assets/world/props/fallen-lintel.glb 48 0 -8 20 1.0 shattered_court
+place assets/world/props/fallen-lintel.glb -48 0 -20 110 1.0 shattered_court
+place assets/world/props/flagstone-slab.glb 24 0 8 0 1.0 shattered_court
+place assets/world/props/flagstone-slab.glb -24 0 -8 90 1.0 shattered_court
+place assets/world/props/broken-obelisk.glb 8 0 -20 0 1.0 shattered_court
+place assets/world/props/broken-obelisk.glb -8 0 22 135 1.0 shattered_court
+# cavern_mouth: deep-ruins edge where the rock splits
+place assets/world/props/ruined-column-b.glb 100 0 -45 30 1.2 cavern_mouth
+place assets/world/props/broken-obelisk.glb 190 0 -30 200 1.1 cavern_mouth
+place assets/world/props/fallen-lintel.glb 128 0 45 75 1.0 cavern_mouth
+place assets/world/props/flagstone-slab.glb 158 0 42 150 1.0 cavern_mouth
+place assets/world/props/ruined-column-b.glb 188 0 45 300 0.9 cavern_mouth
+place assets/world/props/broken-obelisk.glb 95 0 20 40 1.0 cavern_mouth
+
+# --- ember_shrine: fire in the dark ---
+place assets/world/props/torch-stand.glb -20 0 100 0 1.0 ember_shrine
+place assets/world/props/torch-stand.glb 20 0 100 0 1.0 ember_shrine
+place assets/world/props/torch-stand.glb -20 0 180 0 1.0 ember_shrine
+place assets/world/props/torch-stand.glb 20 0 180 0 1.0 ember_shrine
+place assets/world/props/torch-wall.glb -8 0 140 0 1.0 ember_shrine
+place assets/world/props/torch-wall.glb 8 0 140 180 1.0 ember_shrine
+place assets/world/props/lantern-iron.glb 0 0 120 0 1.0 ember_shrine
+place assets/world/props/lantern-iron.glb -12 0 160 90 1.0 ember_shrine
+place assets/world/props/lantern-iron.glb 12 0 160 270 1.0 ember_shrine
+place assets/world/props/candles-cluster.glb -6 0 130 0 1.0 ember_shrine
+place assets/world/props/candles-cluster.glb 6 0 130 120 1.0 ember_shrine
+place assets/world/props/candles-cluster.glb -6 0 150 240 1.0 ember_shrine
+place assets/world/props/candles-cluster.glb 6 0 150 60 1.0 ember_shrine
+place assets/world/props/chest-old.glb 0 0 190 180 1.0 ember_shrine
+place assets/world/props/bone-pile.glb -30 0 140 0 1.0 ember_shrine
+place assets/world/props/tombstone-weathered.glb 30 0 140 0 1.0 ember_shrine
+
+# --- wave 19: second dark-art pass (atmospheric props) ---
+# shattered_court: arches rise, stairs crumble, bones gather
+place assets/world/props/arch-ruined.glb 0 0 -52 0 1.0 shattered_court
+place assets/world/props/arch-ruined.glb -52 0 0 90 1.0 shattered_court
+place assets/world/buildings/arch-dungeon.glb 45 0 -45 315 1.0 shattered_court
+place assets/world/buildings/stairs-ruined.glb -45 0 45 45 1.0 shattered_court
+place assets/world/props/rubble-large.glb -38 0 48 0 1.0 shattered_court
+place assets/world/props/broken-step.glb -42 0 41 20 1.0 shattered_court
+place assets/world/buildings/wall-broken.glb 52 0 20 90 1.0 shattered_court
+place assets/world/props/ribcage.glb -24 0 28 40 1.0 shattered_court
+place assets/world/props/skull.glb 18 0 36 0 1.0 shattered_court
+place assets/world/props/skull-candle.glb -14 0 -38 0 1.0 shattered_court
+place assets/world/props/bones-scattered.glb 26 0 -28 130 1.0 shattered_court
+place assets/world/props/coffin-stone.glb 35 0 30 200 1.0 shattered_court
+place assets/world/props/mist-bank.glb 0 0 20 30 1.2 shattered_court
+# cavern_mouth: the gate into the dark, framed by stone
+place assets/world/props/arch-gate.glb 140 0 54 0 1.2 cavern_mouth nevercull
+place assets/world/props/cave-boulder-a.glb 132 0 54 0 1.1 cavern_mouth
+place assets/world/props/cave-boulder-c.glb 148 0 54 90 1.0 cavern_mouth
+place assets/world/props/beams-collapsed.glb 120 0 30 40 1.0 cavern_mouth
+place assets/world/props/beams-collapsed.glb 170 0 -30 130 1.0 cavern_mouth
+place assets/world/props/dead-bush.glb 110 0 -35 0 1.0 cavern_mouth
+place assets/world/props/dead-bush.glb 185 0 20 90 1.2 cavern_mouth
+place assets/world/terrain/scorched-patch.glb 150 0 5 0 1.2 cavern_mouth
+place assets/world/props/skull.glb 145 0 -5 200 1.0 cavern_mouth
+place assets/world/props/mist-bank.glb 160 0 -15 60 1.4 cavern_mouth
+place assets/world/props/mist-bank.glb 105 0 35 200 1.0 cavern_mouth
+# ashen_grove: dead wood, dead ground, drifting mist
+place assets/world/props/tree-dead-large.glb -155 0 5 0 1.3 ashen_grove
+place assets/world/props/tree-dead-large.glb -120 0 -30 120 1.0 ashen_grove
+place assets/world/props/tree-dead-large.glb -185 0 -10 240 1.1 ashen_grove
+place assets/world/props/dead-bush.glb -130 0 10 0 1.0 ashen_grove
+place assets/world/props/dead-bush.glb -165 0 -5 80 1.3 ashen_grove
+place assets/world/props/dead-bush.glb -110 0 45 160 0.9 ashen_grove
+place assets/world/props/dead-bush.glb -190 0 20 250 1.1 ashen_grove
+place assets/world/props/ribcage.glb -135 0 20 90 1.0 ashen_grove
+place assets/world/props/skull.glb -150 0 35 0 1.0 ashen_grove
+place assets/world/props/bones-scattered.glb -175 0 10 45 1.0 ashen_grove
+place assets/world/terrain/scorched-patch.glb -140 0 -20 0 1.4 ashen_grove
+place assets/world/props/mist-bank.glb -125 0 0 80 1.3 ashen_grove
+# ember_shrine: embers breathe where the fire was
+place assets/world/props/ember-cluster.glb -15 0 115 0 1.0 ember_shrine
+place assets/world/props/ember-cluster.glb 15 0 165 90 1.2 ember_shrine
+place assets/world/props/ember-cluster.glb 0 0 175 180 1.0 ember_shrine
+place assets/world/props/ember-cluster.glb -25 0 150 270 0.9 ember_shrine
+place assets/world/terrain/scorched-patch.glb 0 0 140 0 1.5 ember_shrine
+place assets/world/terrain/scorched-patch.glb 20 0 120 0 1.2 ember_shrine
+place assets/world/props/skull-candle.glb -3 0 142 0 1.0 ember_shrine
+place assets/world/props/skull-candle.glb 3 0 142 180 1.0 ember_shrine
+place assets/world/props/coffin-stone.glb -35 0 175 90 1.0 ember_shrine
+place assets/world/props/coffin-stone.glb 35 0 175 270 1.0 ember_shrine
+place assets/world/props/fence-broken.glb -45 0 140 70 1.0 ember_shrine
+place assets/world/props/mist-bank.glb 4 0 193 0 1.3 ember_shrine

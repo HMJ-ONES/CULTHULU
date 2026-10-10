@@ -1,0 +1,180 @@
+# CULT-ULHU ability visual-effect library (wave 36).
+#
+# One preset per ability effect kind (see docs/KITS.md for the
+# vocabulary). A spell with no explicit `fx` line in character.def
+# automatically uses the preset whose id matches its effect kind, so
+# all 60 Q/F/R abilities across the 20 kits get visuals for free.
+# Character authors can override with `fx = <id>` in [q]/[f]/[r].
+#
+# Format: [preset id], then key = value. Ranges are "min,max".
+# colors are hex RRGGBB "start,end". texture is one of
+# none|smoke|spark|rune|mist|ichor.
+#
+# Low-spec budget rules (enforced by tests_wave36):
+#   count <= 256 per burst; additive presets <= 128 (fill-rate);
+#   looping emitters <= 64; duration <= 4 s; size <= 6 m.
+
+[aoe_damage]
+display_name = Eldritch Impact
+emitter = sphere
+count = 120
+lifetime = 0.4,1.2
+speed = 6,18
+spread = 90
+size = 0.8,3.0
+colors = 1a0b2e,7a2fd0
+additive = false
+gravity = -2.0
+texture = smoke
+duration = 1.6
+loop = false
+
+[projectile]
+display_name = Void Bolt
+emitter = cone
+count = 40
+lifetime = 0.3,0.8
+speed = 18,30
+spread = 8
+size = 0.4,1.0
+colors = 00e5ff,7a2fd0
+additive = true
+gravity = 0.0
+texture = spark
+duration = 1.2
+loop = false
+
+[dash]
+display_name = Blur Trail
+emitter = point
+count = 48
+lifetime = 0.3,0.7
+speed = 1,4
+spread = 180
+size = 0.6,1.6
+colors = 3a3a4a,8a7fd0
+additive = false
+gravity = 1.5
+texture = mist
+duration = 0.8
+loop = false
+
+[summon]
+display_name = Rift Opening
+emitter = ring
+count = 96
+lifetime = 0.8,1.8
+speed = 2,6
+spread = 60
+size = 0.6,2.0
+colors = 1a4a2e,7a2fd0
+additive = true
+gravity = -4.0
+texture = rune
+duration = 2.0
+loop = false
+
+[fear_aura]
+display_name = Dread Mist
+emitter = sphere
+count = 48
+lifetime = 1.5,3.0
+speed = 0.5,2
+spread = 180
+size = 1.5,4.0
+colors = 2e0b0b,000000
+additive = false
+gravity = -1.0
+texture = mist
+duration = 3.0
+loop = true
+
+[stun]
+display_name = Mind Shatter
+emitter = beam
+count = 32
+lifetime = 0.2,0.6
+speed = 8,16
+spread = 25
+size = 0.3,0.9
+colors = ffffff,7a2fd0
+additive = true
+gravity = 0.0
+texture = spark
+duration = 0.8
+loop = false
+
+[debuff]
+display_name = Corruption Veil
+emitter = cone
+count = 80
+lifetime = 0.6,1.4
+speed = 4,10
+spread = 45
+size = 0.5,1.4
+colors = 2e4a1a,4a7a1a
+additive = false
+gravity = 6.0
+texture = ichor
+duration = 1.8
+loop = false
+
+[buff]
+display_name = Zealot's Halo
+emitter = ring
+count = 56
+lifetime = 0.6,1.2
+speed = 2,5
+spread = 90
+size = 0.5,1.2
+colors = d0a03a,fff0b0
+additive = true
+gravity = -3.0
+texture = mist
+duration = 1.5
+loop = false
+
+[pull]
+display_name = Grasping Tide
+emitter = beam
+count = 72
+lifetime = 0.5,1.0
+speed = 10,20
+spread = 20
+size = 0.4,1.2
+colors = 0b2e2e,00b0a0
+additive = false
+gravity = 0.0
+texture = spark
+duration = 1.2
+loop = false
+
+[shield]
+display_name = Warding Carapace
+emitter = sphere
+count = 40
+lifetime = 1.0,2.0
+speed = 0.2,1
+spread = 180
+size = 0.8,1.6
+colors = 0b2e3a,00c8ff
+additive = true
+gravity = 0.0
+texture = rune
+duration = 3.0
+loop = true
+
+[heal]
+display_name = Flesh Mending
+emitter = point
+count = 48
+lifetime = 0.8,1.6
+speed = 1,4
+spread = 60
+size = 0.4,1.0
+colors = 4a7a3a,d0ffb0
+additive = true
+gravity = -2.5
+texture = mist
+duration = 1.6
+loop = false

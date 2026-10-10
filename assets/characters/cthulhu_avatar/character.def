@@ -1,0 +1,58 @@
+# Cthulhu Avatar — "Cthulhu, the Dreaming God".
+# Template character package: drop this folder in assets/characters/ and
+# the loader picks it up with no code changes. Copy it to start a new
+# character, then edit the values below.
+
+id = cthulhu_avatar
+display_name = Cthulhu, the Dreaming God
+flavor = The dreaming god walks. Cities drown in his shadow.
+max_hp = 500
+move_speed = 6.0
+max_stamina = 100
+melee_combo = eldritch_flurry
+rmb_ability = wave_of_domination
+
+[q]
+id = tentacle_slam
+name = Tentacle Slam
+flavor = A mountain of tentacles crashes down.
+cooldown = 8
+stamina_cost = 25
+mana_cost = 0
+effect = aoe_damage
+power = 120
+range = 8
+
+[f]
+id = nightmare_veil
+name = Nightmare Veil
+flavor = Reality thins; all who look upon him flee.
+cooldown = 15
+stamina_cost = 35
+mana_cost = 0
+effect = fear_aura
+power = 4
+range = 12
+
+[r]
+id = call_of_the_deep
+name = Call of the Deep
+flavor = The ocean answers: Deep Ones rise to serve.
+cooldown = 45
+stamina_cost = 50
+mana_cost = 0
+effect = summon
+power = 4
+range = 20
+
+[rightclick]
+kind = MindControl
+name = Wave of Domination
+damage_mult = 0.4
+range = 25
+cc = Stun
+cc_seconds = 2.5
+
+[passive]
+id = dreamers_presence
+desc = Dreamer's Presence: foes near the avatar accumulate dread; at full dread they break and flee. (Behavior hook; engine binds it.)
