@@ -13,6 +13,12 @@
 # 162 placements + 4 atmosphere records. All models CC0 (Kenney Graveyard/Nature, KayKit
 # Dungeon Remastered/Halloween Bits) or in-house procgen. See
 # assets/world/MANIFEST.md.
+#
+# FORMAT: see the format block at the top of ruined_city.map. Wave 38 adds
+#   lod <model> hide=<m> [low=<m>]
+# and optional per-placement culling hints:
+#   place <model> <x> <y> <z> <rotYdeg> <scale> <zone> [cull=<m>] [nevercull]
+# (hide past <m> meters / pin visible at any distance).
 # ============================================================================
 
 map eldritch_battlefield
@@ -32,8 +38,74 @@ atmosphere ashen_grove fog=#14101f,0.6 ambient=#1c1626,0.28 sky=#070512 stars=0.
 # ember_shrine: ember-light bleeds into the dark — warm fog, pulsing gloom
 atmosphere ember_shrine fog=#170a08,0.55 ambient=#3a1a0e,0.45 sky=#0a0408 stars=0.5
 
+
+# --- wave 38: LOD distances (hide = hide past this range in meters,
+# low = switch to low-detail past this range; 0 = none) ---
+# Tuned from measured GLB triangle counts: detail(<120) 150/60,
+# props(<=450) 250/120, set pieces(<=900) 400/200, large 600/250,
+# landmarks 900/300, ground fx 50-60, lit props 200-300.
+# The engine binding consumes these (see unreal/Docs/SystemMapping.md).
+lod assets/world/props/grave-obelisk.glb hide=150 low=60
+lod assets/world/buildings/crypt-ruined.glb hide=150 low=60
+lod assets/world/buildings/crypt-small.glb hide=250 low=120
+lod assets/world/props/dungeon-pillar.glb hide=250 low=120
+lod assets/world/props/banner-tattered.glb hide=400 low=200
+lod assets/world/props/spike-trap.glb hide=400 low=200
+lod assets/world/props/bone-pile.glb hide=400 low=200
+lod assets/world/props/rocks-tall.glb hide=250 low=120
+lod assets/world/props/cave-wall-rock.glb hide=150 low=60
+lod assets/world/props/cave-boulder-a.glb hide=150 low=60
+lod assets/world/props/cave-boulder-c.glb hide=150 low=60
+lod assets/world/props/cave-rock-tall-a.glb hide=250 low=120
+lod assets/world/props/cave-rock-tall-c.glb hide=150 low=60
+lod assets/world/props/tree-dark-oak.glb hide=250 low=120
+lod assets/world/props/tree-dark-cone.glb hide=250 low=120
+lod assets/world/props/tree-dark-tall.glb hide=150 low=60
+lod assets/world/props/dead-trunk.glb hide=250 low=120
+lod assets/world/props/stalactite-cluster.glb hide=150 low=60
+lod assets/world/props/stalagmite-cluster.glb hide=150 low=60
+lod assets/world/props/dark-crystal-cluster.glb hide=150 low=60
+lod assets/world/props/hanging-chain.glb hide=600 low=250
+lod assets/world/props/tree-dead-bare.glb hide=250 low=120
+lod assets/world/props/dead-trunk-long.glb hide=250 low=120
+lod assets/world/props/tombstone-carved.glb hide=250 low=120
+lod assets/world/props/tombstone-weathered.glb hide=250 low=120
+lod assets/world/props/pine-dead-crooked.glb hide=250 low=120
+lod assets/world/props/ash-thicket.glb hide=250 low=120
+lod assets/world/props/hanging-moss.glb hide=150 low=60
+lod assets/world/props/fungal-shelf.glb hide=150 low=60
+lod assets/world/props/root-tangle.glb hide=250 low=120
+lod assets/world/props/ruined-column-b.glb hide=150 low=60
+lod assets/world/props/fallen-lintel.glb hide=150 low=60
+lod assets/world/props/flagstone-slab.glb hide=150 low=60
+lod assets/world/props/broken-obelisk.glb hide=150 low=60
+lod assets/world/props/torch-stand.glb hide=300 low=150
+lod assets/world/props/torch-wall.glb hide=300 low=150
+lod assets/world/props/lantern-iron.glb hide=300 low=150
+lod assets/world/props/candles-cluster.glb hide=200 low=100
+lod assets/world/props/chest-old.glb hide=400 low=200
+lod assets/world/props/arch-ruined.glb hide=250 low=120
+lod assets/world/buildings/arch-dungeon.glb hide=900 low=300
+lod assets/world/buildings/stairs-ruined.glb hide=250 low=120
+lod assets/world/props/rubble-large.glb hide=400 low=200
+lod assets/world/props/broken-step.glb hide=150 low=60
+lod assets/world/buildings/wall-broken.glb hide=400 low=200
+lod assets/world/props/ribcage.glb hide=600 low=250
+lod assets/world/props/skull.glb hide=250 low=120
+lod assets/world/props/skull-candle.glb hide=200 low=100
+lod assets/world/props/bones-scattered.glb hide=250 low=120
+lod assets/world/props/coffin-stone.glb hide=250 low=120
+lod assets/world/props/mist-bank.glb hide=60 low=0
+lod assets/world/props/arch-gate.glb hide=900 low=300
+lod assets/world/props/beams-collapsed.glb hide=150 low=60
+lod assets/world/props/dead-bush.glb hide=150 low=60
+lod assets/world/terrain/scorched-patch.glb hide=50 low=0
+lod assets/world/props/tree-dead-large.glb hide=250 low=120
+lod assets/world/props/ember-cluster.glb hide=200 low=100
+lod assets/world/props/fence-broken.glb hide=250 low=120
+
 # --- shattered_court: the ruined heart ---
-place assets/world/props/grave-obelisk.glb 0 0 0 0 1.6 shattered_court
+place assets/world/props/grave-obelisk.glb 0 0 0 0 1.6 shattered_court nevercull
 place assets/world/buildings/crypt-ruined.glb -28 0 -24 20 1.0 shattered_court
 place assets/world/buildings/crypt-ruined.glb 28 0 -24 340 1.0 shattered_court
 place assets/world/buildings/crypt-small.glb -28 0 24 160 1.0 shattered_court
@@ -180,7 +252,7 @@ place assets/world/props/bones-scattered.glb 26 0 -28 130 1.0 shattered_court
 place assets/world/props/coffin-stone.glb 35 0 30 200 1.0 shattered_court
 place assets/world/props/mist-bank.glb 0 0 20 30 1.2 shattered_court
 # cavern_mouth: the gate into the dark, framed by stone
-place assets/world/props/arch-gate.glb 140 0 54 0 1.2 cavern_mouth
+place assets/world/props/arch-gate.glb 140 0 54 0 1.2 cavern_mouth nevercull
 place assets/world/props/cave-boulder-a.glb 132 0 54 0 1.1 cavern_mouth
 place assets/world/props/cave-boulder-c.glb 148 0 54 90 1.0 cavern_mouth
 place assets/world/props/beams-collapsed.glb 120 0 30 40 1.0 cavern_mouth

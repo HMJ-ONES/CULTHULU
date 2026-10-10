@@ -95,10 +95,11 @@ MapData MapLoader::load(const std::string& path) {
                                     "zone min corner exceeds max corner");
             data.zones.push_back(std::move(z));
         } else if (kw == "place") {
-            if (toks.size() != 8)
+            if (toks.size() < 8)
                 throw MapParseError(
                     path, lineNo,
-                    "'place' needs 7 arguments: model x y z rotY scale zone");
+                    "'place' needs 7 arguments plus optional cull hints: "
+                    "model x y z rotY scale zone [cull=<m>] [nevercull]");
             if (!haveMap)
                 throw MapParseError(path, lineNo,
                                     "'place' before 'map' declaration");
@@ -112,6 +113,35 @@ MapData MapLoader::load(const std::string& path) {
             if (p.scale <= 0.0f)
                 throw MapParseError(path, lineNo, "scale must be > 0");
             p.zone = toks[7];
+            // Wave 38: optional per-placement culling hints.
+            for (size_t i = 8; i < toks.size(); ++i) {
+                const std::string& arg = toks[i];
+                if (arg == "nevercull") {
+                    p.neverCull = true;
+                } else {
+                    const size_t eq = arg.find('=');
+                    const std::string key =
+                        eq == std::string::npos ? arg : arg.substr(0, eq);
+                    const std::string val =
+                        eq == std::string::npos ? "" : arg.substr(eq + 1);
+                    if (key == "cull" && !val.empty()) {
+                        p.cullDist =
+                            parseFloat(path, lineNo, val, "cull distance");
+                        if (p.cullDist <= 0.0f)
+                            throw MapParseError(
+                                path, lineNo,
+                                "cull distance must be > 0");
+                    } else {
+                        throw MapParseError(
+                            path, lineNo,
+                            "unknown 'place' hint '" + arg +
+                                "' (expected cull=<m>|nevercull)");
+                    }
+                }
+            }
+            if (p.neverCull && p.cullDist > 0.0f)
+                throw MapParseError(path, lineNo,
+                                    "'cull=<m>' and 'nevercull' conflict");
             bool known = false;
             for (const auto& z : data.zones)
                 if (z.name == p.zone) { known = true; break; }
@@ -119,6 +149,54 @@ MapData MapLoader::load(const std::string& path) {
                 throw MapParseError(path, lineNo,
                                     "unknown zone '" + p.zone + "'");
             data.placements.push_back(std::move(p));
+        } else if (kw == "lod") {
+            // Wave 38: per-model LOD distances for the engine binding.
+            //   lod <model> hide=<m> [low=<m>]
+            // hide= is required and must be > 0; low= is optional and must
+            // be < hide. One rule per model (duplicates are an error).
+            if (toks.size() < 3)
+                throw MapParseError(path, lineNo,
+                                    "'lod' needs a model and hide=<m>");
+            if (!haveMap)
+                throw MapParseError(path, lineNo,
+                                    "'lod' before 'map' declaration");
+            LodRule r;
+            r.modelPath = toks[1];
+            for (size_t i = 2; i < toks.size(); ++i) {
+                const std::string& arg = toks[i];
+                const size_t eq = arg.find('=');
+                if (eq == std::string::npos)
+                    throw MapParseError(path, lineNo,
+                                        "lod arg must be key=value, got '" +
+                                            arg + "'");
+                const std::string key = arg.substr(0, eq);
+                const std::string val = arg.substr(eq + 1);
+                if (key == "hide") {
+                    r.hideAt = parseFloat(path, lineNo, val, "hide distance");
+                } else if (key == "low") {
+                    r.lowAt = parseFloat(path, lineNo, val, "low distance");
+                } else {
+                    throw MapParseError(path, lineNo,
+                                        "unknown lod key '" + key +
+                                            "' (hide|low)");
+                }
+            }
+            if (r.hideAt <= 0.0f)
+                throw MapParseError(path, lineNo,
+                                    "lod hide distance must be > 0");
+            if (r.lowAt < 0.0f)
+                throw MapParseError(path, lineNo,
+                                    "lod low distance must be >= 0");
+            if (r.lowAt > 0.0f && r.lowAt >= r.hideAt)
+                throw MapParseError(
+                    path, lineNo,
+                    "lod low distance must be < hide distance");
+            for (const auto& existing : data.lodRules)
+                if (existing.modelPath == r.modelPath)
+                    throw MapParseError(path, lineNo,
+                                        "duplicate lod rule for '" +
+                                            r.modelPath + "'");
+            data.lodRules.push_back(std::move(r));
         } else if (kw == "atmosphere") {
             // Wave 32: per-zone lighting/mood data for the UE5 binding.
             //   atmosphere <zone> fog=#rrggbb,density ambient=#rrggbb,intensity
@@ -190,13 +268,21 @@ MapData MapLoader::load(const std::string& path) {
         } else {
             throw MapParseError(path, lineNo,
                                 "unknown directive '" + kw +
-                                    "' (expected map|zone|atmosphere|place)");
+                                    "' (expected map|zone|atmosphere|place|lod)");
         }
     }
 
     if (!haveMap)
         throw MapParseError(path, 0, "missing 'map' declaration");
     return data;
+}
+
+float MapData::cullDistanceFor(const PlacedProp& p) const {
+    if (p.neverCull) return 0.0f;
+    if (p.cullDist > 0.0f) return p.cullDist;
+    for (const auto& r : lodRules)
+        if (r.modelPath == p.modelPath) return r.hideAt;
+    return 0.0f;
 }
 
 } // namespace cultulhu

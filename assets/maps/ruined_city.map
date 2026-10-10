@@ -8,10 +8,18 @@
 #       Rectangular region feeding world/ZoneDef (see src/world/Zone.h).
 #       ambientFear is background fear 0..100. Zones may overlap; the engine
 #       resolves zoneAt() in file order, so list specific zones first.
-#   place <model> <x> <y> <z> <rotYdeg> <scale> <zone>
+#   place <model> <x> <y> <z> <rotYdeg> <scale> <zone> [cull=<m>] [nevercull]
 #       One prop instance. <model> is a repo-relative path to a .glb under
 #       assets/world/<category>/<name>.glb (categories: terrain, buildings,
-#       props, cult). <zone> must name a zone declared above.
+#       props, cult). <zone> must name a zone declared above. Optional
+#       culling hints for the engine binding (wave 38): cull=<m> hides this
+#       placement past <m> meters (overrides the model's lod rule);
+#       nevercull pins it visible at any distance (hero landmarks).
+#   lod <model> hide=<m> [low=<m>]
+#       Per-model LOD distances for the engine binding (wave 38): the
+#       engine may skip rendering past hide=<m> meters, and may swap to a
+#       low-detail stand-in past low=<m> (low must be < hide; 0 = none).
+#       One rule per model. Tuned from measured GLB triangle counts.
 # Blank lines and '#' comments are ignored. Anything else is a parse error
 # (see src/world/MapLoader.h) reported with a line number.
 #
@@ -59,8 +67,27 @@ atmosphere old_city fog=#060a18,0.6 ambient=#141a30,0.3 sky=#030612 stars=0.6
 # outskirts: thin dark, wind-scoured sky
 atmosphere outskirts fog=#080714,0.35 ambient=#1e1630,0.35 sky=#040312 stars=0.95
 
+
+# --- wave 38: LOD distances (hide = hide past this range in meters,
+# low = switch to low-detail past this range; 0 = none) ---
+# Tuned from measured GLB triangle counts: detail(<120) 150/60,
+# props(<=450) 250/120, set pieces(<=900) 400/200, large 600/250,
+# landmarks 900/300, ground fx 50-60, lit props 200-300.
+# The engine binding consumes these (see unreal/Docs/SystemMapping.md).
+lod assets/world/cult/altar-stone.glb hide=900 low=300
+lod assets/world/cult/wood-structure.glb hide=250 low=120
+lod assets/world/cult/fire-basket.glb hide=300 low=150
+lod assets/world/cult/banner.glb hide=250 low=120
+lod assets/world/buildings/stone-wall-damaged.glb hide=250 low=120
+lod assets/world/buildings/tower-square-base.glb hide=900 low=300
+lod assets/world/props/debris.glb hide=250 low=120
+lod assets/world/buildings/stone-wall-column.glb hide=250 low=120
+lod assets/world/buildings/wall-doorway.glb hide=400 low=200
+lod assets/world/props/gravestone-cross.glb hide=250 low=120
+lod assets/world/props/pine-crooked.glb hide=250 low=120
+
 # -- cult base: the altar plaza --
-place assets/world/cult/altar-stone.glb 0 0 300 0 1.5 cult_base
+place assets/world/cult/altar-stone.glb 0 0 300 0 1.5 cult_base nevercull
 place assets/world/cult/wood-structure.glb -30 0 278 15 1.0 cult_base
 place assets/world/cult/wood-structure.glb 30 0 278 55 1.0 cult_base
 place assets/world/cult/wood-structure.glb -36 0 312 95 1.0 cult_base
@@ -101,18 +128,18 @@ place assets/world/buildings/tower-square-base.glb -150 0 -150 10 1.2 old_city
 place assets/world/buildings/tower-square-base.glb 150 0 -150 35 1.2 old_city
 place assets/world/buildings/tower-square-base.glb -150 0 150 60 1.2 old_city
 place assets/world/buildings/tower-square-base.glb 150 0 150 85 1.2 old_city
-place assets/world/props/debris.glb -100 0 -40 0 0.8 old_city
-place assets/world/props/debris.glb 100 0 -40 20 0.9 old_city
-place assets/world/props/debris.glb -100 0 40 40 1.0 old_city
-place assets/world/props/debris.glb 100 0 40 60 0.8 old_city
-place assets/world/props/debris.glb -40 0 -100 80 0.9 old_city
-place assets/world/props/debris.glb 40 0 -100 100 1.0 old_city
-place assets/world/props/debris.glb -40 0 100 120 0.8 old_city
-place assets/world/props/debris.glb 40 0 100 140 0.9 old_city
-place assets/world/props/debris.glb 0 0 -20 160 1.0 old_city
-place assets/world/props/debris.glb 0 0 20 180 0.8 old_city
-place assets/world/props/debris.glb -20 0 0 200 0.9 old_city
-place assets/world/props/debris.glb 20 0 0 220 1.0 old_city
+place assets/world/props/debris.glb -100 0 -40 0 0.8 old_city cull=200
+place assets/world/props/debris.glb 100 0 -40 20 0.9 old_city cull=200
+place assets/world/props/debris.glb -100 0 40 40 1.0 old_city cull=200
+place assets/world/props/debris.glb 100 0 40 60 0.8 old_city cull=200
+place assets/world/props/debris.glb -40 0 -100 80 0.9 old_city cull=200
+place assets/world/props/debris.glb 40 0 -100 100 1.0 old_city cull=200
+place assets/world/props/debris.glb -40 0 100 120 0.8 old_city cull=200
+place assets/world/props/debris.glb 40 0 100 140 0.9 old_city cull=200
+place assets/world/props/debris.glb 0 0 -20 160 1.0 old_city cull=200
+place assets/world/props/debris.glb 0 0 20 180 0.8 old_city cull=200
+place assets/world/props/debris.glb -20 0 0 200 0.9 old_city cull=200
+place assets/world/props/debris.glb 20 0 0 220 1.0 old_city cull=200
 place assets/world/buildings/stone-wall-column.glb -136 0 0 90 1.0 old_city
 place assets/world/buildings/stone-wall-column.glb -102 0 0 95 1.0 old_city
 place assets/world/buildings/stone-wall-column.glb -68 0 0 100 1.0 old_city
@@ -130,29 +157,29 @@ place assets/world/cult/fire-basket.glb -60 0 60 90 1.0 old_city
 place assets/world/cult/fire-basket.glb 60 0 60 135 1.0 old_city
 
 # -- graveyard --
-place assets/world/props/gravestone-cross.glb -320 0 -40 5 1.0 graveyard
-place assets/world/props/gravestone-cross.glb -300 0 -40 -8 0.9 graveyard
-place assets/world/props/gravestone-cross.glb -280 0 -40 -5 0.9500000000000001 graveyard
-place assets/world/props/gravestone-cross.glb -260 0 -40 -2 0.9 graveyard
-place assets/world/props/gravestone-cross.glb -240 0 -40 1 0.9500000000000001 graveyard
-place assets/world/props/gravestone-cross.glb -320 0 60 4 0.9 graveyard
-place assets/world/props/gravestone-cross.glb -300 0 60 7 0.9500000000000001 graveyard
-place assets/world/props/gravestone-cross.glb -280 0 60 10 0.9 graveyard
-place assets/world/props/gravestone-cross.glb -260 0 60 13 0.9500000000000001 graveyard
-place assets/world/props/gravestone-cross.glb -240 0 60 16 0.9 graveyard
+place assets/world/props/gravestone-cross.glb -320 0 -40 5 1.0 graveyard cull=180
+place assets/world/props/gravestone-cross.glb -300 0 -40 -8 0.9 graveyard cull=180
+place assets/world/props/gravestone-cross.glb -280 0 -40 -5 0.9500000000000001 graveyard cull=180
+place assets/world/props/gravestone-cross.glb -260 0 -40 -2 0.9 graveyard cull=180
+place assets/world/props/gravestone-cross.glb -240 0 -40 1 0.9500000000000001 graveyard cull=180
+place assets/world/props/gravestone-cross.glb -320 0 60 4 0.9 graveyard cull=180
+place assets/world/props/gravestone-cross.glb -300 0 60 7 0.9500000000000001 graveyard cull=180
+place assets/world/props/gravestone-cross.glb -280 0 60 10 0.9 graveyard cull=180
+place assets/world/props/gravestone-cross.glb -260 0 60 13 0.9500000000000001 graveyard cull=180
+place assets/world/props/gravestone-cross.glb -240 0 60 16 0.9 graveyard cull=180
 place assets/world/props/pine-crooked.glb -340 0 -60 0 1.1 graveyard
 place assets/world/props/pine-crooked.glb -220 0 -60 30 1.1 graveyard
 place assets/world/props/pine-crooked.glb -340 0 80 60 1.1 graveyard
 place assets/world/props/pine-crooked.glb -220 0 80 90 1.1 graveyard
 
 # -- outskirts --
-place assets/world/props/pine-crooked.glb 300 0 -300 12 1.2 outskirts
-place assets/world/props/pine-crooked.glb -300 0 300 0 0.9 outskirts
-place assets/world/props/pine-crooked.glb 350 0 200 40 0.9 outskirts
-place assets/world/props/pine-crooked.glb -350 0 -200 80 0.9 outskirts
-place assets/world/props/gravestone-cross.glb 280 0 260 0 1.0 outskirts
-place assets/world/props/gravestone-cross.glb 300 0 280 15 1.0 outskirts
-place assets/world/props/gravestone-cross.glb -280 0 -280 30 1.0 outskirts
-place assets/world/props/debris.glb 250 0 -200 0 1.0 outskirts
-place assets/world/props/debris.glb -250 0 200 60 1.0 outskirts
-place assets/world/props/debris.glb 100 0 400 120 1.0 outskirts
+place assets/world/props/pine-crooked.glb 300 0 -300 12 1.2 outskirts cull=400
+place assets/world/props/pine-crooked.glb -300 0 300 0 0.9 outskirts cull=400
+place assets/world/props/pine-crooked.glb 350 0 200 40 0.9 outskirts cull=400
+place assets/world/props/pine-crooked.glb -350 0 -200 80 0.9 outskirts cull=400
+place assets/world/props/gravestone-cross.glb 280 0 260 0 1.0 outskirts cull=180
+place assets/world/props/gravestone-cross.glb 300 0 280 15 1.0 outskirts cull=180
+place assets/world/props/gravestone-cross.glb -280 0 -280 30 1.0 outskirts cull=180
+place assets/world/props/debris.glb 250 0 -200 0 1.0 outskirts cull=200
+place assets/world/props/debris.glb -250 0 200 60 1.0 outskirts cull=200
+place assets/world/props/debris.glb 100 0 400 120 1.0 outskirts cull=200

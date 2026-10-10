@@ -90,6 +90,24 @@ Zone transitions: lerp the active atmosphere record over ~3s when the
 camera crosses a zone boundary (the core exposes the camera's current
 zone via `FreeRoamMode`; smooth the pop).
 
+## LOD rules → UE5 culling (wave 38)
+
+`MapData::lodRules` (authored per model in the `.map` files via
+`lod <model> hide=<m> [low=<m>]`) plus the per-placement hints
+(`cull=<m>` / `nevercull` on `place` lines) are the core's
+render-distance brief for the binding. The headless core never renders;
+it only authors the distances and the resolution helper
+`MapData::cullDistanceFor()` (neverCull → infinite, explicit
+`cull=<m>` → that value, else the model's `hideAt`, else always
+visible). Distances were tuned from measured GLB triangle counts.
+
+| Core data | UE5 target | Notes |
+|---|---|---|
+| `LodRule::hideAt` / effective cull distance | Per-actor max draw distance / `WasRecentlyRendered` cull | Fog kills visibility past ~200m in most zones, so hides are generous; they bound the per-frame draw set on low-spec hosts |
+| `LodRule::lowAt` | `UStaticMeshComponent` LOD swap / `HLOD` threshold | Low-detail stand-in: cheap unlit silhouette mesh or billboard |
+| `PlacedProp::neverCull` | Always-loaded / never stream out | Hero landmarks (altar-stone plaza, court obelisk, cavern arch-gate) |
+| `PlacedProp::cullDist` | Per-instance max draw distance override | Clutter placements (gravestone rows, debris fields) cull closer than their model default |
+
 ## What is intentionally NOT mapped yet
 
 - `Dungeon`/`DungeonInstance` → level streaming / world partition mapping.
