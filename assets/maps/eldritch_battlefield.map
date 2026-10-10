@@ -6,7 +6,11 @@
 # ashen_grove (dead forest), ember_shrine (torch-lit shrine).
 # Wave 19 second dark-art pass: +48 atmospheric placements (arches, broken
 # stairs, bones, coffins, mist banks, scorch, embers, dead bushes).
-# 134 placements + 4 atmosphere records. All models CC0 (Kenney Graveyard/Nature, KayKit
+# Wave 35 forest/deep-ruins procgen pass: +28 placements (ash-thicket,
+# hanging-moss, fungal-shelf, root-tangle in ashen_grove; ruined-column-b,
+# fallen-lintel, flagstone-slab, broken-obelisk in shattered_court and at
+# the cavern_mouth deep-ruins edge).
+# 162 placements + 4 atmosphere records. All models CC0 (Kenney Graveyard/Nature, KayKit
 # Dungeon Remastered/Halloween Bits) or in-house procgen. See
 # assets/world/MANIFEST.md.
 # ============================================================================
@@ -106,6 +110,42 @@ place assets/world/props/tombstone-carved.glb -170 0 -20 180 1.0 ashen_grove
 place assets/world/props/tombstone-weathered.glb -105 0 15 90 1.0 ashen_grove
 place assets/world/props/pine-dead-crooked.glb -190 0 -40 0 1.0 ashen_grove
 
+# Wave 35: +28 procgen placements — forest mid-storey dressing in ashen_grove
+# (ash-thicket, hanging-moss, fungal-shelf, root-tangle) and deep-ruins
+# masonry in shattered_court (ruined-column-b, fallen-lintel, flagstone-slab,
+# broken-obelisk), with a deep-ruins edge at the cavern_mouth cave mouth.
+# ashen_grove: the forest grows teeth — thickets, moss, fungus, roots
+place assets/world/props/ash-thicket.glb -95 0 -50 0 1.1 ashen_grove
+place assets/world/props/ash-thicket.glb -180 0 50 120 1.2 ashen_grove
+place assets/world/props/ash-thicket.glb -135 0 5 240 0.9 ashen_grove
+place assets/world/props/ash-thicket.glb -192 0 8 60 1.0 ashen_grove
+place assets/world/props/hanging-moss.glb -155 0 -8 0 1.0 ashen_grove
+place assets/world/props/hanging-moss.glb -105 0 -35 180 1.1 ashen_grove
+place assets/world/props/hanging-moss.glb -140 0 -48 45 1.0 ashen_grove
+place assets/world/props/fungal-shelf.glb -148 0 28 0 1.0 ashen_grove
+place assets/world/props/fungal-shelf.glb -118 0 -28 90 1.0 ashen_grove
+place assets/world/props/fungal-shelf.glb -172 0 38 180 1.0 ashen_grove
+place assets/world/props/root-tangle.glb -128 0 48 0 1.0 ashen_grove
+place assets/world/props/root-tangle.glb -182 0 -18 90 1.0 ashen_grove
+place assets/world/props/root-tangle.glb -98 0 42 180 1.0 ashen_grove
+place assets/world/props/root-tangle.glb -112 0 -52 270 1.0 ashen_grove
+# shattered_court: older stones beneath the ruin — columns, lintels, slabs
+place assets/world/props/ruined-column-b.glb -8 0 -8 0 1.0 shattered_court
+place assets/world/props/ruined-column-b.glb 8 0 8 180 1.1 shattered_court
+place assets/world/props/fallen-lintel.glb 48 0 -8 20 1.0 shattered_court
+place assets/world/props/fallen-lintel.glb -48 0 -20 110 1.0 shattered_court
+place assets/world/props/flagstone-slab.glb 24 0 8 0 1.0 shattered_court
+place assets/world/props/flagstone-slab.glb -24 0 -8 90 1.0 shattered_court
+place assets/world/props/broken-obelisk.glb 8 0 -20 0 1.0 shattered_court
+place assets/world/props/broken-obelisk.glb -8 0 22 135 1.0 shattered_court
+# cavern_mouth: deep-ruins edge where the rock splits
+place assets/world/props/ruined-column-b.glb 100 0 -45 30 1.2 cavern_mouth
+place assets/world/props/broken-obelisk.glb 190 0 -30 200 1.1 cavern_mouth
+place assets/world/props/fallen-lintel.glb 128 0 45 75 1.0 cavern_mouth
+place assets/world/props/flagstone-slab.glb 158 0 42 150 1.0 cavern_mouth
+place assets/world/props/ruined-column-b.glb 188 0 45 300 0.9 cavern_mouth
+place assets/world/props/broken-obelisk.glb 95 0 20 40 1.0 cavern_mouth
+
 # --- ember_shrine: fire in the dark ---
 place assets/world/props/torch-stand.glb -20 0 100 0 1.0 ember_shrine
 place assets/world/props/torch-stand.glb 20 0 100 0 1.0 ember_shrine
@@ -176,4 +216,4 @@ place assets/world/props/skull-candle.glb 3 0 142 180 1.0 ember_shrine
 place assets/world/props/coffin-stone.glb -35 0 175 90 1.0 ember_shrine
 place assets/world/props/coffin-stone.glb 35 0 175 270 1.0 ember_shrine
 place assets/world/props/fence-broken.glb -45 0 140 70 1.0 ember_shrine
-place assets/world/props/mist-bank.glb 0 0 190 0 1.3 ember_shrine
+place assets/world/props/mist-bank.glb 4 0 193 0 1.3 ember_shrine

@@ -175,8 +175,16 @@ New textures (all original, generated in code): `textures/mist-soft.png`
 | `props/stalagmite-cluster.glb` | in-house procgen, `procgen/generate_props.py` (wave 32) | n/a (original) | 42 | 3.7 KB | vertex material (dark rock) |
 | `props/dark-crystal-cluster.glb` | in-house procgen, `procgen/generate_props.py` (wave 32) | n/a (original) | 48 | 4.2 KB | vertex material (black-violet, faint emissive) |
 | `props/hanging-chain.glb` | in-house procgen, `procgen/generate_props.py` (wave 32) | n/a (original) | 1344 | 95.2 KB | vertex material (dark iron) |
+| `props/ash-thicket.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 150 | 18.5 KB | vertex colors (ash bark + grey foliage) |
+| `props/hanging-moss.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 90 | 11.5 KB | vertex colors (bark + pale lichen) |
+| `props/fungal-shelf.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 112 | 14.0 KB | vertex colors (bark + pale-violet fungus, faint emissive) |
+| `props/root-tangle.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 210 | 25.6 KB | vertex colors (dark roots) |
+| `props/ruined-column-b.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 112 | 14.1 KB | vertex colors (deep-ruin stone) |
+| `props/fallen-lintel.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 24 | 3.7 KB | vertex colors (deep-ruin stone) |
+| `props/flagstone-slab.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 36 | 5.2 KB | vertex colors (deep-ruin stone) |
+| `props/broken-obelisk.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 36 | 5.2 KB | vertex colors (deep-ruin stone) |
 
 Wave-19 new payload: 536 KB decoded GLB (+ ~90 KB new textures).
 Wave-32 new payload: ~109 KB decoded GLB (+ 53 KB detail texture). Procgen pipeline committed: `assets/world/procgen/generate_props.py` (GLB writer + builders) and `generate_detail_texture.py` (512px grime/crack/rune detail layer).
-Map: `assets/maps/eldritch_battlefield.map` extended 72 -> 120 placements.
+Wave-35 new payload: ~108 KB decoded GLB (8 multi-tone procgen props via COLOR_0 vertex colors). Map: `assets/maps/eldritch_battlefield.map` extended 72 -> 120 (wave 19), 120 -> 134 (wave 32), 134 -> 162 placements (wave 35: forest mid-storey + deep-ruins masonry).
 `ruined_city.map` untouched.
