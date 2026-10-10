@@ -311,6 +311,23 @@ struct BetaGame {
             if (night) std::cout << "    (found under starlight)\n";
             std::cout << "\n";
         });
+        // Afternoon build (2026-10-10): the two silent events get their
+        // voice. Achievement narration moved here out of the sim so every
+        // announcement lives in one place; the tier-3 relic's "global
+        // announcement" (wave 34 design) finally prints.
+        bus.subscribe(EventType::AchievementUnlocked, [this](const GameEvent& e) {
+            const AchievementDef* def = nullptr;
+            for (const auto& d : achievements.defs())
+                if (d.id == e.tag) { def = &d; break; }
+            std::cout << "* The dark takes note: " << (def ? def->name : e.tag);
+            if (def && !def->description.empty())
+                std::cout << " — " << def->description;
+            std::cout << " *\n";
+        });
+        bus.subscribe(EventType::RelicManifested, [](const GameEvent& e) {
+            std::cout << "\n!! A MYTHIC RELIC MANIFESTS — " << e.tag
+                      << " (tier " << static_cast<int>(e.amount) << ") !!\n\n";
+        });
     }
 
     void setupWorld() {

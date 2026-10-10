@@ -2,8 +2,6 @@
 
 #include "save/SaveSystem.h"
 
-#include <iostream>
-
 namespace cultulhu {
 
 const char* AchievementSystem::kConvTotal = "conv_total";
@@ -181,13 +179,8 @@ std::pair<double, double> AchievementSystem::progress(
 void AchievementSystem::unlock(const std::string& id) {
     if (isUnlocked(id)) return;
     unlocked_[id] = true;
-    const AchievementDef* def = nullptr;
-    for (const auto& d : defs_)
-        if (d.id == id) { def = &d; break; }
-    if (def) {
-        std::cout << "* The dark takes note: " << def->name << " — "
-                  << def->description << " *\n";
-    }
+    // Narration lives in the driver (it subscribes to
+    // EventType::AchievementUnlocked) — the sim stays output-clean.
     GameEvent e(EventType::AchievementUnlocked);
     e.tag = id;
     bus_.publish(e);
