@@ -24,6 +24,8 @@
 //   effect = aoe_damage
 //   power = 120
 //   range = 8
+//   fx = eldritch_impact   # optional visual override (wave 36); empty =
+//                          # the AbilityFx preset matching `effect`
 //
 //   [rightclick]
 //   kind = MindControl      # MeleeHeavy|MindControl|AcidSpit|EldritchGrasp

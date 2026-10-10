@@ -76,6 +76,7 @@ ParseResult parseCharacterDef(const std::string& text) {
             else if (key == "name") sp->name = val;
             else if (key == "flavor") sp->flavor = val;
             else if (key == "effect") sp->effectKind = val;
+            else if (key == "fx") sp->fxPreset = val;
             else if (isNum && parseFloat(val, f)) {
                 if (key == "cooldown") sp->cooldownSec = f;
                 else if (key == "stamina_cost") sp->staminaCost = f;

@@ -29,6 +29,10 @@ struct SpellDef {
     std::string effectKind;
     float effectPower = 0.0f;  // kind-dependent: damage, aura seconds, etc.
     float range = 0.0f;        // meters; 0 = self-centered / no range
+    // Optional visual override: id of an AbilityFx preset from
+    // assets/fx/ability_fx.def. Empty = the preset whose id matches
+    // effectKind (wave 36; the engine binding resolves this).
+    std::string fxPreset;
 };
 
 // Right-click heavy attack taxonomy. The engine binding decides what each

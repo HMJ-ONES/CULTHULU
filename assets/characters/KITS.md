@@ -61,3 +61,33 @@ body, drop `model.fbx` (or `model.glb`) plus `rig.map` into its folder; the
 loader picks it up with no code changes. Then run
 `character validate <id>` in the driver and follow
 `docs/bring_your_own_model.md` for the animation pass.
+
+## Visual FX (wave 36)
+
+Every Q/F/R ability now carries a particle recipe for the engine
+binding. The recipes live in `assets/fx/ability_fx.def` — one preset
+per effect kind — and the engine (Unreal/Niagara, later) turns them into
+real particles. All numbers are tuned for low-spec hosts.
+
+**Resolution:** a spell with an explicit `fx = <preset id>` line in its
+`[q]`/`[f]`/`[r]` section uses that preset; otherwise the preset whose
+id matches the spell's `effect` kind is used. All 60 kit spells resolve
+today with zero per-character authoring.
+
+**Preset fields** (`[id]` section in ability_fx.def):
+`display_name`, `emitter` (point|cone|ring|sphere|beam|wall),
+`count` (particles per burst / alive in a loop), `lifetime` (min,max s),
+`speed` (min,max m/s), `spread` (0-180 deg), `size` (min,max m),
+`colors` (hex0,hex1 start->end), `additive` (true = magic glow),
+`gravity` (m/s^2, negative rises), `texture`
+(none|smoke|spark|rune|mist|ichor), `duration` (s), `loop`.
+
+**Low-spec budget rules** (enforced by tests_wave36): count <= 256 per
+burst; additive presets <= 128 (fill-rate); looping emitters <= 64;
+duration <= 4 s; particle size <= 6 m.
+
+Current presets: Eldritch Impact (aoe_damage), Void Bolt (projectile),
+Blur Trail (dash), Rift Opening (summon), Dread Mist (fear_aura,
+looping), Mind Shatter (stun), Corruption Veil (debuff), Zealot's Halo
+(buff), Grasping Tide (pull), Warding Carapace (shield, looping),
+Flesh Mending (heal).
