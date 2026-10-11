@@ -834,7 +834,7 @@ struct BetaGame {
             "  join <ip> <port> <name>              join a lobby\n"
             "  ready | players | startgame [force] [domination|dotgoo|freeroam]\n"
             "  chat <msg> | netent | leave\n"
-            "  match <domination|dotgoo|addbot <team>|status|end>\n"
+            "  match <domination|dotgoo|join [team]|addbot <team>|status|end>\n"
             "    (domination = 5v5 capture point, dotgoo = Defense of the Great Old Ones)\n"
             "  mcast <q|f|r|rmb> [yaw-degrees]  cast your kit ability (after match join)\n"
             "  mpick <q|f>                     draft an ability (DOTGOO level-up picks)\n"

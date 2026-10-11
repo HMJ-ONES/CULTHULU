@@ -614,6 +614,10 @@ void Match::printStatus(std::ostream& os) const {
            << (pl.alive ? "" : " DEAD") << " "
            << rows[i].kills << "/" << rows[i].deaths << "/"
            << rows[i].assists;
+        // Convenience pass: HP at a glance — matches deal damage, so the
+        // bar belongs in the roster row.
+        os << " " << static_cast<int>(pl.hp) << "/"
+           << static_cast<int>(pl.maxHp) << "hp";
         // Wave 33/34: level, relics, invoke state.
         os << " lv" << pl.level << " (" << pl.xp << "xp)";
         // Wave 40: kit identity — every fighter wields a character kit.
@@ -621,9 +625,29 @@ void Match::printStatus(std::ostream& os) const {
             const CharacterDef* kd = kitOf(pl);
             os << " <" << (kd ? kd->displayName : pl.kitId) << ">";
         }
-        // Wave 41: ability unlocks.
-        os << " [" << (pl.qUnlocked ? "Q" : "-") << (pl.fUnlocked ? "F" : "-")
-           << (pl.rUnlocked ? "R" : "-") << "]";
+        // Convenience pass: kit cooldowns at a glance, like free-roam
+        // `status`. Unlocked slot: "ready" or Ns remaining; locked: "-".
+        // (Wave 41 showed only unlock brackets — you couldn't tell if the
+        // ult was 5s or 40s away.)
+        os << " [";
+        {
+            const char* keys[3] = {"Q", "F", "R"};
+            const bool unlocked[3] = {pl.qUnlocked, pl.fUnlocked,
+                                      pl.rUnlocked};
+            const double cds[3] = {pl.qCd, pl.fCd, pl.rCd};
+            for (int k = 0; k < 3; ++k) {
+                if (k) os << " ";
+                os << keys[k];
+                if (!unlocked[k]) os << "-";
+                else if (cds[k] > 0.0)
+                    os << static_cast<int>(cds[k] + 0.5) << "s";
+                else os << " ready";
+            }
+        }
+        os << "]";
+        // Wave 42: rock durability at a glance (3.0 on rip, breaks at 0).
+        if (pl.hasRock)
+            os << " rock " << pl.rockDurability << "/3.0";
         if (pl.pendingPicks > 0) os << " (+" << pl.pendingPicks << " pick)";
         if (!pl.relicNames.empty()) {
             os << " [";
