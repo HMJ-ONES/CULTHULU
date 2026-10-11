@@ -313,6 +313,24 @@ static void testNetcodeLoopback() {
     CHECK(nc.lastTick() > 0);
     CHECK(nc.connected());
     CHECK(nh.clientCount() == 1);
+
+    // Ghost-prune regression: a dead entity vanishes from the host's
+    // snapshot, so the client must drop it instead of keeping it as a
+    // ghost forever.
+    world.erase(world.begin() + 1);
+    end = nowSeconds() + 0.6;
+    while (nowSeconds() < end) {
+        nh.poll(nowSeconds(), [&]() { return world; });
+        nc.poll(nowSeconds(), []() {
+            ClientInput in;
+            return in;
+        });
+        sleepMs(5);
+    }
+    const auto& ents2 = nc.entities();
+    CHECK(ents2.size() == 1);
+    CHECK(ents2.find(1) != ents2.end());
+    CHECK(ents2.find(7) == ents2.end());
 }
 
 // ---------------- Socket abstraction (Winsock2 port) ----------------

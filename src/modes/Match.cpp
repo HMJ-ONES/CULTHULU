@@ -385,7 +385,7 @@ void Match::damagePlayer(size_t victimIdx, float dmg) {
     if (v.hp <= 0.0f) { v.hp = 0.0f; v.alive = false; }
 }
 
-// Wave 34: XP economy. Level = 1 + xp/100; each level-up grants one
+// Wave 34: XP economy. Level = 1 + xp/50; each level-up grants one
 // invoke charge.
 void Match::addXp(size_t playerIdx, int amount) {
     if (playerIdx >= players_.size() || amount <= 0) return;

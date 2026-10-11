@@ -412,6 +412,13 @@ void MobaDefense::update(double dt) {
     for (auto it = minions_.begin(); it != minions_.end();) {
         Minion& m = *it;
 
+        // A minion slain earlier in this tick (by a foe's swing or a tower)
+        // is dead before its own turn: skip it.
+        if (m.hp <= 0.0f) {
+            it = minions_.erase(it);
+            continue;
+        }
+
         // Nearest enemy minion in range.
         Minion* foe = nullptr;
         const PlayerTarget* foePlayer = nullptr;

@@ -109,6 +109,8 @@ void FreeRoamMode::updateCivilians(double dt) {
         if (hasThreat) {
             c->setFleeing(true);
             ai::civilianFlee(*c, threatPos, dt);
+            // Flee targets are unclamped; keep the civilian in the world.
+            c->setPosition(clampToBounds(c->position()));
             continue;
         }
         if (c->fleeing()) {
@@ -130,6 +132,7 @@ void FreeRoamMode::updateCivilians(double dt) {
             c->setIdleTimer(rng_.uniform(2.0, 6.0));
         } else {
             ai::moveToward(*c, c->wanderTarget(), dt, 2.5f);
+            c->setPosition(clampToBounds(c->position()));
         }
     }
     // Prune the dead.
@@ -146,7 +149,11 @@ void FreeRoamMode::updateBots(double dt) {
     ctx.avatar = avatar_;
     for (const auto& cr : creatures_)
         if (cr->alive()) ctx.creatures.push_back(cr.get());
-    for (auto& b : bots_) b->update(dt, ctx);
+    for (auto& b : bots_) {
+        b->update(dt, ctx);
+        // Wander/flee targets are unclamped; keep the bot in the world.
+        b->setPosition(clampToBounds(b->position()));
+    }
     bots_.erase(std::remove_if(bots_.begin(), bots_.end(),
                                [](const std::unique_ptr<RivalBot>& b) {
                                    return !b->alive();

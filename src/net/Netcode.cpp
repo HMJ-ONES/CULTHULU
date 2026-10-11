@@ -182,6 +182,11 @@ void NetClient::poll(double now, InputProvider provide) {
                 std::vector<SnapshotEntity> ents;
                 if (decodeSnapshot(m, tick, ents) && tick >= lastTick_) {
                     lastTick_ = tick;
+                    // The host sends only *live* entities, so anything absent
+                    // from this snapshot died on the host. Rebuild (not merge)
+                    // — otherwise dead entities linger as client-side ghosts
+                    // and the map grows unboundedly.
+                    entities_.clear();
                     for (const auto& e : ents) entities_[e.id] = e;
                 }
             } else if (m.type == MsgType::Disconnect) {

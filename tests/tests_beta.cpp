@@ -436,6 +436,37 @@ static void test_rival_bot_flee() {
     CHECK(bot->position().distance(avatarStandIn.position()) > 10.0f);
 }
 
+static void test_freeroam_bounds_clamped() {
+    EventBus bus;
+    GameClock clock;
+    RNG rng{7};
+    FreeRoamMode mode(bus, clock, rng);
+    mode.setMapBounds(Vec3{-10, 0, -10}, Vec3{10, 0, 10});
+    mode.setCivilianCap(1);
+    mode.addCivilianSpawn(Vec3{9, 0, 9});
+    mode.setSpawnInterval(1.0);
+    mode.update(1.0);
+    CHECK(mode.civilians().size() == 1);
+    // Threat in the middle of the tiny world: the corner civilian flees
+    // outward and the wounded bot flees too — both would leave the world
+    // without clamping.
+    Adventurer avatarStandIn(Vec3{4, 0, 4}, 150.0f);
+    mode.setAvatar(&avatarStandIn);
+    mode.spawnBot(Vec3{-9, 0, -9});
+    mode.bots()[0]->takeDamage(RivalBot::MAX_HP * 0.8f);
+    for (int i = 0; i < 120; ++i) mode.update(1.0);
+    for (const auto& c : mode.civilians()) {
+        Vec3 p = c->position();
+        CHECK(p.x >= -10.0f && p.x <= 10.0f);
+        CHECK(p.z >= -10.0f && p.z <= 10.0f);
+    }
+    for (const auto& b : mode.bots()) {
+        Vec3 p = b->position();
+        CHECK(p.x >= -10.0f && p.x <= 10.0f);
+        CHECK(p.z >= -10.0f && p.z <= 10.0f);
+    }
+}
+
 static void test_rival_bot_vs_creature() {
     EventBus bus;
     GameClock clock;
@@ -488,6 +519,7 @@ int main() {
     test_civilian_flee();
     test_rival_bot_engage();
     test_rival_bot_flee();
+    test_freeroam_bounds_clamped();
     test_rival_bot_vs_creature();
     test_rival_bot_death_cleanup();
     std::cout << checks << " checks, " << failures << " failures\n";

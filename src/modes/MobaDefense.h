@@ -114,6 +114,8 @@ public:
     float towerHp(int team, int lane, int idx) const;
     Vec3 towerPos(int team, int lane, int idx) const;
     const std::vector<Minion>& minions() const { return minions_; }
+    // Non-const for tests / scripting that need to set up exact scenarios.
+    std::vector<Minion>& minions() { return minions_; }
     // Wave 33: relic pickups (for status display and Match sync).
     const std::vector<RelicPickup>& relics() const { return relics_; }
 

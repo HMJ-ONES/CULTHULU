@@ -309,6 +309,33 @@ int main() {
         CHECK(moba.liveMinionCount(0) <= t0);
         CHECK(moba.minionCount() > before);  // team 1 still gets waves
     }
+    // ---------- moba: no zombie-minion turns ----------
+    // A minion slain earlier in the same tick is erased at the loop top —
+    // it never moves, targets, or deals damage after dying.
+    {
+        EventBus bus; GameClock clock; RNG rng(17);
+        MobaDefense moba(bus, clock, rng);
+        moba.setupDefaultMap();
+        moba.spawnWave(0, 0);
+        moba.spawnWave(1, 0);
+        CHECK(moba.minionCount() == 8); // 2 x (3 melee + 1 ranged)
+        auto& mins = moba.minions();
+        MobaDefense::Minion& a = mins[0];   // team 0, iterates first
+        MobaDefense::Minion& b = mins[4];   // team 1, first of its wave
+        CHECK(a.team == 0 && b.team == 1);
+        a.pos = Vec3{0, 0, 0};
+        a.hp = 100.0f;
+        a.dps = 10000.0f;
+        a.range = 10.0f;
+        b.pos = Vec3{0, 0, 0};
+        b.hp = 1.0f; // one swing kills it
+        b.dps = 10000.0f;
+        b.range = 10.0f;
+        float hpBefore = a.hp;
+        moba.update(0.1);
+        CHECK(moba.minionCount() == 7); // b erased, never acted
+        CHECK(moba.minions()[0].hp == hpBefore); // no zombie hit landed
+    }
     // ---------- match: bot auto-balance ----------
     {
         EventBus bus; GameClock clock; RNG rng(7);
