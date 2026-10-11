@@ -62,6 +62,47 @@ void Match::assignKit(Player& p) {
     ++kitAssignCounter_;
 }
 
+// Wave 41: ability unlocks per mode.
+// Domination: the full kit is unlocked, but the ult starts on its full
+// cooldown — 0% charged, no opening ults.
+// DOTGOO: you draft your kit as you level. Level 1: one pending pick
+// (Q or F). Level 3: a second pick. Level 6: the ult unlocks.
+void Match::initAbilityUnlocks(Player& p) {
+    const CharacterDef* kit = kitOf(p);
+    if (modeName_ == "moba") {
+        p.qUnlocked = p.fUnlocked = p.rUnlocked = false;
+        p.pendingPicks = 1; // level 1: choose your first ability
+        p.qCd = p.fCd = p.rCd = 0.0;
+    } else {
+        p.qUnlocked = p.fUnlocked = p.rUnlocked = true;
+        p.pendingPicks = 0;
+        p.qCd = p.fCd = 0.0;
+        // Ult starts at 0%: full cooldown from the opening whistle.
+        p.rCd = kit ? kit->rAbility.cooldownSec : 45.0;
+    }
+    p.rmbCd = 0.0;
+}
+
+// Wave 41: spend a pending DOTGOO draft pick.
+bool Match::draftAbility(uint64_t id, int slot) {
+    for (auto& p : players_) {
+        if (p.id != id) continue;
+        if (p.pendingPicks <= 0) return false;
+        if (slot == 0 && !p.qUnlocked) {
+            p.qUnlocked = true;
+            --p.pendingPicks;
+            return true;
+        }
+        if (slot == 1 && !p.fUnlocked) {
+            p.fUnlocked = true;
+            --p.pendingPicks;
+            return true;
+        }
+        return false;
+    }
+    return false;
+}
+
 // Match-scale damage: kit powers are authored for free-roam (500-HP
 // entities); match fighters have 100 HP, so scale to ~1/5. Levels add a
 // gentle ramp so late-game casts hit harder without one-shotting.
@@ -125,6 +166,10 @@ bool Match::castMatchSpell(size_t idx, int slot) {
     const SpellDef* sp = (slot == 0) ? &kit->qAbility
                          : (slot == 1) ? &kit->fAbility
                                        : &kit->rAbility;
+    // Wave 41: locked abilities can't be cast.
+    const bool unlocked =
+        (slot == 0) ? p.qUnlocked : (slot == 1) ? p.fUnlocked : p.rUnlocked;
+    if (!unlocked) return false;
     double& cd = (slot == 0) ? p.qCd : (slot == 1) ? p.fCd : p.rCd;
     if (cd > 0.0) return false;
 
@@ -323,6 +368,26 @@ bool Match::castMatchRmb(size_t idx) {
 void Match::updateBotAbilities(Player& p, size_t idx, double dt) {
     (void)dt;
     if (!p.alive || p.ccTimer > 0.0) return;
+
+    // Wave 41: DOTGOO draft — bots spend pending picks immediately,
+    // Q first (damage), then F (utility).
+    while (p.pendingPicks > 0) {
+        std::string picked;
+        if (!p.qUnlocked) {
+            p.qUnlocked = true;
+            picked = "Q";
+        } else if (!p.fUnlocked) {
+            p.fUnlocked = true;
+            picked = "F";
+        } else {
+            break; // nothing left to draft
+        }
+        --p.pendingPicks;
+        GameEvent e(EventType::AbilityUnlocked);
+        e.sourceId = p.id;
+        e.tag = picked;
+        bus_.publish(e);
+    }
 
     // Fear: drop everything and run from the source.
     if (p.fearTimer > 0.0) {

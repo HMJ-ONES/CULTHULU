@@ -107,6 +107,13 @@ public:
         double buffTimer = 0.0;  // +30% damage while active
         double shieldTimer = 0.0; // half damage taken while active
         double slowTimer = 0.0;   // half move speed while active
+        // Wave 41: ability unlocks.
+        // Domination: everything unlocked, but the ult (R) starts on its
+        // full cooldown — 0% charged at match start.
+        // DOTGOO: draft your kit as you level. Level 1: pick Q or F.
+        // Level 3: pick the other. Level 6: the ult (R) unlocks.
+        bool qUnlocked = false, fUnlocked = false, rUnlocked = false;
+        int pendingPicks = 0; // DOTGOO: unspent ability draft choices
     };
 
     Match(EventBus& bus, GameClock& clock, RNG& rng);
@@ -155,6 +162,8 @@ public:
     // Wave 40: human kit casting in matches. slot 0=Q 1=F 2=R 3=RMB.
     // Faces `yaw` first so casts are directional, like the bots'.
     bool humanCast(uint64_t id, int slot, float yaw);
+    // Wave 41: spend a pending draft pick (DOTGOO). slot 0=Q 1=F.
+    bool draftAbility(uint64_t id, int slot);
 
 private:
     EventBus& bus_;
@@ -195,6 +204,8 @@ private:
     static constexpr float kKitDmgScale = 0.2f; // free-roam power -> match scale
     const CharacterDef* kitOf(const Player& p) const;
     void assignKit(Player& p);
+    // Wave 41: set initial ability unlocks per mode.
+    void initAbilityUnlocks(Player& p);
     float kitDamage(const Player& p, float effectPower) const;
     int enemyInCone(const Player& p, size_t idx, float range,
                     float halfAngleDeg) const;

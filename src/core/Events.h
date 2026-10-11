@@ -210,6 +210,8 @@ enum class EventType {
                          // entity id; both are EldritchAvatars (PvP)
     AbilityCast,         // wave 40: sourceId = caster id; tag = ability name;
                          // amount = slot (0=Q 1=F 2=R 3=RMB)
+    AbilityUnlocked,     // wave 41: sourceId = player id; tag = unlocked
+                         // ability ("Q"/"F"/"ULT") in DOTGOO draft
     PointCaptured,       // targetId = point index; faction = capturing team
     GreatOldOneSlain,    // sourceId = killing-blow entity id (0 unknown);
                          // faction = fallen GOO's team

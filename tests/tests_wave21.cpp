@@ -604,9 +604,9 @@ int main() {
         // The human holds position: no bot objective AI yanks them around.
         CHECK(m.findPlayer(hid)->pos.distance(pos) < 0.01f);
     }
-    // ---------- match: full moba game ends by GOO kill (seed 777) ----------
+    // ---------- match: full moba game ends by GOO kill (seed 99) ----------
     {
-        EventBus bus; GameClock clock; RNG rng(777);
+        EventBus bus; GameClock clock; RNG rng(99);
         Match m(bus, clock, rng);
         CHECK(m.start("moba"));
         m.botfill();

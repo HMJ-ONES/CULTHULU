@@ -95,6 +95,7 @@ uint64_t Match::addPlayer(const std::string& name, int team) {
     p.isBot = false;
     p.lane = static_cast<int>(players_.size()) % 3;
     assignKit(p); // wave 40: humans wield kits too
+    initAbilityUnlocks(p); // wave 41
     spawnPlayer(p);
     players_.push_back(p);
     stats_.setPlayerName(players_.size() - 1, p.name);
@@ -112,6 +113,7 @@ uint64_t Match::addBot(int team) {
     p.isBot = true;
     p.lane = static_cast<int>(players_.size()) % 3;
     assignKit(p); // wave 40: every fighter wields a character kit
+    initAbilityUnlocks(p); // wave 41: Domination/DOTGOO unlock rules
     spawnPlayer(p);
     players_.push_back(p);
     stats_.setPlayerName(players_.size() - 1, p.name);
@@ -430,9 +432,28 @@ void Match::addXp(size_t playerIdx, int amount) {
     Player& p = players_[playerIdx];
     const int oldLevel = p.level;
     p.xp += amount;
-    p.level = 1 + p.xp / 50;
+    // Wave 40: level caps at 30 (the tier-3 invocation threshold). Beyond
+    // that, XP still banks invoke charges but the level — and the damage
+    // scaling derived from it — stays bounded.
+    p.level = std::min(30, 1 + p.xp / 50);
     if (p.level > oldLevel) {
         p.pendingInvokes += (p.level - oldLevel);
+        // Wave 41: DOTGOO ability draft. Level 3: second pick (Q/F).
+        // Level 6: the ult (R) unlocks.
+        if (modeName_ == "moba") {
+            for (int lv = oldLevel + 1; lv <= p.level; ++lv) {
+                if (lv == 3 && p.pendingPicks == 0 &&
+                    !(p.qUnlocked && p.fUnlocked))
+                    p.pendingPicks = 1;
+                if (lv == 6 && !p.rUnlocked) {
+                    p.rUnlocked = true;
+                    GameEvent e(EventType::AbilityUnlocked);
+                    e.sourceId = p.id;
+                    e.tag = "ULT";
+                    bus_.publish(e);
+                }
+            }
+        }
     }
 }
 
@@ -598,6 +619,10 @@ void Match::printStatus(std::ostream& os) const {
             const CharacterDef* kd = kitOf(pl);
             os << " <" << (kd ? kd->displayName : pl.kitId) << ">";
         }
+        // Wave 41: ability unlocks.
+        os << " [" << (pl.qUnlocked ? "Q" : "-") << (pl.fUnlocked ? "F" : "-")
+           << (pl.rUnlocked ? "R" : "-") << "]";
+        if (pl.pendingPicks > 0) os << " (+" << pl.pendingPicks << " pick)";
         if (!pl.relicNames.empty()) {
             os << " [";
             for (size_t r = 0; r < pl.relicNames.size(); ++r) {

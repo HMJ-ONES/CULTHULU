@@ -790,6 +790,7 @@ struct BetaGame {
             "  match <domination|dotgoo|addbot <team>|status|end>\n"
             "    (domination = 5v5 capture point, dotgoo = Defense of the Great Old Ones)\n"
             "  mcast <q|f|r|rmb> [yaw-degrees]  cast your kit ability (after match join)\n"
+            "  mpick <q|f>                     draft an ability (DOTGOO level-up picks)\n"
             "                                          run a local 5v5 match\n"
             "  build <wall|barracks|watchtower|trap|portal|altar>\n"
             "                                          start construction\n"
@@ -1792,6 +1793,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
         // Wave 40: human kit casting in matches — directional, like the bots.
         // mcast <q|f|r|rmb> [yaw-degrees]: casts your kit ability toward yaw
         // (default: your current facing). Requires `match join` first.
+        // Wave 41: abilities must be unlocked first (DOTGOO draft).
         if (cmd == "mcast") {
             if (!g.match || !g.match->started() || g.humanMatchId == 0) {
                 std::cout << "join a match first (match domination|dotgoo, then match join)\n";
@@ -1809,6 +1811,19 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 return true;
             }
             const auto* hp = g.match->findPlayer(g.humanMatchId);
+            if (hp && slotIdx < 3) {
+                const bool unlocked = (slotIdx == 0) ? hp->qUnlocked
+                                      : (slotIdx == 1) ? hp->fUnlocked
+                                                       : hp->rUnlocked;
+                if (!unlocked) {
+                    std::cout << slot << " is not unlocked yet"
+                              << (hp->pendingPicks > 0
+                                      ? " — you have a draft pick: mpick <q|f>"
+                                      : "")
+                              << ".\n";
+                    return true;
+                }
+            }
             float yaw = hp ? hp->facingYaw : 0.0f;
             float yawDeg;
             if (in >> yawDeg)
@@ -1817,6 +1832,26 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 std::cout << "cast " << slot << "!\n";
             else
                 std::cout << slot << " fizzled (cooldown, CC'd, or no target in the cone).\n";
+            return true;
+        }
+
+        // Wave 41: DOTGOO ability draft — spend a pending pick.
+        if (cmd == "mpick") {
+            if (!g.match || !g.match->started() || g.humanMatchId == 0) {
+                std::cout << "join a match first (match domination|dotgoo, then match join)\n";
+                return true;
+            }
+            std::string which;
+            in >> which;
+            int slot = (which == "q") ? 0 : (which == "f") ? 1 : -1;
+            if (slot < 0) {
+                std::cout << "usage: mpick <q|f>\n";
+                return true;
+            }
+            if (g.match->draftAbility(g.humanMatchId, slot))
+                std::cout << "unlocked " << which << "!\n";
+            else
+                std::cout << "no draft pick available (or already unlocked).\n";
             return true;
         }
 

@@ -25,6 +25,8 @@ static int failures = 0;
         }                                                  \
     } while (0)
 
+static void wave41_checks();
+
 int main() {
     // ---------- inAttackCone: directionality ----------
     {
@@ -151,7 +153,66 @@ int main() {
         CHECK(m.winner() == 0 || m.winner() == 1);
     }
 
+    wave41_checks();
+
     if (failures == 0) std::cout << "wave40: all checks passed\n";
     else std::cout << "wave40: " << failures << " checks FAILED\n";
     return failures == 0 ? 0 : 1;
+}
+
+// ---------- wave 41: ability unlocks ----------
+// Domination: full kit unlocked, ult starts on full cooldown (0% charged).
+// DOTGOO: draft at levels 1/3, ult unlocks at 6.
+void wave41_checks() {
+    // Domination: R starts on cooldown.
+    {
+        EventBus bus; GameClock clock; RNG rng(100);
+        Match m(bus, clock, rng);
+        CHECK(m.start("capture"));
+        uint64_t a = m.addBot(0);
+        const auto* pa = m.findPlayer(a);
+        CHECK(pa->qUnlocked && pa->fUnlocked && pa->rUnlocked);
+        CHECK(pa->rCd > 0.0); // ult at 0%: full cooldown ticking
+        CHECK(pa->qCd == 0.0 && pa->fCd == 0.0);
+    }
+    // DOTGOO: everything locked at start, one pending pick.
+    {
+        EventBus bus; GameClock clock; RNG rng(101);
+        Match m(bus, clock, rng);
+        CHECK(m.start("moba"));
+        uint64_t a = m.addBot(0);
+        const auto* pa = m.findPlayer(a);
+        CHECK(!pa->qUnlocked && !pa->fUnlocked && !pa->rUnlocked);
+        CHECK(pa->pendingPicks == 1);
+        // Locked Q can't be cast.
+        m.movePlayer(a, Vec3(0, 0, 0));
+        uint64_t b = m.addBot(1);
+        m.movePlayer(b, Vec3(2, 0, 0));
+        CHECK(!m.humanCast(a, 0, 0.0f)); // humanCast on a bot id works for test
+    }
+    // DOTGOO: draftAbility spends picks; bots auto-draft.
+    {
+        EventBus bus; GameClock clock; RNG rng(102);
+        Match m(bus, clock, rng);
+        CHECK(m.start("moba"));
+        uint64_t a = m.addBot(0);
+        CHECK(m.draftAbility(a, 0)); // pick Q
+        CHECK(m.findPlayer(a)->qUnlocked);
+        CHECK(m.findPlayer(a)->pendingPicks == 0);
+        CHECK(!m.draftAbility(a, 0)); // no picks left
+        CHECK(!m.draftAbility(a, 1)); // no picks left
+    }
+    // DOTGOO: level 6 unlocks the ult.
+    {
+        EventBus bus; GameClock clock; RNG rng(103);
+        int ults = 0;
+        bus.subscribe(EventType::AbilityUnlocked, [&](const GameEvent& e) {
+            if (e.tag == "ULT") ++ults;
+        });
+        Match m(bus, clock, rng);
+        CHECK(m.start("moba"));
+        m.botfill();
+        for (int t = 0; t < 600 && !m.isOver(); ++t) m.update(1.0);
+        CHECK(ults > 0); // someone hit level 6 and got their ult
+    }
 }
