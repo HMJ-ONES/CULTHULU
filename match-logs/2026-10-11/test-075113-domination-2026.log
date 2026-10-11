@@ -1,0 +1,24 @@
+log bytes: 13698
+path: match-logs/2026-10-11/075143-capture-2026.log
+--- head ---
+# CULT-ULHU match log
+# mode: capture
+# winner: team 0
+# final score: 400-306 (target 263922949)
+# roster:
+#   Bot1<Bast> team 0 KDA 16/7/17 level 30
+#   Bot2<Bokrug> team 0 KDA 12/7/24 level 30
+#   Bot3<Civilian> team 0 KDA 5/6/15 level 28
+#   Bot4<Civilian> team 0 KDA 3/7/8 level 25
+#   Bot5<Civilian> team 0 KDA 13/7/4 level 30
+#   Bot6<Cthulhu> team 1 KDA 2/10/25 level 23
+#   Bot7<Cultist> team 1 KDA 4/10/6 level 30
+#   Bot8<Cultist> team 1 KDA 2/10/4 level 7
+#   Bot9<Dagon> team 1 KDA 22/8/7 level 30
+#   Bot10<Echo> team 1 KDA 4/11/10 level 30
+# events:
+[00:01] POINT neutral — nobody holds the center
+[00:20] POINT team 1 seizes the point
+[00:21] POINT neutral — nobody holds the center
+[00:22] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 44deg (0,0)
+[00:22] CAST Bot6<Cthulhu>t1 Q "Tent
