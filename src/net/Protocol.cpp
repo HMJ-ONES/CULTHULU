@@ -4,24 +4,30 @@ namespace cultulhu {
 namespace net {
 namespace {
 
-std::string sanitize(const std::string& v) {
-    std::string out;
-    out.reserve(v.size());
+// Appends v to out, dropping the characters the text framing reserves
+// (';' and '=') plus stray CR/LF. Byte-identical to the old
+// sanitize-then-append path, minus the temporary string per field.
+void appendSanitized(std::string& out, const std::string& v) {
     for (char c : v) {
         if (c == ';' || c == '=' || c == '\n' || c == '\r') continue;
         out.push_back(c);
     }
-    return out;
 }
 
 } // namespace
 
 std::string encodeFields(const std::map<std::string, std::string>& fields) {
+    // Upper bound (sanitizing only removes characters): one allocation
+    // for the whole payload instead of a realloc chain per '+=', and no
+    // per-field temporary strings.
+    size_t total = 0;
+    for (const auto& [k, v] : fields) total += k.size() + v.size() + 3; // k=v;
     std::string out;
+    out.reserve(total);
     for (const auto& [k, v] : fields) {
-        out += sanitize(k);
+        appendSanitized(out, k);
         out += '=';
-        out += sanitize(v);
+        appendSanitized(out, v);
         out += ';';
     }
     return out;
@@ -31,12 +37,14 @@ std::map<std::string, std::string> decodeFields(const std::string& payload) {
     std::map<std::string, std::string> out;
     size_t i = 0;
     while (i < payload.size()) {
-        size_t semi = payload.find(';', i);
-        std::string pair = payload.substr(i, semi == std::string::npos
-                                                 ? semi : semi - i);
-        size_t eq = pair.find('=');
-        if (eq != std::string::npos)
-            out[pair.substr(0, eq)] = pair.substr(eq + 1);
+        const size_t semi = payload.find(';', i);
+        const size_t end =
+            (semi == std::string::npos) ? payload.size() : semi;
+        const size_t eq = payload.find('=', i);
+        // '=' must belong to this pair — a later pair's '=' doesn't count.
+        if (eq != std::string::npos && eq < end)
+            out[payload.substr(i, eq - i)] =
+                payload.substr(eq + 1, end - eq - 1);
         if (semi == std::string::npos) break;
         i = semi + 1;
     }

@@ -940,6 +940,9 @@ struct NetSession {
 
     std::vector<net::SnapshotEntity> snapshotOf(BetaGame& g) {
         std::vector<net::SnapshotEntity> out;
+        // Avatar + up to 32 cultists, built at 20 Hz on the host: reserve
+        // once so the 33 push_backs below never reallocate.
+        out.reserve(33);
         net::SnapshotEntity e;
         e.id = g.avatar.id();
         e.x = g.avatar.position().x;

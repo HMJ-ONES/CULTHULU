@@ -57,8 +57,15 @@ bool decodeSnapshot(const Message& m, uint32_t& tickOut,
     // (CPU hang). Legitimate snapshots carry a handful of entities.
     if (n < 0 || n > 4096) return false;
     entsOut.clear();
+    entsOut.reserve(static_cast<size_t>(n));
     for (int i = 0; i < n; ++i) {
-        std::string s = fieldStr(m, "e" + std::to_string(i));
+        // Bind the stored value directly instead of copying it out via
+        // fieldStr: one fewer heap string per entity at 20 Hz.
+        // A missing key behaves exactly as before (empty string fails
+        // the sscanf below, so the entity is skipped).
+        auto it = m.fields.find("e" + std::to_string(i));
+        if (it == m.fields.end()) continue;
+        const std::string& s = it->second;
         SnapshotEntity e;
         // id,x,y,z,hp,state — parse the five floats/ints, then the
         // trailing state byte separately for robustness.
