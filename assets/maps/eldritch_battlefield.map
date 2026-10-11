@@ -10,7 +10,7 @@
 # hanging-moss, fungal-shelf, root-tangle in ashen_grove; ruined-column-b,
 # fallen-lintel, flagstone-slab, broken-obelisk in shattered_court and at
 # the cavern_mouth deep-ruins edge).
-# 162 placements + 4 atmosphere records. All models CC0 (Kenney Graveyard/Nature, KayKit
+# 174 placements + 4 atmosphere records. All models CC0 (Kenney Graveyard/Nature, KayKit
 # Dungeon Remastered/Halloween Bits) or in-house procgen. See
 # assets/world/MANIFEST.md.
 #
@@ -289,3 +289,24 @@ place assets/world/props/coffin-stone.glb -35 0 175 90 1.0 ember_shrine
 place assets/world/props/coffin-stone.glb 35 0 175 270 1.0 ember_shrine
 place assets/world/props/fence-broken.glb -45 0 140 70 1.0 ember_shrine
 place assets/world/props/mist-bank.glb 4 0 193 0 1.3 ember_shrine
+
+# --- wave 44 (beauty pass): ember_shrine fill — 30 -> 42 placements ---
+# The shrine zone (120x120 m) was the sparsest on the battlefield while
+# the other three zones all sit at 43-45. Fills the empty west/east
+# mid-bands and corners with models already in use here (zero new
+# models, zero payload growth): torch pair extending the ember-lit
+# approach south, dark crystals anchoring the gloom, scorched ground at
+# the south gate, bones and weathered tombstones, mist rolling in from
+# the south edge, embers drifting by the north chest.
+place assets/world/props/torch-stand.glb -20 0 85 0 1.0 ember_shrine
+place assets/world/props/torch-stand.glb 20 0 85 0 1.0 ember_shrine
+place assets/world/props/dark-crystal-cluster.glb -45 0 125 35 1.2 ember_shrine
+place assets/world/props/dark-crystal-cluster.glb 45 0 155 140 1.0 ember_shrine
+place assets/world/terrain/scorched-patch.glb 0 0 100 25 1.2 ember_shrine
+place assets/world/props/bone-pile.glb 45 0 120 200 1.0 ember_shrine
+place assets/world/props/bone-pile.glb -40 0 170 115 0.9 ember_shrine
+place assets/world/props/tombstone-weathered.glb -50 0 150 80 1.0 ember_shrine
+place assets/world/props/tombstone-weathered.glb 50 0 110 260 0.9 ember_shrine
+place assets/world/props/mist-bank.glb -8 0 90 180 1.2 ember_shrine
+place assets/world/props/ember-cluster.glb 25 0 190 75 1.0 ember_shrine
+place assets/world/props/candles-cluster.glb -15 0 185 300 0.9 ember_shrine
