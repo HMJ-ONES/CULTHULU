@@ -63,6 +63,9 @@ struct HeavyAttackDef {
     // Empty = no crowd control.
     std::string ccType;
     float ccSeconds = 0.0f;  // CC duration; 0 = none
+    // FX preset override for this heavy attack (wave 43). Empty = use
+    // the preset whose id matches the attack kind (see fxForHeavyAttack).
+    std::string fxPreset;
 };
 
 // Full definition of one playable character archetype.

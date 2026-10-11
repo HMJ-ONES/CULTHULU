@@ -1,5 +1,6 @@
 #include "characters/AbilityFx.h"
 
+#include <cctype>
 #include <fstream>
 #include <sstream>
 
@@ -209,6 +210,27 @@ const FxPreset* fxForSpell(const SpellDef& spell, const FxLibrary& lib) {
     return lib.find(spell.effectKind);
 }
 
+const FxPreset* fxForHeavyAttack(const HeavyAttackDef& heavy,
+                                 const FxLibrary& lib) {
+    if (!heavy.fxPreset.empty()) return lib.find(heavy.fxPreset);
+    return lib.find(heavyAttackKindName(heavy.kind));
+}
+
+namespace {
+
+// Case-insensitive substring test, for rock break-event prose ("the
+// rock shatters", "the rock crumbles to dust", ...). The rip/hurl
+// moments match exact tags instead; this catches break prose without
+// hard-coding every flavor string MatchKits.cpp invents.
+bool tagMentionsRock(const std::string& tag) {
+    std::string lower = tag;
+    for (char& c : lower)
+        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    return lower.find("rock") != std::string::npos;
+}
+
+} // namespace
+
 const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
     switch (type) {
         case EventType::CityBuildingDestroyed:
@@ -218,6 +240,18 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         default:
             return nullptr;
     }
+}
+
+const FxPreset* fxForEvent(const GameEvent& e, const FxLibrary& lib) {
+    if (e.type == EventType::AbilityCast && e.amount == 3.0f) {
+        // RMB slot. Rock-kit moments first; ordinary heavy attacks
+        // resolve through fxForHeavyAttack with the caster's kit.
+        if (e.tag == kRockRipTag) return lib.find("rock_rip");
+        if (e.tag == kRockHurlTag) return lib.find("rock_hurl");
+        if (tagMentionsRock(e.tag)) return lib.find("rock_shatter");
+        return nullptr;
+    }
+    return fxForEvent(e.type, lib);
 }
 
 } // namespace cultulhu

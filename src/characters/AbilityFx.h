@@ -90,11 +90,34 @@ FxLoadResult parseFxLibraryText(const std::string& text);
 // Returns nullptr when no preset matches.
 const FxPreset* fxForSpell(const SpellDef& spell, const FxLibrary& lib);
 
+// Wave 43: resolve the preset for a heavy (RMB) attack: its explicit
+// fxPreset, or the preset whose id matches its kind ("MeleeHeavy",
+// "MindControl", "AcidSpit", "EldritchGrasp"). Returns nullptr when no
+// preset matches.
+const FxPreset* fxForHeavyAttack(const HeavyAttackDef& heavy,
+                                 const FxLibrary& lib);
+
+// Wave 43: rock-kit event tags (Domination, Cthulhu's rock). The rock
+// abilities publish AbilityCast events (slot 3 = RMB) with these tags;
+// fxForEvent() resolves them to the rock_* presets. MatchKits.cpp
+// publishes these exact constants so the tags cannot drift.
+inline constexpr const char* kRockRipTag = "Sunder the Earth";
+inline constexpr const char* kRockHurlTag = "Hurl the Mountain";
+
 // Resolve the preset for a non-spell, event-driven visual: destruction
 // events (a building, district, or city falling) resolve to the "raze"
 // preset, so the engine plays collapse visuals through the same particle
 // pipeline as the kit presets. Returns nullptr for events with no
 // mapped visual.
 const FxPreset* fxForEvent(EventType type, const FxLibrary& lib);
+
+// Wave 43: event-object overload. Destruction events resolve through
+// the EventType overload; AbilityCast events in the RMB slot
+// (amount == 3) with a rock tag resolve to the rock_* presets
+// (kRockRipTag -> rock_rip, kRockHurlTag -> rock_hurl, any rock break
+// prose -> rock_shatter). Other AbilityCast events return nullptr —
+// the caller falls back to fxForHeavyAttack with the caster's kit,
+// which the event alone cannot identify.
+const FxPreset* fxForEvent(const GameEvent& e, const FxLibrary& lib);
 
 } // namespace cultulhu

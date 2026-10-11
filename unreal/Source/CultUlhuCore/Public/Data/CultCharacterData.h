@@ -88,6 +88,11 @@ struct FCultHeavyAttackData
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CultUlhu")
 	float CcSeconds = 0.0f;
 
+	// FX preset override for this heavy attack (wave 43); empty = the
+	// preset whose id matches the attack kind (fxForHeavyAttack).
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CultUlhu")
+	FString FxPreset;
+
 	cultulhu::HeavyAttackDef ToCoreDef() const;
 };
 

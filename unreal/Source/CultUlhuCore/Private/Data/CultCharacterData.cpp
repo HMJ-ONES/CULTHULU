@@ -36,6 +36,7 @@ cultulhu::HeavyAttackDef FCultHeavyAttackData::ToCoreDef() const
 	D.range = Range;
 	D.ccType = ToStd(CcType);
 	D.ccSeconds = CcSeconds;
+	D.fxPreset = ToStd(FxPreset);
 	return D;
 }
 

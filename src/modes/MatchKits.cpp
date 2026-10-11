@@ -2,6 +2,7 @@
 // Helpers live here; the Match methods they serve are defined below.
 
 #include "modes/MatchKits.h"
+#include "characters/AbilityFx.h"
 #include "characters/CharacterPackageLoader.h"
 #include "characters/CharacterRegistry.h"
 #include "modes/Match.h"
@@ -409,7 +410,7 @@ bool Match::ripRock(size_t idx) {
     p.rmbCd = 6.0;
     GameEvent e(EventType::AbilityCast);
     e.sourceId = p.id;
-    e.tag = "Sunder the Earth";
+    e.tag = kRockRipTag;
     e.amount = 3;
     bus_.publish(e);
     return true;
@@ -476,7 +477,7 @@ bool Match::throwRock(size_t idx) {
     }
     if (!hit) return false;
     p.swingCd = 1.0;
-    breakRock(idx, "Hurl the Mountain");
+    breakRock(idx, kRockHurlTag);
     return true;
 }
 

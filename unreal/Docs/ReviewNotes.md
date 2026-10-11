@@ -81,3 +81,12 @@ summary); this file holds only the uncertain items.
   rather than as a compiler warning.
 - Guidance comment referenced `SetReplicatingMovement` (UE3 name);
   UE5's method is `SetReplicateMovement`.
+
+## Uncertain items (verify in the editor)
+
+9. **`FCultHeavyAttackData::FxPreset` UPROPERTY** (wave 43).
+   Plain `FString` with `EditDefaultsOnly, BlueprintReadOnly`, passed
+   through to `cultulhu::HeavyAttackDef::fxPreset` in `ToCoreDef()`.
+   Should compile like the neighboring `FString` members — confirm the
+   first build accepts it and the value survives a data-asset round
+   trip.

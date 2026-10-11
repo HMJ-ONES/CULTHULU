@@ -10,6 +10,12 @@
 # kits get visuals for free. Character authors can override with
 # `fx = <id>` in [q]/[f]/[r].
 #
+# RMB heavy attacks resolve the same way through fxForHeavyAttack():
+# one preset per HeavyAttackKind (ids match the kind names), with an
+# optional `fx = <id>` override in [rightclick]. The rock kit's rip /
+# hurl / shatter moments are event-driven (AbilityCast, slot 3, rock
+# tags) and resolve to the rock_* presets through fxForEvent().
+#
 # Format: [preset id], then key = value. Ranges are "min,max".
 # colors are hex RRGGBB "start,end". texture is one of
 # none|smoke|spark|rune|mist|ichor.
@@ -202,4 +208,121 @@ additive = false
 gravity = -3.0
 texture = smoke
 duration = 2.5
+loop = false
+
+# ---- RMB heavy-attack presets (wave 43) ----
+# One per HeavyAttackKind; fxForHeavyAttack() uses the preset whose id
+# matches the kind name, so every kit's RMB gets visuals with zero
+# per-character authoring ([rightclick] `fx = <id>` overrides).
+
+[MeleeHeavy]
+display_name = Heavy Cleave
+emitter = sphere
+count = 110
+lifetime = 0.3,0.9
+speed = 8,20
+spread = 90
+size = 1.0,3.5
+colors = 2e2624,7a2fd0
+additive = false
+gravity = 4.0
+texture = smoke
+duration = 1.2
+loop = false
+
+[MindControl]
+display_name = Dominion Wave
+emitter = sphere
+count = 64
+lifetime = 0.8,1.6
+speed = 2,8
+spread = 180
+size = 1.5,4.0
+colors = 4a0b6e,d09aff
+additive = true
+gravity = -2.0
+texture = mist
+duration = 2.0
+loop = false
+
+[AcidSpit]
+display_name = Vitriol Spit
+emitter = cone
+count = 60
+lifetime = 0.5,1.2
+speed = 14,26
+spread = 12
+size = 0.5,1.5
+colors = 3a6e10,b0ff40
+additive = false
+gravity = 8.0
+texture = ichor
+duration = 1.4
+loop = false
+
+[EldritchGrasp]
+display_name = Tendril Drag
+emitter = beam
+count = 72
+lifetime = 0.5,1.0
+speed = 10,22
+spread = 20
+size = 0.4,1.2
+colors = 0b2e2e,00d0b0
+additive = false
+gravity = 0.0
+texture = spark
+duration = 1.2
+loop = false
+
+# ---- Rock-kit presets (wave 43) ----
+# Event-driven, not kinds: Cthulhu's Domination rock publishes
+# AbilityCast events (slot 3) whose tags fxForEvent() maps here —
+# "Sunder the Earth" -> rock_rip, "Hurl the Mountain" -> rock_hurl,
+# and any rock break prose ("the rock shatters", "the rock crumbles
+# to dust") -> rock_shatter.
+
+[rock_rip]
+display_name = Sunder the Earth
+emitter = sphere
+count = 128
+lifetime = 0.6,1.8
+speed = 6,18
+spread = 120
+size = 1.0,4.0
+colors = 3a2e24,8a5a2a
+additive = false
+gravity = -4.0
+texture = smoke
+duration = 2.0
+loop = false
+
+[rock_hurl]
+display_name = Hurl the Mountain
+emitter = cone
+count = 80
+lifetime = 0.4,1.0
+speed = 20,36
+spread = 10
+size = 1.2,3.0
+colors = 4a4038,a07040
+additive = false
+gravity = 6.0
+texture = smoke
+duration = 1.6
+loop = false
+
+[rock_shatter]
+display_name = Rock Shatter
+emitter = sphere
+count = 96
+lifetime = 0.4,1.2
+speed = 10,24
+spread = 180
+size = 0.6,2.0
+colors = 5a5048,2e2a26
+additive = false
+gravity = 10.0
+texture = none
+duration = 1.0
 loop = false

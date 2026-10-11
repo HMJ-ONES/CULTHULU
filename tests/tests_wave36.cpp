@@ -9,6 +9,9 @@
 //     counts, additive fill-rate cap, looping-emitter cap, durations,
 //     sizes);
 //   - colors are valid hex, ranges are ordered, emitters are known.
+// Wave 43 extends the catalog: one preset per RMB HeavyAttackKind
+// (fxForHeavyAttack), the [rightclick] `fx` override, and the rock-kit
+// presets resolved from AbilityCast events by fxForEvent().
 
 #include "characters/AbilityFx.h"
 #include "characters/CharacterDefParser.h"
@@ -64,6 +67,23 @@ static void testCatalogParses() {
         if (!p) std::cout << "  MISSING preset for effect kind '" << k
                           << "'\n";
         CHECK(p != nullptr);
+    }
+    // Wave 43: one preset per RMB heavy-attack kind, plus the
+    // event-driven rock-kit presets.
+    static const char* heavyKinds[] = {"MeleeHeavy", "MindControl",
+                                       "AcidSpit",   "EldritchGrasp"};
+    for (const char* k : heavyKinds) {
+        const FxPreset* p = r.library.find(k);
+        if (!p) std::cout << "  MISSING preset for heavy-attack kind '"
+                          << k << "'\n";
+        CHECK(p != nullptr);
+    }
+    static const char* rockPresets[] = {"rock_rip", "rock_hurl",
+                                        "rock_shatter"};
+    for (const char* k : rockPresets) {
+        if (!r.library.find(k))
+            std::cout << "  MISSING rock preset '" << k << "'\n";
+        CHECK(r.library.find(k) != nullptr);
     }
     // Beauty pass: the catalog also ships the event-driven destruction
     // preset used when buildings, districts, and cities fall.
@@ -232,6 +252,125 @@ static void testFxForEvent() {
     CHECK(fxForEvent(EventType::AchievementUnlocked, r.library) == nullptr);
 }
 
+// Wave 43: RMB heavy attacks resolve to presets (kind default, with
+// an [rightclick] `fx` override), and rock-kit AbilityCast events
+// resolve to the rock_* presets through the fxForEvent() overload.
+static void testHeavyAttackFx() {
+    FxLoadResult fr =
+        loadFxLibrary(repoPrefix() + "assets/fx/ability_fx.def");
+    CHECK(fr.ok);
+    if (!fr.ok) return;
+
+    // Each heavy-attack kind resolves to the preset named for it.
+    static const HeavyAttackKind kinds[] = {
+        HeavyAttackKind::MeleeHeavy, HeavyAttackKind::MindControl,
+        HeavyAttackKind::AcidSpit, HeavyAttackKind::EldritchGrasp};
+    for (HeavyAttackKind k : kinds) {
+        HeavyAttackDef h;
+        h.kind = k;
+        const FxPreset* p = fxForHeavyAttack(h, fr.library);
+        if (!p) std::cout << "  NO FX for heavy-attack kind '"
+                          << heavyAttackKindName(k) << "'\n";
+        CHECK(p != nullptr);
+        if (p) CHECK(p->id == heavyAttackKindName(k));
+    }
+
+    // Explicit override wins; a bad one resolves to nothing.
+    HeavyAttackDef over;
+    over.kind = HeavyAttackKind::AcidSpit;
+    over.fxPreset = "stun";
+    const FxPreset* o = fxForHeavyAttack(over, fr.library);
+    CHECK(o != nullptr);
+    if (o) CHECK(o->id == "stun");
+    HeavyAttackDef bad;
+    bad.kind = HeavyAttackKind::MeleeHeavy;
+    bad.fxPreset = "no_such_preset";
+    CHECK(fxForHeavyAttack(bad, fr.library) == nullptr);
+
+    // The [rightclick] `fx` line parses into HeavyAttackDef::fxPreset.
+    ParseResult pr = parseCharacterDef(
+        "id = fx_rmb_char\n"
+        "display_name = Fx Rmb Test\n"
+        "[rightclick]\n"
+        "kind = EldritchGrasp\n"
+        "name = Test Grasp\n"
+        "fx = rock_shatter\n");
+    CHECK(pr.ok);
+    CHECK(pr.def.rightClick.kind == HeavyAttackKind::EldritchGrasp);
+    CHECK(pr.def.rightClick.fxPreset == "rock_shatter");
+    const FxPreset* rp = fxForHeavyAttack(pr.def.rightClick, fr.library);
+    CHECK(rp != nullptr);
+    if (rp) CHECK(rp->id == "rock_shatter");
+
+    // Rock-kit AbilityCast events (slot 3) resolve to rock presets.
+    auto rockEvent = [](const char* tag) {
+        GameEvent e(EventType::AbilityCast);
+        e.tag = tag;
+        e.amount = 3; // slot 3 = RMB
+        return e;
+    };
+    const FxPreset* rip = fxForEvent(rockEvent(kRockRipTag), fr.library);
+    CHECK(rip != nullptr);
+    if (rip) CHECK(rip->id == "rock_rip");
+    const FxPreset* hurl = fxForEvent(rockEvent(kRockHurlTag), fr.library);
+    CHECK(hurl != nullptr);
+    if (hurl) CHECK(hurl->id == "rock_hurl");
+    const FxPreset* sh1 =
+        fxForEvent(rockEvent("the rock shatters"), fr.library);
+    CHECK(sh1 != nullptr);
+    if (sh1) CHECK(sh1->id == "rock_shatter");
+    const FxPreset* sh2 =
+        fxForEvent(rockEvent("the rock crumbles to dust"), fr.library);
+    CHECK(sh2 != nullptr);
+    if (sh2) CHECK(sh2->id == "rock_shatter");
+
+    // Ordinary RMB casts are NOT rock events: the event overload
+    // returns nullptr and the caller falls back to fxForHeavyAttack.
+    CHECK(fxForEvent(rockEvent("Dominate Mind"), fr.library) == nullptr);
+    // Same rock tag outside the RMB slot: no rock visual.
+    GameEvent wrongSlot(EventType::AbilityCast);
+    wrongSlot.tag = kRockRipTag;
+    wrongSlot.amount = 0;
+    CHECK(fxForEvent(wrongSlot, fr.library) == nullptr);
+
+    // The GameEvent overload still delegates destruction events.
+    GameEvent razed(EventType::DistrictRazed);
+    const FxPreset* raze = fxForEvent(razed, fr.library);
+    CHECK(raze != nullptr);
+    if (raze) CHECK(raze->id == "raze");
+    GameEvent other(EventType::DiscoveryMade);
+    CHECK(fxForEvent(other, fr.library) == nullptr);
+
+    // Every playable character's RMB resolves to a preset.
+    CharacterRegistry registry;
+    CharacterPackageLoader loader(registry);
+    const int loaded =
+        loader.scanAndLoad(repoPrefix() + "assets/characters/");
+    CHECK(loaded >= 20);
+    static const char* ids[] = {
+        "cthulhu_avatar", "yog_sothoth",   "nyarlathotep", "shub_niggurath",
+        "mi_go",          "shoggoths",      "bokrug",       "nodens",
+        "dagon",          "mother_hydra",   "ghatanothoa",  "nug_and_yeb",
+        "rhan_tegoth",    "sghllor",        "hastur",       "yig",
+        "bast",           "elder_mind",     "howling_eye",  "hypnos",
+    };
+    int rmbs = 0;
+    for (const char* id : ids) {
+        const CharacterPackage* pkg = loader.find(id);
+        if (!pkg || !pkg->defOk) {
+            std::cout << "  UNABLE to load package '" << id << "'\n";
+            ++failures;
+            continue;
+        }
+        ++rmbs;
+        const FxPreset* p = fxForHeavyAttack(pkg->def.rightClick,
+                                             fr.library);
+        if (!p) std::cout << "  NO FX for " << id << " RMB\n";
+        CHECK(p != nullptr);
+    }
+    std::cout << "  " << rmbs << "/20 character RMBs resolve to an fx preset\n";
+}
+
 int main() {
     testCatalogParses();
     testBudgetLimits();
@@ -239,6 +378,7 @@ int main() {
     testFxOverrideParsing();
     testCatalogParseErrors();
     testFxForEvent();
+    testHeavyAttackFx();
     std::cout << "wave36: " << checks << " checks, " << failures
               << " failures\n";
     return failures == 0 ? 0 : 1;

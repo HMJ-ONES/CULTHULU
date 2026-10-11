@@ -102,6 +102,8 @@ ParseResult parseCharacterDef(const std::string& text) {
                 r.def.rightClick.name = val;
             else if (key == "cc")
                 r.def.rightClick.ccType = val;
+            else if (key == "fx")
+                r.def.rightClick.fxPreset = val;
             else if (isNum && parseFloat(val, f)) {
                 if (key == "damage_mult") r.def.rightClick.damageMult = f;
                 else if (key == "range") r.def.rightClick.range = f;
