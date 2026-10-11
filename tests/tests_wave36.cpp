@@ -65,6 +65,9 @@ static void testCatalogParses() {
                           << "'\n";
         CHECK(p != nullptr);
     }
+    // Beauty pass: the catalog also ships the event-driven destruction
+    // preset used when buildings, districts, and cities fall.
+    CHECK(r.library.find("raze") != nullptr);
     // Every preset has a display name and a texture hint.
     for (const auto& p : r.library.presets) {
         CHECK(!p.displayName.empty());
@@ -210,12 +213,32 @@ static void testCatalogParseErrors() {
     CHECK(e.library.find("p") != nullptr);
 }
 
+// Event-driven (non-spell) FX: destruction events resolve to the
+// `raze` preset; everything else has no mapped visual.
+static void testFxForEvent() {
+    FxLoadResult r =
+        loadFxLibrary(repoPrefix() + "assets/fx/ability_fx.def");
+    CHECK(r.ok);
+    if (!r.ok) return;
+    const FxPreset* raze = fxForEvent(EventType::DistrictRazed, r.library);
+    CHECK(raze != nullptr);
+    if (raze) {
+        CHECK(raze->id == "raze");
+        CHECK(!raze->displayName.empty());
+    }
+    CHECK(fxForEvent(EventType::CityDestroyed, r.library) == raze);
+    CHECK(fxForEvent(EventType::CityBuildingDestroyed, r.library) == raze);
+    CHECK(fxForEvent(EventType::DiscoveryMade, r.library) == nullptr);
+    CHECK(fxForEvent(EventType::AchievementUnlocked, r.library) == nullptr);
+}
+
 int main() {
     testCatalogParses();
     testBudgetLimits();
     testAllKitsResolve();
     testFxOverrideParsing();
     testCatalogParseErrors();
+    testFxForEvent();
     std::cout << "wave36: " << checks << " checks, " << failures
               << " failures\n";
     return failures == 0 ? 0 : 1;

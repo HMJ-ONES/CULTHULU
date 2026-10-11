@@ -209,4 +209,15 @@ const FxPreset* fxForSpell(const SpellDef& spell, const FxLibrary& lib) {
     return lib.find(spell.effectKind);
 }
 
+const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
+    switch (type) {
+        case EventType::CityBuildingDestroyed:
+        case EventType::DistrictRazed:
+        case EventType::CityDestroyed:
+            return lib.find("raze");
+        default:
+            return nullptr;
+    }
+}
+
 } // namespace cultulhu

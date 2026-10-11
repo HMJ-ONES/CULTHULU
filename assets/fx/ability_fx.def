@@ -1,10 +1,14 @@
 # CULT-ULHU ability visual-effect library (wave 36).
 #
-# One preset per ability effect kind (see docs/KITS.md for the
-# vocabulary). A spell with no explicit `fx` line in character.def
-# automatically uses the preset whose id matches its effect kind, so
-# all 60 Q/F/R abilities across the 20 kits get visuals for free.
-# Character authors can override with `fx = <id>` in [q]/[f]/[r].
+# One preset per ability effect kind (see the FX vocabulary below), plus
+# event-driven presets that no spell uses: `raze` fires on destruction
+# events (CityBuildingDestroyed / DistrictRazed / CityDestroyed) through
+# fxForEvent(), so the engine plays real collapse visuals through the
+# same particle pipeline when the avatar razes the world. A spell with no
+# explicit `fx` line in character.def automatically uses the preset whose
+# id matches its effect kind, so all 60 Q/F/R abilities across the 20
+# kits get visuals for free. Character authors can override with
+# `fx = <id>` in [q]/[f]/[r].
 #
 # Format: [preset id], then key = value. Ranges are "min,max".
 # colors are hex RRGGBB "start,end". texture is one of
@@ -177,4 +181,25 @@ additive = true
 gravity = -2.5
 texture = mist
 duration = 1.6
+loop = false
+
+# Destruction preset: not an ability effect kind — fired through
+# fxForEvent() when buildings, districts, and cities fall. City
+# destruction is the game's core fantasy, so it gets the heaviest
+# single burst in the catalog: billowing dust that catches an ember
+# tint as it rises, still inside the low-spec budget (count <= 256,
+# non-additive, one-shot).
+[raze]
+display_name = Building Collapse
+emitter = sphere
+count = 192
+lifetime = 0.8,3.2
+speed = 4,16
+spread = 120
+size = 1.0,4.0
+colors = 2a2624,a04010
+additive = false
+gravity = -3.0
+texture = smoke
+duration = 2.5
 loop = false

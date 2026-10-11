@@ -15,6 +15,7 @@
 #include "camera/CameraSystem.h"
 #include "characters/CharacterPackageLoader.h"
 #include "characters/CharacterValidator.h"
+#include "characters/AbilityFx.h"
 #include "characters/abilities/WaveOfDomination.h"
 #include "chaos/LunaticSystem.h"
 #include "combat/Attacks.h"
@@ -191,6 +192,11 @@ struct BetaGame {
     // mechanic, wired to exertion skill and christened births.
     BreedingSystem breeding{bus, rng};
     ActiveEffects fx;
+    // Beauty pass: the destruction FX catalog. ability_fx.def ships a
+    // `raze` preset that fxForEvent() resolves for destruction events,
+    // so the headless driver announces which collapse visual the
+    // engine binding should play.
+    FxLibrary fxLib;
     AssetManager assets;
     AnimationStateMachine avatarAnim;
     // Wave 18: bridges gameplay events to per-entity animation state
@@ -224,6 +230,16 @@ struct BetaGame {
     RmbContext waveCtx{bus, fx, beliefs, rng};
 
     BetaGame() {
+        // Beauty pass: load the FX catalog early so event narration can
+        // name the destruction preset. Works whether the driver runs
+        // from the repo root or from build/.
+        {
+            std::ifstream probe("assets/fx/ability_fx.def");
+            const std::string prefix = probe ? "" : "../";
+            const FxLoadResult fxRes =
+                loadFxLibrary(prefix + "assets/fx/ability_fx.def");
+            if (fxRes.ok) fxLib = fxRes.library;
+        }
         // Wave 18: the avatar's anim machine is tracked so event hooks
         // (brawl/sacrifice/maul) can pose it, and its machine ticks with
         // every other tracked entity in tickSecond().
@@ -294,8 +310,13 @@ struct BetaGame {
             std::cout << "[dream] a distant civilian stirs in their sleep "
                          "(cultist " << e.sourceId << " dreaming)\n";
         });
-        bus.subscribe(EventType::DistrictRazed, [](const GameEvent& e) {
-            std::cout << "[city] a district lies in ruins\n";
+        bus.subscribe(EventType::DistrictRazed, [this](const GameEvent& e) {
+            std::cout << "[city] a district lies in ruins";
+            const FxPreset* p = fxForEvent(EventType::DistrictRazed, fxLib);
+            if (p)
+                std::cout << " — fx: " << p->id << " (" << p->displayName
+                          << ")";
+            std::cout << "\n";
             (void)e;
         });
         // Wave 26: the Discovery Codex — first finds are logged forever.

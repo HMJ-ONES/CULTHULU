@@ -19,6 +19,7 @@
 // can still override with an explicit `fx = <id>` line in [q]/[f]/[r].
 
 #include "characters/CharacterDef.h"
+#include "core/Events.h"
 
 #include <string>
 #include <vector>
@@ -88,5 +89,12 @@ FxLoadResult parseFxLibraryText(const std::string& text);
 // its effectKind as the default (the catalog ships one preset per kind).
 // Returns nullptr when no preset matches.
 const FxPreset* fxForSpell(const SpellDef& spell, const FxLibrary& lib);
+
+// Resolve the preset for a non-spell, event-driven visual: destruction
+// events (a building, district, or city falling) resolve to the "raze"
+// preset, so the engine plays collapse visuals through the same particle
+// pipeline as the kit presets. Returns nullptr for events with no
+// mapped visual.
+const FxPreset* fxForEvent(EventType type, const FxLibrary& lib);
 
 } // namespace cultulhu
