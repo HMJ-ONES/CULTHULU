@@ -5,6 +5,7 @@
 #include "characters/CharacterPackageLoader.h"
 #include "characters/CharacterRegistry.h"
 #include "modes/Match.h"
+#include "modes/RosterUtils.h"
 
 #include <cmath>
 
@@ -54,23 +55,13 @@ const CharacterDef* Match::kitOf(const Player& p) const {
 
 void Match::assignKit(Player& p) {
     // Wave 42: only the 20 playable roster entities fight in matches.
-    // The 6 NPC packages (civilians, cultists, echo) are minions/ambient
-    // life — never match fighters. Domination has no minions at all.
-    static const std::vector<std::string> kNpcIds = {
-        "civilian_guard", "civilian_laborer", "civilian_villager",
-        "cultist_hooded", "cultist_magus", "echo_of_the_void"};
+    // NPC packages are minions/ambient life — never match fighters.
+    // Domination has no minions at all.
     const std::vector<std::string> all = kits_.list();
     std::vector<std::string> ids;
     ids.reserve(all.size());
-    for (const auto& id : all) {
-        bool npc = false;
-        for (const auto& n : kNpcIds)
-            if (id == n) {
-                npc = true;
-                break;
-            }
-        if (!npc) ids.push_back(id);
-    }
+    for (const auto& id : all)
+        if (!isNpcPackage(id)) ids.push_back(id);
     if (ids.empty()) {
         p.kitId.clear(); // no kits available: plain melee fighter
         return;

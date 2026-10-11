@@ -2,6 +2,7 @@
 
 #include "modes/MatchLogger.h"
 #include "modes/Match.h"
+#include "modes/RosterUtils.h"
 
 #include <cmath>
 #include <cstdio>
@@ -148,7 +149,11 @@ void MatchLogger::poll(Match& match) {
 std::string MatchLogger::render(const Match& match) const {
     std::string out;
     out += "# CULT-ULHU match log\n";
-    out += "# mode: " + match.modeName() + "\n";
+    // Wave 42: user-facing mode names in the log header (not internals).
+    const std::string mode = match.modeName() == "capture" ? "domination"
+                             : match.modeName() == "moba"  ? "dotgoo"
+                                                            : match.modeName();
+    out += "# mode: " + mode + "\n";
     char wb[64];
     std::snprintf(wb, sizeof(wb), "# winner: team %d\n", match.winner());
     out += wb;

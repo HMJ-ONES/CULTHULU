@@ -1,11 +1,12 @@
 # Echo of the Void — minimal logic-only character package.
 #
-# This is the smallest playable character: a character.def and nothing
-# else. No model.fbx/.glb (logic-only), no rig.map (nothing to map),
+# This is the smallest NPC package: a character.def and nothing else.
+# No model.fbx/.glb (logic-only), no rig.map (nothing to map),
 # no animations/ (every clip falls back to procedural). It exists to
 # prove the fallback chain end-to-end and as a copy-paste starting
 # point: duplicate this folder, rename it, edit the values, and you
-# have a new playable character.
+# have a new character package. It is NOT one of the 20 playable
+# roster entities and never fights in matches.
 #
 # Validate it in the driver with:  character validate echo_of_the_void
 # Expected grade: OK WITH WARNINGS (every warning names its fallback).

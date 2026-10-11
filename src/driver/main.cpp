@@ -42,6 +42,7 @@
 #include "modes/FreeRoamMode.h"
 #include "modes/Match.h"
 #include "modes/MatchLogger.h"
+#include "modes/RosterUtils.h"
 #include "net/Discovery.h"
 #include "net/Lobby.h"
 #include "net/Netcode.h"
@@ -2213,11 +2214,15 @@ static bool processLine(BetaGame& g, NetSession& nets,
         }
 
         if (cmd == "chars") {
+            // Wave 42: tag the NPC packages so the 20 playable roster
+            // kits are distinguishable at a glance.
             std::cout << g.charReg.count()
                       << " characters registered:\n";
             for (const auto& id : g.charReg.list()) {
                 const CharacterDef* d = g.charReg.get(id);
-                std::cout << "  '" << id << "' — " << d->displayName
+                std::cout << "  '" << id << "'"
+                          << (isNpcPackage(id) ? " [NPC]" : "")
+                          << " — " << d->displayName
                           << "\n      hp=" << d->maxHp
                           << " speed=" << d->moveSpeed
                           << " stamina=" << d->maxStamina
@@ -2297,8 +2302,9 @@ static bool processLine(BetaGame& g, NetSession& nets,
                           << " characters registered:\n";
                 for (const auto& id : g.charReg.list()) {
                     const CharacterDef* d = g.charReg.get(id);
-                    std::cout << "  '" << id << "' — " << d->displayName
-                              << "\n";
+                    std::cout << "  '" << id << "'"
+                              << (isNpcPackage(id) ? " [NPC]" : "")
+                              << " — " << d->displayName << "\n";
                 }
                 return true;
             }
@@ -2330,10 +2336,18 @@ static bool processLine(BetaGame& g, NetSession& nets,
             }
             if (sub == "select") {
                 // Wave 27: choose whose kit the avatar casts.
+                // Wave 42: only the 20 playable roster entities — NPCs
+                // (civilians, cultists, echo) are not wearable bodies.
                 std::string id; in >> id;
                 const CharacterDef* d = g.charReg.get(id);
                 if (!d) {
                     std::cout << "no character '" << id << "'\n";
+                    return true;
+                }
+                if (isNpcPackage(id)) {
+                    std::cout << "'" << id
+                              << "' is an NPC, not a playable entity "
+                                 "(see 'chars' for the 20 roster kits)\n";
                     return true;
                 }
                 g.activeKitId = id;
