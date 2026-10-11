@@ -789,6 +789,7 @@ struct BetaGame {
             "  chat <msg> | netent | leave\n"
             "  match <domination|dotgoo|addbot <team>|status|end>\n"
             "    (domination = 5v5 capture point, dotgoo = Defense of the Great Old Ones)\n"
+            "  mcast <q|f|r|rmb> [yaw-degrees]  cast your kit ability (after match join)\n"
             "                                          run a local 5v5 match\n"
             "  build <wall|barracks|watchtower|trap|portal|altar>\n"
             "                                          start construction\n"
@@ -1785,6 +1786,37 @@ static bool processLine(BetaGame& g, NetSession& nets,
             } else {
                 std::cout << "usage: match <domination|dotgoo|join [team]|addbot <team>|status|end>\n";
             }
+            return true;
+        }
+
+        // Wave 40: human kit casting in matches — directional, like the bots.
+        // mcast <q|f|r|rmb> [yaw-degrees]: casts your kit ability toward yaw
+        // (default: your current facing). Requires `match join` first.
+        if (cmd == "mcast") {
+            if (!g.match || !g.match->started() || g.humanMatchId == 0) {
+                std::cout << "join a match first (match domination|dotgoo, then match join)\n";
+                return true;
+            }
+            std::string slot;
+            in >> slot;
+            int slotIdx = -1;
+            if (slot == "q") slotIdx = 0;
+            else if (slot == "f") slotIdx = 1;
+            else if (slot == "r") slotIdx = 2;
+            else if (slot == "rmb") slotIdx = 3;
+            if (slotIdx < 0) {
+                std::cout << "usage: mcast <q|f|r|rmb> [yaw-degrees]\n";
+                return true;
+            }
+            const auto* hp = g.match->findPlayer(g.humanMatchId);
+            float yaw = hp ? hp->facingYaw : 0.0f;
+            float yawDeg;
+            if (in >> yawDeg)
+                yaw = yawDeg * 3.14159265f / 180.0f;
+            if (g.match->humanCast(g.humanMatchId, slotIdx, yaw))
+                std::cout << "cast " << slot << "!\n";
+            else
+                std::cout << slot << " fizzled (cooldown, CC'd, or no target in the cone).\n";
             return true;
         }
 

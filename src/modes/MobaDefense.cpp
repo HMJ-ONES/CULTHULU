@@ -54,6 +54,34 @@ MobaDefense::Minion MobaDefense::makeMinion(int team, int lane,
     return m;
 }
 
+// Wave 40: kit summons — allied fighters that brawl near their summoning
+// point for lifeSec seconds, then fade. They use the existing minion
+// combat (nearest enemy in range) so they genuinely fight.
+void MobaDefense::spawnSummon(int team, Vec3 pos, int lane, int count,
+                              double lifeSec) {
+    for (int i = 0; i < count; ++i) {
+        Minion m;
+        m.id = nextMinionId_++;
+        m.team = team;
+        m.lane = lane;
+        m.kind = "summoned";
+        m.pos = Vec3(pos.x + (i - count / 2) * 2.0f, 0.0f, pos.z + 1.5f);
+        m.hp = m.maxHp = 80.0f;
+        m.dps = 10.0f;
+        m.range = 4.0f;
+        m.speed = 3.5f;
+        m.summoned = true;
+        m.lifeTimer = lifeSec;
+        minions_.push_back(m);
+    }
+    GameEvent e(EventType::AbilityCast);
+    e.tag = "summon";
+    e.amount = count;
+    e.faction = team;
+    e.pos = pos;
+    bus_.publish(e);
+}
+
 void MobaDefense::spawnWave(int team, int lane) {
     if (lanes_.empty()) return;
     int l = lane % static_cast<int>(lanes_.size());
@@ -412,6 +440,15 @@ void MobaDefense::update(double dt) {
     for (auto it = minions_.begin(); it != minions_.end();) {
         Minion& m = *it;
 
+        // Wave 40: summoned fighters fade when their time runs out.
+        if (m.summoned) {
+            m.lifeTimer -= dt;
+            if (m.lifeTimer <= 0.0) {
+                it = minions_.erase(it);
+                continue;
+            }
+        }
+
         // A minion slain earlier in this tick (by a foe's swing or a tower)
         // is dead before its own turn: skip it.
         if (m.hp <= 0.0f) {
@@ -457,6 +494,9 @@ void MobaDefense::update(double dt) {
             }
             if (tower) {
                 tower->hp -= m.dps * fdt;
+            } else if (m.summoned) {
+                // Wave 40: summoned fighters hold near their summoning
+                // point instead of marching lanes.
             } else if (pathComplete(m)) {
                 damageBase(1 - m.team, BASE_DPS_TO_STRUCTURE * fdt);
             } else {

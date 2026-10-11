@@ -358,8 +358,13 @@ int main() {
         CHECK(m.start("capture"));
         uint64_t a = m.addBot(0);
         uint64_t b = m.addBot(1);
+        // Wave 40: identical kits — the duel is decided by update order and
+        // directional facing, not by kit asymmetry. A faces B (+x, yaw 0).
+        CHECK(m.setPlayerKit(a, "cthulhu_avatar"));
+        CHECK(m.setPlayerKit(b, "cthulhu_avatar"));
         m.movePlayer(a, Vec3(0, 0, 0));
         m.movePlayer(b, Vec3(1, 0, 0));
+        CHECK(m.setFacingYaw(a, 0.0f));
         int ticks = 0;
         while (r.count(EventType::PlayerKilled) == 0 && ticks < 30) {
             m.update(1.0); ++ticks;
@@ -523,7 +528,9 @@ int main() {
             m.update(1.0); ++ticks;
         }
         CHECK(a.isUnlocked("standard_bearer")); // PointCaptured faction==0
-        // Stage a PvP kill by the local player.
+        // Stage a PvP kill by the local player. The foe fights with plain
+        // directional melee (no kit) so the duel is deterministic.
+        CHECK(m.setPlayerKit(foe, ""));
         m.movePlayer(foe, Vec3(1, 0, 0));
         ticks = 0;
         while (!a.isUnlocked("first_blood") && ticks < 30) {
@@ -597,9 +604,9 @@ int main() {
         // The human holds position: no bot objective AI yanks them around.
         CHECK(m.findPlayer(hid)->pos.distance(pos) < 0.01f);
     }
-    // ---------- match: full moba game ends by GOO kill (seed 42) ----------
+    // ---------- match: full moba game ends by GOO kill (seed 777) ----------
     {
-        EventBus bus; GameClock clock; RNG rng(42);
+        EventBus bus; GameClock clock; RNG rng(777);
         Match m(bus, clock, rng);
         CHECK(m.start("moba"));
         m.botfill();

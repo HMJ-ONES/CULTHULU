@@ -208,6 +208,8 @@ enum class EventType {
     CityDestroyed,       // tag = city name; amount = 1; all districts razed
     PlayerKilled,        // sourceId = killer entity id; targetId = victim
                          // entity id; both are EldritchAvatars (PvP)
+    AbilityCast,         // wave 40: sourceId = caster id; tag = ability name;
+                         // amount = slot (0=Q 1=F 2=R 3=RMB)
     PointCaptured,       // targetId = point index; faction = capturing team
     GreatOldOneSlain,    // sourceId = killing-blow entity id (0 unknown);
                          // faction = fallen GOO's team

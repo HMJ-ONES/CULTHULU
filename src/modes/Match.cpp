@@ -1,5 +1,6 @@
 #include "modes/Match.h"
 #include "discovery/RelicNames.h"
+#include "modes/MatchKits.h"
 
 #include <algorithm>
 #include <cmath>
@@ -34,6 +35,11 @@ bool Match::start(const std::string& mode) {
     stats_.clear();
     elapsed_ = 0.0;
     nextBotNum_ = 1;
+    kitAssignCounter_ = 0;
+    // Wave 40: every fighter wields a full character kit (Q/F/R + RMB).
+    // Kits are the same data as free-roam; when they fail to load (e.g. a
+    // bare test env), fighters fall back to plain directional melee.
+    if (kits_.count() == 0) loadMatchKits(kits_, "assets");
     mode_.reset();
     capture_ = nullptr;
     moba_ = nullptr;
@@ -88,6 +94,7 @@ uint64_t Match::addPlayer(const std::string& name, int team) {
     p.team = team;
     p.isBot = false;
     p.lane = static_cast<int>(players_.size()) % 3;
+    assignKit(p); // wave 40: humans wield kits too
     spawnPlayer(p);
     players_.push_back(p);
     stats_.setPlayerName(players_.size() - 1, p.name);
@@ -104,6 +111,7 @@ uint64_t Match::addBot(int team) {
     p.team = team;
     p.isBot = true;
     p.lane = static_cast<int>(players_.size()) % 3;
+    assignKit(p); // wave 40: every fighter wields a character kit
     spawnPlayer(p);
     players_.push_back(p);
     stats_.setPlayerName(players_.size() - 1, p.name);
@@ -168,6 +176,16 @@ void Match::update(double dt) {
 
 void Match::updatePlayer(Player& p, size_t idx, double dt) {
     if (p.swingCd > 0) p.swingCd -= dt;
+    // Wave 40: kit cooldowns and status timers tick for everyone.
+    if (p.qCd > 0) p.qCd -= dt;
+    if (p.fCd > 0) p.fCd -= dt;
+    if (p.rCd > 0) p.rCd -= dt;
+    if (p.rmbCd > 0) p.rmbCd -= dt;
+    if (p.ccTimer > 0) p.ccTimer -= dt;
+    if (p.fearTimer > 0) p.fearTimer -= dt;
+    if (p.buffTimer > 0) p.buffTimer -= dt;
+    if (p.shieldTimer > 0) p.shieldTimer -= dt;
+    if (p.slowTimer > 0) p.slowTimer -= dt;
     if (!p.alive) {
         p.respawnTimer -= dt;
         p.invoking = false;
@@ -175,6 +193,8 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
         if (p.respawnTimer <= 0.0) spawnPlayer(p);
         return;
     }
+    // Stunned fighters cannot act at all — no movement, no abilities.
+    if (p.ccTimer > 0.0) return;
     // Wave 33/34: base invocation. A player with invoke charges AND
     // level 10+ standing at their base channels for 20s; leaving or
     // dying cancels. Completion calls down a free-roam artifact of the
@@ -225,6 +245,9 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
         }
     }
     // Enemy players first; only then swing at moba structures/minions.
+    // Wave 40: bots fight with their full kit — directional Q/F/R + RMB —
+    // before falling back to the directional melee swing.
+    if (p.isBot) updateBotAbilities(p, idx, dt);
     bool attacked = attackNearestEnemy(p, idx, dt);
     if (moba_ && !attacked) swingAtStructures(p);
 }
@@ -239,6 +262,12 @@ bool Match::enemyInMeleeRange(const Player& p, size_t idx) const {
     return false;
 }
 
+// Wave 40: effective move speed — debuffs (slow) halve it.
+static float moveSpeedOf(const Match::Player& p) {
+    return (p.slowTimer > 0.0) ? Match::kPlayerSpeed * 0.5f
+                               : Match::kPlayerSpeed;
+}
+
 void Match::updateCaptureObjective(Player& p, double dt) {
     // Domination: everyone converges on the single central point; the
     // melee-pinning in updatePlayer handles the brawl once they arrive.
@@ -247,7 +276,7 @@ void Match::updateCaptureObjective(Player& p, double dt) {
     Vec3 to = tgt - p.pos;
     float d = to.length();
     if (d > 1.0f) {
-        float stepLen = kPlayerSpeed * static_cast<float>(dt);
+        float stepLen = moveSpeedOf(p) * static_cast<float>(dt);
         Vec3 step = (d <= stepLen) ? to : to.normalized() * stepLen;
         p.pos += step;
         p.facingYaw = std::atan2(step.z, step.x);
@@ -282,7 +311,7 @@ void Match::updateMobaObjective(Player& p, double dt) {
         Vec3 to = base - p.pos;
         float d = to.length();
         if (d > kBaseInvokeRadius * 0.5f) {
-            float stepLen = kPlayerSpeed * fdt;
+            float stepLen = moveSpeedOf(p) * fdt;
             Vec3 step = (d <= stepLen) ? to : to.normalized() * stepLen;
             p.pos += step;
             p.facingYaw = std::atan2(step.z, step.x);
@@ -295,7 +324,7 @@ void Match::updateMobaObjective(Player& p, double dt) {
         Vec3 to = tp - p.pos;
         float d = to.length();
         if (d > 3.5f) {
-            float stepLen = kPlayerSpeed * fdt;
+            float stepLen = moveSpeedOf(p) * fdt;
             Vec3 step = (d <= stepLen) ? to : to.normalized() * stepLen;
             // Stop at swing range; overshooting walks into the tower.
             if (step.length() > d - 3.0f && d > 3.0f)
@@ -323,7 +352,7 @@ void Match::updateMobaObjective(Player& p, double dt) {
     Vec3 to = tgt - p.pos;
     float d = to.length();
     if (d > 1.0f) {
-        float stepLen = kPlayerSpeed * fdt;
+        float stepLen = moveSpeedOf(p) * fdt;
         Vec3 step = (d <= stepLen) ? to : to.normalized() * stepLen;
         p.pos += step;
         p.facingYaw = std::atan2(step.z, step.x);
@@ -358,7 +387,7 @@ void Match::swingAtStructures(Player& p) {
 
 bool Match::attackNearestEnemy(Player& p, size_t idx, double dt) {
     (void)dt;
-    if (p.swingCd > 0.0 || !p.alive) return false;
+    if (p.swingCd > 0.0 || !p.alive || p.ccTimer > 0.0) return false;
     size_t best = players_.size();
     float bestD = kMeleeRange;
     for (size_t i = 0; i < players_.size(); ++i) {
@@ -366,12 +395,19 @@ bool Match::attackNearestEnemy(Player& p, size_t idx, double dt) {
         const Player& o = players_[i];
         if (!o.alive || o.team == p.team) continue;
         float d = p.pos.distance(o.pos);
-        if (d < bestD) { bestD = d; best = i; }
+        // Wave 40: melee is directional — a frontal 120° cone. Standing
+        // behind someone is safe; you must face your target to hit them.
+        if (d < bestD &&
+            inAttackCone(p.pos, p.facingYaw, o.pos, kMeleeRange, 60.0f)) {
+            bestD = d;
+            best = i;
+        }
     }
     if (best >= players_.size()) return false;
     p.swingCd = kSwingCooldown;
-    // Wave 33: relic damage multiplier.
-    const float dmg = kMeleeDps * p.dmgMult;
+    // Wave 33: relic damage multiplier. Wave 40: buff timer.
+    float dmg = kMeleeDps * p.dmgMult;
+    if (p.buffTimer > 0.0) dmg *= 1.3f;
     stats_.recordDamage(idx, players_[best].id, dmg, clock_.now());
     damagePlayer(best, dmg);
     if (!players_[best].alive) killPlayer(best, static_cast<int>(idx), p.id);
@@ -381,7 +417,9 @@ bool Match::attackNearestEnemy(Player& p, size_t idx, double dt) {
 void Match::damagePlayer(size_t victimIdx, float dmg) {
     Player& v = players_[victimIdx];
     if (!v.alive) return;
-    v.hp -= dmg;
+    // Wave 40: shield halves incoming damage while active.
+    const float final = (v.shieldTimer > 0.0) ? dmg * 0.5f : dmg;
+    v.hp -= final;
     if (v.hp <= 0.0f) { v.hp = 0.0f; v.alive = false; }
 }
 
@@ -468,6 +506,17 @@ bool Match::movePlayer(uint64_t id, Vec3 pos) {
     return false;
 }
 
+// Wave 40: assign a specific kit (tests stage deterministic fights).
+bool Match::setPlayerKit(uint64_t id, const std::string& kitId) {
+    for (auto& p : players_)
+        if (p.id == id) {
+            p.kitId = kitId;
+            p.qCd = p.fCd = p.rCd = p.rmbCd = 0.0;
+            return true;
+        }
+    return false;
+}
+
 bool Match::setFacingYaw(uint64_t id, float yaw) {
     for (auto& p : players_)
         if (p.id == id) { p.facingYaw = yaw; return true; }
@@ -544,6 +593,11 @@ void Match::printStatus(std::ostream& os) const {
            << rows[i].assists;
         // Wave 33/34: level, relics, invoke state.
         os << " lv" << pl.level << " (" << pl.xp << "xp)";
+        // Wave 40: kit identity — every fighter wields a character kit.
+        if (!pl.kitId.empty()) {
+            const CharacterDef* kd = kitOf(pl);
+            os << " <" << (kd ? kd->displayName : pl.kitId) << ">";
+        }
         if (!pl.relicNames.empty()) {
             os << " [";
             for (size_t r = 0; r < pl.relicNames.size(); ++r) {

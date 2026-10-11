@@ -67,12 +67,15 @@ public:
         int lane = 0;
         size_t step = 0;      // waypoints consumed along the path
         Vec3 pos;
-        std::string kind;     // "melee" | "ranged" | "siege"
+        std::string kind;     // "melee" | "ranged" | "siege" | "summoned"
         float hp = 100.0f;
         float maxHp = 100.0f;
         float dps = 8.0f;
         float range = 4.0f;
         float speed = 3.0f;
+        // Wave 40: kit summons — fight for their summoner, then fade.
+        bool summoned = false;
+        double lifeTimer = 0.0; // seconds remaining; <=0 = permanent
     };
 
     struct Tower {
@@ -108,6 +111,10 @@ public:
 
     size_t minionCount() const { return minions_.size(); }
     size_t laneCount() const { return lanes_.size(); }
+    // Wave 40: kit summons — spawn `count` allied fighters at pos that
+    // brawl for `lifeSec` seconds, then fade. They hold near their
+    // summoning point instead of marching lanes.
+    void spawnSummon(int team, Vec3 pos, int lane, int count, double lifeSec);
     size_t towerCount() const { return towers_.size(); }
     float baseHp(int team) const;
     Vec3 basePos(int team) const { return bases_[team].pos; }

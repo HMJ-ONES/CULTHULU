@@ -27,6 +27,8 @@
 //     not-triggerable in 5v5. If a future mode adds conversions, publish
 //     ConversionPerformed with faction = the turned soul's old faction.
 
+#include "characters/CharacterDef.h"
+#include "characters/CharacterRegistry.h"
 #include "core/EventBus.h"
 #include "core/GameClock.h"
 #include "core/RNG.h"
@@ -95,6 +97,16 @@ public:
         bool invoking = false;
         // Wave 34: cooldown between invoke trips (prevents yo-yoing).
         double lastInvokeTrip = -1000.0;
+        // Wave 40: directional kit combat. Every fighter wields a full
+        // character kit (Q/F/R + RMB) — the same kits as free-roam.
+        std::string kitId; // character id, e.g. "cthulhu_avatar"
+        double qCd = 0.0, fCd = 0.0, rCd = 0.0, rmbCd = 0.0;
+        double ccTimer = 0.0;   // stunned/rooted: cannot act
+        double fearTimer = 0.0; // fleeing from fearFrom
+        Vec3 fearFrom{0, 0, 0};
+        double buffTimer = 0.0;  // +30% damage while active
+        double shieldTimer = 0.0; // half damage taken while active
+        double slowTimer = 0.0;   // half move speed while active
     };
 
     Match(EventBus& bus, GameClock& clock, RNG& rng);
@@ -136,8 +148,13 @@ public:
 
     // Test/GM utility: reposition a player (used by tests to stage fights).
     bool movePlayer(uint64_t id, Vec3 pos);
+    // Wave 40: assign a specific kit (used by tests for deterministic fights).
+    bool setPlayerKit(uint64_t id, const std::string& kitId);
     // Human camera control: set a player's facing yaw.
     bool setFacingYaw(uint64_t id, float yaw);
+    // Wave 40: human kit casting in matches. slot 0=Q 1=F 2=R 3=RMB.
+    // Faces `yaw` first so casts are directional, like the bots'.
+    bool humanCast(uint64_t id, int slot, float yaw);
 
 private:
     EventBus& bus_;
@@ -174,6 +191,22 @@ private:
     void addXp(size_t playerIdx, int amount);
     void feedCaptureOccupants();
     void feedMobaPlayerTargets();
+    // Wave 40: directional kit combat (defined in MatchKits.cpp).
+    static constexpr float kKitDmgScale = 0.2f; // free-roam power -> match scale
+    const CharacterDef* kitOf(const Player& p) const;
+    void assignKit(Player& p);
+    float kitDamage(const Player& p, float effectPower) const;
+    int enemyInCone(const Player& p, size_t idx, float range,
+                    float halfAngleDeg) const;
+    int enemiesInConeCount(const Player& p, size_t idx, float range,
+                           float halfAngleDeg) const;
+    void dealMatchDamage(size_t attackerIdx, size_t victimIdx, float dmg);
+    // slot: 0=Q 1=F 2=R. Returns true when the cast went off.
+    bool castMatchSpell(size_t idx, int slot);
+    bool castMatchRmb(size_t idx);
+    void updateBotAbilities(Player& p, size_t idx, double dt);
+    CharacterRegistry kits_;
+    size_t kitAssignCounter_ = 0;
 };
 
 } // namespace cultulhu
