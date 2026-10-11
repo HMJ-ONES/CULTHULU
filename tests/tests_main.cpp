@@ -169,7 +169,7 @@ static void test_war_scaling() {
 static void test_capture_point_scoring() {
     EventBus bus; GameClock clock; RNG rng(9);
     CapturePointMode mode(bus, clock);
-    mode.setupOnslaughtPoint();
+    mode.setupDominationPoint();
     CHECK(mode.pointCount() == 1);
     mode.setOccupants(0, 3, 0);                 // team 0 holds the point
     mode.update(5.0);                           // 5 s uncontested -> 5 pts

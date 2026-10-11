@@ -8,7 +8,7 @@
 
 namespace cultulhu {
 
-// 5v5 Onslaught (Paladins-style): ONE central capture point. A team banks
+// 5v5 Domination: ONE central capture point. A team banks
 // hold points while it has living fighters on the point and the enemy has
 // none — the moment an enemy steps in, the point is contested and ticking
 // stops. Player kills also score. First team to TARGET_SCORE wins; at
@@ -36,7 +36,7 @@ public:
     void addPoint(Vec3 pos, float radius = POINT_RADIUS);
     // The standard 5v5 map: one point at the middle of eldritch_battlefield
     // (shattered_court, 0,0,0).
-    void setupOnslaughtPoint();
+    void setupDominationPoint();
     // Test/gameplay hook: how many living units of each team stand on a point.
     void setOccupants(size_t pointIdx, int team0, int team1);
 

@@ -61,7 +61,7 @@ int main() {
     {
         EventBus bus; GameClock clock;
         CapturePointMode mode(bus, clock);
-        mode.setupOnslaughtPoint();
+        mode.setupDominationPoint();
         CHECK(mode.pointCount() == 1);
         CHECK(std::fabs(mode.pointPos(0).x - 0.0f) < 0.01f);
         CHECK(std::fabs(mode.pointPos(0).z - 0.0f) < 0.01f);
@@ -133,7 +133,7 @@ int main() {
         r.attach(bus, EventType::MatchStarted);
         r.attach(bus, EventType::MatchEnded);
         CapturePointMode mode(bus, clock);
-        mode.setupOnslaughtPoint();
+        mode.setupDominationPoint();
         mode.setOccupants(0, 5, 0);
         int ticks = 0;
         while (!mode.isOver() && ticks < 1000) { mode.update(10.0); ++ticks; }

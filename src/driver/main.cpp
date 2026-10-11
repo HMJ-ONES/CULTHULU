@@ -173,7 +173,7 @@ struct BetaGame {
     // grant power. Knowledge is power, literally.
     DiscoveryCodex codex{bus};
     // Wave 21: active 5v5 match (null when none). Ticked in tickSecond();
-    // run it with `match capture|moba` — the free-roam world keeps ticking
+    // run it with `match domination|dotgoo` — the free-roam world keeps ticking
     // underneath on the same clock, harmlessly.
     std::unique_ptr<Match> match;
     uint64_t humanMatchId = 0; // local human's match player (0 = not joined)
@@ -785,9 +785,10 @@ struct BetaGame {
             "  discover [secs]                     find hosts on Radmin LAN\n"
             "  host <port> [name]                  host a lobby\n"
             "  join <ip> <port> <name>              join a lobby\n"
-            "  ready | players | startgame [force] [capture|moba|freeroam]\n"
+            "  ready | players | startgame [force] [domination|dotgoo|freeroam]\n"
             "  chat <msg> | netent | leave\n"
-            "  match <capture|moba|addbot <team>|status|end>\n"
+            "  match <domination|dotgoo|addbot <team>|status|end>\n"
+            "    (domination = 5v5 capture point, dotgoo = Defense of the Great Old Ones)\n"
             "                                          run a local 5v5 match\n"
             "  build <wall|barracks|watchtower|trap|portal|altar>\n"
             "                                          start construction\n"
@@ -1693,12 +1694,14 @@ static bool processLine(BetaGame& g, NetSession& nets,
             in >> f;
             bool force = false;
             std::string mode = "freeroam";
-            // Wave 21: startgame [force] [capture|moba|freeroam].
+            // Wave 21: startgame [force] [domination|dotgoo|freeroam].
             // Old forms ("startgame", "startgame force") keep working.
             if (f == "force") {
                 force = true;
                 in >> f;
             }
+            if (f == "domination") f = "capture";
+            if (f == "dotgoo") f = "moba";
             if (f == "capture" || f == "moba" || f == "freeroam") mode = f;
             if (nets.role != NetSession::Role::Hosting || !nets.host) {
                 std::cout << "only the host can start the game\n";
@@ -1713,20 +1716,29 @@ static bool processLine(BetaGame& g, NetSession& nets,
         if (cmd == "match") {
             std::string sub;
             in >> sub;
-            if (sub == "capture" || sub == "moba") {
+            // Wave 39: mode names — Domination (5v5 capture) and DOTGOO
+            // (Defense of the Great Old Ones). Old names still work.
+            std::string modeArg = sub;
+            if (sub == "domination") modeArg = "capture";
+            if (sub == "dotgoo") modeArg = "moba";
+            if (sub == "capture" || sub == "moba" || sub == "domination" ||
+                sub == "dotgoo") {
                 g.match = std::make_unique<Match>(g.bus, g.clock, g.rng);
-                if (!g.match->start(sub)) {
+                if (!g.match->start(modeArg)) {
                     g.match.reset();
                     std::cout << "unknown mode\n";
                     return true;
                 }
                 g.humanMatchId = 0;
                 g.match->botfill();
-                std::cout << "5v5 " << sub << " match started (10 bots)\n";
+                std::string displayName = (modeArg == "capture")
+                                              ? "Domination"
+                                              : "DOTGOO (Defense of the Great Old Ones)";
+                std::cout << "5v5 " << displayName << " match started (10 bots)\n";
                 g.match->printStatus(std::cout);
             } else if (sub == "join") {
                 if (!g.match || !g.match->started()) {
-                    std::cout << "no active match (match capture|moba first)\n";
+                    std::cout << "no active match (match domination|dotgoo first)\n";
                     return true;
                 }
                 if (g.humanMatchId != 0) {
@@ -1748,7 +1760,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
                              "works anytime.\n";
             } else if (sub == "addbot") {
                 if (!g.match || !g.match->started()) {
-                    std::cout << "no active match (match capture|moba first)\n";
+                    std::cout << "no active match (match domination|dotgoo first)\n";
                     return true;
                 }
                 int team = -1;
@@ -1771,7 +1783,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 g.match.reset();
                 g.humanMatchId = 0;
             } else {
-                std::cout << "usage: match <capture|moba|join [team]|addbot <team>|status|end>\n";
+                std::cout << "usage: match <domination|dotgoo|join [team]|addbot <team>|status|end>\n";
             }
             return true;
         }

@@ -39,7 +39,7 @@ bool Match::start(const std::string& mode) {
     moba_ = nullptr;
     if (mode == "capture") {
         auto m = std::make_unique<CapturePointMode>(bus_, clock_);
-        m->setupOnslaughtPoint();
+        m->setupDominationPoint();
         capture_ = m.get();
         mode_ = std::move(m);
         teamBase_[0] = Vec3(-80, 0, -80);
@@ -240,7 +240,7 @@ bool Match::enemyInMeleeRange(const Player& p, size_t idx) const {
 }
 
 void Match::updateCaptureObjective(Player& p, double dt) {
-    // Onslaught: everyone converges on the single central point; the
+    // Domination: everyone converges on the single central point; the
     // melee-pinning in updatePlayer handles the brawl once they arrive.
     const CapturePointMode& cm = *capture_;
     Vec3 tgt = cm.pointPos(0);
@@ -421,7 +421,7 @@ void Match::killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId)
         e.faction = v.team;
         e.pos = v.pos;
         bus_.publish(e);
-        // Onslaught scores player kills (MOBA's default hook ignores it).
+        // Domination scores player kills (DOTGOO's default hook ignores it).
         if (mode_) mode_->notePlayerKill(k.team);
     } else {
         GameEvent e(EventType::PlayerKilled);
@@ -480,7 +480,7 @@ net::Message Match::modeStateMessage() const {
         s.mode = "capture";
         s.score0 = capture_->score(0);
         s.score1 = capture_->score(1);
-        // Onslaught: single point; owner slot carries the current holder
+        // Domination: single point; owner slot carries the current holder
         // (-1 = open/contested), progress slots unused (no capture bar).
         s.pointOwners.push_back(capture_->holder());
         s.pointProg0.push_back(0.0f);
@@ -501,7 +501,11 @@ net::Message Match::modeStateMessage() const {
 }
 
 void Match::printStatus(std::ostream& os) const {
-    os << "match " << modeName_ << " t=" << static_cast<int>(elapsed_)
+    // Wave 39: display names — Domination and DOTGOO.
+    std::string displayMode = modeName_;
+    if (modeName_ == "capture") displayMode = "domination";
+    if (modeName_ == "moba") displayMode = "DOTGOO";
+    os << "match " << displayMode << " t=" << static_cast<int>(elapsed_)
        << "s players=" << players_.size();
     if (capture_) {
         os << " score " << capture_->score(0) << "-" << capture_->score(1)

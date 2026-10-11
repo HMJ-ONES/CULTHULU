@@ -9,7 +9,7 @@ void CapturePointMode::addPoint(Vec3 pos, float radius) {
     points_.push_back(p);
 }
 
-void CapturePointMode::setupOnslaughtPoint() {
+void CapturePointMode::setupDominationPoint() {
     points_.clear();
     addPoint(Vec3(0, 0, 0), POINT_RADIUS); // shattered_court, map center
 }
