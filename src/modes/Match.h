@@ -144,8 +144,12 @@ public:
 
     CapturePointMode* capture() { return capture_; }
     MobaDefense* moba() { return moba_; }
+    const CapturePointMode* capture() const { return capture_; }
+    const MobaDefense* moba() const { return moba_; }
     GameMode* mode() { return mode_.get(); }
     PlayerStatsTracker& stats() { return stats_; }
+    const PlayerStatsTracker& stats() const { return stats_; }
+    EventBus& bus() { return bus_; } // wave 42: for MatchLogger
 
     // HostSnapshot-adjacent mode state for the wire (MsgType::ModeState).
     net::Message modeStateMessage() const;

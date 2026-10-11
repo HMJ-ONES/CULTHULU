@@ -41,6 +41,7 @@
 #include "input/InputManager.h"
 #include "modes/FreeRoamMode.h"
 #include "modes/Match.h"
+#include "modes/MatchLogger.h"
 #include "net/Discovery.h"
 #include "net/Lobby.h"
 #include "net/Netcode.h"
@@ -177,6 +178,10 @@ struct BetaGame {
     // underneath on the same clock, harmlessly.
     std::unique_ptr<Match> match;
     uint64_t humanMatchId = 0; // local human's match player (0 = not joined)
+    // Wave 42: action log recorder — pushed to GitHub at match end.
+    MatchLogger matchLogger;
+    uint64_t matchSeed = 0; // RNG seed for the log filename
+    bool matchLogUploaded = false; // guard: upload once per match
     CameraSystem camera;
     EldritchAvatar avatar{FACTION_CTHULHU, Vec3{0, 0, 0}, power};
     CommandSystem commands{bus, rng, beliefs, cult};
@@ -501,7 +506,48 @@ struct BetaGame {
         }
         cult.dismissDead();
         // Wave 21: advance the active 5v5 match (bots, combat, mode rules).
-        if (match) match->update(1.0);
+        // Wave 42: the action logger polls each tick; when the match ends
+        // the log is pushed to GitHub (never stored locally).
+        if (match) {
+            match->update(1.0);
+            matchLogger.poll(*match);
+            if (match->isOver() && !matchLogUploaded) {
+                matchLogUploaded = true;
+                uploadMatchLog();
+            }
+        }
+    }
+
+    // Wave 42: render the action log and push it to GitHub match-logs/.
+    // The log lives only on GitHub (30-day retention); nothing is written
+    // to the player's PC. Without a token, the log prints to the console.
+    void uploadMatchLog() {
+        if (!match) return;
+        const std::string log = matchLogger.render(*match);
+        const std::string mode = match->modeName() == "capture" ? "domination"
+                                 : match->modeName() == "moba"  ? "dotgoo"
+                                                                : match->modeName();
+        const std::string path = MatchLogger::logPath(mode, matchSeed);
+        const char* token = std::getenv("CULTHULU_GITHUB_TOKEN");
+        if (!token || !*token) {
+            std::cout << "match over — set CULTHULU_GITHUB_TOKEN to upload "
+                         "the action log to GitHub.\n";
+            return;
+        }
+        // Pipe the log to the uploader (avoids writing it to disk).
+        std::string cmd = "python3 tools/push_match_log.py \"" + path +
+                          "\" 2>&1";
+        FILE* pipe = popen(cmd.c_str(), "w");
+        if (!pipe) {
+            std::cout << "match log upload failed (could not launch uploader).\n";
+            return;
+        }
+        std::fwrite(log.data(), 1, log.size(), pipe);
+        const int rc = pclose(pipe);
+        if (rc == 0)
+            std::cout << "match log uploaded to GitHub: " << path << "\n";
+        else
+            std::cout << "match log upload failed (see above).\n";
     }
 
     // Nearest attackable neutral entity (freeroam civilians/creatures first,
@@ -1733,6 +1779,10 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 }
                 g.humanMatchId = 0;
                 g.match->botfill();
+                // Wave 42: start the action log recorder.
+                g.matchSeed = static_cast<uint64_t>(std::time(nullptr));
+                g.matchLogUploaded = false;
+                g.matchLogger.attach(*g.match);
                 std::string displayName = (modeArg == "capture")
                                               ? "Domination"
                                               : "DOTGOO (Defense of the Great Old Ones)";
@@ -1781,6 +1831,11 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 }
                 g.match->printStatus(std::cout);
             } else if (sub == "end") {
+                // Wave 42: upload the action log even for aborted matches.
+                if (g.match && g.match->started() && !g.matchLogUploaded) {
+                    g.matchLogUploaded = true;
+                    g.uploadMatchLog();
+                }
                 if (g.match) std::cout << "match aborted\n";
                 g.match.reset();
                 g.humanMatchId = 0;
