@@ -114,7 +114,18 @@ public:
         // Level 3: pick the other. Level 6: the ult (R) unlocks.
         bool qUnlocked = false, fUnlocked = false, rUnlocked = false;
         int pendingPicks = 0; // DOTGOO: unspent ability draft choices
+        // Wave 42: Cthulhu's rock (Domination only — no minions to dominate).
+        // RMB aimed at the ground rips a chunk of rock: frontal shield
+        // (half damage, soaks 6 melee-hits) + heavy swings (1.0 each) +
+        // throwable (damage scales with remaining integrity). Mixed use
+        // works: swing twice then hurl, or block then hurl for the bonus.
+        bool hasRock = false;
+        float rockDurability = 0.0f; // 3.0 on rip; breaks at 0
     };
+
+    // Wave 42: how the RMB is aimed — Normal (at enemies), Down (at the
+    // ground, Cthulhu rips his rock), Launch (hurl the held rock).
+    enum class RmbAim { Normal, Down, Launch };
 
     Match(EventBus& bus, GameClock& clock, RNG& rng);
 
@@ -165,7 +176,7 @@ public:
     bool setFacingYaw(uint64_t id, float yaw);
     // Wave 40: human kit casting in matches. slot 0=Q 1=F 2=R 3=RMB.
     // Faces `yaw` first so casts are directional, like the bots'.
-    bool humanCast(uint64_t id, int slot, float yaw);
+    bool humanCast(uint64_t id, int slot, float yaw, RmbAim aim = RmbAim::Normal);
     // Wave 41: spend a pending draft pick (DOTGOO). slot 0=Q 1=F.
     bool draftAbility(uint64_t id, int slot);
 
@@ -218,7 +229,12 @@ private:
     void dealMatchDamage(size_t attackerIdx, size_t victimIdx, float dmg);
     // slot: 0=Q 1=F 2=R. Returns true when the cast went off.
     bool castMatchSpell(size_t idx, int slot);
-    bool castMatchRmb(size_t idx);
+    bool castMatchRmb(size_t idx, RmbAim aim = RmbAim::Normal);
+    // Wave 42: Cthulhu's rock — rip, swing, launch.
+    bool ripRock(size_t idx);
+    bool swingRock(size_t idx);
+    bool throwRock(size_t idx);
+    void breakRock(size_t idx, const char* why);
     void updateBotAbilities(Player& p, size_t idx, double dt);
     CharacterRegistry kits_;
     size_t kitAssignCounter_ = 0;

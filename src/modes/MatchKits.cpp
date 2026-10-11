@@ -157,6 +157,19 @@ void Match::dealMatchDamage(size_t attackerIdx, size_t victimIdx, float dmg) {
     if (!atk.alive || !v.alive) return;
     float final = (atk.buffTimer > 0.0) ? dmg * 1.3f : dmg;
     if (v.shieldTimer > 0.0) final *= 0.5f;
+    // Wave 42: Cthulhu's rock is a frontal shield — half damage from the
+    // 120-degree arc he's facing. The shield is the durable option: it
+    // soaks 6 melee-hits worth before crumbling (twice the swing budget),
+    // so blocking + launching is a real play alongside swing-spam.
+    if (v.hasRock &&
+        inAttackCone(v.pos, v.facingYaw, atk.pos, 1e6f, 60.0f)) {
+        const float blocked = final * 0.5f;
+        final *= 0.5f;
+        const float unit =
+            kMeleeDps * 2.0f * (1.0f + 0.02f * v.level) * v.dmgMult;
+        v.rockDurability -= (blocked / unit) * 0.5f;
+        if (v.rockDurability <= 0.0f) breakRock(victimIdx, "the rock shatters");
+    }
     v.hp -= final;
     if (v.hp <= 0.0f) {
         v.hp = 0.0f;
@@ -291,11 +304,27 @@ bool Match::castMatchSpell(size_t idx, int slot) {
     return spent;
 }
 
-bool Match::castMatchRmb(size_t idx) {
+bool Match::castMatchRmb(size_t idx, RmbAim aim) {
     if (idx >= players_.size()) return false;
     Player& p = players_[idx];
     const CharacterDef* kit = kitOf(p);
-    if (!kit || !p.alive || p.ccTimer > 0.0 || p.rmbCd > 0.0) return false;
+    if (!kit || !p.alive || p.ccTimer > 0.0) return false;
+
+    // Wave 42: Cthulhu's rock (Domination only — no minions to dominate).
+    // RMB aimed down rips the rock; RMB while holding swings it;
+    // RMB-launch hurls it. The stun gaze still works without the rock.
+    // Swings/throws run on the swing cooldown (the rock is already in
+    // hand) — only ripping and gazing cost the RMB cooldown.
+    const bool isCthulhu = (p.kitId == "cthulhu_avatar");
+    const bool domination = (modeName_ == "capture");
+    if (isCthulhu && domination && p.hasRock) {
+        if (aim == RmbAim::Launch) return throwRock(idx);
+        return swingRock(idx);
+    }
+    if (p.rmbCd > 0.0) return false;
+    if (isCthulhu && domination && aim == RmbAim::Down) return ripRock(idx);
+    // else: fall through to the standard heavy attack below
+
     const HeavyAttackDef& hk = kit->rightClick;
     const float range = (hk.range > 0.0f) ? hk.range : kMeleeRange * 1.5f;
     const float base =
@@ -371,6 +400,86 @@ bool Match::castMatchRmb(size_t idx) {
     return spent;
 }
 
+// Wave 42: Cthulhu's rock (Domination). Rip a massive chunk from the
+// ground — shield + 3 heavy swings, or hurl it.
+bool Match::ripRock(size_t idx) {
+    Player& p = players_[idx];
+    p.hasRock = true;
+    p.rockDurability = 3.0f; // 3 melee-hits of punishment
+    p.rmbCd = 6.0;
+    GameEvent e(EventType::AbilityCast);
+    e.sourceId = p.id;
+    e.tag = "Sunder the Earth";
+    e.amount = 3;
+    bus_.publish(e);
+    return true;
+}
+
+// Wave 42: how much punishment the rock has left, in melee-hit units.
+// Shared by swings (1.0 each) and blocked damage (proportional).
+static float rockMeleeHitUnit(const Match::Player& p) {
+    return Match::kMeleeDps * 2.0f * (1.0f + 0.02f * p.level) * p.dmgMult;
+}
+
+void Match::breakRock(size_t idx, const char* why) {
+    Player& p = players_[idx];
+    p.hasRock = false;
+    p.rockDurability = 0.0f;
+    GameEvent e(EventType::AbilityCast);
+    e.sourceId = p.id;
+    e.tag = why;
+    e.amount = 3;
+    bus_.publish(e);
+}
+
+bool Match::swingRock(size_t idx) {
+    Player& p = players_[idx];
+    if (!p.hasRock || p.swingCd > 0.0) return false;
+    const float base = rockMeleeHitUnit(p);
+    bool hit = false;
+    for (size_t i = 0; i < players_.size(); ++i) {
+        if (i == idx) continue;
+        const Player& o = players_[i];
+        if (!o.alive || o.team == p.team) continue;
+        if (inAttackCone(p.pos, p.facingYaw, o.pos, kMeleeRange * 1.5f,
+                         60.0f)) {
+            dealMatchDamage(idx, i, base);
+            hit = true;
+        }
+    }
+    if (!hit) return false;
+    p.swingCd = 1.0;
+    p.rockDurability -= 1.0f; // one swing = one melee-hit of wear
+    if (p.rockDurability <= 0.0f) breakRock(idx, "the rock crumbles to dust");
+    return true;
+}
+
+bool Match::throwRock(size_t idx) {
+    Player& p = players_[idx];
+    if (!p.hasRock || p.swingCd > 0.0) return false;
+    // Wave 42: a pristine rock hits hardest — launch damage scales with
+    // remaining integrity. Swing twice then hurl, or soak hits on the
+    // shield then hurl: both are valid before it breaks.
+    const float unit = rockMeleeHitUnit(p);
+    const float base = unit * (1.0f + 0.5f * p.rockDurability);
+    bool hit = false;
+    for (size_t i = 0; i < players_.size(); ++i) {
+        if (i == idx) continue;
+        const Player& o = players_[i];
+        if (!o.alive || o.team == p.team) continue;
+        if (inAttackCone(p.pos, p.facingYaw, o.pos, kMeleeRange * 4.0f,
+                         25.0f)) {
+            dealMatchDamage(idx, i, base);
+            players_[i].ccTimer = std::max(players_[i].ccTimer, 1.0);
+            hit = true;
+        }
+    }
+    if (!hit) return false;
+    p.swingCd = 1.0;
+    breakRock(idx, "Hurl the Mountain");
+    return true;
+}
+
 // Bot brain: face the nearest threat, then spend abilities like a player
 // would — ult when it matters, Q/F on cooldown in range, RMB to finish.
 void Match::updateBotAbilities(Player& p, size_t idx, double dt) {
@@ -432,19 +541,44 @@ void Match::updateBotAbilities(Player& p, size_t idx, double dt) {
         if (castMatchSpell(idx, 1)) return;
     }
     // RMB: heavy finisher at close range.
-    if (p.rmbCd <= 0.0 && foeDist <= kMeleeRange * 2.0f) {
+    // Wave 42: Cthulhu's rock (Domination) — rip it when brawling 2+,
+    // swing it in melee, hurl it at distant foes.
+    const bool isCthulhu = (p.kitId == "cthulhu_avatar");
+    const bool domination = (modeName_ == "capture");
+    if (isCthulhu && domination) {
+        if (p.hasRock) {
+            // Wave 42: nearly-spent rock? Hurl it before it crumbles —
+            // a throw always beats losing it to the next blocked hit.
+            if (p.rockDurability < 1.0f && foeDist <= kMeleeRange * 4.0f) {
+                if (castMatchRmb(idx, RmbAim::Launch)) return;
+            }
+            if (foeDist <= kMeleeRange * 1.5f) {
+                if (castMatchRmb(idx, RmbAim::Normal)) return; // swing
+            } else if (foeDist <= kMeleeRange * 4.0f) {
+                if (castMatchRmb(idx, RmbAim::Launch)) return; // hurl
+            }
+        } else if (p.rmbCd <= 0.0) {
+            const int crowd = enemiesInConeCount(p, idx, kMeleeRange * 2.0f,
+                                                 60.0f);
+            if (crowd >= 2 && foeDist <= kMeleeRange * 2.0f) {
+                if (castMatchRmb(idx, RmbAim::Down)) return; // rip the rock
+            } else if (foeDist <= kMeleeRange * 2.0f) {
+                castMatchRmb(idx, RmbAim::Normal); // stun gaze
+            }
+        }
+    } else if (p.rmbCd <= 0.0 && foeDist <= kMeleeRange * 2.0f) {
         castMatchRmb(idx);
     }
 }
 
 // Wave 40: human kit casting in matches.
-bool Match::humanCast(uint64_t id, int slot, float yaw) {
+bool Match::humanCast(uint64_t id, int slot, float yaw, RmbAim aim) {
     for (size_t i = 0; i < players_.size(); ++i) {
         if (players_[i].id != id) continue;
         Player& p = players_[i];
         if (!p.alive || p.ccTimer > 0.0) return false;
         p.facingYaw = yaw; // aim the cast
-        if (slot == 3) return castMatchRmb(i);
+        if (slot == 3) return castMatchRmb(i, aim);
         if (slot >= 0 && slot <= 2) return castMatchSpell(i, slot);
         return false;
     }

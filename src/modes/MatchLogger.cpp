@@ -82,12 +82,18 @@ void MatchLogger::attach(Match& match) {
 
     match.bus().subscribe(EventType::AbilityCast,
         [this, &match](const GameEvent& e) {
-            if (e.amount > 2) return; // RMB spam stays out of the log
+            // Wave 42: Cthulhu's rock casts are landmark events — always log
+            // them. Other RMB spam stays out of the log.
+            const bool isRock =
+                e.tag == "Sunder the Earth" || e.tag == "Hurl the Mountain" ||
+                e.tag == "the rock crumbles to dust" ||
+                e.tag == "the rock shatters";
+            if (e.amount > 2 && !isRock) return;
             const Match::Player* c = match.findPlayer(e.sourceId);
             if (!c) return;
-            static const char* slot[3] = {"Q", "F", "R"};
+            static const char* slot[4] = {"Q", "F", "R", "RMB"};
             const int s = static_cast<int>(e.amount);
-            if (s < 0 || s > 2) return;
+            if (s < 0 || s > 3) return;
             events_.push_back(
                 {match.elapsed(), "CAST",
                  "CAST " + c->name + "<" + shortKit(c->kitId) + ">t" +

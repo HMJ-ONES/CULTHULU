@@ -1863,7 +1863,9 @@ static bool processLine(BetaGame& g, NetSession& nets,
             else if (slot == "r") slotIdx = 2;
             else if (slot == "rmb") slotIdx = 3;
             if (slotIdx < 0) {
-                std::cout << "usage: mcast <q|f|r|rmb> [yaw-degrees]\n";
+                std::cout << "usage: mcast <q|f|r|rmb> [yaw-degrees] [down|launch]\n"
+                             "  (Cthulhu in Domination: 'rmb down' rips a rock from the ground,\n"
+                             "   'rmb launch' hurls the held rock)\n";
                 return true;
             }
             const auto* hp = g.match->findPlayer(g.humanMatchId);
@@ -1884,7 +1886,16 @@ static bool processLine(BetaGame& g, NetSession& nets,
             float yawDeg;
             if (in >> yawDeg)
                 yaw = yawDeg * 3.14159265f / 180.0f;
-            if (g.match->humanCast(g.humanMatchId, slotIdx, yaw))
+            // Wave 42: Cthulhu's rock — `mcast rmb down` rips it from the
+            // ground, `mcast rmb launch` hurls it. Plain `mcast rmb` swings
+            // the held rock, or stuns without it.
+            Match::RmbAim aim = Match::RmbAim::Normal;
+            std::string mod;
+            if (in >> mod) {
+                if (mod == "down") aim = Match::RmbAim::Down;
+                else if (mod == "launch") aim = Match::RmbAim::Launch;
+            }
+            if (g.match->humanCast(g.humanMatchId, slotIdx, yaw, aim))
                 std::cout << "cast " << slot << "!\n";
             else
                 std::cout << slot << " fizzled (cooldown, CC'd, or no target in the cone).\n";

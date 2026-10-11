@@ -155,6 +155,8 @@ void Match::spawnPlayer(Player& p) {
     p.respawnTimer = 0.0;
     p.swingCd = 0.0;
     p.laneFrac = 0.0f;
+    p.hasRock = false; // wave 42: the rock doesn't survive death
+    p.rockDurability = 0.0f;
 }
 
 const Match::Player* Match::findPlayer(uint64_t id) const {
