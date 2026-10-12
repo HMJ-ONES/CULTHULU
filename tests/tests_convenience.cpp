@@ -8,6 +8,7 @@
 
 #include "ui/StatsPanel.h"
 #include "core/CommandSuggest.h"
+#include "modes/RosterUtils.h"
 
 #include <iostream>
 #include <string>
@@ -43,6 +44,22 @@ int main() {
     CHECK(suggestCommand("sxq", cmds) == "");         // 3+ edits: no guess
     CHECK(suggestCommand("", cmds) == "");             // empty input
     CHECK(suggestCommand("status", {}) == "");         // empty vocabulary
+
+    // Kit-id typo forgiveness for `match join <kit-id>`: the driver's
+    // suggestion vocabulary is the playable roster only (NPC package ids
+    // are never fighters, so they are filtered out before suggesting).
+    const std::vector<std::string> kits = {
+        "cthulhu_avatar", "nyarlathotep", "shub_niggurath",
+        "hastur", "yog_sothoth", "hypnos"};
+    CHECK(isNpcPackage("civilian_villager"));
+    CHECK(isNpcPackage("cultist_hooded"));
+    CHECK(isNpcPackage("echo_of_the_void"));
+    CHECK(!isNpcPackage("cthulhu_avatar"));
+    CHECK(suggestCommand("cthulu_avatar", kits) == "cthulhu_avatar");
+    CHECK(suggestCommand("nyarlahotep", kits) == "nyarlathotep");
+    CHECK(suggestCommand("hypno", kits) == "hypnos");  // near miss
+    CHECK(suggestCommand("xyzzy_plugh", kits) == ""); // too far: no guess
+    CHECK(suggestCommand("cthulhu_avatar", kits) == "cthulhu_avatar");
 
     if (failures == 0)
         std::cout << "convenience: all " << checks << " checks passed\n";

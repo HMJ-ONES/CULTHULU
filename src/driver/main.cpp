@@ -1905,9 +1905,27 @@ static bool processLine(BetaGame& g, NetSession& nets,
                         std::cout << "'" << wantKit
                                   << "' is an NPC, not a playable kit — "
                                      "keeping the bot's kit.\n";
-                    } else if (!g.match->setPlayerKit(id, wantKit)) {
+                    } else if (!g.charReg.get(wantKit)) {
+                        // Micro-dev: Match::setPlayerKit never rejects an
+                        // unknown kit id (it only fails on a bad player
+                        // id), so a typo would silently leave the human
+                        // kit-less (kitOf -> nullptr). Reject unknown ids
+                        // up front and forgive the typo: suggest the
+                        // closest playable kit instead. NPC package ids are
+                        // excluded from the vocabulary (never fighters).
                         std::cout << "no kit '" << wantKit
-                                  << "' — keeping the bot's kit.\n";
+                                  << "' — keeping the bot's kit.";
+                        std::vector<std::string> playable;
+                        for (const auto& kid : g.charReg.list())
+                            if (!isNpcPackage(kid))
+                                playable.push_back(kid);
+                        const std::string sug =
+                            suggestCommand(wantKit, playable);
+                        if (!sug.empty())
+                            std::cout << " Did you mean '" << sug << "'?";
+                        std::cout << "\n";
+                    } else {
+                        g.match->setPlayerKit(id, wantKit);
                     }
                 }
                 g.humanMatchId = id;
