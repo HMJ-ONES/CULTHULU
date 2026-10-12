@@ -7,6 +7,9 @@
 //    soaked ~24, disagreeing with every comment).
 // 3. DOTGOO: a banked level-1 draft pick no longer eats the level-3
 //    pick (picks accumulate; both Q and F stay draftable).
+// 4. Wave 42 fun — kill streaks: the 2nd and 3rd kill inside the 8s
+//    window publish KillStreak (amount 2 / 3), the first kill is silent,
+//    death resets the streak, and a lapsed window restarts it at 1.
 //
 // Staging: the attacker is added FIRST so its auto-swing lands before
 // the victim's retaliation each update tick.
@@ -45,10 +48,12 @@ static void stageDuel(Match& m, uint64_t attacker, uint64_t victim) {
 
 static void rock_checks();
 static void draft_checks();
+static void streak_checks();
 
 int main() {
     rock_checks();
     draft_checks();
+    streak_checks();
     if (failures == 0) std::cout << "wave42: all checks passed\n";
     else std::cout << "wave42: " << failures << " checks FAILED\n";
     return failures == 0 ? 0 : 1;
@@ -164,5 +169,126 @@ void draft_checks() {
         CHECK(m.draftAbility(h, 1)); // F with the level-3 pick
         CHECK(m.findPlayer(h)->fUnlocked);
         CHECK(m.findPlayer(h)->pendingPicks == 0);
+    }
+}
+
+// ---------- wave 42 fun: kill streaks ----------
+// Kill streaks announce at 2+ kills inside the 8s window, stay silent
+// on the first kill, reset on death, and restart at 1 when the window
+// lapses. Staged with facing-away victims so the killer takes no return
+// damage (melee is a directional 120° cone); XP levels don't change
+// melee damage in capture mode, so every kill lands on tick 7.
+static const Vec3 kStreakFar(40.0f, 0, 40.0f);
+
+// Put a victim in the killer's frontal cone, facing away so it never
+// swings back.
+static void stageStreakVictim(Match& m, uint64_t killer, uint64_t victim) {
+    m.movePlayer(killer, Vec3(0, 0, 0));
+    m.setFacingYaw(killer, 0.0f); // facing +x
+    m.movePlayer(victim, Vec3(1.5f, 0, 0));
+    m.setFacingYaw(victim, 0.0f); // facing +x: the killer is behind it
+}
+
+// Tick until `victim` dies; returns the elapsed match time of the kill.
+static double killUntilDead(Match& m, uint64_t victim) {
+    for (int i = 0; i < 40; ++i) {
+        m.update(1.0);
+        const auto* pv = m.findPlayer(victim);
+        CHECK(pv != nullptr);
+        if (pv && !pv->alive) return m.elapsed();
+    }
+    CHECK(false); // the victim never died — staging is broken
+    return m.elapsed();
+}
+
+struct StreakHit {
+    uint64_t src;
+    int amount;
+    std::string tag;
+};
+
+void streak_checks() {
+    // ---------- rampage: 2nd kill announces, 3rd announces, 1st silent
+    {
+        EventBus bus; GameClock clock; RNG rng(426);
+        Match m(bus, clock, rng);
+        CHECK(m.start("capture"));
+        std::vector<StreakHit> hits;
+        bus.subscribe(EventType::KillStreak, [&](const GameEvent& e) {
+            hits.push_back(
+                {e.sourceId, static_cast<int>(e.amount), e.tag});
+        });
+        uint64_t k = m.addPlayer("K", 0);
+        uint64_t v1 = m.addPlayer("V1", 1);
+        uint64_t v2 = m.addPlayer("V2", 1);
+        uint64_t v3 = m.addPlayer("V3", 1);
+        m.movePlayer(v2, kStreakFar);
+        m.movePlayer(v3, kStreakFar);
+        stageStreakVictim(m, k, v1);
+        const double t1 = killUntilDead(m, v1);
+        CHECK(hits.empty()); // first blood stays silent
+        CHECK(m.findPlayer(k)->killStreak == 1);
+        stageStreakVictim(m, k, v2);
+        const double t2 = killUntilDead(m, v2);
+        CHECK(t2 - t1 < 8.0);
+        CHECK(hits.size() == 1); // DOUBLE KILL
+        CHECK(hits[0].src == k);
+        CHECK(hits[0].amount == 2);
+        CHECK(hits[0].tag == "K");
+        stageStreakVictim(m, k, v3);
+        const double t3 = killUntilDead(m, v3);
+        CHECK(t3 - t2 < 8.0);
+        CHECK(hits.size() == 2); // TRIPLE KILL
+        CHECK(hits[1].src == k);
+        CHECK(hits[1].amount == 3);
+        CHECK(m.findPlayer(k)->killStreak == 3);
+    }
+    // ---------- death ends the streak ----------
+    {
+        EventBus bus; GameClock clock; RNG rng(427);
+        Match m(bus, clock, rng);
+        CHECK(m.start("capture"));
+        std::vector<StreakHit> hits;
+        bus.subscribe(EventType::KillStreak, [&](const GameEvent& e) {
+            hits.push_back(
+                {e.sourceId, static_cast<int>(e.amount), e.tag});
+        });
+        uint64_t k = m.addPlayer("K", 0);
+        uint64_t v1 = m.addPlayer("V1", 1);
+        uint64_t v2 = m.addPlayer("V2", 1);
+        m.movePlayer(v2, kStreakFar);
+        stageStreakVictim(m, k, v1);
+        killUntilDead(m, v1);
+        CHECK(m.findPlayer(k)->killStreak == 1);
+        // V2 faces the killer while the killer looks away: only V2 swings.
+        m.movePlayer(k, Vec3(0, 0, 0));
+        m.setFacingYaw(k, 0.0f); // facing +x: V2 is behind
+        m.movePlayer(v2, Vec3(-1.5f, 0, 0));
+        m.setFacingYaw(v2, 0.0f); // facing +x: toward the killer
+        killUntilDead(m, k);
+        CHECK(m.findPlayer(k)->killStreak == 0);
+        CHECK(hits.empty()); // V2's lone kill announces nothing
+    }
+    // ---------- a lapsed 8s window restarts the streak at 1 ----------
+    {
+        EventBus bus; GameClock clock; RNG rng(428);
+        Match m(bus, clock, rng);
+        CHECK(m.start("capture"));
+        std::vector<StreakHit> hits;
+        bus.subscribe(EventType::KillStreak, [&](const GameEvent& e) {
+            hits.push_back(
+                {e.sourceId, static_cast<int>(e.amount), e.tag});
+        });
+        uint64_t k = m.addPlayer("K", 0);
+        uint64_t v1 = m.addPlayer("V1", 1);
+        uint64_t v2 = m.addPlayer("V2", 1);
+        m.movePlayer(v2, kStreakFar);
+        stageStreakVictim(m, k, v1);
+        killUntilDead(m, v1);
+        m.update(9.0); // more than the 8s streak window passes
+        stageStreakVictim(m, k, v2);
+        killUntilDead(m, v2);
+        CHECK(hits.empty()); // stale streak: back to a lone kill
+        CHECK(m.findPlayer(k)->killStreak == 1);
     }
 }
