@@ -67,6 +67,18 @@ void CapturePointMode::update(double dt) {
     }
     if (holder_ >= 0) score_[holder_] += HOLD_POINTS_PER_SEC * static_cast<float>(dt);
 
+    // Micro-dev (2026-10-12): match point — once per team. Kills are fed by
+    // Match before mode_->update, so kill-driven crossings land here too.
+    for (int t = 0; t < 2; ++t) {
+        if (!matchPoint_[t] && score_[t] >= MATCH_POINT_SCORE) {
+            matchPoint_[t] = true;
+            GameEvent e(EventType::MatchPoint);
+            e.faction = t;
+            e.amount = MATCH_POINT_SCORE;
+            bus_.publish(e);
+        }
+    }
+
     if (overtime_ && !freshOvertime) overtimeElapsed_ += dt;
     noteMatchTick("capture");
 }

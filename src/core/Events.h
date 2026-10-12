@@ -221,6 +221,9 @@ enum class EventType {
     GreatOldOneSlain,    // sourceId = killing-blow entity id (0 unknown);
                          // faction = fallen GOO's team
     MatchStarted,        // tag = mode name ("capture", "moba")
+    MatchPoint,          // micro-dev (2026-10-12): Domination — a team
+                         // first crossed MATCH_POINT_SCORE; faction = team;
+                         // amount = threshold crossed
     MatchEnded,          // tag = mode name; faction = winner team (-1 draw)
     AchievementUnlocked, // tag = achievement id; the dark takes note
 

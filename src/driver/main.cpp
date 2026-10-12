@@ -381,6 +381,15 @@ struct BetaGame {
                           << (lv / 10) << " unlocked";
             std::cout << "\n";
         });
+        // Micro-dev (2026-10-12): Domination's climax beat — first team to
+        // 300/400 gets an arena-style callout so the ending never arrives
+        // quietly.
+        bus.subscribe(EventType::MatchPoint, [](const GameEvent& e) {
+            const int toWin = static_cast<int>(
+                CapturePointMode::TARGET_SCORE - e.amount);
+            std::cout << "*** MATCH POINT — team " << e.faction << " is "
+                      << toWin << " points from victory ***\n";
+        });
         bus.subscribe(EventType::DirectiveProgress, [](const GameEvent& e) {
             std::cout << "[directive] " << e.tag << " "
                       << static_cast<int>(e.amount * 100.0f + 0.5f)

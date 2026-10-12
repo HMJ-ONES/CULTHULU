@@ -25,6 +25,9 @@ namespace cultulhu {
 class CapturePointMode : public GameMode {
 public:
     static constexpr float TARGET_SCORE = 400.0f;
+    // Micro-dev (2026-10-12): match point at 75% of target — the announced
+    // climax beat. Published once per team via EventType::MatchPoint.
+    static constexpr float MATCH_POINT_SCORE = 300.0f;
     static constexpr float HOLD_POINTS_PER_SEC = 1.0f; // per team while holding
     static constexpr float KILL_POINTS = 5.0f;         // per player kill
     static constexpr double TIME_LIMIT = 600.0;       // seconds
@@ -69,6 +72,7 @@ private:
 
     std::vector<Point> points_;
     float score_[2] = {0.0f, 0.0f};
+    bool matchPoint_[2] = {false, false};
     int holder_ = -1;
     bool overtime_ = false;
     double overtimeElapsed_ = 0.0;

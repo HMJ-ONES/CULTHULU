@@ -147,6 +147,19 @@ void MatchLogger::attach(Match& match) {
                  "STREAK " + who + " — " + label + " (" +
                      std::to_string(s) + ")"});
         });
+
+    // Micro-dev (2026-10-12): the match-point callout is the match's
+    // climax beat — the exported story should carry it, not just SCORE
+    // milestones.
+    match.bus().subscribe(EventType::MatchPoint,
+        [this, &match](const GameEvent& e) {
+            const int toWin = static_cast<int>(
+                CapturePointMode::TARGET_SCORE - e.amount);
+            events_.push_back(
+                {match.elapsed(), "MATCHPOINT",
+                 "MATCHPOINT team " + std::to_string(e.faction) + " — " +
+                     std::to_string(toWin) + " points from victory"});
+        });
 }
 
 void MatchLogger::poll(Match& match) {
