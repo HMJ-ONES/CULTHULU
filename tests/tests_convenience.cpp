@@ -60,6 +60,10 @@ int main() {
     CHECK(suggestCommand("hypno", kits) == "hypnos");  // near miss
     CHECK(suggestCommand("xyzzy_plugh", kits) == ""); // too far: no guess
     CHECK(suggestCommand("cthulhu_avatar", kits) == "cthulhu_avatar");
+    // Free-roam `character select <typo>` uses the same vocabulary (it is
+    // wearable bodies only, so NPC ids never surface as suggestions).
+    CHECK(suggestCommand("shub_niggrath", kits) == "shub_niggurath");
+    CHECK(suggestCommand("civilian_villager", kits) == "");
 
     if (failures == 0)
         std::cout << "convenience: all " << checks << " checks passed\n";

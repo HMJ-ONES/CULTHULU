@@ -2635,7 +2635,19 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 std::string id; in >> id;
                 const CharacterDef* d = g.charReg.get(id);
                 if (!d) {
-                    std::cout << "no character '" << id << "'\n";
+                    // Micro-dev: forgive a typo the same way `match join
+                    // <typo-kit>` does — suggest the closest playable kit
+                    // (NPC packages are excluded: never wearable bodies)
+                    // and point at `chars` for the full roster.
+                    std::cout << "no character '" << id << "'";
+                    std::vector<std::string> playable;
+                    for (const auto& kid : g.charReg.list())
+                        if (!isNpcPackage(kid))
+                            playable.push_back(kid);
+                    const std::string sug = suggestCommand(id, playable);
+                    if (!sug.empty())
+                        std::cout << " Did you mean '" << sug << "'?";
+                    std::cout << " (see 'chars' for the 20 roster kits)\n";
                     return true;
                 }
                 if (isNpcPackage(id)) {
