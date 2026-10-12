@@ -173,6 +173,15 @@ void MatchLogger::attach(Match& match) {
                  "MATCHPOINT team " + std::to_string(e.faction) + " — " +
                      std::to_string(toWin) + " points from victory"});
         });
+
+    // Micro-dev (2026-10-12): sudden death is the match's wildest beat —
+    // the exported story should record the flip, not just trail off.
+    match.bus().subscribe(EventType::OvertimeStarted,
+        [this, &match](const GameEvent&) {
+            events_.push_back(
+                {match.elapsed(), "OVERTIME",
+                 "OVERTIME sudden death begins — first score wins"});
+        });
 }
 
 void MatchLogger::poll(Match& match) {

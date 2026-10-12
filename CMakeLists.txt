@@ -257,6 +257,11 @@ target_link_libraries(cultulhu_tests_micro_matchpoint PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_matchpoint COMMAND cultulhu_tests_micro_matchpoint)
 set_tests_properties(cultulhu_tests_micro_matchpoint PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_overtime tests/tests_micro_overtime.cpp)
+target_link_libraries(cultulhu_tests_micro_overtime PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_overtime COMMAND cultulhu_tests_micro_overtime)
+set_tests_properties(cultulhu_tests_micro_overtime PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_executable(cultulhu_tests_micro_firstblood tests/tests_micro_firstblood.cpp)
 target_link_libraries(cultulhu_tests_micro_firstblood PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_firstblood COMMAND cultulhu_tests_micro_firstblood)

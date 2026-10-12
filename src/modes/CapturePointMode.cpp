@@ -51,6 +51,11 @@ void CapturePointMode::update(double dt) {
         score_[0] == score_[1]) {
         overtime_ = true;
         freshOvertime = true;
+        // Micro-dev (2026-10-12): the tie at the clock expiring used to
+        // flip the mode silently — match status showed "OVERTIME" but the
+        // console and the exported log missed the drama. Announce once.
+        GameEvent e(EventType::OvertimeStarted);
+        bus_.publish(e);
     }
 
     int holder = currentHolder();

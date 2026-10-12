@@ -420,6 +420,12 @@ struct BetaGame {
             std::cout << "*** MATCH POINT — team " << e.faction << " is "
                       << toWin << " points from victory ***\n";
         });
+        // Micro-dev (2026-10-12): sudden death used to arrive silently on
+        // the console (only match status showed OVERTIME) — announce the
+        // flip so the ending never sneaks up on anyone.
+        bus.subscribe(EventType::OvertimeStarted, [](const GameEvent&) {
+            std::cout << "*** OVERTIME — sudden death! First score wins! ***\n";
+        });
         bus.subscribe(EventType::DirectiveProgress, [](const GameEvent& e) {
             std::cout << "[directive] " << e.tag << " "
                       << static_cast<int>(e.amount * 100.0f + 0.5f)

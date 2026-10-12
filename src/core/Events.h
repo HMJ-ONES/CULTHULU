@@ -229,6 +229,10 @@ enum class EventType {
     MatchPoint,          // micro-dev (2026-10-12): Domination — a team
                          // first crossed MATCH_POINT_SCORE; faction = team;
                          // amount = threshold crossed
+    OvertimeStarted,     // micro-dev (2026-10-12): Domination — the 600s
+                         // clock expired on a tie, sudden death begins.
+                         // Published once; first score ends the match
+                         // (120s cap, then a draw).
     MatchEnded,          // tag = mode name; faction = winner team (-1 draw)
     AchievementUnlocked, // tag = achievement id; the dark takes note
 
