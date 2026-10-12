@@ -80,6 +80,19 @@ void MatchLogger::attach(Match& match) {
             events_.push_back({match.elapsed(), "KILL", line});
         });
 
+    // Micro-dev (2026-10-12): first blood is the match's opening beat —
+    // the exported story should carry it, not just the KILL line.
+    match.bus().subscribe(EventType::FirstBlood,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* k = match.findPlayer(e.sourceId);
+            const Match::Player* v = match.findPlayer(e.targetId);
+            const std::string ks = k ? k->name : "the minions";
+            const std::string vs = v ? v->name : "?";
+            events_.push_back(
+                {match.elapsed(), "FIRSTBLOOD",
+                 "FIRSTBLOOD " + ks + " struck down " + vs});
+        });
+
     match.bus().subscribe(EventType::AbilityCast,
         [this, &match](const GameEvent& e) {
             // Wave 42: Cthulhu's rock casts are landmark events — always log

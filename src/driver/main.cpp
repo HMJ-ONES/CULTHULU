@@ -359,6 +359,19 @@ struct BetaGame {
             std::cout << "*** " << e.tag << " — " << label << " (" << s
                       << ") ***\n";
         });
+        // Micro-dev (2026-10-12): the match's first death gets an arena
+        // callout — the only kill printed to console besides streaks, so
+        // the opening beat never arrives quietly.
+        bus.subscribe(EventType::FirstBlood, [this](const GameEvent& e) {
+            const Match::Player* k =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            const Match::Player* v =
+                match ? match->findPlayer(e.targetId) : nullptr;
+            const std::string ks = k ? k->name : "the minions";
+            const std::string vs = v ? v->name : "an unfortunate soul";
+            std::cout << "*** FIRST BLOOD — " << ks << " struck down " << vs
+                      << " ***\n";
+        });
         // 11:30 AM convenience pass: AbilityUnlocked (DOTGOO draft picks,
         // the level-6 ult) was published and logged but never printed, so
         // a human not staring at `match status` missed their earned pick.

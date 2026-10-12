@@ -211,6 +211,10 @@ private:
     std::vector<MobaDefense::PlayerTarget> playerTargets_;
     PlayerStatsTracker stats_;
     double elapsed_ = 0.0;
+    // Micro-dev (2026-10-12): the match's first death gets an arena
+    // callout (EventType::FirstBlood) — once per match, whatever the
+    // cause. Reset in start().
+    bool firstBloodDone_ = false;
     int nextBotNum_ = 1;
     Vec3 teamBase_[2];
 

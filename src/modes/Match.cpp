@@ -35,6 +35,7 @@ bool Match::start(const std::string& mode) {
     players_.clear();
     stats_.clear();
     elapsed_ = 0.0;
+    firstBloodDone_ = false; // micro-dev (2026-10-12): arena callout resets
     nextBotNum_ = 1;
     kitAssignCounter_ = 0;
     // Wave 40: every fighter wields a full character kit (Q/F/R + RMB).
@@ -498,6 +499,22 @@ void Match::addXp(size_t playerIdx, int amount) {
 void Match::killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId) {
     Player& v = players_[victimIdx];
     v.killStreak = 0; // wave 42: death ends the streak
+    // Micro-dev (2026-10-12): first blood — the match's opening death gets
+    // an arena callout, whatever (or whoever) lands it. Once per match;
+    // PlayerKilled right below still carries every death.
+    if (!firstBloodDone_) {
+        firstBloodDone_ = true;
+        const bool byPlayer = killerIdx >= 0;
+        GameEvent fb(EventType::FirstBlood);
+        fb.sourceId = byPlayer
+            ? players_[static_cast<size_t>(killerIdx)].id
+            : killerEntityId;
+        fb.targetId = v.id;
+        fb.faction = byPlayer
+            ? players_[static_cast<size_t>(killerIdx)].team
+            : -1;
+        bus_.publish(fb);
+    }
     double respawn = kCaptureRespawnSec;
     if (moba_) {
         // 5 s + 1 s per elapsed minute, capped at 20 s.

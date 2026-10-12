@@ -208,6 +208,11 @@ enum class EventType {
     CityDestroyed,       // tag = city name; amount = 1; all districts razed
     PlayerKilled,        // sourceId = killer entity id; targetId = victim
                          // entity id; both are EldritchAvatars (PvP)
+    FirstBlood,          // micro-dev (2026-10-12): the match's first player
+                         // death — once per match, whatever the cause.
+                         // sourceId = killer entity id (a player id, or a
+                         // minion/tower id when the killer wasn't a player);
+                         // targetId = victim player id
     AbilityCast,         // wave 40: sourceId = caster id; tag = ability name;
                          // amount = slot (0=Q 1=F 2=R 3=RMB)
     AbilityUnlocked,     // wave 41: sourceId = player id; tag = unlocked
