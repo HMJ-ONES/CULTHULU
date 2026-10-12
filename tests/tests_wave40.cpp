@@ -12,6 +12,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <sstream>
 
 using namespace cultulhu;
 
@@ -124,6 +125,39 @@ int main() {
         // Face the human at B and fire the RMB (MindControl: narrow cone).
         CHECK(m.humanCast(hid, 3, 0.0f));
         CHECK(m.findPlayer(b)->hp < hpBefore);
+    }
+    // ---------- match status shows the RMB cooldown (micro-dev) ----------
+    {
+        EventBus bus; GameClock clock; RNG rng(44);
+        Match m(bus, clock, rng);
+        CHECK(m.start("capture"));
+        uint64_t a = m.addBot(0);
+        (void)a;
+        uint64_t b = m.addBot(1);
+        uint64_t hid = m.joinAsHuman(0); // takes over a's slot, named "You"
+        CHECK(hid != 0);
+        CHECK(m.setPlayerKit(hid, "cthulhu_avatar"));
+        m.movePlayer(hid, Vec3(0, 0, 0));
+        m.movePlayer(b, Vec3(2, 0, 0));
+        const auto humanLine = [](const std::string& s) -> std::string {
+            std::istringstream in(s);
+            std::string line;
+            while (std::getline(in, line))
+                if (line.find("You") != std::string::npos) return line;
+            return "";
+        };
+        std::ostringstream before;
+        m.printStatus(before);
+        CHECK(!humanLine(before.str()).empty());
+        CHECK(humanLine(before.str()).find("RMB ready") != std::string::npos);
+        // MindControl gaze lands; the RMB cooldown (6.0s) starts ticking.
+        CHECK(m.humanCast(hid, 3, 0.0f));
+        CHECK(m.findPlayer(hid)->rmbCd > 0.0);
+        std::ostringstream after;
+        m.printStatus(after);
+        const std::string line = humanLine(after.str());
+        CHECK(line.find("RMB6s") != std::string::npos);
+        CHECK(line.find("RMB ready") == std::string::npos);
     }
     // ---------- full Domination match with kits completes ----------
     {

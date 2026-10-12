@@ -712,14 +712,17 @@ void Match::printStatus(std::ostream& os) const {
         // Convenience pass: kit cooldowns at a glance, like free-roam
         // `status`. Unlocked slot: "ready" or Ns remaining; locked: "-".
         // (Wave 41 showed only unlock brackets — you couldn't tell if the
-        // ult was 5s or 40s away.)
+        // ult was 5s or 40s away.) Micro-dev: RMB is the fourth button
+        // and runs its own cooldown (6s heavy attack, 7s gaze, rock
+        // rip/swing) — it was invisible here until now. RMB has no
+        // unlock gating (unlike Q/F/R in DOTGOO), so it always shows.
         os << " [";
         {
-            const char* keys[3] = {"Q", "F", "R"};
-            const bool unlocked[3] = {pl.qUnlocked, pl.fUnlocked,
-                                      pl.rUnlocked};
-            const double cds[3] = {pl.qCd, pl.fCd, pl.rCd};
-            for (int k = 0; k < 3; ++k) {
+            const char* keys[4] = {"Q", "F", "R", "RMB"};
+            const bool unlocked[4] = {pl.qUnlocked, pl.fUnlocked,
+                                      pl.rUnlocked, true};
+            const double cds[4] = {pl.qCd, pl.fCd, pl.rCd, pl.rmbCd};
+            for (int k = 0; k < 4; ++k) {
                 if (k) os << " ";
                 os << keys[k];
                 if (!unlocked[k]) os << "-";
