@@ -370,6 +370,17 @@ struct BetaGame {
                                 : ("player " + std::to_string(e.sourceId));
             std::cout << "[unlock] " << who << " unlocked " << e.tag << "\n";
         });
+        // 2 PM build (2026-10-12): levels were completely silent — the
+        // tiered-invocation gates at 10/20/30 only work if the player
+        // notices crossing them. tag carries the player name.
+        bus.subscribe(EventType::PlayerLeveledUp, [](const GameEvent& e) {
+            const int lv = static_cast<int>(e.amount);
+            std::cout << "[level] " << e.tag << " reached level " << lv;
+            if (lv == 10 || lv == 20 || lv == 30)
+                std::cout << " — invocation tier "
+                          << (lv / 10) << " unlocked";
+            std::cout << "\n";
+        });
         bus.subscribe(EventType::DirectiveProgress, [](const GameEvent& e) {
             std::cout << "[directive] " << e.tag << " "
                       << static_cast<int>(e.amount * 100.0f + 0.5f)

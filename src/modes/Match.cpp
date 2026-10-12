@@ -464,6 +464,14 @@ void Match::addXp(size_t playerIdx, int amount) {
     p.level = std::min(30, 1 + p.xp / 50);
     if (p.level > oldLevel) {
         p.pendingInvokes += (p.level - oldLevel);
+        // 2 PM build (2026-10-12): the level loop was narratively silent —
+        // one event per addXp call even on multi-level jumps, so the
+        // invocation-tier gates (10/20/30) are visible to the player.
+        GameEvent le(EventType::PlayerLeveledUp);
+        le.sourceId = p.id;
+        le.amount = static_cast<float>(p.level);
+        le.tag = p.name;
+        bus_.publish(le);
         // Wave 41: DOTGOO ability draft. Level 3: second pick (Q/F).
         // Level 6: the ult (R) unlocks.
         if (modeName_ == "moba") {

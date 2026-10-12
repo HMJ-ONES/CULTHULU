@@ -214,6 +214,9 @@ enum class EventType {
                          // ability ("Q"/"F"/"ULT") in DOTGOO draft
     KillStreak,          // wave 42: sourceId = player id; amount = streak
                          // count (2+=double kill); tag = player name
+    PlayerLeveledUp,     // 2 PM build (2026-10-12): sourceId = player id;
+                         // amount = new level; tag = player name; published
+                         // once per addXp call even on multi-level jumps
     PointCaptured,       // targetId = point index; faction = capturing team
     GreatOldOneSlain,    // sourceId = killing-blow entity id (0 unknown);
                          // faction = fallen GOO's team

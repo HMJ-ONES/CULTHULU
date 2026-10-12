@@ -237,6 +237,10 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::DistrictRazed:
         case EventType::CityDestroyed:
             return lib.find("raze");
+        case EventType::PlayerLeveledUp:
+            // 2 PM build (2026-10-12): level-ups reuse the buff preset —
+            // no new FX asset needed, still within the particle budget.
+            return lib.find("buff");
         default:
             return nullptr;
     }
