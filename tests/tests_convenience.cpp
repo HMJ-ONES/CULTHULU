@@ -7,9 +7,11 @@
 //     reports in the stats overlay (single source of truth).
 
 #include "ui/StatsPanel.h"
+#include "core/CommandSuggest.h"
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace cultulhu;
 
@@ -25,6 +27,22 @@ int main() {
     CHECK(std::string(cultistStateName(CultistState::Lunatic)) == "Lunatic");
     CHECK(std::string(cultistStateName(CultistState::Imprisoned)) == "Imprisoned");
     CHECK(std::string(cultistStateName(CultistState::Converted)) == "Converted");
+
+    // "Did you mean" typo suggestions for unknown driver commands.
+    const std::vector<std::string> cmds = {"status", "cast", "chat", "match",
+                                           "quit", "exit"};
+    CHECK(suggestCommand("stauts", cmds) == "status");  // transposition
+    CHECK(suggestCommand("statsu", cmds) == "status");  // missing letter
+    CHECK(suggestCommand("castt", cmds) == "cast");     // extra letter
+    CHECK(suggestCommand("macth", cmds) == "match");    // transposition
+    CHECK(suggestCommand("qit", cmds) == "quit");       // near miss
+    CHECK(suggestCommand("status", cmds) == "status");  // exact passes through
+    CHECK(suggestCommand("cat", cmds) == "cast");      // tie -> first in list
+    CHECK(suggestCommand("xyzzy", cmds) == "");        // too far: no guess
+    CHECK(suggestCommand("st", cmds) == "cast");       // exactly at threshold
+    CHECK(suggestCommand("sxq", cmds) == "");         // 3+ edits: no guess
+    CHECK(suggestCommand("", cmds) == "");             // empty input
+    CHECK(suggestCommand("status", {}) == "");         // empty vocabulary
 
     if (failures == 0)
         std::cout << "convenience: all " << checks << " checks passed\n";

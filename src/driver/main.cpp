@@ -35,6 +35,7 @@
 #include "discovery/DiscoveryCodex.h"
 #include "discovery/LandmarkNames.h"
 #include "discovery/RelicNames.h"
+#include "core/CommandSuggest.h"
 #include "entities/Structures.h"
 #include "entities/Units.h"
 #include "exertion/ExertionSystem.h"
@@ -1175,6 +1176,19 @@ struct NetSession {
 // main()'s loop so the fuzz harness (src/fuzz) can drive it directly.
 // Returns false when the session should end (quit/exit).
 // ---------------------------------------------------------------------------
+// Driver command vocabulary for the "did you mean" typo suggestion.
+// Keep in sync with the dispatch in processLine below plus the wave-9
+// content commands (ambient, dungeon) and wave-9b/15 directives (directive).
+static const std::vector<std::string> kDriverCommands = {
+    "achievements", "addchar", "ambient", "attack", "belief", "beliefs",
+    "bestiary", "breed", "build", "camera", "cast", "character", "chars",
+    "chat", "codex", "combo", "command", "directive", "discover", "dungeon",
+    "exit", "help", "host", "interact", "join", "jump", "kda", "leave",
+    "load", "look", "mapinfo", "match", "mcast", "menu", "move", "mpick",
+    "myip", "netent", "players", "quit", "ready", "rest", "ritual", "rmb",
+    "save", "spawn", "sprint", "startgame", "status", "tick", "validate",
+};
+
 static bool processLine(BetaGame& g, NetSession& nets,
                         const std::string& line) {
         nets.poll(g);  // pump multiplayer (non-blocking)
@@ -2795,7 +2809,10 @@ static bool processLine(BetaGame& g, NetSession& nets,
         }
         // ---- end Wave 7 ----
 
-        std::cout << "unknown command. Type 'help'.\n";
+        std::cout << "unknown command '" << cmd << "'.";
+        const std::string suggestion = suggestCommand(cmd, kDriverCommands);
+        if (!suggestion.empty()) std::cout << " Did you mean '" << suggestion << "'?";
+        std::cout << " Type 'help'.\n";
     return true;
 }
 
