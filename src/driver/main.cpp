@@ -900,6 +900,8 @@ struct BetaGame {
             "  chat <msg> | netent | leave\n"
             "  match <domination|dotgoo|join [team]|addbot <team>|status|end>\n"
             "    (domination = 5v5 capture point, dotgoo = Defense of the Great Old Ones)\n"
+            "  select                              pick your fighter by clicking\n"
+            "                                      (opens tools/match_select.html)\n"
             "  mcast <q|f|r|rmb> [yaw-degrees]  cast your kit ability (after match join)\n"
             "  mpick <q|f>                     draft an ability (DOTGOO level-up picks)\n"
             "                                          run a local 5v5 match\n"
@@ -1207,6 +1209,15 @@ static bool processLine(BetaGame& g, NetSession& nets,
         if (cmd == "quit" || cmd == "exit") return false;
         if (cmd == "help") { g.printHelp(); return true; }
         if (cmd == "status") { g.printStatus(); return true; }
+        // Wave 42: visual character select — clickable portrait grid.
+        if (cmd == "select") {
+            std::cout
+                << "open this in your browser to pick your fighter by clicking:\n"
+                << "  tools/match_select.html\n"
+                << "(click a portrait, pick a team, copy the command it gives you,\n"
+                << " then paste it here after starting a match)\n";
+            return true;
+        }
         if (cmd == "beliefs") {
             std::cout << "active:";
             for (Belief b : g.beliefs.active())
