@@ -213,6 +213,11 @@ enum class EventType {
                          // sourceId = killer entity id (a player id, or a
                          // minion/tower id when the killer wasn't a player);
                          // targetId = victim player id
+    PlayerRespawned,     // micro-dev (2026-10-12): a dead player returns —
+                         // published when the respawn timer expires and the
+                         // player revives (initial spawns at match start or
+                         // `match join` are silent). sourceId = player id;
+                         // tag = player name; faction = team
     AbilityCast,         // wave 40: sourceId = caster id; tag = ability name;
                          // amount = slot (0=Q 1=F 2=R 3=RMB)
     AbilityUnlocked,     // wave 41: sourceId = player id; tag = unlocked

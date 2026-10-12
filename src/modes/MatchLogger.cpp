@@ -93,6 +93,19 @@ void MatchLogger::attach(Match& match) {
                  "FIRSTBLOOD " + ks + " struck down " + vs});
         });
 
+    // Micro-dev (2026-10-12): the dead used to come back with no trace in
+    // the exported story — the DEAD row just vanished from `match status`.
+    // Name the return so the log reads as a story with a second act.
+    match.bus().subscribe(EventType::PlayerRespawned,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* p = match.findPlayer(e.sourceId);
+            const std::string ps = p ? p->name : "?";
+            const int team = p ? p->team : e.faction;
+            events_.push_back({match.elapsed(), "RESPAWNED",
+                               "RESPAWNED " + ps + " t" +
+                                   std::to_string(team)});
+        });
+
     // Micro-dev (2026-10-12): DOTGOO tower falls used to leave no trace
     // in the exported match log — the story jumped from lanes pushing
     // to the GOO fight with no record of a crumbled defense.

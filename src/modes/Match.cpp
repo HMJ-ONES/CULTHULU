@@ -200,7 +200,17 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
         p.respawnTimer -= dt;
         p.invoking = false;
         p.invokeTimer = 0.0;
-        if (p.respawnTimer <= 0.0) spawnPlayer(p);
+        if (p.respawnTimer <= 0.0) {
+            // Micro-dev (2026-10-12): a dead player comes back silently
+            // today — the respawn countdown row just clears. Publish so
+            // the driver can announce the return.
+            GameEvent rp(EventType::PlayerRespawned);
+            rp.sourceId = p.id;
+            rp.tag = p.name;
+            rp.faction = p.team;
+            bus_.publish(rp);
+            spawnPlayer(p);
+        }
         return;
     }
     // Stunned fighters cannot act at all — no movement, no abilities.

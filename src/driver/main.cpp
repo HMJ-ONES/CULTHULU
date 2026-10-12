@@ -372,6 +372,20 @@ struct BetaGame {
             std::cout << "*** FIRST BLOOD — " << ks << " struck down " << vs
                       << " ***\n";
         });
+        // Micro-dev (2026-10-12): the dead used to come back silently —
+        // the respawn countdown row just cleared. Name the return so a
+        // dead player watching the console knows they're back in the
+        // fight (published only on the death→respawn path, never on
+        // initial spawns at match start or `match join`).
+        bus.subscribe(EventType::PlayerRespawned, [this](const GameEvent& e) {
+            const Match::Player* p =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            const std::string ps = p ? p->name : e.tag;
+            if (ps == "You")
+                std::cout << "*** You have respawned ***\n";
+            else
+                std::cout << "*** " << ps << " returns to the battle ***\n";
+        });
         // Micro-dev (2026-10-12): DOTGOO towers fell silently — no arena
         // callout and no match-log line when a lane's defense crumbled.
         // Published once per tower by MobaDefense (hp-crossing guard).
