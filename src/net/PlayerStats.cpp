@@ -2,6 +2,7 @@
 
 #include "net/PlayerStats.h"
 
+#include <algorithm>
 #include <set>
 
 namespace cultulhu {
@@ -17,13 +18,15 @@ void PlayerStatsTracker::recordDamage(size_t dealerPlayerIdx,
     (void)amount;  // reserved for future damage stats
     auto& evs = damage_[victimEntityId];
     // Keep only events still inside the assist window: the vector stays
-    // bounded no matter how long a match runs.
-    std::vector<DamageEvent> kept;
-    kept.reserve(evs.size() + 1);
-    for (const auto& e : evs)
-        if (nowSec - e.time <= kAssistWindowSec) kept.push_back(e);
-    kept.push_back(DamageEvent{dealerPlayerIdx, nowSec});
-    evs = std::move(kept);
+    // bounded no matter how long a match runs. In-place erase-remove
+    // (lightweight pass, Oct 11 2026): identical to the old allocate-a-new-
+    // vector filter, but allocation-free in steady state.
+    evs.erase(std::remove_if(evs.begin(), evs.end(),
+                             [nowSec](const DamageEvent& e) {
+                                 return nowSec - e.time > kAssistWindowSec;
+                             }),
+              evs.end());
+    evs.push_back(DamageEvent{dealerPlayerIdx, nowSec});
 }
 
 void PlayerStatsTracker::recordKill(size_t killerPlayerIdx,
