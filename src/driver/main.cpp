@@ -1917,6 +1917,25 @@ static bool processLine(BetaGame& g, NetSession& nets,
                           << " — move with: move <dir> [steps]; "
                              "combat is automatic. camera fp|tp|switch "
                              "works anytime.\n";
+                // Micro-dev: name the kit's buttons — a human who just
+                // picked (or inherited) a fighter should know what
+                // `mcast` does. Matters most for Cthulhu's RMB: a rock
+                // with down/launch verbs in Domination, but the
+                // mind-control gaze in DOTGOO.
+                if (const CharacterDef* kd = g.charReg.get(p->kitId)) {
+                    std::cout << "  your kit: Q " << kd->qAbility.name
+                              << " | F " << kd->fAbility.name
+                              << " | R " << kd->rAbility.name
+                              << " | RMB " << kd->rightClick.name << "\n"
+                              << "  cast with: mcast <q|f|r|rmb> "
+                                 "[yaw-degrees]\n";
+                    if (p->kitId == "cthulhu_avatar" &&
+                        g.match->modeName() == "capture")
+                        std::cout
+                            << "  (Domination: your RMB is the rock — "
+                               "'mcast rmb down' rips it from the ground, "
+                               "'mcast rmb launch' hurls it)\n";
+                }
             } else if (sub == "addbot") {
                 if (!g.match || !g.match->started()) {
                     std::cout << "no active match (match domination|dotgoo first)\n";
