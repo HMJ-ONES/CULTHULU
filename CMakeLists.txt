@@ -9,6 +9,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # The interactive driver has its own main() and is excluded here.
 file(GLOB_RECURSE CULTULHU_SRC CONFIGURE_DEPENDS src/*.cpp)
 list(FILTER CULTULHU_SRC EXCLUDE REGEX "src/driver/")
+# Micro-dev fix: BetaGame (lib code, src/fuzz/) constructs AntiCheat, so
+# its implementation must live in the lib — otherwise every lib consumer
+# (e.g. cultulhu_fuzz) fails to link with undefined AntiCheat symbols.
+list(APPEND CULTULHU_SRC src/driver/AntiCheat.cpp)
 add_library(cultulhu ${CULTULHU_SRC})
 target_include_directories(cultulhu PUBLIC src)
 
@@ -18,7 +22,8 @@ if(WIN32)
 endif()
 
 # Playable beta driver (headless console REPL).
-add_executable(cultulhu_play src/driver/main.cpp src/driver/AntiCheat.cpp)
+# AntiCheat's implementation lives in the cultulhu lib (see above).
+add_executable(cultulhu_play src/driver/main.cpp)
 target_link_libraries(cultulhu_play PRIVATE cultulhu)
 
 # Test binaries.
