@@ -371,7 +371,7 @@ void Match::swingAtStructures(Player& p) {
     float dmg = kMeleeDps * static_cast<float>(kSwingCooldown) * p.dmgMult;
     float clearDmg =
         kWaveclearDps * static_cast<float>(kSwingCooldown) * p.dmgMult;
-    // Wave 34: minion kills grant 15 XP; tower destructions grant 150 XP.
+    // Wave 34: minion kills grant 60 XP; tower destructions grant 800 XP.
     size_t idx = 0;
     for (; idx < players_.size(); ++idx)
         if (players_[idx].id == p.id) break;
@@ -413,7 +413,9 @@ bool Match::attackNearestEnemy(Player& p, size_t idx, double dt) {
     float dmg = kMeleeDps * p.dmgMult;
     if (p.buffTimer > 0.0) dmg *= 1.3f;
     stats_.recordDamage(idx, players_[best].id, dmg, clock_.now());
-    damagePlayer(best, dmg);
+    // Wave 42 fix: pass the attacker's position so the rock's frontal
+    // shield can block melee auto-attacks (it used to bypass the shield).
+    damagePlayer(best, dmg, players_[idx].pos);
     if (!players_[best].alive) killPlayer(best, static_cast<int>(idx), p.id);
     return true;
 }
@@ -423,6 +425,21 @@ void Match::damagePlayer(size_t victimIdx, float dmg) {
     if (!v.alive) return;
     // Wave 40: shield halves incoming damage while active.
     const float final = (v.shieldTimer > 0.0) ? dmg * 0.5f : dmg;
+    v.hp -= final;
+    if (v.hp <= 0.0f) { v.hp = 0.0f; v.alive = false; }
+}
+
+// Wave 42 fix: melee auto-attacks route through here so Cthulhu's rock
+// can block them — the old path had no attacker position, so the
+// frontal shield silently did nothing against the most common damage
+// source in Domination.
+void Match::damagePlayer(size_t victimIdx, float dmg,
+                         const Vec3& attackerPos) {
+    Player& v = players_[victimIdx];
+    if (!v.alive) return;
+    // Wave 40: shield halves incoming damage while active.
+    float final = (v.shieldTimer > 0.0) ? dmg * 0.5f : dmg;
+    applyRockShield(victimIdx, attackerPos, final);
     v.hp -= final;
     if (v.hp <= 0.0f) { v.hp = 0.0f; v.alive = false; }
 }
@@ -444,9 +461,13 @@ void Match::addXp(size_t playerIdx, int amount) {
         // Level 6: the ult (R) unlocks.
         if (modeName_ == "moba") {
             for (int lv = oldLevel + 1; lv <= p.level; ++lv) {
-                if (lv == 3 && p.pendingPicks == 0 &&
-                    !(p.qUnlocked && p.fUnlocked))
-                    p.pendingPicks = 1;
+                // Wave 41: DOTGOO ability draft. Level 3: second pick (Q/F).
+                // Wave 42 fix: a banked level-1 pick used to eat the
+                // level-3 pick (the old `pendingPicks == 0` guard skipped
+                // the grant, amputating Q or F for the whole match).
+                // Picks accumulate now: bank one, cross 3, hold two.
+                if (lv == 3 && !(p.qUnlocked && p.fUnlocked))
+                    p.pendingPicks += 1;
                 if (lv == 6 && !p.rUnlocked) {
                     p.rUnlocked = true;
                     GameEvent e(EventType::AbilityUnlocked);
@@ -526,6 +547,13 @@ void Match::feedMobaPlayerTargets() {
 bool Match::movePlayer(uint64_t id, Vec3 pos) {
     for (auto& p : players_)
         if (p.id == id) { p.pos = pos; return true; }
+    return false;
+}
+
+// Test/GM utility: grant XP directly (tests stage level-ups).
+bool Match::grantXp(uint64_t id, int amount) {
+    for (size_t i = 0; i < players_.size(); ++i)
+        if (players_[i].id == id) { addXp(i, amount); return true; }
     return false;
 }
 

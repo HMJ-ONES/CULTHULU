@@ -158,19 +158,10 @@ void Match::dealMatchDamage(size_t attackerIdx, size_t victimIdx, float dmg) {
     if (!atk.alive || !v.alive) return;
     float final = (atk.buffTimer > 0.0) ? dmg * 1.3f : dmg;
     if (v.shieldTimer > 0.0) final *= 0.5f;
-    // Wave 42: Cthulhu's rock is a frontal shield — half damage from the
-    // 120-degree arc he's facing. The shield is the durable option: it
-    // soaks 6 melee-hits worth before crumbling (twice the swing budget),
-    // so blocking + launching is a real play alongside swing-spam.
-    if (v.hasRock &&
-        inAttackCone(v.pos, v.facingYaw, atk.pos, 1e6f, 60.0f)) {
-        const float blocked = final * 0.5f;
-        final *= 0.5f;
-        const float unit =
-            kMeleeDps * 2.0f * (1.0f + 0.02f * v.level) * v.dmgMult;
-        v.rockDurability -= (blocked / unit) * 0.5f;
-        if (v.rockDurability <= 0.0f) breakRock(victimIdx, "the rock shatters");
-    }
+    // Wave 42: Cthulhu's rock is a frontal shield — the shared helper
+    // halves damage from the 120-degree arc he's facing and drains
+    // durability in proportion to the blocked damage.
+    applyRockShield(victimIdx, atk.pos, final);
     v.hp -= final;
     if (v.hp <= 0.0f) {
         v.hp = 0.0f;
@@ -406,7 +397,7 @@ bool Match::castMatchRmb(size_t idx, RmbAim aim) {
 bool Match::ripRock(size_t idx) {
     Player& p = players_[idx];
     p.hasRock = true;
-    p.rockDurability = 3.0f; // 3 melee-hits of punishment
+    p.rockDurability = 3.0f; // 3 rock-swings of wear, or ~6 blocked melee-hits
     p.rmbCd = 6.0;
     GameEvent e(EventType::AbilityCast);
     e.sourceId = p.id;
@@ -431,6 +422,25 @@ void Match::breakRock(size_t idx, const char* why) {
     e.tag = why;
     e.amount = 3;
     bus_.publish(e);
+}
+
+// Wave 42 fix: the rock's frontal shield, shared by kit damage and
+// melee auto-attacks. When the attacker stands in the holder's frontal
+// 120° arc, incoming damage is halved and the rock loses durability in
+// proportion to the blocked damage: a fresh rock soaks about 6 blocked
+// level-appropriate melee hits before crumbling (the wave-42 design
+// note). Heavier blocked hits wear it faster; attacks from behind
+// ignore it entirely.
+void Match::applyRockShield(size_t victimIdx, const Vec3& attackerPos,
+                            float& final) {
+    Player& v = players_[victimIdx];
+    if (!v.hasRock) return;
+    if (!inAttackCone(v.pos, v.facingYaw, attackerPos, 1e6f, 60.0f)) return;
+    const float blocked = final * 0.5f;
+    final = blocked;
+    const float unit = rockMeleeHitUnit(v);
+    if (unit > 0.0f) v.rockDurability -= (blocked / unit) * 2.0f;
+    if (v.rockDurability <= 0.0f) breakRock(victimIdx, "the rock shatters");
 }
 
 bool Match::swingRock(size_t idx) {

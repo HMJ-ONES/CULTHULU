@@ -56,6 +56,8 @@
 #include "world/MapLoader.h"
 
 #include <cmath>
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -157,6 +159,40 @@ std::unique_ptr<Entity> entityFromRecord(const GameState::EntityRec& r) {
 }
 
 } // namespace
+
+// Wave 42 fix: resolve tools/push_match_log.py by walking up from the
+// working directory to the repo root. The Windows build guide launches
+// the exe from inside build/ (or build/Release), where a CWD-relative
+// "tools/..." path resolves wrong and the upload silently never happens.
+static std::string findUploaderScript() {
+    namespace fs = std::filesystem;
+    std::error_code ec;
+    fs::path dir = fs::current_path(ec);
+    for (int i = 0; i < 6 && !ec; ++i) {
+        const fs::path cand = dir / "tools" / "push_match_log.py";
+        if (fs::exists(cand, ec)) return cand.string();
+        if (!dir.has_parent_path()) break;
+        dir = dir.parent_path();
+    }
+    return {};
+}
+
+// Wave 42 fix: stock Python.org Windows installs put `python` (and `py`)
+// on PATH, not `python3`. Probe for a working interpreter instead of
+// hardcoding one.
+static std::string findPython() {
+#ifdef _WIN32
+    constexpr const char* nullDev = "NUL";
+#else
+    constexpr const char* nullDev = "/dev/null";
+#endif
+    for (const char* py : {"python3", "python"}) {
+        const std::string probe =
+            std::string(py) + " --version >" + nullDev + " 2>&1";
+        if (std::system(probe.c_str()) == 0) return py;
+    }
+    return {};
+}
 
 struct BetaGame {
     EventBus bus;
@@ -535,9 +571,26 @@ struct BetaGame {
                          "the action log to GitHub.\n";
             return;
         }
+        // Wave 42 fix: the uploader script used to be resolved CWD-relative
+        // ("tools/push_match_log.py"), which breaks when the exe is
+        // launched from inside build/ (the Windows guide's Part 4 does
+        // exactly that). Walk up to the repo root instead.
+        const std::string script = findUploaderScript();
+        if (script.empty()) {
+            std::cout << "match log upload skipped (tools/push_match_log.py "
+                         "not found above the working directory).\n";
+            return;
+        }
+        // Wave 42 fix: stock Python.org Windows installs ship `python`,
+        // not `python3` — probe instead of hardcoding the interpreter.
+        const std::string py = findPython();
+        if (py.empty()) {
+            std::cout << "match log upload skipped (no python3/python on "
+                         "PATH).\n";
+            return;
+        }
         // Pipe the log to the uploader (avoids writing it to disk).
-        std::string cmd = "python3 tools/push_match_log.py \"" + path +
-                          "\" 2>&1";
+        std::string cmd = py + " \"" + script + "\" \"" + path + "\" 2>&1";
         FILE* pipe = popen(cmd.c_str(), "w");
         if (!pipe) {
             std::cout << "match log upload failed (could not launch uploader).\n";

@@ -170,6 +170,9 @@ public:
 
     // Test/GM utility: reposition a player (used by tests to stage fights).
     bool movePlayer(uint64_t id, Vec3 pos);
+    // Test/GM utility: grant XP directly (used by tests to stage
+    // level-ups without playing out full fights).
+    bool grantXp(uint64_t id, int amount);
     // Wave 40: assign a specific kit (used by tests for deterministic fights).
     bool setPlayerKit(uint64_t id, const std::string& kitId);
     // Human camera control: set a player's facing yaw.
@@ -207,6 +210,11 @@ private:
     bool attackNearestEnemy(Player& p, size_t idx, double dt);
     void swingAtStructures(Player& p);
     void damagePlayer(size_t victimIdx, float dmg);
+    // Wave 42 fix: melee auto-attacks bypassed the rock shield because
+    // this path never saw the attacker. The overload takes the
+    // attacker's position so the frontal shield can face it. (Minion/
+    // tower damage keeps the old path — rocks don't exist in DOTGOO.)
+    void damagePlayer(size_t victimIdx, float dmg, const Vec3& attackerPos);
     // killerIdx < 0 = non-player killer (entityId names it in the event).
     void killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId);
     // Wave 34: XP economy. Minion kills 60, tower destructions 800,
@@ -227,6 +235,13 @@ private:
     int enemiesInConeCount(const Player& p, size_t idx, float range,
                            float halfAngleDeg) const;
     void dealMatchDamage(size_t attackerIdx, size_t victimIdx, float dmg);
+    // Wave 42 fix: the rock's frontal shield, shared by kit damage
+    // (dealMatchDamage) and melee auto-attacks. Halves `final` when the
+    // attacker stands in the holder's frontal 120° arc, and drains
+    // durability in proportion to the blocked damage — about 6 blocked
+    // level-appropriate melee hits break a fresh rock.
+    void applyRockShield(size_t victimIdx, const Vec3& attackerPos,
+                         float& final);
     // slot: 0=Q 1=F 2=R. Returns true when the cast went off.
     bool castMatchSpell(size_t idx, int slot);
     bool castMatchRmb(size_t idx, RmbAim aim = RmbAim::Normal);
