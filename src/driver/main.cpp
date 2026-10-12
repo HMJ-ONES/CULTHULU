@@ -1875,12 +1875,26 @@ static bool processLine(BetaGame& g, NetSession& nets,
                     std::cout << "already joined as a player\n";
                     return true;
                 }
-                int team = -1;
-                in >> team;
                 // Wave 42: pick your fighter — `match join [team] <kit-id>`.
-                // Optional; without it you inherit the bot's kit.
+                // Optional; without a kit you inherit the bot's kit.
+                // Micro-dev: the team is optional too, so a non-numeric
+                // first token is the kit id — `match join cthulhu_avatar`
+                // picks the fighter on an auto-chosen team instead of
+                // silently dropping the kit (old `in >> team` failed and
+                // swallowed the argument).
+                int team = -1;
                 std::string wantKit;
-                in >> wantKit;
+                std::string first;
+                in >> first;
+                if (!first.empty() &&
+                    first.find_first_not_of("-0123456789") ==
+                        std::string::npos &&
+                    first != "-") {
+                    team = std::stoi(first);
+                    in >> wantKit;
+                } else {
+                    wantKit = first;
+                }
                 uint64_t id = g.match->joinAsHuman(team);
                 if (id == 0) {
                     std::cout << "no bot slot to take over on that team\n";
