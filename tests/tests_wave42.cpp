@@ -16,6 +16,7 @@
 
 #include "modes/Match.h"
 #include "modes/MatchKits.h"
+#include "modes/MatchLogger.h"
 #include "core/EventBus.h"
 #include "core/GameClock.h"
 #include "core/RNG.h"
@@ -49,11 +50,13 @@ static void stageDuel(Match& m, uint64_t attacker, uint64_t victim) {
 static void rock_checks();
 static void draft_checks();
 static void streak_checks();
+static void logger_streak_checks();
 
 int main() {
     rock_checks();
     draft_checks();
     streak_checks();
+    logger_streak_checks();
     if (failures == 0) std::cout << "wave42: all checks passed\n";
     else std::cout << "wave42: " << failures << " checks FAILED\n";
     return failures == 0 ? 0 : 1;
@@ -291,4 +294,42 @@ void streak_checks() {
         CHECK(hits.empty()); // stale streak: back to a lone kill
         CHECK(m.findPlayer(k)->killStreak == 1);
     }
+}
+
+// ---------- 11:30 AM convenience pass (2026-10-12): streaks in the log
+// KillStreak events were published and console-announced but never reached
+// the MatchLogger — the exported GitHub match story skipped DOUBLE KILL
+// and RAMPAGE, the most exciting beats of the match.
+void logger_streak_checks() {
+    EventBus bus; GameClock clock; RNG rng(430);
+    Match m(bus, clock, rng);
+    CHECK(m.start("capture"));
+    MatchLogger logger;
+    logger.attach(m);
+    uint64_t k = m.addPlayer("K", 0);
+    uint64_t v1 = m.addPlayer("V1", 1);
+    uint64_t v2 = m.addPlayer("V2", 1);
+    m.movePlayer(v2, kStreakFar);
+    stageStreakVictim(m, k, v1);
+    killUntilDead(m, v1);
+    bool sawKill = false;
+    for (const auto& e : logger.events()) {
+        if (e.kind == "KILL") sawKill = true;
+        CHECK(e.kind != "STREAK"); // first blood stays silent in the log too
+    }
+    CHECK(sawKill); // the kill line itself still landed
+    stageStreakVictim(m, k, v2);
+    killUntilDead(m, v2);
+    bool found = false;
+    for (const auto& e : logger.events()) {
+        if (e.kind == "STREAK") {
+            found = true;
+            CHECK(e.text.find("DOUBLE KILL") != std::string::npos);
+            CHECK(e.text.find("K") != std::string::npos);
+        }
+    }
+    CHECK(found);
+    const std::string log = logger.render(m);
+    CHECK(log.find("DOUBLE KILL") != std::string::npos);
+    CHECK(log.find("STREAK") != std::string::npos);
 }

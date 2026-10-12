@@ -127,6 +127,26 @@ void MatchLogger::attach(Match& match) {
                                "OMEN mythic relic manifests: \"" + e.tag +
                                    "\""});
         });
+
+    // 11:30 AM convenience pass: kill streaks are the match's most
+    // exciting beats but never reached the exported log — the GitHub
+    // story skipped DOUBLE KILL / RAMPAGE entirely.
+    match.bus().subscribe(EventType::KillStreak,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* p = match.findPlayer(e.sourceId);
+            std::string who = p ? (p->name + "<" + shortKit(p->kitId) + ">t" +
+                                   std::to_string(p->team))
+                                : e.tag;
+            const int s = static_cast<int>(e.amount);
+            const char* label = (s == 2)   ? "DOUBLE KILL"
+                                : (s == 3) ? "TRIPLE KILL"
+                                : (s == 4) ? "QUAD KILL"
+                                           : "RAMPAGE";
+            events_.push_back(
+                {match.elapsed(), "STREAK",
+                 "STREAK " + who + " — " + label + " (" +
+                     std::to_string(s) + ")"});
+        });
 }
 
 void MatchLogger::poll(Match& match) {

@@ -324,6 +324,17 @@ struct BetaGame {
             std::cout << "*** " << e.tag << " — " << label << " (" << s
                       << ") ***\n";
         });
+        // 11:30 AM convenience pass: AbilityUnlocked (DOTGOO draft picks,
+        // the level-6 ult) was published and logged but never printed, so
+        // a human not staring at `match status` missed their earned pick.
+        bus.subscribe(EventType::AbilityUnlocked, [this](const GameEvent& e) {
+            const Match::Player* p =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            std::string who = p ? (p->name + " (team " +
+                                   std::to_string(p->team) + ")")
+                                : ("player " + std::to_string(e.sourceId));
+            std::cout << "[unlock] " << who << " unlocked " << e.tag << "\n";
+        });
         bus.subscribe(EventType::DirectiveProgress, [](const GameEvent& e) {
             std::cout << "[directive] " << e.tag << " "
                       << static_cast<int>(e.amount * 100.0f + 0.5f)
@@ -2115,8 +2126,36 @@ static bool processLine(BetaGame& g, NetSession& nets,
             }
             if (g.match->humanCast(g.humanMatchId, slotIdx, yaw, aim))
                 std::cout << "cast " << slot << "!\n";
-            else
-                std::cout << slot << " fizzled (cooldown, CC'd, or no target in the cone).\n";
+            else {
+                // Micro-dev: say WHY the cast failed instead of one vague
+                // fizzle — down, held fast, charging, or nothing in the cone.
+                const auto* hpf = g.match->findPlayer(g.humanMatchId);
+                if (!hpf)
+                    std::cout << slot << " fizzled.\n";
+                else if (!hpf->alive)
+                    std::cout << "you're down — respawning in "
+                              << hpf->respawnTimer << "s.\n";
+                else if (hpf->ccTimer > 0.0)
+                    std::cout << "held fast — " << hpf->ccTimer
+                              << "s of crowd control left.\n";
+                else {
+                    // Rock swings/throws run on the swing cooldown, not
+                    // rmbCd — count whichever is longer for slot 3.
+                    const double cd =
+                        (slotIdx == 0) ? hpf->qCd
+                        : (slotIdx == 1) ? hpf->fCd
+                        : (slotIdx == 2) ? hpf->rCd
+                        : std::max(hpf->rmbCd, hpf->swingCd);
+                    if (cd > 0.0)
+                        std::cout << slot << " on cooldown (" << cd
+                                  << "s left)\n";
+                    else
+                        std::cout << slot
+                                  << " fizzled — nothing caught by the cast. "
+                                     "Aim with `mcast " << slot
+                                  << " <yaw-degrees>`.\n";
+                }
+            }
             return true;
         }
 

@@ -21,7 +21,7 @@ class Match;
 
 struct LoggedEvent {
     double t = 0.0;          // match seconds
-    std::string kind;        // "KILL" "CAST" "UNLOCK" "POINT" "SCORE" "RELIC" "END"
+    std::string kind;        // "KILL" "CAST" "UNLOCK" "POINT" "SCORE" "RELIC" "STREAK" "END"
     std::string text;        // one human-readable line (without timestamp)
 };
 
