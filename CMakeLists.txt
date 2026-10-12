@@ -262,4 +262,9 @@ target_link_libraries(cultulhu_tests_micro_firstblood PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_firstblood COMMAND cultulhu_tests_micro_firstblood)
 set_tests_properties(cultulhu_tests_micro_firstblood PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_rockbreak tests/tests_micro_rockbreak.cpp)
+target_link_libraries(cultulhu_tests_micro_rockbreak PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_rockbreak COMMAND cultulhu_tests_micro_rockbreak)
+set_tests_properties(cultulhu_tests_micro_rockbreak PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME cultulhu_fuzz_smoke COMMAND cultulhu_fuzz all 2000 42)

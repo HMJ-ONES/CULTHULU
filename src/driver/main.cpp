@@ -372,6 +372,23 @@ struct BetaGame {
             std::cout << "*** FIRST BLOOD — " << ks << " struck down " << vs
                       << " ***\n";
         });
+        // Micro-dev (2026-10-12): a broken rock arrives silently on the
+        // console — the match log records it, but the Cthulhu player never
+        // learns their shield is gone. breakRock publishes AbilityCast
+        // with the "the rock shatters" / "the rock crumbles to dust" tags.
+        bus.subscribe(EventType::AbilityCast, [this](const GameEvent& e) {
+            const bool shattered = e.tag == "the rock shatters";
+            const bool crumbled = e.tag == "the rock crumbles to dust";
+            if (!shattered && !crumbled) return;
+            const Match::Player* p =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            const std::string who = p ? p->name : "a cultist";
+            const std::string whose =
+                (who == "You") ? "Your" : (who + "'s");
+            std::cout << "*** " << whose << " rock "
+                      << (shattered ? "SHATTERS under the blows!"
+                                    : "crumbles to dust!") << " ***\n";
+        });
         // 11:30 AM convenience pass: AbilityUnlocked (DOTGOO draft picks,
         // the level-6 ult) was published and logged but never printed, so
         // a human not staring at `match status` missed their earned pick.
