@@ -196,6 +196,10 @@ static std::string findPython() {
     return {};
 }
 
+// Micro-dev: free-roam `status` names the in-flight RMB wave phase
+// (defined near the `rmb` demo, below the BetaGame struct).
+static const char* wavePhaseName(WaveOfDomination::Phase p);
+
 struct BetaGame {
     EventBus bus;
     GameClock clock;
@@ -551,6 +555,12 @@ struct BetaGame {
         pollDiscoveries(); // wave 26: landmarks, species, relic claims
         fx.tick(1.0);
         avatarAnim.update(1.0);
+        // Micro-dev: the RMB ability (Wave of Domination) ticks with game
+        // time too. Its 7 s cooldown used to decay only inside the `rmb`
+        // demo's inline updates, so it froze between demo casts while the
+        // rest of the world moved on. The free-roam `status` line shows the
+        // rmb cooldown, which now stays truthful.
+        waveAbility.update(waveCtx, 1.0);
         animDirector.tick(1.0); // wave 18: advance tracked entity anims
         // Wave 7: driver construction sites progress; finished ones spawn
         // into the world. The god counts as labor (build sites get one
@@ -770,6 +780,22 @@ struct BetaGame {
                                   << "s";
                     }
                 }
+            }
+            // Micro-dev: RMB (Wave of Domination) is the fourth button —
+            // it was invisible here, so you had to burn a cast to learn it
+            // was on cooldown. (Its cooldown now ticks in tickSecond, so
+            // this number stays truthful over game time.)
+            std::cout << "  rmb ";
+            if (waveAbility.ready()) {
+                std::cout << "READY";
+            } else if (waveAbility.cooldownRemaining() > 0.0f) {
+                std::cout << static_cast<int>(
+                                  waveAbility.cooldownRemaining() + 0.5)
+                          << "s";
+            } else {
+                // Cooldown spent but the wave is still out (caught, held,
+                // or flying victims).
+                std::cout << wavePhaseName(waveAbility.phase());
             }
         }
         std::cout << "\n";

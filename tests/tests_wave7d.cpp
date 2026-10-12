@@ -267,6 +267,33 @@ static void testCooldownEnforced() {
     CHECK(w.ready());
 }
 
+// Micro-dev: the RMB cooldown decays with game time (the driver feeds
+// update(..., 1.0) from tickSecond), and the free-roam `status` line reads
+// ready()/cooldownRemaining()/phase() — pin those transitions.
+static void testCooldownDecaysWithGameTime() {
+    Fixture f;
+    // Civilian sits exactly on the first 1 s tick's wavefront (12 m):
+    // the 1 m catch band would skip anything in between.
+    f.addCivilian(12.0f, 0.0f);
+    WaveOfDomination w;
+    auto c = f.ctx();
+    CHECK(w.ready());
+    w.onPress(c);
+    CHECK(!w.ready());
+    CHECK_CLOSE(w.cooldownRemaining(), 7.0f, 0.01f);
+    // 1-second game ticks, like the driver's tickSecond: the cooldown
+    // burns down in real game time and the wave catches its victim.
+    for (int i = 0; i < 7; ++i) w.update(c, 1.0);
+    CHECK_CLOSE(w.cooldownRemaining(), 0.0f, 0.01f);
+    CHECK(w.victimCount() == 1);
+    CHECK(w.phase() == WaveOfDomination::Phase::Hold); // victim levitating
+    CHECK(!w.ready()); // held wave is not recastable
+    w.onRelease(c); // victims dropped gently
+    CHECK(w.phase() == WaveOfDomination::Phase::Idle);
+    CHECK(w.ready());
+    CHECK_CLOSE(w.cooldownRemaining(), 0.0f, 0.01f);
+}
+
 static void testFactoryAndRegistry() {
     auto a = createRmbAbility("wave_of_domination");
     CHECK(a != nullptr);
@@ -286,6 +313,7 @@ int main() {
     testLethalDropKills();
     testDirectStun();
     testCooldownEnforced();
+    testCooldownDecaysWithGameTime();
     testFactoryAndRegistry();
     std::cout << "wave7d checks: " << checks << ", failures: " << failures
               << "\n";
