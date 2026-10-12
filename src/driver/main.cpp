@@ -307,6 +307,16 @@ struct BetaGame {
             std::cout << "[directive] " << e.tag
                       << " (obedience was " << e.amount << ")\n";
         });
+        // Wave 42: kill streak announcements — juice for the bloodshed.
+        bus.subscribe(EventType::KillStreak, [](const GameEvent& e) {
+            const int s = static_cast<int>(e.amount);
+            const char* label = (s == 2)   ? "DOUBLE KILL"
+                                : (s == 3) ? "TRIPLE KILL"
+                                : (s == 4) ? "QUAD KILL"
+                                           : "RAMPAGE";
+            std::cout << "*** " << e.tag << " — " << label << " (" << s
+                      << ") ***\n";
+        });
         bus.subscribe(EventType::DirectiveProgress, [](const GameEvent& e) {
             std::cout << "[directive] " << e.tag << " "
                       << static_cast<int>(e.amount * 100.0f + 0.5f)
@@ -1853,15 +1863,30 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 }
                 int team = -1;
                 in >> team;
+                // Wave 42: pick your fighter — `match join [team] <kit-id>`.
+                // Optional; without it you inherit the bot's kit.
+                std::string wantKit;
+                in >> wantKit;
                 uint64_t id = g.match->joinAsHuman(team);
                 if (id == 0) {
                     std::cout << "no bot slot to take over on that team\n";
                     return true;
                 }
+                if (!wantKit.empty()) {
+                    if (isNpcPackage(wantKit)) {
+                        std::cout << "'" << wantKit
+                                  << "' is an NPC, not a playable kit — "
+                                     "keeping the bot's kit.\n";
+                    } else if (!g.match->setPlayerKit(id, wantKit)) {
+                        std::cout << "no kit '" << wantKit
+                                  << "' — keeping the bot's kit.\n";
+                    }
+                }
                 g.humanMatchId = id;
                 const auto* p = g.match->findPlayer(id);
                 std::cout << "joined team " << p->team
-                          << " as \"You\" — move with: move <dir> [steps]; "
+                          << " as \"" << p->name << "\" <" << p->kitId << ">"
+                          << " — move with: move <dir> [steps]; "
                              "combat is automatic. camera fp|tp|switch "
                              "works anytime.\n";
             } else if (sub == "addbot") {

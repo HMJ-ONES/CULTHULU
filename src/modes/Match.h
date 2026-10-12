@@ -121,6 +121,9 @@ public:
         // works: swing twice then hurl, or block then hurl for the bonus.
         bool hasRock = false;
         float rockDurability = 0.0f; // 3.0 on rip; breaks at 0
+        // Wave 42: kill streaks (fun). Resets if 8s pass without a kill.
+        int killStreak = 0;
+        double lastKillAt = -1000.0;
     };
 
     // Wave 42: how the RMB is aimed — Normal (at enemies), Down (at the
@@ -253,6 +256,9 @@ private:
     void updateBotAbilities(Player& p, size_t idx, double dt);
     CharacterRegistry kits_;
     size_t kitAssignCounter_ = 0;
+    // Wave 42: shuffled kit deck — every match deals a fresh random
+    // composition (replayability). Rebuilt in start().
+    std::vector<std::string> shuffledKits_;
 };
 
 } // namespace cultulhu

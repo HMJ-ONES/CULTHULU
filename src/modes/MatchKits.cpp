@@ -58,6 +58,8 @@ void Match::assignKit(Player& p) {
     // Wave 42: only the 20 playable roster entities fight in matches.
     // NPC packages are minions/ambient life — never match fighters.
     // Domination has no minions at all.
+    // (Shuffle reverted — see Match::start note. Round-robin is the
+    // balance-tested composition.)
     const std::vector<std::string> all = kits_.list();
     std::vector<std::string> ids;
     ids.reserve(all.size());

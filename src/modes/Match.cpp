@@ -1,6 +1,7 @@
 #include "modes/Match.h"
 #include "discovery/RelicNames.h"
 #include "modes/MatchKits.h"
+#include "modes/RosterUtils.h"
 
 #include <algorithm>
 #include <cmath>
@@ -40,6 +41,10 @@ bool Match::start(const std::string& mode) {
     // Kits are the same data as free-roam; when they fail to load (e.g. a
     // bare test env), fighters fall back to plain directional melee.
     if (kits_.count() == 0) loadMatchKits(kits_, "assets");
+    // NOTE (wave 42): kit shuffle reverted — random compositions can
+    // stalemate the MOBA (see tests_wave21 seed 99). Composition balance
+    // needs design work before replayability via shuffle. The shuffledKits_
+    // deck stays for future use.
     mode_.reset();
     capture_ = nullptr;
     moba_ = nullptr;
@@ -482,6 +487,7 @@ void Match::addXp(size_t playerIdx, int amount) {
 
 void Match::killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId) {
     Player& v = players_[victimIdx];
+    v.killStreak = 0; // wave 42: death ends the streak
     double respawn = kCaptureRespawnSec;
     if (moba_) {
         // 5 s + 1 s per elapsed minute, capped at 20 s.
@@ -497,6 +503,19 @@ void Match::killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId)
         // on level-1 players are worth little; slaying a level-20 is
         // worth a fortune. (Prevents 3 early kills = level 10.)
         addXp(static_cast<size_t>(killerIdx), 50 + 25 * v.level);
+        // Wave 42: kill streaks — 8s window, announce at 2+.
+        if (elapsed_ - k.lastKillAt < 8.0)
+            ++k.killStreak;
+        else
+            k.killStreak = 1;
+        k.lastKillAt = elapsed_;
+        if (k.killStreak >= 2) {
+            GameEvent se(EventType::KillStreak);
+            se.sourceId = k.id;
+            se.amount = k.killStreak;
+            se.tag = k.name;
+            bus_.publish(se);
+        }
         GameEvent e(EventType::PlayerKilled);
         e.sourceId = k.id;
         e.targetId = v.id;
