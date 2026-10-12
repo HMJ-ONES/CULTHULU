@@ -2180,21 +2180,71 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 }
             }
             float yaw = hp ? hp->facingYaw : 0.0f;
-            float yawDeg;
-            if (in >> yawDeg)
-                yaw = yawDeg * 3.14159265f / 180.0f;
             // Wave 42: Cthulhu's rock — `mcast rmb down` rips it from the
             // ground, `mcast rmb launch` hurls it. Plain `mcast rmb` swings
             // the held rock, or stuns without it.
             Match::RmbAim aim = Match::RmbAim::Normal;
-            std::string mod;
-            if (in >> mod) {
-                if (mod == "down") aim = Match::RmbAim::Down;
-                else if (mod == "launch") aim = Match::RmbAim::Launch;
+            // Micro-dev: parse words before numbers. The old order read
+            // the next token as a float first, so `mcast rmb down` set
+            // failbit on "down" and the verb never reached `aim` — the
+            // rock could never be ripped or hurled from the driver.
+            std::string tok;
+            if (in >> tok) {
+                if (tok == "down") aim = Match::RmbAim::Down;
+                else if (tok == "launch") aim = Match::RmbAim::Launch;
+                else {
+                    try {
+                        yaw = std::stof(tok) * 3.14159265f / 180.0f;
+                    } catch (const std::exception&) {
+                        // unknown token — keep current facing
+                    }
+                    // Optional verb after an explicit yaw: `mcast rmb 90 launch`.
+                    if (in >> tok) {
+                        if (tok == "down") aim = Match::RmbAim::Down;
+                        else if (tok == "launch") aim = Match::RmbAim::Launch;
+                    }
+                }
             }
-            if (g.match->humanCast(g.humanMatchId, slotIdx, yaw, aim))
-                std::cout << "cast " << slot << "!\n";
-            else {
+            if (g.match->humanCast(g.humanMatchId, slotIdx, yaw, aim)) {
+                // Micro-dev: name the ability — "cast q!" is dead air for
+                // the game's loudest moment. Cthulhu's rock-RMB gets its
+                // own verbs because rightClick.name is the DOTGOO
+                // mind-control gaze.
+                const bool rock = hp && hp->kitId == "cthulhu_avatar" &&
+                                  slotIdx == 3 &&
+                                  g.match->modeName() == "capture";
+                std::string what = slot;
+                double cd = 0.0;
+                if (hp && !rock) {
+                    if (const CharacterDef* kd = g.charReg.get(hp->kitId)) {
+                        if (slotIdx == 3)
+                            what = kd->rightClick.name;
+                        else {
+                            const SpellDef* sp =
+                                slotIdx == 0   ? &kd->qAbility
+                                : slotIdx == 1 ? &kd->fAbility
+                                               : &kd->rAbility;
+                            what = sp->name;
+                        }
+                    }
+                }
+                if (hp)
+                    cd = slotIdx == 0   ? hp->qCd
+                       : slotIdx == 1 ? hp->fCd
+                       : slotIdx == 2 ? hp->rCd
+                                      : std::max(hp->rmbCd, hp->swingCd);
+                const std::string verb =
+                    rock ? (aim == Match::RmbAim::Down     ? "rock ripped from the ground"
+                            : aim == Match::RmbAim::Launch ? "rock hurled"
+                                                           : "rock swung")
+                         : what + " unleashed";
+                std::cout << verb << "!"
+                          << (cd > 0.0 ? " (ready in " +
+                                                 std::to_string(static_cast<int>(cd + 0.5)) +
+                                                 "s)"
+                                       : "")
+                          << "\n";
+            } else {
                 // Micro-dev: say WHY the cast failed instead of one vague
                 // fizzle — down, held fast, charging, or nothing in the cone.
                 const auto* hpf = g.match->findPlayer(g.humanMatchId);
