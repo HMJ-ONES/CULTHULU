@@ -283,3 +283,8 @@ target_link_libraries(cultulhu_tests_micro_respawned PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_respawned COMMAND cultulhu_tests_micro_respawned)
 set_tests_properties(cultulhu_tests_micro_respawned PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_botselfcast tests/tests_micro_botselfcast.cpp)
+target_link_libraries(cultulhu_tests_micro_botselfcast PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_botselfcast COMMAND cultulhu_tests_micro_botselfcast)
+set_tests_properties(cultulhu_tests_micro_botselfcast PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

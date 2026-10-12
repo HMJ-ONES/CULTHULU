@@ -529,6 +529,32 @@ void Match::updateBotAbilities(Player& p, size_t idx, double dt) {
         return;
     }
 
+    // Micro-dev (2026-10-12): self-targeted kinds need no enemy. A bot
+    // standing around with a summon/shield/buff/heal off cooldown used to
+    // hold it forever (the proximity gate below), so summoners never
+    // summoned and supports never supported in bot hands. These fire
+    // proactively on cooldown; heals wait until the bot is actually hurt.
+    // Domination only: in DOTGOO even one proactively-buffed bot cascades
+    // through the whole 20-minute pacing (seed-99 guardrail in
+    // tests_wave21), so MOBA bot behavior stays exactly as it was until
+    // the owner re-tunes it deliberately.
+    const CharacterDef* botKit = kitOf(p);
+    if (botKit && modeName_ == "capture") {
+        for (int slot = 0; slot < 3; ++slot) {
+            double& cd = (slot == 0) ? p.qCd : (slot == 1) ? p.fCd : p.rCd;
+            if (cd > 0.0) continue;
+            const SpellDef* sp = (slot == 0)   ? &botKit->qAbility
+                                 : (slot == 1) ? &botKit->fAbility
+                                               : &botKit->rAbility;
+            const std::string& kind = sp->effectKind;
+            const bool selfKind = (kind == "summon" || kind == "buff" ||
+                                   kind == "shield" || kind == "heal");
+            if (!selfKind) continue;
+            if (kind == "heal" && p.hp >= p.maxHp * 0.8f) continue;
+            if (castMatchSpell(idx, slot)) return;
+        }
+    }
+
     // Face the nearest enemy — all attacks are directional now.
     int nearest = enemyInCone(p, idx, 40.0f, 180.0f); // 180° = any direction
     if (nearest < 0) return; // nobody near: hold for the objective logic
