@@ -18,7 +18,7 @@ if(WIN32)
 endif()
 
 # Playable beta driver (headless console REPL).
-add_executable(cultulhu_play src/driver/main.cpp)
+add_executable(cultulhu_play src/driver/main.cpp src/driver/AntiCheat.cpp)
 target_link_libraries(cultulhu_play PRIVATE cultulhu)
 
 # Test binaries.

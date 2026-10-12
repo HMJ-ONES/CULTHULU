@@ -3,6 +3,7 @@
 // this with real rendering later; all game logic lives in the core library.
 
 #include "achievements/AchievementSystem.h"
+#include "driver/AntiCheat.h"
 #include "ai/AmbientBehavior.h"
 #include "ai/RitualCaster.h"
 #include "animation/AnimationDirector.h"
@@ -223,6 +224,8 @@ struct BetaGame {
     // Wave 42: character select countdown — when the current match started
     // (steady clock). The select screen shows the 30s pick window.
     std::chrono::steady_clock::time_point matchStartTime{};
+    // Wave 42: anti-cheat — macro detection, 3-strike warnings, ban.
+    AntiCheat anticheat;
     CameraSystem camera;
     EldritchAvatar avatar{FACTION_CTHULHU, Vec3{0, 0, 0}, power};
     CommandSystem commands{bus, rng, beliefs, cult};
@@ -1216,6 +1219,42 @@ static bool processLine(BetaGame& g, NetSession& nets,
         in >> cmd;
         if (cmd.empty()) return true;
 
+        // Wave 42: anti-cheat — macro/automation detection. Exempt the
+        // status command itself and harmless meta commands.
+        if (cmd != "anticheat" && cmd != "help" && cmd != "quit" &&
+            cmd != "exit") {
+            if (!g.anticheat.recordCommand(line)) {
+                bool banned = g.anticheat.issueWarning();
+                // Disconnect from the match immediately.
+                if (g.match && g.match->started() && g.humanMatchId != 0) {
+                    g.humanMatchId = 0;
+                    std::cout << "[anticheat] Disconnected from the match.\n";
+                }
+                if (banned) {
+                    std::cout
+                        << "[anticheat] 3rd strike — ACCOUNT BANNED.\n"
+                        << "  Progression wiped. Multiplayer blocked.\n"
+                        << "  You may still self-host bot matches.\n";
+                    g.achievements.reset();
+                } else {
+                    std::cout << "[anticheat] Cheat detected (macro/automation). "
+                              << "Warning " << g.anticheat.warnings()
+                              << "/3. 3 warnings = ban.\n";
+                }
+                return true;
+            }
+        }
+
+        // Wave 42: banned players cannot use multiplayer (host/join).
+        // Bot matches (match domination/dotgoo) still work.
+        if (g.anticheat.isBanned() &&
+            (cmd == "host" || cmd == "join" || cmd == "discover" ||
+             cmd == "startgame")) {
+            std::cout << "[anticheat] Multiplayer blocked — account banned. "
+                         "You may still self-host bot matches.\n";
+            return true;
+        }
+
         // Wave 9c content commands (ambient/dungeon); one registration line.
         if (registerWave9ContentCommands(g, cmd, in)) return true;
 
@@ -1226,6 +1265,10 @@ static bool processLine(BetaGame& g, NetSession& nets,
         if (cmd == "quit" || cmd == "exit") return false;
         if (cmd == "help") { g.printHelp(); return true; }
         if (cmd == "status") { g.printStatus(); return true; }
+        if (cmd == "anticheat") {
+            std::cout << g.anticheat.status() << "\n";
+            return true;
+        }
         // Wave 42: visual character select — clickable portrait grid.
         // The page talks back to the game over localhost:8471, so
         // clicking JOIN MATCH puts you straight into the match.

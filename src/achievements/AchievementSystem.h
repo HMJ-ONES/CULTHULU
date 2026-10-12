@@ -49,6 +49,12 @@ public:
     // {-1, -1} for one-shot achievements with no progress display.
     std::pair<double, double> progress(const std::string& id) const;
 
+    // Wave 42: wipe all progression (anti-cheat ban).
+    void reset() {
+        unlocked_.clear();
+        counters_.clear();
+    }
+
     // Persistence through the save system.
     void saveTo(GameState& s) const;
     void loadFrom(const GameState& s);
