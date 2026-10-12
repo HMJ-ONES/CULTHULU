@@ -1210,12 +1210,14 @@ static bool processLine(BetaGame& g, NetSession& nets,
         if (cmd == "help") { g.printHelp(); return true; }
         if (cmd == "status") { g.printStatus(); return true; }
         // Wave 42: visual character select — clickable portrait grid.
+        // The page talks back to the game over localhost:8471, so
+        // clicking JOIN MATCH puts you straight into the match.
         if (cmd == "select") {
             std::cout
-                << "open this in your browser to pick your fighter by clicking:\n"
+                << "open this in your browser, click a fighter, then click\n"
+                << "JOIN MATCH — you'll drop straight into the game:\n"
                 << "  tools/match_select.html\n"
-                << "(click a portrait, pick a team, copy the command it gives you,\n"
-                << " then paste it here after starting a match)\n";
+                << "(start a match first: match domination | match dotgoo)\n";
             return true;
         }
         if (cmd == "beliefs") {
@@ -2912,10 +2914,133 @@ void printArrivalSurvey(BetaGame& g) {
     if (!bits.empty()) std::cout << bits;
 }
 
+#include <thread>
+#include <mutex>
+#include <queue>
+#include <atomic>
+#include <cctype>
+#ifndef _WIN32
+#include <sys/select.h>
+#include <unistd.h>
+#endif
+
+// ---------- Wave 42: visual select server ----------
+// The clickable character screen (tools/match_select.html) talks to the
+// game through a tiny localhost HTTP server. Click "Join Match" in the
+// browser -> POST /join -> the driver joins the match. No copy/paste.
+namespace {
+
+constexpr uint16_t kSelectPort = 8471;
+
+struct JoinRequest {
+    std::string kit;
+    int team = -1; // -1 = auto
+};
+
+std::queue<JoinRequest> g_joinQueue;
+std::mutex g_joinMutex;
+std::atomic<bool> g_selectRunning{false};
+
+// Minimal JSON field extraction (no dependency): finds "key": "value"
+// or "key": number.
+std::string jsonStrField(const std::string& body, const std::string& key) {
+    std::string pat = "\"" + key + "\"";
+    size_t p = body.find(pat);
+    if (p == std::string::npos) return "";
+    p = body.find(':', p + pat.size());
+    if (p == std::string::npos) return "";
+    ++p;
+    while (p < body.size() && std::isspace((unsigned char)body[p])) ++p;
+    if (p < body.size() && body[p] == '"') {
+        size_t e = body.find('"', p + 1);
+        if (e == std::string::npos) return "";
+        return body.substr(p + 1, e - p - 1);
+    }
+    size_t e = p;
+    while (e < body.size() && (std::isdigit((unsigned char)body[e]) || body[e] == '-'))
+        ++e;
+    return body.substr(p, e - p);
+}
+
+void handleSelectConn(cultulhu::net::TcpSocket conn) {
+    // Read the request (small; single recv is fine for our tiny client).
+    char buf[4096];
+    long n = conn.recvSome(buf, sizeof(buf) - 1, 2000);
+    if (n <= 0) return;
+    buf[n] = '\0';
+    std::string req(buf, static_cast<size_t>(n));
+
+    // CORS preflight / simple headers for file:// origins.
+    const char* cors =
+        "Access-Control-Allow-Origin: *\r\n"
+        "Access-Control-Allow-Methods: POST, OPTIONS\r\n"
+        "Access-Control-Allow-Headers: Content-Type\r\n";
+
+    auto sendJson = [&](int code, const std::string& json) {
+        std::string resp = "HTTP/1.1 " + std::to_string(code) +
+                           (code == 200 ? " OK" : " Bad Request") + "\r\n" +
+                           cors + "Content-Type: application/json\r\n" +
+                           "Content-Length: " + std::to_string(json.size()) +
+                           "\r\nConnection: close\r\n\r\n" + json;
+        conn.sendAll(resp.data(), resp.size());
+    };
+
+    if (req.rfind("OPTIONS", 0) == 0) {
+        sendJson(200, "{}");
+        return;
+    }
+    if (req.rfind("POST /join", 0) != 0) {
+        sendJson(404, "{\"ok\":false,\"error\":\"unknown path\"}");
+        return;
+    }
+    // Body starts after the blank line.
+    size_t bh = req.find("\r\n\r\n");
+    std::string body = (bh == std::string::npos) ? "" : req.substr(bh + 4);
+    std::string kit = jsonStrField(body, "kit");
+    std::string teamS = jsonStrField(body, "team");
+    if (kit.empty()) {
+        sendJson(400, "{\"ok\":false,\"error\":\"missing kit\"}");
+        return;
+    }
+    JoinRequest jr;
+    jr.kit = kit;
+    jr.team = teamS.empty() ? -1 : std::stoi(teamS);
+    {
+        std::lock_guard<std::mutex> lk(g_joinMutex);
+        g_joinQueue.push(std::move(jr));
+    }
+    sendJson(200, "{\"ok\":true}");
+}
+
+void selectServerThread() {
+    cultulhu::net::TcpListener listener;
+    if (!listener.listen(kSelectPort)) return;
+    g_selectRunning = true;
+    while (g_selectRunning) {
+        auto conn = listener.accept(500 /*ms*/);
+        if (conn) handleSelectConn(std::move(*conn));
+    }
+}
+
+// Drain pending join requests (called from the REPL loop).
+bool pollJoinRequest(JoinRequest& out) {
+    std::lock_guard<std::mutex> lk(g_joinMutex);
+    if (g_joinQueue.empty()) return false;
+    out = std::move(g_joinQueue.front());
+    g_joinQueue.pop();
+    return true;
+}
+
+} // namespace
+
 int main() {
     BetaGame g;
     g.setupWorld();
     NetSession nets;
+
+    // Wave 42: start the select-screen server (browser -> game bridge).
+    std::thread selectThread(selectServerThread);
+    selectThread.detach();
 
     std::cout << "CULT-ULHU playable beta — free roam\n"
               << "Your eldritch avatar stalks the map.\n"
@@ -2952,8 +3077,39 @@ int main() {
 
     g.printStatus();
 
+    // Wave 42: REPL loop with select-screen join polling. stdin is polled
+    // via select() (100ms) so browser "Join Match" clicks land instantly,
+    // even when the player isn't typing.
     std::string line;
-    while (std::cout << "\n> " && std::getline(std::cin, line)) {
+    bool running = true;
+    while (running) {
+        // Drain select-screen join requests first.
+        JoinRequest jr;
+        while (pollJoinRequest(jr)) {
+            std::string cmd = "match join";
+            if (jr.team >= 0) cmd += " " + std::to_string(jr.team);
+            cmd += " " + jr.kit;
+            std::cout << "\n[select screen] " << cmd << "\n";
+            if (!processLine(g, nets, cmd)) { running = false; break; }
+        }
+        if (!running) break;
+
+#ifndef _WIN32
+        // Non-blocking stdin check (POSIX): select-screen join clicks
+        // land instantly even when the player isn't typing.
+        fd_set rfds;
+        FD_ZERO(&rfds);
+        FD_SET(STDIN_FILENO, &rfds);
+        struct timeval tv{0, 100000}; // 100ms
+        int r = select(STDIN_FILENO + 1, &rfds, nullptr, nullptr, &tv);
+        if (r < 0) break; // error
+        if (r == 0) continue; // timeout: loop back to check joins
+#else
+        // Windows: select() doesn't work on stdin, so the join queue is
+        // drained above and lands when the player next presses Enter.
+#endif
+        std::cout << "\n> " << std::flush;
+        if (!std::getline(std::cin, line)) break;
         if (!processLine(g, nets, line)) break;
     }
 

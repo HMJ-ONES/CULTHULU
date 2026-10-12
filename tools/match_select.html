@@ -49,13 +49,16 @@
     border-radius: 8px; padding: 10px 14px; font-family: monospace; font-size: 15px;
     color: #a7f3d0;
   }
-  #copybtn {
-    background: #5b3fa8; color: #fff; border: none; border-radius: 8px;
-    padding: 10px 20px; font-size: 15px; cursor: pointer; font-family: inherit;
+  #joinbtn {
+    background: #5b3fa8; color: #fff; border: none; border-radius: 10px;
+    padding: 12px 34px; font-size: 18px; cursor: pointer; font-family: inherit;
+    letter-spacing: 2px; box-shadow: 0 0 20px rgba(139,92,246,.4);
   }
-  #copybtn:hover { background: #6d4fc2; }
-  #copied { color: #a7f3d0; font-size: 14px; opacity: 0; transition: opacity .3s; }
-  #copied.show { opacity: 1; }
+  #joinbtn:hover { background: #6d4fc2; }
+  #joinbtn:disabled { background: #3a2d5c; cursor: wait; box-shadow: none; }
+  #joinstat { font-size: 14px; }
+  #joinstat.ok { color: #a7f3d0; }
+  #joinstat.err { color: #f0a0a0; }
   .hint { text-align: center; color: #9a8fb5; font-size: 13px; margin-top: 8px; }
   .grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -100,11 +103,10 @@
           <div class="ab"><div class="slot">RMB</div><div class="aname" id="prmb"></div></div>
         </div>
         <div id="cmdrow">
-          <div id="cmd"></div>
-          <button id="copybtn">Copy command</button>
-          <span id="copied">copied ✓</span>
+          <button id="joinbtn">⚔ JOIN MATCH</button>
+          <span id="joinstat"></span>
         </div>
-        <div class="hint">Paste into the game after <code>match domination</code> or <code>match dotgoo</code>.</div>
+        <div class="hint">Start a match first: <code>match domination</code> or <code>match dotgoo</code> — then click JOIN MATCH.</div>
       </div>
     </div>
   </div>
@@ -272,35 +274,40 @@ function selectChar(i) {
 }
 
 function updateCmd() {
+  // team/kit are read live when JOIN MATCH is clicked; nothing to render.
+}
+
+document.getElementById("joinbtn").addEventListener("click", () => {
   if (sel < 0) return;
   const c = CHARS[sel];
-  const t = team === "auto" ? "" : team + " ";
-  document.getElementById("cmd").textContent = "match join " + t + c.kit_id;
-}
-
-document.getElementById("copybtn").addEventListener("click", () => {
-  const cmd = document.getElementById("cmd").textContent;
-  const done = () => {
-    const el = document.getElementById("copied");
-    el.classList.add("show");
-    setTimeout(() => el.classList.remove("show"), 1500);
-  };
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(cmd).then(done).catch(() => fallbackCopy(cmd, done));
-  } else {
-    fallbackCopy(cmd, done);
-  }
+  const btn = document.getElementById("joinbtn");
+  const stat = document.getElementById("joinstat");
+  btn.disabled = true;
+  stat.className = "";
+  stat.textContent = "joining\u2026";
+  const payload = { kit: c.kit_id, team: team === "auto" ? -1 : parseInt(team, 10) };
+  fetch("http://127.0.0.1:8471/join", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json().then(j => ({ ok: r.ok, body: j })))
+  .then(({ ok, body }) => {
+    btn.disabled = false;
+    if (ok && body.ok) {
+      stat.className = "ok";
+      stat.textContent = "\u2713 You are " + c.name + " \u2014 check the game window!";
+    } else {
+      stat.className = "err";
+      stat.textContent = "\u2717 " + (body.error || "game not reachable \u2014 is cultulhu_play running?");
+    }
+  })
+  .catch(() => {
+    btn.disabled = false;
+    stat.className = "err";
+    stat.textContent = "\u2717 game not reachable \u2014 start cultulhu_play first.";
+  });
 });
-
-function fallbackCopy(text, done) {
-  const ta = document.createElement("textarea");
-  ta.value = text;
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand("copy"); } catch (e) {}
-  document.body.removeChild(ta);
-  done();
-}
 </script>
 </body>
 </html>
