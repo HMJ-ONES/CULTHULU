@@ -82,7 +82,12 @@
 <div class="wrap">
   <div class="kicker">CULT-ULHU</div>
   <h1>CHOOSE YOUR FIGHTER</h1>
-  <div class="sub">Click a portrait, pick a team, copy the command into the game.</div>
+  <div class="sub" id="subline">Click a portrait, pick a team, then JOIN MATCH.</div>
+  <div id="countdown" style="text-align:center;font-size:20px;color:#f0c060;margin-bottom:12px;display:none;"></div>
+  <div id="rejoinwrap" style="text-align:center;margin-bottom:16px;display:none;">
+    <button id="rejoinbtn" style="background:#2d6a4f;color:#fff;border:none;border-radius:10px;padding:12px 30px;font-size:16px;cursor:pointer;font-family:inherit;letter-spacing:1px;">&#8635; REJOIN MATCH</button>
+    <div style="color:#9a8fb5;font-size:13px;margin-top:6px;" id="rejoinnote">You were disconnected — your fighter is waiting.</div>
+  </div>
 
   <div class="teams">
     <button data-team="auto" class="on">Auto team</button>
@@ -307,6 +312,63 @@ document.getElementById("joinbtn").addEventListener("click", () => {
     stat.className = "err";
     stat.textContent = "\u2717 game not reachable \u2014 start cultulhu_play first.";
   });
+});
+
+// Wave 42: poll game status — countdown, select window, rejoin visibility.
+let wasDisconnected = false;
+function pollStatus() {
+  fetch("http://127.0.0.1:8471/status").then(r => r.json()).then(s => {
+    const cd = document.getElementById("countdown");
+    const rj = document.getElementById("rejoinwrap");
+    const joinbtn = document.getElementById("joinbtn");
+    const sub = document.getElementById("subline");
+    if (!s.matchActive) {
+      cd.style.display = "none";
+      rj.style.display = "none";
+      sub.textContent = "Start a match in the game first: match domination | match dotgoo";
+      return;
+    }
+    // Countdown while the pick window is open and the player hasn't joined.
+    if (s.selectOpen && !s.playerJoined) {
+      cd.style.display = "block";
+      cd.textContent = "\u23F1 Pick your fighter: " + s.selectSecsLeft + "s";
+      joinbtn.disabled = false;
+    } else {
+      cd.style.display = "none";
+    }
+    // Rejoin button: match live, player not joined (disconnected/AFK/timeout).
+    // Shown only when they were previously in (or the window closed on them).
+    const showRejoin = s.matchActive && !s.playerJoined && !s.selectOpen;
+    rj.style.display = showRejoin ? "block" : "none";
+    if (showRejoin && !wasDisconnected) {
+      wasDisconnected = true;
+      document.getElementById("rejoinnote").textContent =
+        s.playerAfk ? "A bot is piloting your fighter — take it back!"
+                    : "You were disconnected — your slot is waiting.";
+    }
+    if (!showRejoin) wasDisconnected = false;
+    // If the player is AFK, note the bot pilot.
+    if (s.playerJoined && s.playerAfk) {
+      sub.textContent = "You are AFK — a bot is piloting your fighter. Click JOIN MATCH or type in the game to take back control.";
+    } else if (s.playerJoined) {
+      sub.textContent = "You are in the match — good hunting.";
+    }
+  }).catch(() => {
+    document.getElementById("countdown").style.display = "none";
+  });
+}
+setInterval(pollStatus, 1000);
+pollStatus();
+
+// Rejoin uses the normal join path (picks the same slot back up).
+document.getElementById("rejoinbtn").addEventListener("click", () => {
+  // Rejoin = join with last selected kit, or prompt to pick.
+  if (sel >= 0) {
+    document.getElementById("joinbtn").click();
+  } else {
+    document.getElementById("subline").textContent = "Pick your fighter above, then click JOIN MATCH.";
+    window.scrollTo({top: 0, behavior: "smooth"});
+  }
 });
 </script>
 </body>

@@ -220,6 +220,9 @@ struct BetaGame {
     MatchLogger matchLogger;
     uint64_t matchSeed = 0; // RNG seed for the log filename
     bool matchLogUploaded = false; // guard: upload once per match
+    // Wave 42: character select countdown — when the current match started
+    // (steady clock). The select screen shows the 30s pick window.
+    std::chrono::steady_clock::time_point matchStartTime{};
     CameraSystem camera;
     EldritchAvatar avatar{FACTION_CTHULHU, Vec3{0, 0, 0}, power};
     CommandSystem commands{bus, rng, beliefs, cult};
@@ -561,6 +564,20 @@ struct BetaGame {
             matchLogger.poll(*match);
             if (match->isOver() && !matchLogUploaded) {
                 matchLogUploaded = true;
+                // Wave 42: AFK rewards — no rewards if AFK the whole match;
+                // partial AFK (e.g. 5 min away, came back) still earns.
+                if (humanMatchId != 0) {
+                    double frac = match->afkFraction(humanMatchId);
+                    if (frac >= 0.95) {
+                        std::cout << "[rewards] You were AFK for the whole "
+                                     "match — no rewards earned. No ban; "
+                                     "the bot pilot thanks you.\n";
+                    } else if (frac > 0.0) {
+                        std::cout << "[rewards] You were away for "
+                                  << static_cast<int>(frac * 100)
+                                  << "% of the match — rewards earned.\n";
+                    }
+                }
                 uploadMatchLog();
             }
         }
@@ -1874,6 +1891,8 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 g.matchSeed = static_cast<uint64_t>(std::time(nullptr));
                 g.matchLogUploaded = false;
                 g.matchLogger.attach(*g.match);
+                // Wave 42: character select countdown starts now (30s).
+                g.matchStartTime = std::chrono::steady_clock::now();
                 std::string displayName = (modeArg == "capture")
                                               ? "Domination"
                                               : "DOTGOO (Defense of the Great Old Ones)";
@@ -2919,6 +2938,7 @@ void printArrivalSurvey(BetaGame& g) {
 #include <queue>
 #include <atomic>
 #include <cctype>
+#include <chrono>
 #ifndef _WIN32
 #include <sys/select.h>
 #include <unistd.h>
@@ -2940,6 +2960,28 @@ struct JoinRequest {
 std::queue<JoinRequest> g_joinQueue;
 std::mutex g_joinMutex;
 std::atomic<bool> g_selectRunning{false};
+
+// Wave 42: select-screen status (polled by the HTML page).
+// - select_open: within the 30s pick window and the human hasn't joined.
+// - player_joined / player_afk: for the REJOIN button.
+struct SelectStatus {
+    bool matchActive = false;
+    bool selectOpen = false;
+    int selectSecsLeft = 0;
+    bool playerJoined = false;
+    bool playerAfk = false;
+    std::string mode;
+};
+SelectStatus g_status;
+std::mutex g_statusMutex;
+void setSelectStatus(const SelectStatus& s) {
+    std::lock_guard<std::mutex> lk(g_statusMutex);
+    g_status = s;
+}
+SelectStatus getSelectStatus() {
+    std::lock_guard<std::mutex> lk(g_statusMutex);
+    return g_status;
+}
 
 // Minimal JSON field extraction (no dependency): finds "key": "value"
 // or "key": number.
@@ -2990,6 +3032,21 @@ void handleSelectConn(cultulhu::net::TcpSocket conn) {
         return;
     }
     if (req.rfind("POST /join", 0) != 0) {
+        if (req.rfind("GET /status", 0) == 0) {
+            SelectStatus st = getSelectStatus();
+            std::string json = "{\"ok\":true,\"matchActive\":" +
+                std::string(st.matchActive ? "true" : "false") +
+                ",\"selectOpen\":" +
+                std::string(st.selectOpen ? "true" : "false") +
+                ",\"selectSecsLeft\":" + std::to_string(st.selectSecsLeft) +
+                ",\"playerJoined\":" +
+                std::string(st.playerJoined ? "true" : "false") +
+                ",\"playerAfk\":" +
+                std::string(st.playerAfk ? "true" : "false") +
+                ",\"mode\":\"" + st.mode + "\"}";
+            sendJson(200, json);
+            return;
+        }
         sendJson(404, "{\"ok\":false,\"error\":\"unknown path\"}");
         return;
     }
@@ -3080,12 +3137,54 @@ int main() {
     // Wave 42: REPL loop with select-screen join polling. stdin is polled
     // via select() (100ms) so browser "Join Match" clicks land instantly,
     // even when the player isn't typing.
+    //
+    // Wave 42: AFK takeover. If the human is in a match and gives no input
+    // for 3 minutes, a bot pilots their fighter (match never pauses, no ban).
+    // Any input returns control. AFK time accrues for end-of-match rewards.
+    auto lastInput = std::chrono::steady_clock::now();
+    constexpr auto kAfkTimeout = std::chrono::minutes(3);
+    // Wave 42: character select countdown — 30s from match start to pick
+    // a fighter. Miss it and you're back in free-roam (menu).
+    constexpr auto kSelectWindow = std::chrono::seconds(30);
+    bool selectTimeoutAnnounced = false;
     std::string line;
     bool running = true;
     while (running) {
+        // Wave 42: publish select-screen status for the /status endpoint.
+        {
+            SelectStatus st;
+            st.matchActive = g.match && g.match->started();
+            st.playerJoined = g.humanMatchId != 0;
+            st.playerAfk = st.playerJoined && g.match->isPlayerAfk(g.humanMatchId);
+            if (st.matchActive) {
+                st.mode = g.match->modeName();
+                auto elapsed = std::chrono::steady_clock::now() - g.matchStartTime;
+                if (!st.playerJoined && elapsed < kSelectWindow) {
+                    st.selectOpen = true;
+                    st.selectSecsLeft =
+                        static_cast<int>((kSelectWindow - elapsed).count() / 1000000000);
+                }
+            }
+            setSelectStatus(st);
+
+            // Select timeout: no pick in 30s -> back to free-roam (menu).
+            if (st.matchActive && !st.playerJoined && !selectTimeoutAnnounced) {
+                auto elapsed = std::chrono::steady_clock::now() - g.matchStartTime;
+                if (elapsed >= kSelectWindow) {
+                    selectTimeoutAnnounced = true;
+                    std::cout << "\n[select] 30s pick window closed — you're in "
+                                 "free-roam. Start another match when ready, "
+                                 "or `match join` to jump into this one.\n";
+                }
+            }
+            // Reset the timeout flag when a new match starts.
+            if (!st.matchActive) selectTimeoutAnnounced = false;
+        }
+
         // Drain select-screen join requests first.
         JoinRequest jr;
         while (pollJoinRequest(jr)) {
+            lastInput = std::chrono::steady_clock::now();
             std::string cmd = "match join";
             if (jr.team >= 0) cmd += " " + std::to_string(jr.team);
             cmd += " " + jr.kit;
@@ -3093,6 +3192,16 @@ int main() {
             if (!processLine(g, nets, cmd)) { running = false; break; }
         }
         if (!running) break;
+
+        // AFK check (only when the human is in an active match).
+        if (g.match && g.match->started() && g.humanMatchId != 0 &&
+            !g.match->isPlayerAfk(g.humanMatchId) &&
+            std::chrono::steady_clock::now() - lastInput > kAfkTimeout) {
+            g.match->setPlayerAfk(g.humanMatchId, true);
+            std::cout << "\n[afk] 3 minutes with no input — a bot is piloting "
+                         "your fighter. Type anything to take back control. "
+                         "The match goes on.\n";
+        }
 
 #ifndef _WIN32
         // Non-blocking stdin check (POSIX): select-screen join clicks
@@ -3110,6 +3219,13 @@ int main() {
 #endif
         std::cout << "\n> " << std::flush;
         if (!std::getline(std::cin, line)) break;
+        lastInput = std::chrono::steady_clock::now();
+        // Returning from AFK: take the fighter back from the bot pilot.
+        if (g.match && g.match->started() && g.humanMatchId != 0 &&
+            g.match->isPlayerAfk(g.humanMatchId)) {
+            g.match->setPlayerAfk(g.humanMatchId, false);
+            std::cout << "[back] You're piloting your fighter again.\n";
+        }
         if (!processLine(g, nets, line)) break;
     }
 

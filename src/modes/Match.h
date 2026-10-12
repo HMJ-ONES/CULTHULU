@@ -76,6 +76,12 @@ public:
         bool alive = true;
         double respawnTimer = 0.0;
         bool isBot = true;
+        // Wave 42: AFK takeover. When the human goes AFK, a bot pilots
+        // their fighter (isBot stays false — this is still their slot).
+        // Match continues, no pausing. Rewards depend on participation.
+        bool afk = false;
+        double afkSince = 0.0;    // match time when AFK started
+        double afkSeconds = 0.0;   // total AFK time this match
         double swingCd = 0.0;
         int lane = 0;        // moba: assigned lane (rosterIndex % 3)
         float laneFrac = 0;  // moba: how far along the lane path (0..1)
@@ -178,6 +184,12 @@ public:
     bool grantXp(uint64_t id, int amount);
     // Wave 40: assign a specific kit (used by tests for deterministic fights).
     bool setPlayerKit(uint64_t id, const std::string& kitId);
+    // Wave 42: AFK takeover — bot pilots the human's fighter while away.
+    void setPlayerAfk(uint64_t id, bool afk);
+    bool isPlayerAfk(uint64_t id) const;
+    // Wave 42: fraction of the match the player spent AFK (0..1).
+    // >= 0.95 means AFK the whole match -> no rewards.
+    double afkFraction(uint64_t id) const;
     // Human camera control: set a player's facing yaw.
     bool setFacingYaw(uint64_t id, float yaw);
     // Wave 40: human kit casting in matches. slot 0=Q 1=F 2=R 3=RMB.

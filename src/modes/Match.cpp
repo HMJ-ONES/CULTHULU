@@ -245,8 +245,9 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
     // walking off toward the objective.
     if (!enemyInMeleeRange(p, idx)) {
         // Humans are driven by the driver (`move`); they hold position
-        // otherwise. Everyone still auto-attacks via attackNearestEnemy.
-        if (p.isBot) {
+        // otherwise. AFK humans get a bot pilot (wave 42). Everyone still
+        // auto-attacks via attackNearestEnemy.
+        if (p.isBot || p.afk) {
             if (capture_)
                 updateCaptureObjective(p, dt);
             else if (moba_)
@@ -256,7 +257,8 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
     // Enemy players first; only then swing at moba structures/minions.
     // Wave 40: bots fight with their full kit — directional Q/F/R + RMB —
     // before falling back to the directional melee swing.
-    if (p.isBot) updateBotAbilities(p, idx, dt);
+    // Wave 42: AFK pilots use the kit too.
+    if (p.isBot || p.afk) updateBotAbilities(p, idx, dt);
     bool attacked = attackNearestEnemy(p, idx, dt);
     if (moba_ && !attacked) swingAtStructures(p);
 }
@@ -585,6 +587,41 @@ bool Match::setPlayerKit(uint64_t id, const std::string& kitId) {
             return true;
         }
     return false;
+}
+
+// Wave 42: AFK takeover. Bot pilots the fighter; match never pauses.
+// afkSeconds accumulates for the end-of-match rewards call.
+void Match::setPlayerAfk(uint64_t id, bool afk) {
+    for (auto& p : players_) {
+        if (p.id != id) continue;
+        if (p.afk == afk) return;
+        p.afk = afk;
+        if (afk) {
+            p.afkSince = elapsed_;
+        } else {
+            p.afkSeconds += elapsed_ - p.afkSince;
+        }
+        return;
+    }
+}
+
+bool Match::isPlayerAfk(uint64_t id) const {
+    for (const auto& p : players_)
+        if (p.id == id) return p.afk;
+    return false;
+}
+
+// Wave 42: AFK fraction for rewards. If the player is currently AFK,
+// include the ongoing stretch.
+double Match::afkFraction(uint64_t id) const {
+    for (const auto& p : players_) {
+        if (p.id != id) continue;
+        double afk = p.afkSeconds;
+        if (p.afk) afk += elapsed_ - p.afkSince;
+        if (elapsed_ <= 0.0) return 0.0;
+        return afk / elapsed_;
+    }
+    return 0.0;
 }
 
 bool Match::setFacingYaw(uint64_t id, float yaw) {
