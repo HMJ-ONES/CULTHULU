@@ -372,6 +372,16 @@ struct BetaGame {
             std::cout << "*** FIRST BLOOD — " << ks << " struck down " << vs
                       << " ***\n";
         });
+        // Micro-dev (2026-10-12): DOTGOO towers fell silently — no arena
+        // callout and no match-log line when a lane's defense crumbled.
+        // Published once per tower by MobaDefense (hp-crossing guard).
+        bus.subscribe(EventType::TowerDestroyed, [this](const GameEvent& e) {
+            const Match::Player* k =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            const std::string ks = k ? k->name : "the minions";
+            std::cout << "*** TOWER DOWN — team " << e.faction << "'s "
+                      << e.tag << " tower falls to " << ks << " ***\n";
+        });
         // Micro-dev (2026-10-12): a broken rock arrives silently on the
         // console — the match log records it, but the Cthulhu player never
         // learns their shield is gone. breakRock publishes AbilityCast

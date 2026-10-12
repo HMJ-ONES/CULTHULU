@@ -241,6 +241,10 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // 2 PM build (2026-10-12): level-ups reuse the buff preset —
             // no new FX asset needed, still within the particle budget.
             return lib.find("buff");
+        case EventType::TowerDestroyed:
+            // Micro-dev (2026-10-12): a fallen tower is a razed structure —
+            // reuse the raze preset, no new FX asset needed.
+            return lib.find("raze");
         default:
             return nullptr;
     }

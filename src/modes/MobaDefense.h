@@ -203,6 +203,11 @@ protected:
     Vec3 pathTarget(const Minion& m) const; // next waypoint (team-aware)
     bool pathComplete(const Minion& m) const;
     void damageBase(int team, float dmg, uint64_t attackerId = 0);
+    // Micro-dev (2026-10-12): towers fell silently — no console callout,
+    // no match-log line. Publishes EventType::TowerDestroyed for a tower
+    // whose hp just crossed zero; callers guard the crossing so each
+    // tower reports exactly once.
+    void publishTowerDown(const Tower& t, uint64_t killerId);
     Minion makeMinion(int team, int lane, const std::string& kind, Vec3 pos,
                       float empower = 1.0f);
 };

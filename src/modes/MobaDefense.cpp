@@ -209,8 +209,11 @@ bool MobaDefense::playerHitStructuresCredit(int attackerTeam, Vec3 pos,
         if (d < bestD) { bestD = d; best = &t; }
     }
     if (best) {
+        const bool wasAlive = best->alive();
         best->hp -= dmg;
-        return !best->alive(); // true when this blow destroys it
+        const bool fell = wasAlive && !best->alive();
+        if (fell) publishTowerDown(*best, attackerId);
+        return fell; // true when this blow destroys it
     }
     // No tower in reach: swing at the enemy base (GOO) if close.
     const Base& b = bases_[enemy];
@@ -365,6 +368,19 @@ float MobaDefense::laneFraction(int team, int lane, Vec3 pos) const {
     return (team == 0) ? best : 1.0f - best;
 }
 
+void MobaDefense::publishTowerDown(const Tower& t, uint64_t killerId) {
+    GameEvent e(EventType::TowerDestroyed);
+    e.sourceId = killerId;
+    e.faction = t.team;
+    e.amount = static_cast<double>(t.lane);
+    static const char* names[] = {"top", "mid", "bot"};
+    e.tag = (t.lane >= 0 && t.lane < 3)
+                ? names[t.lane]
+                : ("lane " + std::to_string(t.lane));
+    e.pos = t.pos;
+    bus_.publish(e);
+}
+
 void MobaDefense::damageBase(int team, float dmg, uint64_t attackerId) {
     Base& b = bases_[team];
     if (!b.gooAlive) return;
@@ -493,7 +509,9 @@ void MobaDefense::update(double dt) {
                 if (dSq < bestDSq) { bestDSq = dSq; tower = &t; }
             }
             if (tower) {
+                const bool wasAlive = tower->alive();
                 tower->hp -= m.dps * fdt;
+                if (wasAlive && !tower->alive()) publishTowerDown(*tower, m.id);
             } else if (m.summoned) {
                 // Wave 40: summoned fighters hold near their summoning
                 // point instead of marching lanes.

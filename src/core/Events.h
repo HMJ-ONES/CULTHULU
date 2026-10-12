@@ -225,6 +225,10 @@ enum class EventType {
     PointCaptured,       // targetId = point index; faction = capturing team
     GreatOldOneSlain,    // sourceId = killing-blow entity id (0 unknown);
                          // faction = fallen GOO's team
+    TowerDestroyed,      // micro-dev (2026-10-12): a DOTGOO tower crumbled —
+                         // sourceId = killing-blow entity id (0 when minions
+                         // or siege did it); faction = fallen tower's team;
+                         // amount = lane index; tag = lane name
     MatchStarted,        // tag = mode name ("capture", "moba")
     MatchPoint,          // micro-dev (2026-10-12): Domination — a team
                          // first crossed MATCH_POINT_SCORE; faction = team;

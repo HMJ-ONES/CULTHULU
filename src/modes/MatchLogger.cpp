@@ -93,6 +93,22 @@ void MatchLogger::attach(Match& match) {
                  "FIRSTBLOOD " + ks + " struck down " + vs});
         });
 
+    // Micro-dev (2026-10-12): DOTGOO tower falls used to leave no trace
+    // in the exported match log — the story jumped from lanes pushing
+    // to the GOO fight with no record of a crumbled defense.
+    match.bus().subscribe(EventType::TowerDestroyed,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* k = match.findPlayer(e.sourceId);
+            const std::string ks =
+                k ? (k->name + "<" + shortKit(k->kitId) + ">t" +
+                     std::to_string(k->team))
+                  : "minions";
+            events_.push_back(
+                {match.elapsed(), "TOWER",
+                 "TOWER t" + std::to_string(e.faction) + " " + e.tag +
+                     " down << " + ks});
+        });
+
     match.bus().subscribe(EventType::AbilityCast,
         [this, &match](const GameEvent& e) {
             // Wave 42: Cthulhu's rock casts are landmark events — always log
