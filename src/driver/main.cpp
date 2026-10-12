@@ -103,6 +103,37 @@ Belief beliefByName(const std::string& n) {
     return Belief::Count;
 }
 
+// Micro-dev: typo-tolerant help for the `belief` command's failure paths.
+// Suggests the closest valid belief and prints the full valid list so a
+// mistyped belief never dead-ends the player with a bare "unknown belief".
+void printUnknownBelief(const std::string& bad, bool toReplace) {
+    std::string q = bad;
+    for (auto& ch : q) ch = static_cast<char>(std::tolower(ch));
+    const std::vector<std::string> names = beliefNamesList();
+    std::vector<std::string> lower;
+    for (const auto& n : names) {
+        std::string lc = n;
+        for (auto& ch : lc) ch = static_cast<char>(std::tolower(ch));
+        lower.push_back(lc);
+    }
+    std::cout << "unknown belief" << (toReplace ? " to replace" : "")
+              << " '" << bad << "'.";
+    const std::string sug = suggestCommand(q, lower);
+    if (!sug.empty()) {
+        for (size_t i = 0; i < lower.size(); ++i)
+            if (lower[i] == sug) {
+                std::cout << " Did you mean '" << names[i] << "'?";
+                break;
+            }
+    }
+    std::cout << " try: ";
+    for (size_t i = 0; i < names.size(); ++i) {
+        if (i) std::cout << " | ";
+        std::cout << names[i];
+    }
+    std::cout << "\n";
+}
+
 // Wave 5b: entity type ids in a save file are trusted only after this check.
 // Wave 23: range extended to EntityType::Rival (newest enumerator; keep last).
 bool validEntityType(int t) {
@@ -1522,14 +1553,14 @@ static bool processLine(BetaGame& g, NetSession& nets,
             in >> name >> rw >> old;
             Belief b = beliefByName(name);
             if (b == Belief::Count) {
-                std::cout << "unknown belief\n";
+                printUnknownBelief(name, false);
                 return true;
             }
             Belief out = Belief::Count;
             if (rw == "replace") {
                 out = beliefByName(old);
                 if (out == Belief::Count) {
-                    std::cout << "unknown belief to replace\n";
+                    printUnknownBelief(old, true);
                     return true;
                 }
             }

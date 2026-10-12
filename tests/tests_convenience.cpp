@@ -9,7 +9,9 @@
 #include "ui/StatsPanel.h"
 #include "core/CommandSuggest.h"
 #include "modes/RosterUtils.h"
+#include "beliefs/Belief.h"
 
+#include <cctype>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -64,6 +66,26 @@ int main() {
     // wearable bodies only, so NPC ids never surface as suggestions).
     CHECK(suggestCommand("shub_niggrath", kits) == "shub_niggurath");
     CHECK(suggestCommand("civilian_villager", kits) == "");
+
+    // Belief typo forgiveness for the free-roam `belief` command: the
+    // suggestion vocabulary is the 12 canonical belief names (lowercased,
+    // the way the driver matches), so the list can never drift from the
+    // enum. "Did you mean" covers transpositions and near misses.
+    const std::vector<std::string> beliefNames = beliefNamesList();
+    CHECK(beliefNames.size() == 12);
+    CHECK(beliefNames.front() == "Torture");
+    CHECK(beliefNames.back() == "Dreams");
+    std::vector<std::string> beliefLower;
+    for (const auto& n : beliefNames) {
+        std::string lc = n;
+        for (auto& ch : lc) ch = static_cast<char>(std::tolower(ch));
+        beliefLower.push_back(lc);
+    }
+    CHECK(suggestCommand("dream", beliefLower) == "dreams");    // missing letter
+    CHECK(suggestCommand("feer", beliefLower) == "fear");       // near miss
+    CHECK(suggestCommand("onslaugt", beliefLower) == "onslaught"); // transposition
+    CHECK(suggestCommand("breeding", beliefLower) == "breeding"); // exact passes through
+    CHECK(suggestCommand("xyzzy", beliefLower) == "");         // too far: no guess
 
     if (failures == 0)
         std::cout << "convenience: all " << checks << " checks passed\n";

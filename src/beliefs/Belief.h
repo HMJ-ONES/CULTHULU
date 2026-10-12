@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 namespace cultulhu {
 
 // The design doc calls for 12 beliefs; Dreams (the 12th) was chosen by the
@@ -37,6 +40,16 @@ inline const char* beliefName(Belief b) {
         case Belief::Count:           return "Count";
     }
     return "Unknown";
+}
+
+// Canonical belief names in enum order ("Torture" .. "Dreams").
+// Used by the driver's typo-tolerant belief help so it never drifts
+// out of sync with the enum.
+inline std::vector<std::string> beliefNamesList() {
+    std::vector<std::string> out;
+    for (int i = 0; i < static_cast<int>(Belief::Count); ++i)
+        out.push_back(beliefName(static_cast<Belief>(i)));
+    return out;
 }
 
 } // namespace cultulhu
