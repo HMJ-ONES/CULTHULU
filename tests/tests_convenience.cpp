@@ -66,6 +66,19 @@ int main() {
     // wearable bodies only, so NPC ids never surface as suggestions).
     CHECK(suggestCommand("shub_niggrath", kits) == "shub_niggurath");
     CHECK(suggestCommand("civilian_villager", kits) == "");
+    // `character validate <typo>` forgives typos too, but against ALL
+    // packages (NPC ones are deep-validated as well — they're only
+    // excluded from *wearable* bodies). Vocabulary mirrors the driver's:
+    // each package's def id plus its folder name when they differ.
+    const std::vector<std::string> pkgIds = {"cthulhu_avatar", "cultist_hooded",
+                                             "echo_of_the_void", "hypnos"};
+    CHECK(suggestCommand("cthulu_avatar", pkgIds) == "cthulhu_avatar");
+    CHECK(suggestCommand("cultist_hooed", pkgIds) == "cultist_hooded");
+    CHECK(suggestCommand("echo_of_the_voi", pkgIds) == "echo_of_the_void");
+    CHECK(suggestCommand("hypno", pkgIds) == "hypnos");
+    CHECK(suggestCommand("civilian_villager", pkgIds) ==
+          "");  // not in this vocabulary: too far to guess
+    CHECK(suggestCommand("xyzzy", pkgIds) == "");  // too far: no guess
 
     // Belief typo forgiveness for the free-roam `belief` command: the
     // suggestion vocabulary is the 12 canonical belief names (lowercased,

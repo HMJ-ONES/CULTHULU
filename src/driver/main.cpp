@@ -2647,8 +2647,23 @@ static bool processLine(BetaGame& g, NetSession& nets,
                         break;
                     }
                 if (!found) {
-                    std::cout << "no package '" << id << "'\n"
-                              << "hint: drop a folder in "
+                    std::cout << "no package '" << id << "'";
+                    // Micro-dev: forgive a typo the same way `character
+                    // select <typo>` does — suggest the closest known
+                    // package id/folder. Unlike `character select`, the
+                    // vocabulary covers ALL packages (NPC ones included —
+                    // they get deep-validated too, they're just not
+                    // wearable bodies).
+                    std::vector<std::string> pkgIds;
+                    for (const auto& p : g.charLoader.packages()) {
+                        pkgIds.push_back(p.def.id);
+                        if (p.folderName != p.def.id)
+                            pkgIds.push_back(p.folderName);
+                    }
+                    const std::string sug = suggestCommand(id, pkgIds);
+                    if (!sug.empty())
+                        std::cout << " Did you mean '" << sug << "'?";
+                    std::cout << "\nhint: drop a folder in "
                                  "assets/characters/<name>/ with a "
                                  "character.def, then 'addchar <folder>'\n";
                     return true;
