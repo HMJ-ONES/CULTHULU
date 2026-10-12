@@ -702,9 +702,17 @@ void Match::printStatus(std::ostream& os) const {
     auto rows = stats_.rows();
     for (size_t i = 0; i < players_.size() && i < rows.size(); ++i) {
         const Player& pl = players_[i];
-        os << "    " << pl.name << " t" << pl.team
-           << (pl.alive ? "" : " DEAD") << " "
-           << rows[i].kills << "/" << rows[i].deaths << "/"
+        os << "    " << pl.name << " t" << pl.team;
+        if (pl.alive) {
+            os << " ";
+        } else {
+            // Micro-dev: dead players respawn on a timer — show the countdown
+            // in the row ("DEAD (respawn 4s)") so the wait is visible at a
+            // glance without typing anything else.
+            os << " DEAD (respawn "
+               << static_cast<int>(pl.respawnTimer + 0.999) << "s) ";
+        }
+        os << rows[i].kills << "/" << rows[i].deaths << "/"
            << rows[i].assists;
         // Convenience pass: HP at a glance — matches deal damage, so the
         // bar belongs in the roster row.

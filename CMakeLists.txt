@@ -247,4 +247,9 @@ target_link_libraries(cultulhu_tests_wave45 PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_wave45 COMMAND cultulhu_tests_wave45)
 set_tests_properties(cultulhu_tests_wave45 PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_respawn tests/tests_micro_respawn.cpp)
+target_link_libraries(cultulhu_tests_micro_respawn PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_respawn COMMAND cultulhu_tests_micro_respawn)
+set_tests_properties(cultulhu_tests_micro_respawn PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME cultulhu_fuzz_smoke COMMAND cultulhu_fuzz all 2000 42)
