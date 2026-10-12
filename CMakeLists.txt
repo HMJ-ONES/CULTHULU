@@ -227,4 +227,9 @@ set_tests_properties(cultulhu_tests_wave40 PROPERTIES
 add_test(NAME cultulhu_tests_wave42 COMMAND cultulhu_tests_wave42)
 set_tests_properties(cultulhu_tests_wave42 PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_wave43 tests/tests_wave43.cpp)
+target_link_libraries(cultulhu_tests_wave43 PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_wave43 COMMAND cultulhu_tests_wave43)
+set_tests_properties(cultulhu_tests_wave43 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME cultulhu_fuzz_smoke COMMAND cultulhu_fuzz all 2000 42)
