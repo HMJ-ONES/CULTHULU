@@ -372,6 +372,26 @@ struct BetaGame {
             std::cout << "*** FIRST BLOOD — " << ks << " struck down " << vs
                       << " ***\n";
         });
+        // Micro-dev (2026-10-12): every death gets an arena callout — the
+        // match log recorded the KILL line, but a player watching the
+        // console never saw who went down until their respawn line. Name
+        // the slaying; the human's fighter is matched by humanMatchId so
+        // the personal case reads "You were slain by ...". FirstBlood
+        // keeps the opening ceremony; this is the death receipt.
+        bus.subscribe(EventType::PlayerKilled, [this](const GameEvent& e) {
+            const Match::Player* k =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            const Match::Player* v =
+                match ? match->findPlayer(e.targetId) : nullptr;
+            const std::string ks = k ? k->name : "the minions";
+            if (v && v->id == humanMatchId)
+                std::cout << "*** You were slain by " << ks << " ***\n";
+            else {
+                const std::string vs = v ? v->name : "an unfortunate soul";
+                std::cout << "*** " << vs << " was slain by " << ks
+                          << " ***\n";
+            }
+        });
         // Micro-dev (2026-10-12): the dead used to come back silently —
         // the respawn countdown row just cleared. Name the return so a
         // dead player watching the console knows they're back in the
