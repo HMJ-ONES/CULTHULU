@@ -529,6 +529,34 @@ void Match::updateBotAbilities(Player& p, size_t idx, double dt) {
         return;
     }
 
+    // Micro-dev (2026-10-12): self-preservation. A kit-holding bot below
+    // 35% HP backs off from the nearest enemy instead of brawling to
+    // death — this buys time for heal/shield cooldowns (fired by the
+    // self-cast block below) and for teammates to arrive. The bot moves
+    // and faces away, which also keeps its directional melee swing silent
+    // while fleeing (attackNearestEnemy needs the frontal 60° cone).
+    // Kit-less bots are test props that stand their ground. Domination
+    // only: the same MOBA-pacing caution as the proactive self-cast block
+    // below — DOTGOO bots keep their lane behavior until the owner
+    // re-tunes them deliberately. Runs before the self-cast block so a
+    // ready heal can't eat the retreat tick; castMatchSpell never touches
+    // facingYaw, so the away-facing survives.
+    const CharacterDef* botKit = kitOf(p);
+    bool retreating = false;
+    if (botKit && modeName_ == "capture" && p.hp < p.maxHp * 0.35f) {
+        const int threat = enemyInCone(p, idx, 30.0f, 180.0f);
+        if (threat >= 0) {
+            const Player& foeT = players_[static_cast<size_t>(threat)];
+            p.facingYaw = yawTo(foeT.pos, p.pos); // face away
+            const float spd =
+                (p.slowTimer > 0.0) ? kPlayerSpeed * 0.5f : kPlayerSpeed;
+            const float stepLen = spd * static_cast<float>(dt);
+            p.pos.x += std::cos(p.facingYaw) * stepLen;
+            p.pos.z += std::sin(p.facingYaw) * stepLen;
+            retreating = true;
+        }
+    }
+
     // Micro-dev (2026-10-12): self-targeted kinds need no enemy. A bot
     // standing around with a summon/shield/buff/heal off cooldown used to
     // hold it forever (the proximity gate below), so summoners never
@@ -538,7 +566,6 @@ void Match::updateBotAbilities(Player& p, size_t idx, double dt) {
     // through the whole 20-minute pacing (seed-99 guardrail in
     // tests_wave21), so MOBA bot behavior stays exactly as it was until
     // the owner re-tunes it deliberately.
-    const CharacterDef* botKit = kitOf(p);
     if (botKit && modeName_ == "capture") {
         for (int slot = 0; slot < 3; ++slot) {
             double& cd = (slot == 0) ? p.qCd : (slot == 1) ? p.fCd : p.rCd;
@@ -554,6 +581,8 @@ void Match::updateBotAbilities(Player& p, size_t idx, double dt) {
             if (castMatchSpell(idx, slot)) return;
         }
     }
+
+    if (retreating) return; // fled this tick: don't turn back to fight
 
     // Face the nearest enemy — all attacks are directional now.
     int nearest = enemyInCone(p, idx, 40.0f, 180.0f); // 180° = any direction

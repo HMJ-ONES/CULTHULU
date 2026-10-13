@@ -293,3 +293,8 @@ target_link_libraries(cultulhu_tests_micro_deathcallout PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_deathcallout COMMAND cultulhu_tests_micro_deathcallout)
 set_tests_properties(cultulhu_tests_micro_deathcallout PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_botretreat tests/tests_micro_botretreat.cpp)
+target_link_libraries(cultulhu_tests_micro_botretreat PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_botretreat COMMAND cultulhu_tests_micro_botretreat)
+set_tests_properties(cultulhu_tests_micro_botretreat PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
