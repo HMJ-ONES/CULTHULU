@@ -554,6 +554,12 @@ struct BetaGame {
         // GreatOldOneSlain (sourceId = killer, faction = losing team) is the
         // dramatic beat; name it, with the urgent read for the defending
         // player's team.
+        // Micro-dev (2026-10-13): godslayer credit in second person — the
+        // console reported the GOO's fall in third person even when the
+        // joined human struck the killing blow. The human's own godslaying
+        // now reads "You slew team N's Great Old One!"; the sourceId ==
+        // humanMatchId gate (nonzero-guarded like the kill/streak/firstblood
+        // callouts) keeps minion kills third-person ("the minions").
         bus.subscribe(EventType::GreatOldOneSlain, [this](const GameEvent& e) {
             const Match::Player* h = (match && humanMatchId != 0)
                                          ? match->findPlayer(humanMatchId)
@@ -564,6 +570,9 @@ struct BetaGame {
             const std::string ks = k ? k->name : "the minions";
             if (e.faction == humanTeam)
                 std::cout << "*** YOUR GREAT OLD ONE HAS FALLEN! ***\n";
+            else if (humanMatchId != 0 && e.sourceId == humanMatchId)
+                std::cout << "*** You slew team " << e.faction
+                          << "'s Great Old One! ***\n";
             else
                 std::cout << "*** Team " << e.faction
                           << "'s Great Old One falls to " << ks << "! ***\n";
