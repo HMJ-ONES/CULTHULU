@@ -279,6 +279,9 @@ static void testFxForEvent() {
     CHECK(fxForEvent(EventType::PlayerRespawned, r.library) == buff);
     CHECK(fxForEvent(EventType::DiscoveryMade, r.library) == buff);
     CHECK(fxForEvent(EventType::DungeonCompleted, r.library) == buff);
+    // Micro-dev (2026-10-12): UltCharged shipped after the sweep —
+    // folded in here per the 19:12 note, reusing the buff preset.
+    CHECK(fxForEvent(EventType::UltCharged, r.library) == buff);
     CHECK(fxForEvent(EventType::GreatOldOneSlain, r.library) == raze);
     // Quiet background events stay unmapped (still text-only / silent).
     CHECK(fxForEvent(EventType::CombatStarted, r.library) == nullptr);

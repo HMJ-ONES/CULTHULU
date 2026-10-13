@@ -283,8 +283,12 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::PlayerRespawned:
         case EventType::DiscoveryMade:
         case EventType::DungeonCompleted:
+        case EventType::UltCharged:
             // The golden halo of triumph and return: captures, records,
-            // match point, respawns, first discoveries, dungeon clears.
+            // match point, respawns, first discoveries, dungeon clears —
+            // and the ult-ready ping. Micro-dev (2026-10-12): UltCharged
+            // shipped after the 5 PM sweep; folded in here per its note,
+            // reusing buff so no new preset is needed.
             return lib.find("buff");
         default:
             return nullptr;
