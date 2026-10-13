@@ -107,8 +107,12 @@ inline constexpr const char* kRockHurlTag = "Hurl the Mountain";
 // Resolve the preset for a non-spell, event-driven visual: destruction
 // events (a building, district, or city falling) resolve to the "raze"
 // preset, so the engine plays collapse visuals through the same particle
-// pipeline as the kit presets. Returns nullptr for events with no
-// mapped visual.
+// pipeline as the kit presets. Since the 2026-10-12 5 PM beauty pass,
+// the same table also covers the announced match punctuation marks —
+// streaks, kills, relics, captures, triumphs — semantically mapped to
+// existing presets (stun, aoe_damage, summon, fear_aura, buff, raze);
+// no new presets, no payload change. Returns nullptr for events with
+// no mapped visual.
 const FxPreset* fxForEvent(EventType type, const FxLibrary& lib);
 
 // Wave 43: event-object overload. Destruction events resolve through

@@ -234,7 +234,9 @@ static void testCatalogParseErrors() {
 }
 
 // Event-driven (non-spell) FX: destruction events resolve to the
-// `raze` preset; everything else has no mapped visual.
+// `raze` preset, and the announced match punctuation marks (streaks,
+// kills, relics, captures, triumphs) resolve to the semantically
+// nearest existing preset. Quiet background events stay unmapped.
 static void testFxForEvent() {
     FxLoadResult r =
         loadFxLibrary(repoPrefix() + "assets/fx/ability_fx.def");
@@ -248,8 +250,40 @@ static void testFxForEvent() {
     }
     CHECK(fxForEvent(EventType::CityDestroyed, r.library) == raze);
     CHECK(fxForEvent(EventType::CityBuildingDestroyed, r.library) == raze);
-    CHECK(fxForEvent(EventType::DiscoveryMade, r.library) == nullptr);
-    CHECK(fxForEvent(EventType::AchievementUnlocked, r.library) == nullptr);
+
+    // 5 PM beauty (2026-10-12): the announced-events FX sweep — the
+    // game's punctuation marks now resolve to existing presets instead
+    // of nullptr. No new FX assets; the budget test below still guards
+    // the catalog size.
+    const FxPreset* stun = r.library.find("stun");
+    const FxPreset* aoe = r.library.find("aoe_damage");
+    const FxPreset* summon = r.library.find("summon");
+    const FxPreset* aura = r.library.find("fear_aura");
+    const FxPreset* buff = r.library.find("buff");
+    CHECK(stun != nullptr);
+    CHECK(aoe != nullptr);
+    CHECK(summon != nullptr);
+    CHECK(aura != nullptr);
+    CHECK(buff != nullptr);
+    CHECK(fxForEvent(EventType::KillStreak, r.library) == stun);
+    CHECK(fxForEvent(EventType::OvertimeStarted, r.library) == stun);
+    CHECK(fxForEvent(EventType::FirstBlood, r.library) == aoe);
+    CHECK(fxForEvent(EventType::PlayerKilled, r.library) == aoe);
+    CHECK(fxForEvent(EventType::DholeAmbush, r.library) == aoe);
+    CHECK(fxForEvent(EventType::RelicManifested, r.library) == summon);
+    CHECK(fxForEvent(EventType::RelicClaimed, r.library) == summon);
+    CHECK(fxForEvent(EventType::MaddeningWhispers, r.library) == aura);
+    CHECK(fxForEvent(EventType::PointCaptured, r.library) == buff);
+    CHECK(fxForEvent(EventType::AchievementUnlocked, r.library) == buff);
+    CHECK(fxForEvent(EventType::MatchPoint, r.library) == buff);
+    CHECK(fxForEvent(EventType::PlayerRespawned, r.library) == buff);
+    CHECK(fxForEvent(EventType::DiscoveryMade, r.library) == buff);
+    CHECK(fxForEvent(EventType::DungeonCompleted, r.library) == buff);
+    CHECK(fxForEvent(EventType::GreatOldOneSlain, r.library) == raze);
+    // Quiet background events stay unmapped (still text-only / silent).
+    CHECK(fxForEvent(EventType::CombatStarted, r.library) == nullptr);
+    CHECK(fxForEvent(EventType::SuppliesGathered, r.library) == nullptr);
+    CHECK(fxForEvent(EventType::BuildProgress, r.library) == nullptr);
 }
 
 // Wave 43: RMB heavy attacks resolve to presets (kind default, with
@@ -338,7 +372,7 @@ static void testHeavyAttackFx() {
     const FxPreset* raze = fxForEvent(razed, fr.library);
     CHECK(raze != nullptr);
     if (raze) CHECK(raze->id == "raze");
-    GameEvent other(EventType::DiscoveryMade);
+    GameEvent other(EventType::CombatStarted);
     CHECK(fxForEvent(other, fr.library) == nullptr);
 
     // Every playable character's RMB resolves to a preset.

@@ -1,10 +1,16 @@
 # CULT-ULHU ability visual-effect library (wave 36).
 #
-# One preset per ability effect kind (see the FX vocabulary below), plus
-# event-driven presets that no spell uses: `raze` fires on destruction
-# events (CityBuildingDestroyed / DistrictRazed / CityDestroyed) through
-# fxForEvent(), so the engine plays real collapse visuals through the
-# same particle pipeline when the avatar razes the world. A spell with no
+# Event-driven presets: fxForEvent() maps non-spell game events onto this
+# same catalog so the engine plays real visuals through the same particle
+# pipeline. Destruction events (CityBuildingDestroyed / DistrictRazed /
+# CityDestroyed / TowerDestroyed / GreatOldOneSlain) resolve to `raze`;
+# streak and sudden-death punctuation (KillStreak / OvertimeStarted) to
+# `stun`; raw violence (FirstBlood / PlayerKilled / DholeAmbush) to
+# `aoe_damage`; relic moments (RelicManifested / RelicClaimed) to
+# `summon`; MaddeningWhispers to `fear_aura`; triumphs and returns
+# (PointCaptured / AchievementUnlocked / MatchPoint / PlayerRespawned /
+# DiscoveryMade / DungeonCompleted) to `buff`. No new presets were added
+# for events — all within the low-spec particle budget. A spell with no
 # explicit `fx` line in character.def automatically uses the preset whose
 # id matches its effect kind, so all 60 Q/F/R abilities across the 20
 # kits get visuals for free. Character authors can override with

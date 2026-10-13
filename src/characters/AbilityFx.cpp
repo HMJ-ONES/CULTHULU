@@ -245,6 +245,43 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // Micro-dev (2026-10-12): a fallen tower is a razed structure —
             // reuse the raze preset, no new FX asset needed.
             return lib.find("raze");
+        case EventType::GreatOldOneSlain:
+            // 5 PM beauty (2026-10-12): a god falling is as heavy as a
+            // city — the heaviest burst in the catalog. No new preset.
+            return lib.find("raze");
+        // 5 PM beauty (2026-10-12): the announced-events FX sweep. These
+        // are the game's punctuation marks — kills, streaks, streak-
+        // breakers, manifestations, captures, triumphs — and they were
+        // text-only. All reuse existing presets, so the particle payload
+        // and budget are untouched; the engine just gets a visual cue to
+        // play for the same events the console announces.
+        case EventType::KillStreak:
+        case EventType::OvertimeStarted:
+            // A sharp burst for the match's punctuation moments:
+            // DOUBLE KILL / RAMPAGE and the sudden-death jolt.
+            return lib.find("stun");
+        case EventType::FirstBlood:
+        case EventType::PlayerKilled:
+        case EventType::DholeAmbush:
+            // Raw violence — impact smoke at the scene of the death.
+            return lib.find("aoe_damage");
+        case EventType::RelicManifested:
+        case EventType::RelicClaimed:
+            // A rift opens as the relic manifests / is seized.
+            return lib.find("summon");
+        case EventType::MaddeningWhispers:
+            // Dread mist rolling through the Vale — the fear_aura preset
+            // was practically authored for this event.
+            return lib.find("fear_aura");
+        case EventType::PointCaptured:
+        case EventType::AchievementUnlocked:
+        case EventType::MatchPoint:
+        case EventType::PlayerRespawned:
+        case EventType::DiscoveryMade:
+        case EventType::DungeonCompleted:
+            // The golden halo of triumph and return: captures, records,
+            // match point, respawns, first discoveries, dungeon clears.
+            return lib.find("buff");
         default:
             return nullptr;
     }
