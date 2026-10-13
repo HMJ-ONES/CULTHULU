@@ -348,3 +348,8 @@ target_link_libraries(cultulhu_tests_micro_matchsurvey PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_matchsurvey COMMAND cultulhu_tests_micro_matchsurvey)
 set_tests_properties(cultulhu_tests_micro_matchsurvey PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_pointcapture tests/tests_micro_pointcapture.cpp)
+target_link_libraries(cultulhu_tests_micro_pointcapture PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_pointcapture COMMAND cultulhu_tests_micro_pointcapture)
+set_tests_properties(cultulhu_tests_micro_pointcapture PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

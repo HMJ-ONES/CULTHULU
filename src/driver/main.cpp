@@ -372,6 +372,20 @@ struct BetaGame {
             std::cout << "*** FIRST BLOOD — " << ks << " struck down " << vs
                       << " ***\n";
         });
+        // Micro-dev (2026-10-12): seizing the point used to arrive silently
+        // on the console — the score ticked up but a player watching the
+        // match never saw their team take it. Name the taker; the personal
+        // case reads "YOUR TEAM seizes the point!".
+        bus.subscribe(EventType::PointCaptured, [this](const GameEvent& e) {
+            const Match::Player* h = (match && humanMatchId != 0)
+                                         ? match->findPlayer(humanMatchId)
+                                         : nullptr;
+            if (h && h->team == e.faction)
+                std::cout << "*** YOUR TEAM seizes the point! ***\n";
+            else
+                std::cout << "*** team " << e.faction
+                          << " seizes the point! ***\n";
+        });
         // Micro-dev (2026-10-12): every death gets an arena callout — the
         // match log recorded the KILL line, but a player watching the
         // console never saw who went down until their respawn line. Name

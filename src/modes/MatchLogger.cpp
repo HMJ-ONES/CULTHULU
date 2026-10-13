@@ -90,6 +90,16 @@ void MatchLogger::attach(Match& match) {
             events_.push_back({match.elapsed(), "KILL", line});
         });
 
+    // Micro-dev (2026-10-12): point captures left no trace in the exported
+    // story — the score moved with no record of who seized it. One line
+    // per capture keeps the story honest.
+    sub(EventType::PointCaptured,
+        [this, &match](const GameEvent& e) {
+            events_.push_back({match.elapsed(), "CAPTURE",
+                               "CAPTURE t" + std::to_string(e.faction) +
+                                   " seized the point"});
+        });
+
     // Micro-dev (2026-10-12): first blood is the match's opening beat —
     // the exported story should carry it, not just the KILL line.
     sub(EventType::FirstBlood,

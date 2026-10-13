@@ -8,7 +8,7 @@
 // 1. EventBus: subscribe() returns a handle; unsubscribe() removes exactly
 //    that handler (unknown/zero ids are no-ops).
 // 2. MatchLogger: attach() twice never accumulates handlers; detach()
-//    removes all 13; publishing after detach records nothing (the old code
+//    removes all 14; publishing after detach records nothing (the old code
 //    double-logged every event of a second `match` in one session and
 //    called match.findPlayer()/elapsed() on the destroyed Match).
 // 3. Match: destroying a Match removes its constructor-time RelicClaimed
