@@ -720,6 +720,13 @@ struct BetaGame {
                 : (e.tag == "moba")                            ? "DOTGOO"
                                                               : e.tag;
             std::string score;
+            // Micro-dev (2026-10-13): the joined human's team, for the
+            // second-person win/loss read below (same gate pattern as the
+            // PointCaptured and GreatOldOneUnderAttack callouts).
+            const Match::Player* h = (match && humanMatchId != 0)
+                                         ? match->findPlayer(humanMatchId)
+                                         : nullptr;
+            const int humanTeam = h ? h->team : -1;
             if (match) {
                 if (e.tag == "capture" && match->capture())
                     score = " (" +
@@ -739,8 +746,22 @@ struct BetaGame {
                             ")";
             }
             if (e.faction >= 0) {
-                std::cout << "*** VICTORY — team " << e.faction << " wins the "
-                          << modeName << " match!" << score << " ***\n";
+                // Micro-dev (2026-10-13): the match's ending moment in
+                // second person — the game's final loudest beat. A joined
+                // human whose team takes the match hears "YOUR TEAM wins";
+                // a loss reads "DEFEAT". No human joined, or a draw:
+                // unchanged.
+                if (humanTeam >= 0 && humanTeam == e.faction)
+                    std::cout << "*** VICTORY — YOUR TEAM wins the "
+                              << modeName << " match!" << score << " ***\n";
+                else if (humanTeam >= 0)
+                    std::cout << "*** DEFEAT — team " << e.faction
+                              << " takes the " << modeName << " match."
+                              << score << " ***\n";
+                else
+                    std::cout << "*** VICTORY — team " << e.faction
+                              << " wins the " << modeName << " match!"
+                              << score << " ***\n";
             } else {
                 std::cout << "*** DRAW — the " << modeName
                           << " match ends in a draw." << score << " ***\n";

@@ -443,3 +443,8 @@ target_link_libraries(cultulhu_tests_micro_levelgate_you PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_levelgate_you COMMAND cultulhu_tests_micro_levelgate_you)
 set_tests_properties(cultulhu_tests_micro_levelgate_you PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_matchend_you tests/tests_micro_matchend_you.cpp)
+target_link_libraries(cultulhu_tests_micro_matchend_you PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_matchend_you COMMAND cultulhu_tests_micro_matchend_you)
+set_tests_properties(cultulhu_tests_micro_matchend_you PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
