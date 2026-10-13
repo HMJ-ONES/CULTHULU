@@ -273,10 +273,15 @@ static void testFxForEvent() {
     CHECK(fxForEvent(EventType::DholeAmbush, r.library) == aoe);
     CHECK(fxForEvent(EventType::RelicManifested, r.library) == summon);
     CHECK(fxForEvent(EventType::RelicClaimed, r.library) == summon);
+    // Micro-dev (2026-10-13): the match's own bookends get visuals —
+    // the opening beat resolves like a manifestation, the end like a
+    // triumph. No new presets; both events already exist and publish.
+    CHECK(fxForEvent(EventType::MatchStarted, r.library) == summon);
     CHECK(fxForEvent(EventType::MaddeningWhispers, r.library) == aura);
     CHECK(fxForEvent(EventType::PointCaptured, r.library) == buff);
     CHECK(fxForEvent(EventType::AchievementUnlocked, r.library) == buff);
     CHECK(fxForEvent(EventType::MatchPoint, r.library) == buff);
+    CHECK(fxForEvent(EventType::MatchEnded, r.library) == buff);
     CHECK(fxForEvent(EventType::PlayerRespawned, r.library) == buff);
     CHECK(fxForEvent(EventType::DiscoveryMade, r.library) == buff);
     CHECK(fxForEvent(EventType::DungeonCompleted, r.library) == buff);

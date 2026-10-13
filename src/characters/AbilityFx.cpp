@@ -284,7 +284,11 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             return lib.find("aoe_damage");
         case EventType::RelicManifested:
         case EventType::RelicClaimed:
-            // A rift opens as the relic manifests / is seized.
+        case EventType::MatchStarted:
+            // A rift opens as the relic manifests / is seized — and as
+            // the arena itself opens. Micro-dev (2026-10-13): the
+            // match's opening beat had no visual; it reads as a
+            // manifestation, same preset class, no new asset.
             return lib.find("summon");
         case EventType::MaddeningWhispers:
             // Dread mist rolling through the Vale — the fear_aura preset
@@ -307,14 +311,16 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::PointCaptured:
         case EventType::AchievementUnlocked:
         case EventType::MatchPoint:
+        case EventType::MatchEnded:
         case EventType::PlayerRespawned:
         case EventType::DiscoveryMade:
         case EventType::DungeonCompleted:
         case EventType::UltCharged:
         case EventType::RelicChannelStarted:
             // The golden halo of triumph and return: captures, records,
-            // match point, respawns, first discoveries, dungeon clears —
-            // and the ult-ready ping. Micro-dev (2026-10-12): UltCharged
+            // match point, the match's own end, respawns, first
+            // discoveries, dungeon clears — and the ult-ready ping.
+            // Micro-dev (2026-10-12): UltCharged
             // shipped after the 5 PM sweep; folded in here per its note,
             // reusing buff so no new preset is needed.
             //
