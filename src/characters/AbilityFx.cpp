@@ -264,9 +264,12 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         // and budget are untouched; the engine just gets a visual cue to
         // play for the same events the console announces.
         case EventType::KillStreak:
+        case EventType::StreakEnded:
         case EventType::OvertimeStarted:
             // A sharp burst for the match's punctuation moments:
-            // DOUBLE KILL / RAMPAGE and the sudden-death jolt.
+            // DOUBLE KILL / RAMPAGE, the shutdown callout, and the
+            // sudden-death jolt. Micro-dev (2026-10-12): StreakEnded
+            // shipped text-only; folded into the stun group.
             return lib.find("stun");
         case EventType::FirstBlood:
         case EventType::PlayerKilled:

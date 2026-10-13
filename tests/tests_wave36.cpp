@@ -266,6 +266,7 @@ static void testFxForEvent() {
     CHECK(aura != nullptr);
     CHECK(buff != nullptr);
     CHECK(fxForEvent(EventType::KillStreak, r.library) == stun);
+    CHECK(fxForEvent(EventType::StreakEnded, r.library) == stun);
     CHECK(fxForEvent(EventType::OvertimeStarted, r.library) == stun);
     CHECK(fxForEvent(EventType::FirstBlood, r.library) == aoe);
     CHECK(fxForEvent(EventType::PlayerKilled, r.library) == aoe);
