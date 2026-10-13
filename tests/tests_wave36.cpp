@@ -282,6 +282,10 @@ static void testFxForEvent() {
     // victims, and razed-city casualties were the last death beats
     // with no visual.
     CHECK(fxForEvent(EventType::CivilianSlain, r.library) == aoe);
+    // Micro-dev (2026-10-13): a feral birth's rampage gets the same
+    // impact burst as the death beats — the beast tearing loose at
+    // the breeding pit had no engine visual.
+    CHECK(fxForEvent(EventType::FeralRampage, r.library) == aoe);
     CHECK(fxForEvent(EventType::RelicManifested, r.library) == summon);
     CHECK(fxForEvent(EventType::RelicClaimed, r.library) == summon);
     // Micro-dev (2026-10-13): a champion answering the GrandSummoning
@@ -295,6 +299,10 @@ static void testFxForEvent() {
     // the opening beat resolves like a manifestation, the end like a
     // triumph. No new presets; both events already exist and publish.
     CHECK(fxForEvent(EventType::MatchStarted, r.library) == summon);
+    // Micro-dev (2026-10-13): a bred monstrosity resolves like a
+    // manifestation at the breeding pit — births were the last
+    // announced arrival-class beat with no visual.
+    CHECK(fxForEvent(EventType::MonstrosityBred, r.library) == summon);
     CHECK(fxForEvent(EventType::MaddeningWhispers, r.library) == aura);
     CHECK(fxForEvent(EventType::PointCaptured, r.library) == buff);
     CHECK(fxForEvent(EventType::AchievementUnlocked, r.library) == buff);

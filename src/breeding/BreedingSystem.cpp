@@ -49,6 +49,7 @@ std::unique_ptr<Monstrosity> BreedingSystem::breed(Species a, Species b,
     bred.sourceId = m->id();
     bred.faction = faction;
     bred.tag = finalName;
+    bred.pos = pos;
     bus_.publish(bred);
 
     if (feral) {

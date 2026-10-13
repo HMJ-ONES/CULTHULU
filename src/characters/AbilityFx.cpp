@@ -299,6 +299,7 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::DholeAmbush:
         case EventType::MonstrositySlain:
         case EventType::CivilianSlain:
+        case EventType::FeralRampage:
             // Raw violence — impact smoke at the scene of the death.
             // Micro-dev (2026-10-13): a slain monstrosity joins the
             // death beats — same impact burst, no new preset.
@@ -308,12 +309,18 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // Domination victims, and razed-city casualties resolved to
             // nullptr while fighter and monstrosity deaths had impact
             // smoke. Same burst, no new preset.
+            //
+            // Micro-dev (2026-10-13): a feral birth's rampage joins the
+            // violence class too — the beast tearing loose at the
+            // breeding pit gets the same impact burst, and the publish
+            // site already stamps pos. No new preset.
             return lib.find("aoe_damage");
         case EventType::RelicManifested:
         case EventType::RelicClaimed:
         case EventType::MatchStarted:
         case EventType::ChampionSummoned:
         case EventType::SacrificeCompleted:
+        case EventType::MonstrosityBred:
             // A rift opens as the relic manifests / is seized — and as
             // the arena itself opens. Micro-dev (2026-10-13): the
             // match's opening beat had no visual; it reads as a
@@ -328,6 +335,12 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // to nullptr until now. The offering passes through a rift
             // opening at the altar, so it reads as a manifestation, the
             // arrival class — not the golden triumph halo.
+            //
+            // Micro-dev (2026-10-13): a bred monstrosity joins the
+            // arrival class — a birth at the breeding pit reads as a
+            // manifestation, and the publish site now stamps pos so the
+            // rift opens there instead of the world origin. No new
+            // preset.
             return lib.find("summon");
         // Micro-dev (2026-10-13): the Wave of Domination's lifecycle
         // beats were FX-less — in DOTGOO, Cthulhu's signature RMB
