@@ -243,6 +243,29 @@ void MatchLogger::attach(Match& match) {
                      std::to_string(s) + ")"});
         });
 
+    // Micro-dev (2026-10-12): a shutdown deserves the same export treatment
+    // as the streaks themselves — the GitHub story gets an ending for the
+    // streak, not just the streak.
+    sub(EventType::StreakEnded,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* k = match.findPlayer(e.sourceId);
+            const Match::Player* v = match.findPlayer(e.targetId);
+            std::string ks = k ? (k->name + "<" + shortKit(k->kitId) + ">t" +
+                                  std::to_string(k->team))
+                               : (e.tag.empty() ? "the minions" : e.tag);
+            std::string vs = v ? (v->name + "<" + shortKit(v->kitId) + ">t" +
+                                  std::to_string(v->team))
+                               : std::to_string(e.targetId);
+            const int s = static_cast<int>(e.amount);
+            const char* label = (s == 3)   ? "TRIPLE KILL"
+                                : (s == 4) ? "QUAD KILL"
+                                           : "RAMPAGE";
+            events_.push_back(
+                {match.elapsed(), "SHUTDOWN",
+                 "SHUTDOWN " + ks + " ends " + vs + "'s " + label + " (" +
+                     std::to_string(s) + ")"});
+        });
+
     // Micro-dev (2026-10-12): the match-point callout is the match's
     // climax beat — the exported story should carry it, not just SCORE
     // milestones.

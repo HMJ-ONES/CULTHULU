@@ -574,6 +574,21 @@ void Match::addXp(size_t playerIdx, int amount) {
 
 void Match::killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId) {
     Player& v = players_[victimIdx];
+    // Micro-dev (2026-10-12): a 3+ streak cut short is the shutdown moment —
+    // publish before the streak resets so the arena can call it out.
+    if (v.killStreak >= 3) {
+        const bool byPlayer = killerIdx >= 0;
+        GameEvent se(EventType::StreakEnded);
+        se.sourceId = byPlayer
+            ? players_[static_cast<size_t>(killerIdx)].id
+            : killerEntityId;
+        se.targetId = v.id;
+        se.amount = v.killStreak;
+        if (byPlayer)
+            se.tag = players_[static_cast<size_t>(killerIdx)].name;
+        se.pos = v.pos;
+        bus_.publish(se);
+    }
     v.killStreak = 0; // wave 42: death ends the streak
     // Micro-dev (2026-10-12): first blood — the match's opening death gets
     // an arena callout, whatever (or whoever) lands it. Once per match;

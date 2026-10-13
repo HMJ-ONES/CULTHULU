@@ -359,6 +359,25 @@ struct BetaGame {
             std::cout << "*** " << e.tag << " — " << label << " (" << s
                       << ") ***\n";
         });
+        // Micro-dev (2026-10-12): a 3+ streak being cut short is the
+        // shutdown moment — it deserves a callout just like the streak
+        // announcements do.
+        bus.subscribe(EventType::StreakEnded, [this](const GameEvent& e) {
+            const Match::Player* k =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            const Match::Player* v =
+                match ? match->findPlayer(e.targetId) : nullptr;
+            const std::string ks =
+                k ? k->name
+                  : (e.tag.empty() ? "the minions" : e.tag);
+            const std::string vs = v ? v->name : "an unfortunate soul";
+            const int s = static_cast<int>(e.amount);
+            const char* label = (s == 3)   ? "TRIPLE KILL"
+                                : (s == 4) ? "QUAD KILL"
+                                           : "RAMPAGE";
+            std::cout << "*** " << vs << "'s " << label << " is ended by "
+                      << ks << "! ***\n";
+        });
         // Micro-dev (2026-10-12): the match's first death gets an arena
         // callout — the only kill printed to console besides streaks, so
         // the opening beat never arrives quietly.

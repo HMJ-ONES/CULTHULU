@@ -213,6 +213,14 @@ enum class EventType {
                          // sourceId = killer entity id (a player id, or a
                          // minion/tower id when the killer wasn't a player);
                          // targetId = victim player id
+    StreakEnded,         // micro-dev (2026-10-12): a 3+ kill streak was cut
+                         // short — the classic shutdown moment. Published
+                         // once per qualifying death, before the victim's
+                         // streak resets. sourceId = killer entity id
+                         // (player id, or minion/tower id); targetId =
+                         // victim player id; amount = the ended streak
+                         // count; tag = killer player name (empty when the
+                         // killer wasn't a player)
     PlayerRespawned,     // micro-dev (2026-10-12): a dead player returns —
                          // published when the respawn timer expires and the
                          // player revives (initial spawns at match start or
