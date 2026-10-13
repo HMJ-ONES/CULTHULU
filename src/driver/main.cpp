@@ -645,11 +645,18 @@ struct BetaGame {
             // only; the human's own crossing gets the second-person
             // arena callout (same thread as the kill/streak/shutdown
             // callouts). Guarded on humanMatchId like those.
-            if (humanMatchId != 0 && e.sourceId == humanMatchId && gate)
-                std::cout << "*** You reached level " << lv
-                          << " — INVOCATION TIER " << (lv / 10)
-                          << " unlocked! ***\n";
-            else {
+            // Micro-dev (2026-10-13, later): the human's non-gate level-ups
+            // get the same second-person arena voice — the "[level]" read
+            // is bots-only now, finishing the second-person thread for the
+            // match's progression moments.
+            if (humanMatchId != 0 && e.sourceId == humanMatchId) {
+                if (gate)
+                    std::cout << "*** You reached level " << lv
+                              << " — INVOCATION TIER " << (lv / 10)
+                              << " unlocked! ***\n";
+                else
+                    std::cout << "*** You reached level " << lv << " ***\n";
+            } else {
                 std::cout << "[level] " << e.tag << " reached level " << lv;
                 if (gate)
                     std::cout << " — invocation tier "
