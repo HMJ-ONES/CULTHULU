@@ -345,6 +345,10 @@ const FxPreset* fxForEvent(const GameEvent& e, const FxLibrary& lib) {
         // resolve through fxForHeavyAttack with the caster's kit.
         if (e.tag == kRockRipTag) return lib.find("rock_rip");
         if (e.tag == kRockHurlTag) return lib.find("rock_hurl");
+        // Micro-dev (2026-10-13): the exact swing tag goes before the
+        // break-prose substring test — "rock swing" mentions rock, and
+        // a swing is a cleave, not a shatter.
+        if (e.tag == kRockSwingTag) return lib.find("MeleeHeavy");
         if (tagMentionsRock(e.tag)) return lib.find("rock_shatter");
         return nullptr;
     }

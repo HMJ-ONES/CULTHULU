@@ -386,6 +386,15 @@ static void testHeavyAttackFx() {
     CHECK(sh2 != nullptr);
     if (sh2) CHECK(sh2->id == "rock_shatter");
 
+    // Micro-dev (2026-10-13): a landed rock swing that leaves the rock
+    // intact publishes kRockSwingTag and resolves to the MeleeHeavy
+    // preset — a heavy frontal cleave. The exact tag is checked before
+    // the break-prose substring test, so it must NOT land on
+    // rock_shatter.
+    const FxPreset* sw = fxForEvent(rockEvent(kRockSwingTag), fr.library);
+    CHECK(sw != nullptr);
+    if (sw) CHECK(sw->id == "MeleeHeavy");
+
     // Ordinary RMB casts are NOT rock events: the event overload
     // returns nullptr and the caller falls back to fxForHeavyAttack.
     CHECK(fxForEvent(rockEvent("Dominate Mind"), fr.library) == nullptr);

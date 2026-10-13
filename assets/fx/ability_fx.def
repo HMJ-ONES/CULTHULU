@@ -286,7 +286,9 @@ loop = false
 # AbilityCast events (slot 3) whose tags fxForEvent() maps here —
 # "Sunder the Earth" -> rock_rip, "Hurl the Mountain" -> rock_hurl,
 # and any rock break prose ("the rock shatters", "the rock crumbles
-# to dust") -> rock_shatter.
+# to dust") -> rock_shatter. A landed rock swing that leaves the rock
+# intact publishes "rock swing" and resolves to the MeleeHeavy preset
+# (micro-dev 2026-10-13) — it is a heavy frontal cleave, kind and all.
 
 [rock_rip]
 display_name = Sunder the Earth

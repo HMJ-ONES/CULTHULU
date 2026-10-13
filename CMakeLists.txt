@@ -493,3 +493,8 @@ target_link_libraries(cultulhu_tests_micro_oneshotblend PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_oneshotblend COMMAND cultulhu_tests_micro_oneshotblend)
 set_tests_properties(cultulhu_tests_micro_oneshotblend PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_rockswing tests/tests_micro_rockswing.cpp)
+target_link_libraries(cultulhu_tests_micro_rockswing PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_rockswing COMMAND cultulhu_tests_micro_rockswing)
+set_tests_properties(cultulhu_tests_micro_rockswing PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

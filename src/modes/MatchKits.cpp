@@ -493,7 +493,21 @@ bool Match::swingRock(size_t idx) {
     if (!hit) return false;
     p.swingCd = 1.0;
     p.rockDurability -= 1.0f; // one swing = one melee-hit of wear
-    if (p.rockDurability <= 0.0f) breakRock(idx, "the rock crumbles to dust");
+    if (p.rockDurability <= 0.0f) {
+        breakRock(idx, "the rock crumbles to dust");
+    } else {
+        // Micro-dev (2026-10-13): a landed swing is Cthulhu's signature
+        // Domination attack — publish it so the FX pipeline has a hook
+        // (rip/hurl/break all had one; the swing was silent). The
+        // breaking swing is covered by breakRock's event instead, so
+        // one swing never fires two visuals. MatchLogger deliberately
+        // keeps non-landmark RMB casts out of the exported story.
+        GameEvent e(EventType::AbilityCast);
+        e.sourceId = p.id;
+        e.tag = kRockSwingTag;
+        e.amount = 3; // slot 3 = RMB
+        bus_.publish(e);
+    }
     return true;
 }
 

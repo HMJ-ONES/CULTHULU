@@ -103,6 +103,12 @@ const FxPreset* fxForHeavyAttack(const HeavyAttackDef& heavy,
 // publishes these exact constants so the tags cannot drift.
 inline constexpr const char* kRockRipTag = "Sunder the Earth";
 inline constexpr const char* kRockHurlTag = "Hurl the Mountain";
+// Micro-dev (2026-10-13): the rock swing (successful melee hit, rock
+// intact) publishes this tag so the engine has an FX hook for Cthulhu's
+// signature Domination attack — previously rip/hurl/break all resolved
+// and the swing was silent. Resolves to the MeleeHeavy preset: it is a
+// heavy frontal cleave, kind and all.
+inline constexpr const char* kRockSwingTag = "rock swing";
 
 // Resolve the preset for a non-spell, event-driven visual: destruction
 // events (a building, district, or city falling) resolve to the "raze"
@@ -119,7 +125,8 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib);
 // the EventType overload; AbilityCast events in the RMB slot
 // (amount == 3) with a rock tag resolve to the rock_* presets
 // (kRockRipTag -> rock_rip, kRockHurlTag -> rock_hurl, any rock break
-// prose -> rock_shatter). Other AbilityCast events return nullptr —
+// prose -> rock_shatter) and a surviving rock swing (kRockSwingTag)
+// to the MeleeHeavy preset. Other AbilityCast events return nullptr —
 // the caller falls back to fxForHeavyAttack with the caster's kit,
 // which the event alone cannot identify.
 const FxPreset* fxForEvent(const GameEvent& e, const FxLibrary& lib);
