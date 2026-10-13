@@ -3,6 +3,8 @@
 #include "core/Events.h"
 #include "entities/Units.h"
 
+#include <cstdint>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -21,7 +23,14 @@ public:
     CultManager(EventBus& bus, GameClock& clock, RNG& rng);
 
     Cultist& recruit();                 // add a loyal cultist
-    void dismissDead();                 // remove the fallen
+    // Remove the fallen. onErase (optional) fires once per erased cultist
+    // with its id BEFORE the heap object is destroyed — the driver uses it
+    // to untrack the cultist from the AnimationDirector, which holds raw
+    // Entity pointers. Without this, a revolt (which kills and dismisses
+    // inside update(), between director ticks) leaves the director with a
+    // dangling pointer that its next tick() would dereference.
+    void dismissDead(
+        const std::function<void(uint64_t)>& onErase = nullptr);
     // Save/load support: drop the whole roster and cancel any active
     // campaign. Insurrection risk is left untouched (restore it separately).
     void clear();

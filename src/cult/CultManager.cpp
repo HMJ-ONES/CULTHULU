@@ -31,10 +31,14 @@ Cultist& CultManager::recruit() {
     return *cultists_.back();
 }
 
-void CultManager::dismissDead() {
+void CultManager::dismissDead(
+    const std::function<void(uint64_t)>& onErase) {
     for (auto it = cultists_.begin(); it != cultists_.end();) {
-        if (!(*it)->alive()) it = cultists_.erase(it);
-        else ++it;
+        if (!(*it)->alive()) {
+            const uint64_t id = (*it)->id();
+            it = cultists_.erase(it); // heap object destroyed here
+            if (onErase) onErase(id); // id was captured before the erase
+        } else ++it;
     }
 }
 

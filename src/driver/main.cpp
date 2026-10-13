@@ -1240,7 +1240,13 @@ struct BetaGame {
         if (cult.update(1.0)) {
             // revolt handled by narration subscription
         }
-        cult.dismissDead();
+        // Micro-dev (2026-10-13): untrack dismissed cultists from the
+        // animation director as they are erased. A revolt kills and
+        // dismisses inside cult.update() above — between director ticks —
+        // and the director holds raw Entity pointers, so without the
+        // untrack its next tick() would dereference a destroyed cultist.
+        cult.dismissDead(
+            [&](uint64_t id) { animDirector.untrack(id); });
         // Wave 21: advance the active 5v5 match (bots, combat, mode rules).
         // Wave 42: the action logger polls each tick; when the match ends
         // the log is pushed to GitHub (never stored locally).

@@ -498,3 +498,8 @@ target_link_libraries(cultulhu_tests_micro_rockswing PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_rockswing COMMAND cultulhu_tests_micro_rockswing)
 set_tests_properties(cultulhu_tests_micro_rockswing PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_animuntrack tests/tests_micro_animuntrack.cpp)
+target_link_libraries(cultulhu_tests_micro_animuntrack PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_animuntrack COMMAND cultulhu_tests_micro_animuntrack)
+set_tests_properties(cultulhu_tests_micro_animuntrack PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
