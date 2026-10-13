@@ -718,7 +718,12 @@ void Match::printStatus(std::ostream& os, uint64_t humanId) const {
            << " (limit " << static_cast<int>(CapturePointMode::TIME_LIMIT) << "s)\n";
     } else if (moba_) {
         os << " baseHP " << moba_->baseHp(0) << "/" << moba_->baseHp(1)
-           << " minions=" << moba_->minionCount() << "\n";
+           << " minions=" << moba_->minionCount()
+           // Micro-dev: Domination's status line shows its time limit — the
+           // DOTGOO line didn't, so a player couldn't see how close the
+           // 20:00 whistle was. Show it the same way, sourced from the
+           // same constant that ends the match.
+           << " (limit " << static_cast<int>(MobaDefense::TIME_LIMIT) << "s)\n";
         for (size_t l = 0; l < moba_->laneCount(); ++l)
             for (int team = 0; team < 2; ++team) {
                 os << "  lane " << l << " team " << team << " towers:";
