@@ -230,6 +230,12 @@ enum class EventType {
     PointCaptured,       // targetId = point index; faction = capturing team
     GreatOldOneSlain,    // sourceId = killing-blow entity id (0 unknown);
                          // faction = fallen GOO's team
+    GreatOldOneUnderAttack, // micro-dev (2026-10-12): a GOO is taking
+                         // damage — published on the first scratch and
+                         // each 75/50/25% HP crossing; faction = defending
+                         // team; sourceId = attacker id (0 unknown/minion);
+                         // amount = hp fraction 0..1 after the hit;
+                         // pos = base pos
     TowerDestroyed,      // micro-dev (2026-10-12): a DOTGOO tower crumbled —
                          // sourceId = killing-blow entity id (0 when minions
                          // or siege did it); faction = fallen tower's team;

@@ -122,6 +122,22 @@ void MatchLogger::attach(Match& match) {
                      " down << " + ks});
         });
 
+    // Micro-dev (2026-10-12): the GOO taking damage left no trace in the
+    // exported log — the story jumped from lanes pushing to a dead god.
+    match.bus().subscribe(EventType::GreatOldOneUnderAttack,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* a = match.findPlayer(e.sourceId);
+            const std::string as =
+                a ? (a->name + "<" + shortKit(a->kitId) + ">t" +
+                     std::to_string(a->team))
+                  : "minions";
+            const int pct = static_cast<int>(e.amount * 100.0 + 0.5);
+            events_.push_back(
+                {match.elapsed(), "GOOATTACK",
+                 "GOOATTACK t" + std::to_string(e.faction) + " " +
+                     std::to_string(pct) + "% << " + as});
+        });
+
     match.bus().subscribe(EventType::AbilityCast,
         [this, &match](const GameEvent& e) {
             // Wave 42: Cthulhu's rock casts are landmark events — always log

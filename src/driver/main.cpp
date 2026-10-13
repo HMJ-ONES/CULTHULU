@@ -416,6 +416,24 @@ struct BetaGame {
             std::cout << "*** TOWER DOWN — team " << e.faction << "'s "
                       << e.tag << " tower falls to " << ks << " ***\n";
         });
+        // Micro-dev (2026-10-12): DOTGOO teams learned their Great Old One
+        // was being hit only when it died. MobaDefense warns on the first
+        // scratch and each 75/50/25% HP crossing; the defending player's
+        // team gets the urgent read.
+        bus.subscribe(EventType::GreatOldOneUnderAttack, [this](const GameEvent& e) {
+            const Match::Player* h = (match && humanMatchId != 0)
+                                         ? match->findPlayer(humanMatchId)
+                                         : nullptr;
+            const int humanTeam = h ? h->team : -1;
+            const int pct = static_cast<int>(e.amount * 100.0 + 0.5);
+            if (e.faction == humanTeam)
+                std::cout << "*** YOUR GREAT OLD ONE IS UNDER ATTACK! ("
+                          << pct << "% HP) ***\n";
+            else
+                std::cout << "*** Team " << e.faction
+                          << "'s Great Old One is under attack (" << pct
+                          << "% HP) ***\n";
+        });
         // Micro-dev (2026-10-12): a broken rock arrives silently on the
         // console — the match log records it, but the Cthulhu player never
         // learns their shield is gone. breakRock publishes AbilityCast

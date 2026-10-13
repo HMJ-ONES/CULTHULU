@@ -387,7 +387,28 @@ void MobaDefense::damageBase(int team, float dmg, uint64_t attackerId) {
     // Backdoor protection. The Great Old One cannot be damaged until at
     // least one full lane of its team's towers has fallen.
     if (!laneOpenFor(team)) return;
+    const float prevFrac = b.hp / b.maxHp;
     b.hp -= dmg;
+    // Micro-dev (2026-10-12): "under attack" warning — DOTGOO teams used
+    // to learn the GOO was taking damage only when it died. Warn once on
+    // the first scratch, then at each 75/50/25% HP crossing. GOO HP never
+    // heals, so each crossing is once-only by construction; one warning
+    // per hit (break on the first crossed threshold). The killing blow
+    // skips the warning — GreatOldOneSlain is its announcement.
+    if (b.hp > 0.0f) {
+        const float curFrac = b.hp / b.maxHp;
+        for (float thresh : {1.0f, 0.75f, 0.50f, 0.25f}) {
+            if (prevFrac >= thresh && curFrac < thresh) {
+                GameEvent e(EventType::GreatOldOneUnderAttack);
+                e.sourceId = attackerId;
+                e.faction = team;
+                e.amount = curFrac;
+                e.pos = b.pos;
+                bus_.publish(e);
+                break;
+            }
+        }
+    }
     if (b.hp <= 0.0f) {
         b.hp = 0.0f;
         b.gooAlive = false; // the Great Old One has fallen

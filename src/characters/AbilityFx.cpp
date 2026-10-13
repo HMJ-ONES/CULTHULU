@@ -249,6 +249,10 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // 5 PM beauty (2026-10-12): a god falling is as heavy as a
             // city — the heaviest burst in the catalog. No new preset.
             return lib.find("raze");
+        case EventType::GreatOldOneUnderAttack:
+            // Micro-dev (2026-10-12): an alarm burst at the god's position
+            // — the same sharp cue as kill streaks. No new preset.
+            return lib.find("stun");
         // 5 PM beauty (2026-10-12): the announced-events FX sweep. These
         // are the game's punctuation marks — kills, streaks, streak-
         // breakers, manifestations, captures, triumphs — and they were
