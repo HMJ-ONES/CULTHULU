@@ -388,3 +388,8 @@ target_link_libraries(cultulhu_tests_micro_matchstart PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_matchstart COMMAND cultulhu_tests_micro_matchstart)
 set_tests_properties(cultulhu_tests_micro_matchstart PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_respawnsurvey tests/tests_micro_respawnsurvey.cpp)
+target_link_libraries(cultulhu_tests_micro_respawnsurvey PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_respawnsurvey COMMAND cultulhu_tests_micro_respawnsurvey)
+set_tests_properties(cultulhu_tests_micro_respawnsurvey PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

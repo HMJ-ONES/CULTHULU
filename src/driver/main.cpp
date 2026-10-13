@@ -450,6 +450,13 @@ struct BetaGame {
                 std::cout << "*** You have respawned ***\n";
             else
                 std::cout << "*** " << ps << " returns to the battle ***\n";
+            // Micro-dev (2026-10-12): a respawned human wakes up blind at
+            // base — the move survey (20:24) and the join survey (21:33)
+            // exist because orientation beats typing. Print the arrival
+            // survey after the human's own return so they know where the
+            // point / nearest enemy are without typing `match status`.
+            if (match && e.sourceId == humanMatchId)
+                match->printMatchSurvey(std::cout, humanMatchId);
         });
         // Micro-dev (2026-10-12): DOTGOO towers fell silently — no arena
         // callout and no match-log line when a lane's defense crumbled.
