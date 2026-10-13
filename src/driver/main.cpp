@@ -2947,9 +2947,14 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 }
                 g.activeKitId = id;
                 g.kitCooldowns_.clear();
+                // Micro-dev: name the RMB too — the `match join`
+                // confirmation already lists all four buttons, but the
+                // free-roam twin stopped at R, so a player walking the
+                // world never learned their right-click's name.
                 std::cout << "you now walk as " << d->displayName << "\n"
                           << "  Q: " << d->qAbility.name << "  F: "
                           << d->fAbility.name << "  R: " << d->rAbility.name
+                          << "  RMB: " << d->rightClick.name
                           << "\n  cast with: cast q | cast f | cast r\n";
                 return true;
             }
