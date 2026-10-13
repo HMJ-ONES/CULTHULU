@@ -2342,32 +2342,14 @@ static bool processLine(BetaGame& g, NetSession& nets,
                     return true;
                 }
             }
-            float yaw = hp ? hp->facingYaw : 0.0f;
             // Wave 42: Cthulhu's rock — `mcast rmb down` rips it from the
             // ground, `mcast rmb launch` hurls it. Plain `mcast rmb` swings
-            // the held rock, or stuns without it.
-            Match::RmbAim aim = Match::RmbAim::Normal;
-            // Micro-dev: parse words before numbers. The old order read
-            // the next token as a float first, so `mcast rmb down` set
-            // failbit on "down" and the verb never reached `aim` — the
-            // rock could never be ripped or hurled from the driver.
-            std::string tok;
-            if (in >> tok) {
-                if (tok == "down") aim = Match::RmbAim::Down;
-                else if (tok == "launch") aim = Match::RmbAim::Launch;
-                else {
-                    try {
-                        yaw = std::stof(tok) * 3.14159265f / 180.0f;
-                    } catch (const std::exception&) {
-                        // unknown token — keep current facing
-                    }
-                    // Optional verb after an explicit yaw: `mcast rmb 90 launch`.
-                    if (in >> tok) {
-                        if (tok == "down") aim = Match::RmbAim::Down;
-                        else if (tok == "launch") aim = Match::RmbAim::Launch;
-                    }
-                }
-            }
+            // the held rock, or stuns without it. Tail args parsed by
+            // Match::parseCastArgs (words before numbers — the old
+            // float-first order set failbit on "down"/"launch" and the
+            // rock could never be ripped or hurled from the driver).
+            const auto [yaw, aim] = Match::parseCastArgs(
+                in, hp ? hp->facingYaw : 0.0f);
             if (g.match->humanCast(g.humanMatchId, slotIdx, yaw, aim)) {
                 // Micro-dev: name the ability — "cast q!" is dead air for
                 // the game's loudest moment. Cthulhu's rock-RMB gets its

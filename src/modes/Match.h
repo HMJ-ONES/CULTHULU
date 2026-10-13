@@ -39,9 +39,11 @@
 #include "net/Protocol.h"
 
 #include <cstdint>
+#include <istream>
 #include <memory>
 #include <ostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace cultulhu {
@@ -203,6 +205,14 @@ public:
     // Wave 40: human kit casting in matches. slot 0=Q 1=F 2=R 3=RMB.
     // Faces `yaw` first so casts are directional, like the bots'.
     bool humanCast(uint64_t id, int slot, float yaw, RmbAim aim = RmbAim::Normal);
+
+    // Micro-dev: parse `mcast` tail args — "down", "launch", "90",
+    // "90 launch" — into (yawRadians, aim). Words are checked before
+    // numbers: reading a float first set failbit on "down"/"launch" and
+    // silently dropped the verb, so Cthulhu's rock could never be ripped
+    // or hurled from the driver. Static so tests can pin it.
+    static std::pair<float, RmbAim> parseCastArgs(std::istream& in,
+                                                 float defaultYaw);
     // Wave 41: spend a pending draft pick (DOTGOO). slot 0=Q 1=F.
     bool draftAbility(uint64_t id, int slot);
 

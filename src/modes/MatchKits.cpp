@@ -9,6 +9,8 @@
 #include "modes/RosterUtils.h"
 
 #include <cmath>
+#include <exception>
+#include <string>
 
 namespace cultulhu {
 
@@ -661,6 +663,31 @@ void Match::updateBotAbilities(Player& p, size_t idx, double dt) {
     } else if (p.rmbCd <= 0.0 && foeDist <= kMeleeRange * 2.0f) {
         castMatchRmb(idx);
     }
+}
+
+// Micro-dev: `mcast` tail-arg parser (see Match.h). Words before numbers.
+std::pair<float, Match::RmbAim> Match::parseCastArgs(std::istream& in,
+                                                     float defaultYaw) {
+    float yaw = defaultYaw;
+    RmbAim aim = RmbAim::Normal;
+    std::string tok;
+    if (in >> tok) {
+        if (tok == "down") aim = RmbAim::Down;
+        else if (tok == "launch") aim = RmbAim::Launch;
+        else {
+            try {
+                yaw = std::stof(tok) * 3.14159265f / 180.0f;
+            } catch (const std::exception&) {
+                // unknown token — keep current facing
+            }
+            // Optional verb after an explicit yaw: `mcast rmb 90 launch`.
+            if (in >> tok) {
+                if (tok == "down") aim = RmbAim::Down;
+                else if (tok == "launch") aim = RmbAim::Launch;
+            }
+        }
+    }
+    return {yaw, aim};
 }
 
 // Wave 40: human kit casting in matches.
