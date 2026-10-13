@@ -491,16 +491,40 @@ struct BetaGame {
         // Micro-dev (2026-10-12): a match used to end with nothing on the
         // console — the only sign was the match-log upload line, so the
         // final result never landed as a beat. Name the winner out loud.
-        bus.subscribe(EventType::MatchEnded, [](const GameEvent& e) {
+        // Micro-dev (2026-10-12): name the final score too — a bare
+        // "team X wins" never said how dominant the win was. Read it off
+        // the live match: Domination's point race, DOTGOO's remaining base
+        // HP. The event fires from inside Match::update, so the match is
+        // alive here; the null-guard is belt and braces.
+        bus.subscribe(EventType::MatchEnded, [this](const GameEvent& e) {
             const std::string modeName = (e.tag == "capture") ? "Domination"
                 : (e.tag == "moba")                            ? "DOTGOO"
                                                               : e.tag;
+            std::string score;
+            if (match) {
+                if (e.tag == "capture" && match->capture())
+                    score = " (" +
+                            std::to_string(static_cast<int>(
+                                match->capture()->score(0))) +
+                            "-" +
+                            std::to_string(static_cast<int>(
+                                match->capture()->score(1))) +
+                            ")";
+                else if (e.tag == "moba" && match->moba())
+                    score = " (base " +
+                            std::to_string(static_cast<int>(
+                                match->moba()->baseHp(0))) +
+                            "/" +
+                            std::to_string(static_cast<int>(
+                                match->moba()->baseHp(1))) +
+                            ")";
+            }
             if (e.faction >= 0) {
                 std::cout << "*** VICTORY — team " << e.faction << " wins the "
-                          << modeName << " match! ***\n";
+                          << modeName << " match!" << score << " ***\n";
             } else {
                 std::cout << "*** DRAW — the " << modeName
-                          << " match ends in a draw. ***\n";
+                          << " match ends in a draw." << score << " ***\n";
             }
         });
         bus.subscribe(EventType::DirectiveProgress, [](const GameEvent& e) {
