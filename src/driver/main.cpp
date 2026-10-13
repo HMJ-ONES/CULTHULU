@@ -553,6 +553,22 @@ struct BetaGame {
                                    std::to_string(p->team) + ")")
                                 : ("player " + std::to_string(e.sourceId));
             std::cout << "[unlock] " << who << " unlocked " << e.tag << "\n";
+            // Micro-dev (2026-10-13): the level-6 ult is DOTGOO's biggest
+            // early spike — the plain [unlock] line is easy to miss in a
+            // fight. Give the human an arena callout naming the ability
+            // and the command to fire it. Draft picks (Q/F) stay quiet:
+            // they already got their own prompt at join/level-3, and the
+            // "ULT" prefix is the only tag the ult unlock uses.
+            if (humanMatchId != 0 && e.sourceId == humanMatchId &&
+                e.tag.rfind("ULT", 0) == 0) {
+                std::string uname = e.tag;
+                const size_t o = uname.find('('), c = uname.rfind(')');
+                if (o != std::string::npos && c != std::string::npos &&
+                    c > o + 1)
+                    uname = uname.substr(o + 1, c - o - 1);
+                std::cout << "*** ULT UNLOCKED — " << uname
+                          << " is ready! (mcast r) ***\n";
+            }
         });
         // 2 PM build (2026-10-12): levels were completely silent — the
         // tiered-invocation gates at 10/20/30 only work if the player
