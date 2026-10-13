@@ -870,4 +870,48 @@ void Match::printStatus(std::ostream& os, uint64_t humanId) const {
     if (isOver()) os << "  OVER: winner team " << winner() << "\n";
 }
 
+void Match::printMatchSurvey(std::ostream& os, uint64_t humanId) const {
+    // Micro-dev (2026-10-12): see Match.h. Direction words mirror the
+    // free-roam arrival survey (x+ = east, z+ = south).
+    const Player* hp = findPlayer(humanId);
+    if (!hp) return;
+    if (capture_ && capture_->pointCount() > 0) {
+        const Vec3 pp = capture_->pointPos(0);
+        const float d = hp->pos.distance(pp);
+        const float r = capture_->pointRadius(0);
+        os << "  the point: ";
+        if (d <= r) {
+            os << "YOU ARE ON IT — ";
+            const int h = capture_->holder();
+            if (h == hp->team) os << "team " << h << " banking\n";
+            else if (capture_->contested()) os << "contested, ticking paused\n";
+            else if (h >= 0) os << "team " << h << " holding\n";
+            else os << "open\n";
+        } else {
+            os << static_cast<int>(d + 0.5f) << "m "
+               << (pp.x >= hp->pos.x ? "east" : "west") << "-"
+               << (pp.z >= hp->pos.z ? "south" : "north") << " — ";
+            const int h = capture_->holder();
+            if (h >= 0) os << "team " << h << " holding\n";
+            else if (capture_->contested()) os << "contested\n";
+            else os << "open\n";
+        }
+    }
+    const Player* near = nullptr;
+    float nearD = 1e9f;
+    for (const auto& p : players_) {
+        if (p.id == humanId || p.team == hp->team || !p.alive) continue;
+        const float d = hp->pos.distance(p.pos);
+        if (d < nearD) { nearD = d; near = &p; }
+    }
+    if (near) {
+        os << "  nearest enemy: " << near->name << " ("
+           << static_cast<int>(nearD + 0.5f) << "m "
+           << (near->pos.x >= hp->pos.x ? "east" : "west") << "-"
+           << (near->pos.z >= hp->pos.z ? "south" : "north") << ")\n";
+    } else {
+        os << "  no living enemies\n";
+    }
+}
+
 } // namespace cultulhu

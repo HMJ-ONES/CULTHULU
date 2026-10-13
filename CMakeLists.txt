@@ -343,3 +343,8 @@ target_link_libraries(cultulhu_tests_micro_detach PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_detach COMMAND cultulhu_tests_micro_detach)
 set_tests_properties(cultulhu_tests_micro_detach PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_matchsurvey tests/tests_micro_matchsurvey.cpp)
+target_link_libraries(cultulhu_tests_micro_matchsurvey PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_matchsurvey COMMAND cultulhu_tests_micro_matchsurvey)
+set_tests_properties(cultulhu_tests_micro_matchsurvey PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

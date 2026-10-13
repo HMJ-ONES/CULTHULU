@@ -193,6 +193,13 @@ public:
     // spot their own fighter among the bots; 0 = no marker.
     void printStatus(std::ostream& os) const;
     void printStatus(std::ostream& os, uint64_t humanId) const;
+    // Micro-dev (2026-10-12): situational readout printed by the driver
+    // after the human's `move` in a live match. Domination players had to
+    // type `match status` to learn whether they were even on the point;
+    // in either mode they had no idea an enemy was closing in. One or
+    // two short lines: the point (Domination) and the nearest living
+    // enemy fighter.
+    void printMatchSurvey(std::ostream& os, uint64_t humanId) const;
 
     // Test/GM utility: reposition a player (used by tests to stage fights).
     bool movePlayer(uint64_t id, Vec3 pos);

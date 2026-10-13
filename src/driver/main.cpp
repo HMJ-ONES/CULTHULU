@@ -1584,9 +1584,15 @@ static bool processLine(BetaGame& g, NetSession& nets,
                     g.tickSecond();
                 }
                 const auto* now = g.match->findPlayer(g.humanMatchId);
-                if (now)
+                if (now) {
                     std::cout << "moved to (" << now->pos.x << ", "
                               << now->pos.z << ")\n";
+                    // Micro-dev (2026-10-12): situational readout — the
+                    // player was getting bare coordinates and had to type
+                    // `match status` to know if they were on the point or
+                    // whether an enemy was closing in.
+                    g.match->printMatchSurvey(std::cout, g.humanMatchId);
+                }
                 return true;
             }
             if (g.match && g.match->started())
