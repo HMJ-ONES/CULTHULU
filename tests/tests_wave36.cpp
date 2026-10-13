@@ -284,6 +284,10 @@ static void testFxForEvent() {
     // Micro-dev (2026-10-13): a champion answering the GrandSummoning
     // rite resolves like a manifestation at the summoning site.
     CHECK(fxForEvent(EventType::ChampionSummoned, r.library) == summon);
+    // Micro-dev (2026-10-13): a completed sacrifice rite resolves
+    // like a manifestation — the offering passes through a rift
+    // opening, the Sacrifice belief's signature beat made visible.
+    CHECK(fxForEvent(EventType::SacrificeCompleted, r.library) == summon);
     // Micro-dev (2026-10-13): the match's own bookends get visuals —
     // the opening beat resolves like a manifestation, the end like a
     // triumph. No new presets; both events already exist and publish.

@@ -308,6 +308,7 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::RelicClaimed:
         case EventType::MatchStarted:
         case EventType::ChampionSummoned:
+        case EventType::SacrificeCompleted:
             // A rift opens as the relic manifests / is seized — and as
             // the arena itself opens. Micro-dev (2026-10-13): the
             // match's opening beat had no visual; it reads as a
@@ -316,6 +317,12 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // Micro-dev (2026-10-13): a champion answering the
             // GrandSummoning rite is the same arrival class — a
             // manifestation at the summoning site. No new preset.
+            //
+            // Micro-dev (2026-10-13): a completed sacrifice rite lands
+            // here too — the Sacrifice belief's signature beat resolved
+            // to nullptr until now. The offering passes through a rift
+            // opening at the altar, so it reads as a manifestation, the
+            // arrival class — not the golden triumph halo.
             return lib.find("summon");
         // Micro-dev (2026-10-13): the Wave of Domination's lifecycle
         // beats were FX-less — in DOTGOO, Cthulhu's signature RMB
