@@ -250,8 +250,12 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // city — the heaviest burst in the catalog. No new preset.
             return lib.find("raze");
         case EventType::GreatOldOneUnderAttack:
+        case EventType::PlayerLowHp:
             // Micro-dev (2026-10-12): an alarm burst at the god's position
-            // — the same sharp cue as kill streaks. No new preset.
+            // — the same sharp cue as kill streaks. The low-health ping
+            // (fired once per 35%-HP crossing) was text-only until now;
+            // it resolves here too, so the engine gets a danger cue at
+            // the fighter's position. No new preset.
             return lib.find("stun");
         // 5 PM beauty (2026-10-12): the announced-events FX sweep. These
         // are the game's punctuation marks — kills, streaks, streak-

@@ -283,6 +283,9 @@ static void testFxForEvent() {
     // folded in here per the 19:12 note, reusing the buff preset.
     CHECK(fxForEvent(EventType::UltCharged, r.library) == buff);
     CHECK(fxForEvent(EventType::GreatOldOneSlain, r.library) == raze);
+    // Micro-dev (2026-10-12): the low-health ping resolves to the same
+    // alarm burst as the GOO-under-attack warning.
+    CHECK(fxForEvent(EventType::PlayerLowHp, r.library) == stun);
     // Quiet background events stay unmapped (still text-only / silent).
     CHECK(fxForEvent(EventType::CombatStarted, r.library) == nullptr);
     CHECK(fxForEvent(EventType::SuppliesGathered, r.library) == nullptr);
