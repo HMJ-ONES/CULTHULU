@@ -296,6 +296,25 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // match's opening beat had no visual; it reads as a
             // manifestation, same preset class, no new asset.
             return lib.find("summon");
+        // Micro-dev (2026-10-13): the Wave of Domination's lifecycle
+        // beats were FX-less — in DOTGOO, Cthulhu's signature RMB
+        // (mind-control wave, levitate, slam, launch) reached the event
+        // pipeline but never resolved to a visual, while the Domination
+        // rock kit has full coverage. All reuse existing presets — no
+        // new FX asset, particle budget untouched.
+        case EventType::DirectStunApplied:
+            // The targeted gaze stun — a sharp jolt at the victim.
+            return lib.find("stun");
+        case EventType::VictimLevitated:
+            // The wave's own moment: a victim rising in the
+            // dominion-wave mist. The MindControl preset was authored
+            // for exactly this.
+            return lib.find("MindControl");
+        case EventType::VictimSlammed:
+        case EventType::VictimsLaunched:
+            // Bodies slammed into buildings / flung as projectiles —
+            // impact smoke at the scene.
+            return lib.find("aoe_damage");
         case EventType::MaddeningWhispers:
             // Dread mist rolling through the Vale — the fear_aura preset
             // was practically authored for this event.

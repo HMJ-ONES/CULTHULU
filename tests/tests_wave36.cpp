@@ -308,6 +308,19 @@ static void testFxForEvent() {
     // Micro-dev (2026-10-13): RelicChannelInterrupted gets the same
     // jolt — a snapped channel is the anti-image of the start halo.
     CHECK(fxForEvent(EventType::RelicChannelInterrupted, r.library) == stun);
+    // Micro-dev (2026-10-13): the Wave of Domination's lifecycle beats
+    // — Cthulhu's DOTGOO signature RMB — now resolve to existing
+    // presets: the gaze stun is a jolt, the levitation is the wave's
+    // own dominion mist, slams and launches are impact smoke.
+    const FxPreset* mind = r.library.find("MindControl");
+    CHECK(mind != nullptr);
+    CHECK(fxForEvent(EventType::DirectStunApplied, r.library) == stun);
+    CHECK(fxForEvent(EventType::VictimLevitated, r.library) == mind);
+    CHECK(fxForEvent(EventType::VictimSlammed, r.library) == aoe);
+    CHECK(fxForEvent(EventType::VictimsLaunched, r.library) == aoe);
+    // The quiet half of the lifecycle stays silent — a drop is passive
+    // (lethal falls already fire the slain feed), so no visual is owed.
+    CHECK(fxForEvent(EventType::VictimDropped, r.library) == nullptr);
     // Quiet background events stay unmapped (still text-only / silent).
     CHECK(fxForEvent(EventType::CombatStarted, r.library) == nullptr);
     CHECK(fxForEvent(EventType::SuppliesGathered, r.library) == nullptr);
