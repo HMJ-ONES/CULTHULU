@@ -78,7 +78,15 @@ std::string AnimationStateMachine::mixamoClipName(AnimationState state) {
 
 void AnimationStateMachine::transitionTo(AnimationState s,
                                           double blendSeconds) {
-    if (blendSeconds > 0.0 && s != state_) {
+    // Micro-dev (2026-10-13): a one-shot re-triggered while active (the
+    // 16:19 restart) used to snap from its mid-clip pose straight back to
+    // frame 0 — a visible pop on rapid re-hits (a Dhole's second Maul at
+    // 0.7s into the 0.9s clip). Treat the restart as a self-blend: the
+    // mid-clip pose becomes the blend source and the restarted clip fades
+    // in over blendSeconds — the same crossfade every other transition
+    // gets. blendSeconds == 0 keeps the old hard snap.
+    const bool selfRestart = (s == state_) && isOneShotState(s);
+    if (blendSeconds > 0.0 && (s != state_ || selfRestart)) {
         const AnimationClip* c = clip(state_);
         hasPrevClip_ = (c != nullptr);
         if (c) prevClip_ = *c;

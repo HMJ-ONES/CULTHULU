@@ -488,3 +488,8 @@ target_link_libraries(cultulhu_tests_micro_oneshotrestart PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_oneshotrestart COMMAND cultulhu_tests_micro_oneshotrestart)
 set_tests_properties(cultulhu_tests_micro_oneshotrestart PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_oneshotblend tests/tests_micro_oneshotblend.cpp)
+target_link_libraries(cultulhu_tests_micro_oneshotblend PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_oneshotblend COMMAND cultulhu_tests_micro_oneshotblend)
+set_tests_properties(cultulhu_tests_micro_oneshotblend PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
