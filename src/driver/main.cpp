@@ -527,8 +527,19 @@ struct BetaGame {
             const Match::Player* k =
                 match ? match->findPlayer(e.sourceId) : nullptr;
             const std::string ks = k ? k->name : "the minions";
-            std::cout << "*** TOWER DOWN — team " << e.faction << "'s "
-                      << e.tag << " tower falls to " << ks << " ***\n";
+            // Micro-dev (2026-10-13): second-person tower credit — the
+            // console named the tower's fall in third person even when
+            // the joined human struck the killing blow (\"Team N's mid
+            // tower falls to <your fighter>\"). The human's own god-toppling
+            // now reads \"You toppled team N's <lane> tower!\". Same gate
+            // as the kill/streak/shutdown/first-blood/godslayer callouts:
+            // humanMatchId != 0 and the killer id is the human's own.
+            if (humanMatchId != 0 && e.sourceId == humanMatchId)
+                std::cout << "*** You toppled team " << e.faction << "'s "
+                          << e.tag << " tower! ***\n";
+            else
+                std::cout << "*** TOWER DOWN — team " << e.faction << "'s "
+                          << e.tag << " tower falls to " << ks << " ***\n";
         });
         // Micro-dev (2026-10-12): DOTGOO teams learned their Great Old One
         // was being hit only when it died. MobaDefense warns on the first
