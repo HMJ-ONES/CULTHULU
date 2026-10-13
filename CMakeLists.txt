@@ -483,3 +483,8 @@ target_link_libraries(cultulhu_tests_micro_relicinterrupt PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_relicinterrupt COMMAND cultulhu_tests_micro_relicinterrupt)
 set_tests_properties(cultulhu_tests_micro_relicinterrupt PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_oneshotrestart tests/tests_micro_oneshotrestart.cpp)
+target_link_libraries(cultulhu_tests_micro_oneshotrestart PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_oneshotrestart COMMAND cultulhu_tests_micro_oneshotrestart)
+set_tests_properties(cultulhu_tests_micro_oneshotrestart PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

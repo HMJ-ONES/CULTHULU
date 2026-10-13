@@ -21,6 +21,24 @@ double smoothstep(double t) {
     return t * t * (3.0 - 2.0 * t);
 }
 
+// One-shot states: auto-return to Idle when the clip finishes (unless the
+// bound clip loops), and restart when re-requested while still active so
+// every hit lands its visual (see requestState).
+bool isOneShotState(AnimationState s) {
+    switch (s) {
+        case AnimationState::Attack:
+        case AnimationState::Cast:
+        case AnimationState::Channel:
+        case AnimationState::CastWave: // wave 18: missed one-shots, added
+        case AnimationState::Launch:   // for auto-return parity
+        case AnimationState::Brawl:    // wave 18: 0.9s one-shot
+        case AnimationState::Maul:     // wave 18: one-shot like Attack
+            return true;
+        default:
+            return false;
+    }
+}
+
 } // namespace
 
 AnimationStateMachine::AnimationStateMachine() = default;
@@ -79,7 +97,17 @@ void AnimationStateMachine::transitionTo(AnimationState s,
 void AnimationStateMachine::requestState(AnimationState s, double blendSeconds) {
     if (s == AnimationState::Count) return;
     if (state_ == AnimationState::Death) return; // terminal
-    if (s == state_) return;
+    if (s == state_) {
+        // Micro-dev (2026-10-13): an active one-shot re-triggered — a Dhole
+        // landing a second Maul while the 0.9s clip still plays, or the
+        // driver spamming `attack` — restarts the clip so every hit lands
+        // its visual. Previously the repeat was silently dropped until the
+        // first clip finished, desyncing visuals from damage. Looping
+        // states (Idle/Walk/Run/Stunned/...) keep the old ignore semantics:
+        // a per-tick re-request must not jitter a loop.
+        if (isOneShotState(s)) transitionTo(s, blendSeconds);
+        return;
+    }
     if (state_ == AnimationState::Stunned && s != AnimationState::Death)
         return; // stunned interrupts; only death overrides stun
     transitionTo(s, blendSeconds);
@@ -95,22 +123,11 @@ void AnimationStateMachine::update(double dt) {
             blendActive_ = false;
         }
     }
-    switch (state_) {
-        case AnimationState::Attack:
-        case AnimationState::Cast:
-        case AnimationState::Channel:
-        case AnimationState::CastWave: // wave 18: missed one-shots, added
-        case AnimationState::Launch:   // for auto-return parity
-        case AnimationState::Brawl:    // wave 18: 0.9s one-shot
-        case AnimationState::Maul:     // wave 18: one-shot like Attack
-            // One-shot states return to Idle when the clip finishes, unless
-            // the bound clip loops.
-            if (!clipLoops(state_) && timeInState_ >= clipDuration(state_)) {
-                transitionTo(AnimationState::Idle, 0.25);
-            }
-            break;
-        default:
-            break;
+    // One-shot states return to Idle when the clip finishes, unless
+    // the bound clip loops.
+    if (isOneShotState(state_) && !clipLoops(state_) &&
+        timeInState_ >= clipDuration(state_)) {
+        transitionTo(AnimationState::Idle, 0.25);
     }
 }
 
