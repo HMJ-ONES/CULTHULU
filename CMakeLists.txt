@@ -333,3 +333,8 @@ target_link_libraries(cultulhu_tests_micro_ultcharged PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_ultcharged COMMAND cultulhu_tests_micro_ultcharged)
 set_tests_properties(cultulhu_tests_micro_ultcharged PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_relicclaim tests/tests_micro_relicclaim.cpp)
+target_link_libraries(cultulhu_tests_micro_relicclaim PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_relicclaim COMMAND cultulhu_tests_micro_relicclaim)
+set_tests_properties(cultulhu_tests_micro_relicclaim PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

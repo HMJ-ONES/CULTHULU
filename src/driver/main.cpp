@@ -628,6 +628,27 @@ struct BetaGame {
             std::cout << "\n!! A MYTHIC RELIC MANIFESTS — " << e.tag
                       << " (tier " << static_cast<int>(e.amount) << ") !!\n\n";
         });
+        // Micro-dev (2026-10-12): jungle relic claims were console-silent
+        // in matches — the exported match log recorded them, but a player
+        // watching the console never saw the power-up land. Announce only
+        // match claims (sourceId resolves to a match player): free-roam
+        // already prints its own "[relic] claimed" line.
+        bus.subscribe(EventType::RelicClaimed, [this](const GameEvent& e) {
+            const Match::Player* p =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            if (!p) return;
+            const int pct = static_cast<int>(std::round(e.amount * 100.0f));
+            const std::string relic =
+                e.tag.empty() ? "an unnamed relic" : e.tag;
+            // Note: relic names already read as full noun phrases
+            // ("the Chalice of Hollow Stars"), so no article is added.
+            if (e.sourceId == humanMatchId)
+                std::cout << "*** You claimed " << relic << "! (+"
+                          << pct << "% damage) ***\n";
+            else
+                std::cout << "*** " << p->name << " claimed " << relic
+                          << "! (+" << pct << "% damage) ***\n";
+        });
     }
 
     void setupWorld() {
