@@ -383,6 +383,11 @@ target_link_libraries(cultulhu_tests_micro_dotgoowave PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_dotgoowave COMMAND cultulhu_tests_micro_dotgoowave)
 set_tests_properties(cultulhu_tests_micro_dotgoowave PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_draftpick tests/tests_micro_draftpick.cpp)
+target_link_libraries(cultulhu_tests_micro_draftpick PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_draftpick COMMAND cultulhu_tests_micro_draftpick)
+set_tests_properties(cultulhu_tests_micro_draftpick PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_executable(cultulhu_tests_micro_mythicrelic tests/tests_micro_mythicrelic.cpp)
 target_link_libraries(cultulhu_tests_micro_mythicrelic PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_mythicrelic COMMAND cultulhu_tests_micro_mythicrelic)

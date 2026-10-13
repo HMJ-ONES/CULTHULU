@@ -306,6 +306,13 @@ struct BetaGame {
     std::map<std::string, double> kitCooldowns_; // spell id -> ready time
     float kitBuffMult_ = 1.0f;
     double kitBuffExpiry_ = 0.0;
+    // Micro-dev (2026-10-13): DOTGOO draft-pick prompt dedupe. The
+    // PlayerLeveledUp subscriber prompts the joined human when they
+    // cross level 3 (second draft pick). Maps player id -> highest
+    // level seen, so multi-level XP jumps still cross 3 exactly once
+    // and an inherited leveled bot (join takeover) can't fake-fire it.
+    // Cleared whenever a new match starts.
+    std::map<uint64_t, int> draftPickSeen_;
 
     // Wave 7: RMB state-machine demo (Cthulhu Avatar's Wave of Domination).
     // The ability is persistent; the context is re-pointed at the current
@@ -550,13 +557,32 @@ struct BetaGame {
         // 2 PM build (2026-10-12): levels were completely silent — the
         // tiered-invocation gates at 10/20/30 only work if the player
         // notices crossing them. tag carries the player name.
-        bus.subscribe(EventType::PlayerLeveledUp, [](const GameEvent& e) {
+        bus.subscribe(EventType::PlayerLeveledUp, [this](const GameEvent& e) {
             const int lv = static_cast<int>(e.amount);
             std::cout << "[level] " << e.tag << " reached level " << lv;
             if (lv == 10 || lv == 20 || lv == 30)
                 std::cout << " — invocation tier "
                           << (lv / 10) << " unlocked";
             std::cout << "\n";
+            // Micro-dev: DOTGOO's second draft pick lands at level 3, but
+            // the human only saw "[level] ... reached level 3" — no call
+            // to draft. Prompt once per crossed level 3: XP jumps still
+            // cross it, bots auto-draft so only the human hears it.
+            if (match && match->modeName() == "moba" &&
+                e.sourceId == humanMatchId) {
+                const auto it = draftPickSeen_.find(e.sourceId);
+                const int last =
+                    (it == draftPickSeen_.end()) ? 0 : it->second;
+                for (int l = last + 1; l <= lv; ++l) {
+                    if (l == 3) {
+                        std::cout << "  you earned a draft pick — "
+                                     "mpick <q|f> to unlock your next "
+                                     "ability\n";
+                        break;
+                    }
+                }
+                draftPickSeen_[e.sourceId] = lv;
+            }
         });
         // Micro-dev (2026-10-12): Domination's climax beat — first team to
         // 300/400 gets an arena-style callout so the ending never arrives
@@ -2395,6 +2421,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
                     return true;
                 }
                 g.humanMatchId = 0;
+                g.draftPickSeen_.clear(); // fresh prompt bookkeeping
                 g.match->botfill();
                 // Wave 42: start the action log recorder.
                 g.matchSeed = static_cast<uint64_t>(std::time(nullptr));
@@ -2495,6 +2522,16 @@ static bool processLine(BetaGame& g, NetSession& nets,
                                "'mcast rmb down' rips it from the ground, "
                                "'mcast rmb launch' hurls it)\n";
                 }
+                // Micro-dev: the level-3 draft-pick prompt (PlayerLeveledUp
+                // subscriber) tracks crossed levels from the join state, so
+                // an inherited leveled bot can't fake-fire the prompt.
+                g.draftPickSeen_[id] = p->level;
+                // Micro-dev: DOTGOO's level-1 draft pick was visible only
+                // as a cryptic "(+1 pick)" in `match status` — a fresh join
+                // never said the pick exists or how to spend it.
+                if (g.match->modeName() == "moba" && p->pendingPicks > 0)
+                    std::cout << "  you have a draft pick — mpick <q|f> "
+                                 "to choose your first ability\n";
                 // Micro-dev: orientation at join — the move survey (20:24)
                 // only fires after a move, so a fresh join lands the player
                 // at their base with no read of where the point/enemies are.
