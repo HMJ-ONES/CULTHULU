@@ -513,3 +513,8 @@ target_link_libraries(cultulhu_tests_micro_matchendlog PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_matchendlog COMMAND cultulhu_tests_micro_matchendlog)
 set_tests_properties(cultulhu_tests_micro_matchendlog PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_slaypos tests/tests_micro_slaypos.cpp)
+target_link_libraries(cultulhu_tests_micro_slaypos PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_slaypos COMMAND cultulhu_tests_micro_slaypos)
+set_tests_properties(cultulhu_tests_micro_slaypos PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

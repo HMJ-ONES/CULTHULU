@@ -38,6 +38,12 @@ bool dealDamage(Entity& target, float dmg, EventBus& bus,
         GameEvent e(killedEvent);
         e.targetId = target.id();
         e.faction = target.faction();
+        // Micro-dev (2026-10-13): the kill event is a death beat in the
+        // FX pipeline (CivilianSlain -> aoe_damage, etc.) — stamp the
+        // corpse's position so the burst lands on the kill, not the
+        // world origin. The match-pipeline kill sites already do this;
+        // free-roam's combat path did not.
+        e.pos = target.position();
         bus.publish(e);
         // Wave 16: species-tagged monstrosity slay (e.g. "dhole").
         if (target.type() == EntityType::Monstrosity) {
@@ -45,6 +51,7 @@ bool dealDamage(Entity& target, float dmg, EventBus& bus,
             m.targetId = target.id();
             m.faction = target.faction();
             m.tag = target.species();
+            m.pos = target.position();
             bus.publish(m);
         }
         // Wave 16: avatar-on-avatar kill = PvP kill.
@@ -54,6 +61,7 @@ bool dealDamage(Entity& target, float dmg, EventBus& bus,
             GameEvent p(EventType::PlayerKilled);
             p.sourceId = attackerId;
             p.targetId = target.id();
+            p.pos = target.position();
             bus.publish(p);
         }
     }
