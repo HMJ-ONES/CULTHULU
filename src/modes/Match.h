@@ -110,6 +110,9 @@ public:
         std::string kitId; // character id, e.g. "cthulhu_avatar"
         double qCd = 0.0, fCd = 0.0, rCd = 0.0, rmbCd = 0.0;
         double ccTimer = 0.0;   // stunned/rooted: cannot act
+        // Micro-dev (2026-10-13): edge memory for the held-fast alert —
+        // true while the fighter was CC-held at the end of the last tick.
+        bool ccWasHeld = false;
         double fearTimer = 0.0; // fleeing from fearFrom
         Vec3 fearFrom{0, 0, 0};
         double buffTimer = 0.0;  // +30% damage while active
@@ -219,6 +222,10 @@ public:
     // production damage path (stages exact HP thresholds so tests can pin
     // the low-health warning without staging full combat).
     bool debugDamagePlayer(uint64_t id, float dmg);
+    // Micro-dev (2026-10-13): test-only — apply a stun/root through the
+    // production path (max, never shortening) so the tick's rising-edge
+    // CCApplied publish fires like a real bot spell landing.
+    bool debugStunPlayer(uint64_t id, double seconds);
     // Wave 40: assign a specific kit (used by tests for deterministic fights).
     bool setPlayerKit(uint64_t id, const std::string& kitId);
     // Wave 42: AFK takeover — bot pilots the human's fighter while away.

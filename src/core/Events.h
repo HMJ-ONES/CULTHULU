@@ -95,7 +95,10 @@ enum class EventType {
     BeliefTension,         // tag = "A vs B"; amount = tension level 0..1
 
     // Crowd control
-    CCApplied,             // tag = CC type name; amount = duration seconds
+    CCApplied,             // micro-dev (2026-10-13): a stun/root landed on a
+                           // match fighter — sourceId = victim id, tag =
+                           // victim name, faction = victim team,
+                           // amount = CC duration seconds
 
     // Ambient cultist behavior
     PrayerOffered,         // amount = power from prayer
@@ -203,6 +206,12 @@ enum class EventType {
     // Wave 34: a tier-3 MOBA relic manifests — tag = name, pos = site,
     // amount = tier. Global announcement: fight for it.
     RelicManifested,
+    RelicChannelStarted, // micro-dev (2026-10-12): a tier-2/3 MOBA jungle
+                         // relic channel just began — the 4s/6s channel
+                         // was silent, so contesters never knew someone
+                         // was already claiming it. sourceId = channeler
+                         // player id; faction = channeler's team;
+                         // tag = relic name; amount = tier; pos = site.
     MonstrositySlain,    // targetId = monstrosity id; faction = its faction;
                          // tag = species (e.g. "dhole")
     CityDestroyed,       // tag = city name; amount = 1; all districts razed

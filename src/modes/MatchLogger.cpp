@@ -242,6 +242,35 @@ void MatchLogger::attach(Match& match) {
                                    "\""});
         });
 
+    // Micro-dev (2026-10-12): the 4s/6s channel on tier-2/3 jungle relics
+    // was invisible — the story jumped from manifestation straight to
+    // the claim with no record of the contest. Log each channel start.
+    sub(EventType::RelicChannelStarted,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* p = match.findPlayer(e.sourceId);
+            std::string who = p ? (p->name + "t" + std::to_string(p->team))
+                                : "?";
+            events_.push_back(
+                {match.elapsed(), "RELIC",
+                 "CHANNEL " + who + " starts channeling \"" + e.tag +
+                     "\" (tier " +
+                     std::to_string(static_cast<int>(e.amount)) + ")"});
+        });
+
+    // Micro-dev (2026-10-13): a stun/root landing was invisible in the
+    // exported story — the reader saw a fighter go quiet with no
+    // explanation. One CC line per application.
+    sub(EventType::CCApplied,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* p = match.findPlayer(e.sourceId);
+            std::string who = p ? (p->name + "t" + std::to_string(p->team))
+                                : "?";
+            events_.push_back(
+                {match.elapsed(), "CC",
+                 "CC " + who + " held fast " +
+                     std::to_string(static_cast<int>(e.amount + 0.5)) + "s"});
+        });
+
     // 11:30 AM convenience pass: kill streaks are the match's most
     // exciting beats but never reached the exported log — the GitHub
     // story skipped DOUBLE KILL / RAMPAGE entirely.

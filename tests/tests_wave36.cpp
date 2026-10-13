@@ -283,6 +283,9 @@ static void testFxForEvent() {
     // Micro-dev (2026-10-12): UltCharged shipped after the sweep —
     // folded in here per the 19:12 note, reusing the buff preset.
     CHECK(fxForEvent(EventType::UltCharged, r.library) == buff);
+    // Micro-dev (2026-10-13): RelicChannelStarted gets the same golden
+    // halo — a fighter committing to a 4s/6s channel reads as triumph.
+    CHECK(fxForEvent(EventType::RelicChannelStarted, r.library) == buff);
     CHECK(fxForEvent(EventType::GreatOldOneSlain, r.library) == raze);
     // Micro-dev (2026-10-12): the low-health ping resolves to the same
     // alarm burst as the GOO-under-attack warning.
@@ -294,6 +297,9 @@ static void testFxForEvent() {
     CHECK(fxForEvent(EventType::CaveIn, r.library) == aoe);
     CHECK(fxForEvent(EventType::AbyssPitFall, r.library) == aoe);
     CHECK(fxForEvent(EventType::DholeTremors, r.library) == aura);
+    // Micro-dev (2026-10-13): CCApplied gets the sharp alarm burst — a
+    // stun/root landing is as urgent as a kill streak.
+    CHECK(fxForEvent(EventType::CCApplied, r.library) == stun);
     // Quiet background events stay unmapped (still text-only / silent).
     CHECK(fxForEvent(EventType::CombatStarted, r.library) == nullptr);
     CHECK(fxForEvent(EventType::SuppliesGathered, r.library) == nullptr);

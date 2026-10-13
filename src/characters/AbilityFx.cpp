@@ -265,11 +265,14 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         // play for the same events the console announces.
         case EventType::KillStreak:
         case EventType::StreakEnded:
+        case EventType::CCApplied:
         case EventType::OvertimeStarted:
             // A sharp burst for the match's punctuation moments:
-            // DOUBLE KILL / RAMPAGE, the shutdown callout, and the
-            // sudden-death jolt. Micro-dev (2026-10-12): StreakEnded
-            // shipped text-only; folded into the stun group.
+            // DOUBLE KILL / RAMPAGE, the shutdown callout, the held-fast
+            // jolt, and the sudden-death jolt. Micro-dev (2026-10-13):
+            // a stun/root landing on anyone is now visible to the engine
+            // at the victim's position — the console alert was text-only
+            // until now.
             return lib.find("stun");
         case EventType::FirstBlood:
         case EventType::PlayerKilled:
@@ -305,11 +308,16 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::DiscoveryMade:
         case EventType::DungeonCompleted:
         case EventType::UltCharged:
+        case EventType::RelicChannelStarted:
             // The golden halo of triumph and return: captures, records,
             // match point, respawns, first discoveries, dungeon clears —
             // and the ult-ready ping. Micro-dev (2026-10-12): UltCharged
             // shipped after the 5 PM sweep; folded in here per its note,
             // reusing buff so no new preset is needed.
+            //
+            // Micro-dev (2026-10-13): the relic-channel-start beat lands
+            // here too — a fighter committing to a 4s/6s channel deserves
+            // the same halo the claims get.
             return lib.find("buff");
         default:
             return nullptr;

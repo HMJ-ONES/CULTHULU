@@ -348,6 +348,11 @@ target_link_libraries(cultulhu_tests_micro_relicclaim PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_relicclaim COMMAND cultulhu_tests_micro_relicclaim)
 set_tests_properties(cultulhu_tests_micro_relicclaim PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_relicchannel tests/tests_micro_relicchannel.cpp)
+target_link_libraries(cultulhu_tests_micro_relicchannel PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_relicchannel COMMAND cultulhu_tests_micro_relicchannel)
+set_tests_properties(cultulhu_tests_micro_relicchannel PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_executable(cultulhu_tests_micro_detach tests/tests_micro_detach.cpp)
 target_link_libraries(cultulhu_tests_micro_detach PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_detach COMMAND cultulhu_tests_micro_detach)
@@ -397,4 +402,9 @@ add_executable(cultulhu_tests_micro_levellog tests/tests_micro_levellog.cpp)
 target_link_libraries(cultulhu_tests_micro_levellog PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_levellog COMMAND cultulhu_tests_micro_levellog)
 set_tests_properties(cultulhu_tests_micro_levellog PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_ccalert tests/tests_micro_ccalert.cpp)
+target_link_libraries(cultulhu_tests_micro_ccalert PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_ccalert COMMAND cultulhu_tests_micro_ccalert)
+set_tests_properties(cultulhu_tests_micro_ccalert PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

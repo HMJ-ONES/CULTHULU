@@ -172,6 +172,10 @@ void Match::spawnPlayer(Player& p) {
     p.lowHpWarned = false;
     p.respawnTimer = 0.0;
     p.swingCd = 0.0;
+    // Micro-dev (2026-10-13): the held-fast edge memory follows the
+    // (pre-existing) ccTimer state — a respawn re-arms the alert exactly
+    // as it re-arms the low-health warning above.
+    p.ccWasHeld = p.ccTimer > 0.0;
     p.laneFrac = 0.0f;
     p.hasRock = false; // wave 42: the rock doesn't survive death
     p.rockDurability = 0.0f;
@@ -239,6 +243,27 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
         }
         return;
     }
+    // Micro-dev (2026-10-13): a stun/root landing is invisible — the player
+    // only finds out when their next `mcast` fizzles "held fast". Publish
+    // CCApplied once when a fresh hold is detected (edge on ccWasHeld).
+    // Called after the timer decay (before the stunned early-return) and
+    // again at the end of the tick, so both between-tick applications
+    // (bot spells from other fighters' ticks, the test helper) and
+    // in-tick applications (this fighter's own updateBotAbilities) fire.
+    // Refreshes while already held stay silent; expiry re-arms.
+    auto maybePublishCc = [&]() {
+        if (!p.ccWasHeld && p.ccTimer > 0.0) {
+            GameEvent cc(EventType::CCApplied);
+            cc.sourceId = p.id;
+            cc.tag = p.name;
+            cc.faction = p.team;
+            cc.amount = static_cast<float>(p.ccTimer);
+            cc.pos = p.pos;
+            bus_.publish(cc);
+            p.ccWasHeld = true;
+        }
+    };
+    maybePublishCc();
     // Stunned fighters cannot act at all — no movement, no abilities.
     if (p.ccTimer > 0.0) return;
     // Wave 33/34: base invocation. A player with invoke charges AND
@@ -298,6 +323,11 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
     if (p.isBot || p.afk) updateBotAbilities(p, idx, dt);
     bool attacked = attackNearestEnemy(p, idx, dt);
     if (moba_ && !attacked) swingAtStructures(p);
+    // Micro-dev (2026-10-13): second edge check — a stun/root applied by
+    // this fighter's own tick (updateBotAbilities) lands after the
+    // decrement, so the check above can't see it.
+    maybePublishCc();
+    p.ccWasHeld = p.ccTimer > 0.0;
 }
 
 bool Match::enemyInMeleeRange(const Player& p, size_t idx) const {
@@ -503,6 +533,18 @@ bool Match::debugDamagePlayer(uint64_t id, float dmg) {
         const bool wasAlive = players_[i].alive;
         damagePlayer(i, dmg);
         if (wasAlive && !players_[i].alive) killPlayer(i, -1, 0);
+        return true;
+    }
+    return false;
+}
+
+// Micro-dev (2026-10-13): test-only — apply a stun/root through the
+// production path (max, never shortening) so the tick's rising-edge
+// CCApplied publish fires like a real bot spell landing.
+bool Match::debugStunPlayer(uint64_t id, double seconds) {
+    for (size_t i = 0; i < players_.size(); ++i) {
+        if (players_[i].id != id) continue;
+        players_[i].ccTimer = std::max(players_[i].ccTimer, seconds);
         return true;
     }
     return false;

@@ -437,6 +437,19 @@ struct BetaGame {
             const int hp = p ? static_cast<int>(p->hp + 0.5f) : 0;
             std::cout << "*** LOW HEALTH — " << hp << "hp left! ***\n";
         });
+        // Micro-dev (2026-10-13): a stun/root landing is invisible — the
+        // player only finds out when their next `mcast` fizzles "held
+        // fast". One console alert when the CC lands, human only; the FX
+        // cue resolves through fxForEvent at the victim's position.
+        bus.subscribe(EventType::CCApplied, [this](const GameEvent& e) {
+            if (e.sourceId != humanMatchId) return;
+            std::cout << "*** HELD FAST — " << static_cast<int>(e.amount + 0.5)
+                      << "s of crowd control! ***";
+            const FxPreset* p = fxForEvent(EventType::CCApplied, fxLib);
+            if (p)
+                std::cout << " (fx: " << p->id << ")";
+            std::cout << "\n";
+        });
         // Micro-dev (2026-10-12): the dead used to come back silently —
         // the respawn countdown row just cleared. Name the return so a
         // dead player watching the console knows they're back in the
@@ -730,6 +743,25 @@ struct BetaGame {
             else
                 std::cout << "*** " << p->name << " claimed " << relic
                           << "! (+" << pct << "% damage) ***\n";
+        });
+        // Micro-dev (2026-10-12): tier-2/3 relic channels were invisible —
+        // the mythic relic manifests with a global announcement, but the
+        // 4s/6s channel itself was silent, so a contesting player never
+        // knew someone was already claiming it. Announce the start.
+        bus.subscribe(EventType::RelicChannelStarted, [this](const GameEvent& e) {
+            const Match::Player* p =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            if (!p) return;
+            const std::string relic =
+                e.tag.empty() ? "an unnamed relic" : e.tag;
+            const std::string tier =
+                "tier " + std::to_string(static_cast<int>(e.amount));
+            if (e.sourceId == humanMatchId)
+                std::cout << "*** You start channeling " << relic << " ("
+                          << tier << ")! ***\n";
+            else
+                std::cout << "*** " << p->name << " is channeling " << relic
+                          << " (" << tier << ")! ***\n";
         });
         // Micro-dev (2026-10-12): the dungeon hazards were narratively
         // silent — SpikePitSprung, CaveIn, AbyssPitFall, MaddeningWhispers,

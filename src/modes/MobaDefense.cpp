@@ -572,10 +572,12 @@ void MobaDefense::update(double dt) {
         }
         // Find a claimant in radius.
         uint64_t claimant = 0;
+        int claimantTeam = 0;
         for (const auto& p : playerTargets_) {
             if (!p.alive) continue;
             if (p.pos.distanceSq(r.pos) <= claimRSq) {
                 claimant = p.id;
+                claimantTeam = p.team;
                 break;
             }
         }
@@ -598,6 +600,17 @@ void MobaDefense::update(double dt) {
         } else if (claimant != 0) {
             r.channelBy = claimant;
             r.channelT = dt;
+            // Micro-dev (2026-10-12): the 4s/6s channel was silent — a
+            // contesting player had no way to know someone was already
+            // mid-channel on the relic. Announce the start; interruptions
+            // re-fire naturally when someone new steps into the radius.
+            GameEvent cs(EventType::RelicChannelStarted);
+            cs.sourceId = claimant;
+            cs.faction = claimantTeam;
+            cs.tag = r.name;
+            cs.amount = static_cast<float>(r.tier);
+            cs.pos = r.pos;
+            bus_.publish(cs);
         } else {
             r.channelBy = 0;
             r.channelT = 0.0;
