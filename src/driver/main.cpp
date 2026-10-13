@@ -357,14 +357,24 @@ struct BetaGame {
                       << " (obedience was " << e.amount << ")\n";
         });
         // Wave 42: kill streak announcements — juice for the bloodshed.
-        bus.subscribe(EventType::KillStreak, [](const GameEvent& e) {
+        // Micro-dev (2026-10-13): kill streaks in second person — a streak is
+        // one of the game's loudest personal moments and the console
+        // reported it in third person even when the joined human earned it
+        // ("<your fighter> — RAMPAGE"). The human's own streaks now read
+        // "YOUR RAMPAGE (5)!". Branch selects on e.sourceId == humanMatchId
+        // (the event carries the streaking player's id); bots keep the
+        // third-person read with their name.
+        bus.subscribe(EventType::KillStreak, [this](const GameEvent& e) {
             const int s = static_cast<int>(e.amount);
             const char* label = (s == 2)   ? "DOUBLE KILL"
                                 : (s == 3) ? "TRIPLE KILL"
                                 : (s == 4) ? "QUAD KILL"
                                            : "RAMPAGE";
-            std::cout << "*** " << e.tag << " — " << label << " (" << s
-                      << ") ***\n";
+            if (humanMatchId != 0 && e.sourceId == humanMatchId)
+                std::cout << "*** YOUR " << label << " (" << s << ")! ***\n";
+            else
+                std::cout << "*** " << e.tag << " — " << label << " (" << s
+                          << ") ***\n";
         });
         // Micro-dev (2026-10-12): a 3+ streak being cut short is the
         // shutdown moment — it deserves a callout just like the streak
