@@ -89,6 +89,12 @@ private:
     uint64_t localId_ = 0;
     int localFaction_ = FACTION_CTHULHU;
     int localTeam_ = -1;
+
+    // Micro-dev (2026-10-13): which entity triggered the event that caused
+    // the current unlock — stamped onto the published AchievementUnlocked
+    // event so the driver can narrate the human's own unlocks in second
+    // person. Zero when the trigger carried no attribution.
+    uint64_t triggerSource_ = 0;
 };
 
 } // namespace cultulhu

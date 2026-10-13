@@ -183,10 +183,18 @@ void AchievementSystem::unlock(const std::string& id) {
     // EventType::AchievementUnlocked) — the sim stays output-clean.
     GameEvent e(EventType::AchievementUnlocked);
     e.tag = id;
+    // Micro-dev (2026-10-13): carry the trigger's attribution (set at the
+    // top of onEvent) so the driver can narrate the human's own unlocks in
+    // second person. Unattributed triggers publish sourceId 0, which the
+    // driver's humanMatchId gate rejects.
+    e.sourceId = triggerSource_;
     bus_.publish(e);
 }
 
 void AchievementSystem::onEvent(const GameEvent& e) {
+    // Micro-dev (2026-10-13): remember who triggered this event for the
+    // AchievementUnlocked attribution stamped in unlock().
+    triggerSource_ = e.sourceId;
     switch (e.type) {
     case EventType::ConversionPerformed: {
         bump(kConvTotal, e.amount);

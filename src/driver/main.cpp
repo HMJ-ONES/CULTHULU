@@ -860,10 +860,21 @@ struct BetaGame {
             const AchievementDef* def = nullptr;
             for (const auto& d : achievements.defs())
                 if (d.id == e.tag) { def = &d; break; }
-            std::cout << "* The dark takes note: " << (def ? def->name : e.tag);
-            if (def && !def->description.empty())
-                std::cout << " — " << def->description;
-            std::cout << " *\n";
+            const std::string name = def ? def->name : e.tag;
+            const std::string desc =
+                (def && !def->description.empty()) ? " — " + def->description
+                                                   : "";
+            // Micro-dev (2026-10-13): achievement unlocked is a loud
+            // personal moment — narrate the joined human's own unlock in
+            // second person (same humanMatchId gate as the kill/streak/
+            // shutdown/first-blood callouts). Unattributed or third-party
+            // unlocks keep the omniscient read.
+            if (humanMatchId != 0 && e.sourceId == humanMatchId)
+                std::cout << "*** You unlocked " << name << "!" << desc
+                          << " ***\n";
+            else
+                std::cout << "* The dark takes note: " << name << desc
+                          << " *\n";
         });
         bus.subscribe(EventType::RelicManifested, [](const GameEvent& e) {
             std::cout << "\n!! A MYTHIC RELIC MANIFESTS — " << e.tag
