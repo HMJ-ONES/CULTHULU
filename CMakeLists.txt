@@ -363,3 +363,8 @@ target_link_libraries(cultulhu_tests_micro_lowhp PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_lowhp COMMAND cultulhu_tests_micro_lowhp)
 set_tests_properties(cultulhu_tests_micro_lowhp PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_dotgoowave tests/tests_micro_dotgoowave.cpp)
+target_link_libraries(cultulhu_tests_micro_dotgoowave PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_dotgoowave COMMAND cultulhu_tests_micro_dotgoowave)
+set_tests_properties(cultulhu_tests_micro_dotgoowave PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

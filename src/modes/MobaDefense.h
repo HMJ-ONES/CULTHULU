@@ -168,6 +168,11 @@ public:
     // point on the lane nearest to pos (for bot marching/escorting).
     float laneFraction(int team, int lane, Vec3 pos) const;
     double elapsed() const { return elapsed_; }
+    // Micro-dev (2026-10-12): seconds until the next minion wave
+    // (0..WAVE_INTERVAL). Waves tick every WAVE_INTERVAL seconds and are
+    // skipped per team above the minion cap; surfaced in `match status`
+    // so a player can time lane pushes.
+    double nextWaveIn() const { return WAVE_INTERVAL - waveTimer_; }
 
 protected:
     struct Base {

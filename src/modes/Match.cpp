@@ -801,6 +801,13 @@ void Match::printStatus(std::ostream& os, uint64_t humanId) const {
     } else if (moba_) {
         os << " baseHP " << moba_->baseHp(0) << "/" << moba_->baseHp(1)
            << " minions=" << moba_->minionCount()
+           // Micro-dev: minion waves march every WAVE_INTERVAL seconds but
+           // the status header never showed the countdown — a player
+           // timing a lane push couldn't see the next wave coming. Print
+           // it from the same timer that spawns the waves (ceil, so it
+           // never reads 0s while a wave is still inbound).
+           << " wave in " << static_cast<int>(moba_->nextWaveIn() + 0.999)
+           << "s"
            // Micro-dev: Domination's status line shows its time limit — the
            // DOTGOO line didn't, so a player couldn't see how close the
            // 20:00 whistle was. Show it the same way, sourced from the
