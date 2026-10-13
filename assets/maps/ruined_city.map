@@ -85,6 +85,13 @@ lod assets/world/buildings/stone-wall-column.glb hide=250 low=120
 lod assets/world/buildings/wall-doorway.glb hide=400 low=200
 lod assets/world/props/gravestone-cross.glb hide=250 low=120
 lod assets/world/props/pine-crooked.glb hide=250 low=120
+# --- micro-dev: outskirts scatter models (all low-poly, ≤436 tris) ---
+lod assets/world/props/cave-boulder-a.glb hide=250 low=120
+lod assets/world/props/cave-boulder-c.glb hide=250 low=120
+lod assets/world/props/ash-thicket.glb hide=250 low=120
+lod assets/world/props/arch-ruined.glb hide=400 low=200
+lod assets/world/props/bones-scattered.glb hide=250 low=120
+lod assets/world/props/broken-obelisk.glb hide=250 low=120
 
 # -- cult base: the altar plaza --
 place assets/world/cult/altar-stone.glb 0 0 300 0 1.5 cult_base nevercull
@@ -183,3 +190,29 @@ place assets/world/props/gravestone-cross.glb -280 0 -280 30 1.0 outskirts cull=
 place assets/world/props/debris.glb 250 0 -200 0 1.0 outskirts cull=200
 place assets/world/props/debris.glb -250 0 200 60 1.0 outskirts cull=200
 place assets/world/props/debris.glb 100 0 400 120 1.0 outskirts cull=200
+# --- micro-dev: outskirts scatter (was 10 placements over 1000x1000 m; +25) ---
+place assets/world/props/cave-boulder-a.glb 420 0 -180 20 1.3 outskirts cull=250
+place assets/world/props/cave-boulder-a.glb -120 0 -430 110 1.0 outskirts cull=250
+place assets/world/props/cave-boulder-c.glb 160 0 -420 45 1.2 outskirts cull=250
+place assets/world/props/cave-boulder-c.glb -160 0 420 200 0.9 outskirts cull=250
+place assets/world/props/cave-boulder-c.glb 430 0 120 300 1.4 outskirts cull=250
+place assets/world/props/cave-boulder-a.glb -420 0 160 75 1.1 outskirts cull=250
+place assets/world/props/ash-thicket.glb 370 0 -370 10 1.0 outskirts cull=200
+place assets/world/props/ash-thicket.glb -380 0 380 90 1.2 outskirts cull=200
+place assets/world/props/ash-thicket.glb 380 0 60 170 0.8 outskirts cull=200
+place assets/world/props/ash-thicket.glb -60 0 380 240 1.1 outskirts cull=200
+place assets/world/props/ash-thicket.glb 60 0 -380 320 0.9 outskirts cull=200
+place assets/world/props/ash-thicket.glb -380 0 -60 50 1.3 outskirts cull=200
+place assets/world/props/arch-ruined.glb 300 0 -420 30 1.0 outskirts cull=400
+place assets/world/props/broken-obelisk.glb 280 0 380 15 1.2 outskirts cull=250
+place assets/world/props/broken-obelisk.glb -300 0 -380 90 1.0 outskirts cull=250
+place assets/world/props/bones-scattered.glb -440 0 -200 0 1.0 outskirts cull=180
+place assets/world/props/bones-scattered.glb 440 0 240 135 1.2 outskirts cull=180
+place assets/world/props/debris.glb 180 0 470 60 1.1 outskirts cull=200
+place assets/world/props/debris.glb -450 0 300 210 0.9 outskirts cull=200
+place assets/world/props/debris.glb 450 0 -300 150 1.3 outskirts cull=200
+place assets/world/props/pine-crooked.glb 420 0 380 200 1.0 outskirts cull=400
+place assets/world/props/pine-crooked.glb -420 0 -380 100 1.2 outskirts cull=400
+place assets/world/props/pine-crooked.glb 250 0 -450 300 0.8 outskirts cull=400
+place assets/world/props/gravestone-cross.glb -260 0 420 0 1.0 outskirts cull=180
+place assets/world/props/gravestone-cross.glb -240 0 440 25 0.9 outskirts cull=180
