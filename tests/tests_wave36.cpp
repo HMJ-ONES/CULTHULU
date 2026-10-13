@@ -287,6 +287,13 @@ static void testFxForEvent() {
     // Micro-dev (2026-10-12): the low-health ping resolves to the same
     // alarm burst as the GOO-under-attack warning.
     CHECK(fxForEvent(EventType::PlayerLowHp, r.library) == stun);
+    // Micro-dev (2026-10-12): the dungeon-hazard sweep — spike pits,
+    // cave-ins and abyss falls get impact smoke; the dhole's tremor
+    // telegraph gets the dread mist, like the whispers it precedes.
+    CHECK(fxForEvent(EventType::SpikePitSprung, r.library) == aoe);
+    CHECK(fxForEvent(EventType::CaveIn, r.library) == aoe);
+    CHECK(fxForEvent(EventType::AbyssPitFall, r.library) == aoe);
+    CHECK(fxForEvent(EventType::DholeTremors, r.library) == aura);
     // Quiet background events stay unmapped (still text-only / silent).
     CHECK(fxForEvent(EventType::CombatStarted, r.library) == nullptr);
     CHECK(fxForEvent(EventType::SuppliesGathered, r.library) == nullptr);

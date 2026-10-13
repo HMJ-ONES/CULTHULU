@@ -724,6 +724,85 @@ struct BetaGame {
                 std::cout << "*** " << p->name << " claimed " << relic
                           << "! (+" << pct << "% damage) ***\n";
         });
+        // Micro-dev (2026-10-12): the dungeon hazards were narratively
+        // silent — SpikePitSprung, CaveIn, AbyssPitFall, MaddeningWhispers,
+        // DholeTremors, DholeAmbush and DungeonCompleted all publish on the
+        // session bus but nothing in the driver subscribed, so a Vale of
+        // Pnath run's most dramatic moments printed nothing. They get
+        // [dungeon]/[pnath] lines (like the [city] convention) plus the FX
+        // cue each event now resolves to.
+        bus.subscribe(EventType::SpikePitSprung, [this](const GameEvent& e) {
+            std::cout << "[dungeon] a spike pit springs beneath entity "
+                      << e.sourceId << "! (-"
+                      << static_cast<int>(e.amount) << "hp)";
+            const FxPreset* p = fxForEvent(EventType::SpikePitSprung, fxLib);
+            if (p)
+                std::cout << " — fx: " << p->id << " (" << p->displayName
+                          << ")";
+            std::cout << "\n";
+        });
+        bus.subscribe(EventType::CaveIn, [this](const GameEvent& e) {
+            std::cout << "[dungeon] the ceiling caves in";
+            if (e.tag == "sealed")
+                std::cout << " — the passage is SEALED";
+            else
+                std::cout << " on entity " << e.targetId << " (-"
+                          << static_cast<int>(e.amount) << "hp)";
+            std::cout << "!";
+            const FxPreset* p = fxForEvent(EventType::CaveIn, fxLib);
+            if (p)
+                std::cout << " — fx: " << p->id << " (" << p->displayName
+                          << ")";
+            std::cout << "\n";
+        });
+        bus.subscribe(EventType::AbyssPitFall, [this](const GameEvent& e) {
+            std::cout << "[pnath] entity " << e.sourceId
+                      << " plunges into an abyss pit! (-"
+                      << static_cast<int>(e.amount) << "hp)";
+            const FxPreset* p = fxForEvent(EventType::AbyssPitFall, fxLib);
+            if (p)
+                std::cout << " — fx: " << p->id << " (" << p->displayName
+                          << ")";
+            std::cout << "\n";
+        });
+        bus.subscribe(EventType::MaddeningWhispers, [this](const GameEvent& e) {
+            std::cout << "[pnath] maddening whispers coil through the dark "
+                         "(entity " << e.targetId << ", +"
+                      << static_cast<int>(e.amount) << " fear)";
+            const FxPreset* p = fxForEvent(EventType::MaddeningWhispers, fxLib);
+            if (p)
+                std::cout << " — fx: " << p->id << " (" << p->displayName
+                          << ")";
+            std::cout << "\n";
+        });
+        bus.subscribe(EventType::DholeTremors, [this](const GameEvent& e) {
+            std::cout << "[pnath] the tunnels TREMBLE — something vast "
+                         "stirs below...";
+            const FxPreset* p = fxForEvent(EventType::DholeTremors, fxLib);
+            if (p)
+                std::cout << " (fx: " << p->id << ")";
+            std::cout << "\n";
+            (void)e;
+        });
+        bus.subscribe(EventType::DholeAmbush, [this](const GameEvent& e) {
+            std::cout << "[pnath] a DHOLE bursts from the tunnel wall — "
+                         "entity " << e.targetId << " is mauled! (-"
+                      << static_cast<int>(e.amount) << "hp)";
+            const FxPreset* p = fxForEvent(EventType::DholeAmbush, fxLib);
+            if (p)
+                std::cout << " — fx: " << p->id << " (" << p->displayName
+                          << ")";
+            std::cout << "\n";
+        });
+        bus.subscribe(EventType::DungeonCompleted, [this](const GameEvent& e) {
+            std::cout << "[dungeon] the dungeon lies conquered — its "
+                         "master is slain!";
+            const FxPreset* p = fxForEvent(EventType::DungeonCompleted, fxLib);
+            if (p)
+                std::cout << " (fx: " << p->id << ")";
+            std::cout << "\n";
+            (void)e;
+        });
     }
 
     void setupWorld() {

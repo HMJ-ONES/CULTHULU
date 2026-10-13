@@ -284,6 +284,20 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // Dread mist rolling through the Vale — the fear_aura preset
             // was practically authored for this event.
             return lib.find("fear_aura");
+        // Micro-dev (2026-10-12): the dungeon-hazard sweep. These fired
+        // from DungeonInstance/ValeOfPnath with no preset at all, so the
+        // engine got no visual cue for spike pits, cave-ins, abyss-pit
+        // falls, or the dhole's tremor telegraph. All reuse existing
+        // presets — no new FX asset, particle budget untouched.
+        case EventType::SpikePitSprung:
+        case EventType::CaveIn:
+        case EventType::AbyssPitFall:
+            // Impact smoke at the hazard site.
+            return lib.find("aoe_damage");
+        case EventType::DholeTremors:
+            // The telegraph warning: dread mist rolling through the Vale,
+            // same preset as the whispers it keeps company with.
+            return lib.find("fear_aura");
         case EventType::PointCaptured:
         case EventType::AchievementUnlocked:
         case EventType::MatchPoint:
