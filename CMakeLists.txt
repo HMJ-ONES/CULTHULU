@@ -508,3 +508,8 @@ target_link_libraries(cultulhu_tests_micro_kitstatus PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_kitstatus COMMAND cultulhu_tests_micro_kitstatus)
 set_tests_properties(cultulhu_tests_micro_kitstatus PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_matchendlog tests/tests_micro_matchendlog.cpp)
+target_link_libraries(cultulhu_tests_micro_matchendlog PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_matchendlog COMMAND cultulhu_tests_micro_matchendlog)
+set_tests_properties(cultulhu_tests_micro_matchendlog PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

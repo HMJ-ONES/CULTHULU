@@ -91,6 +91,60 @@ void MatchLogger::attach(Match& match) {
                                "START " + modeName + " (5v5)"});
         });
 
+    // 2 PM build (2026-10-13): the exported story had no closing beat —
+    // it stopped after the last KILL/STREAK line with no winner or score.
+    // MatchEnded fires once when isOver() first becomes true
+    // (GameMode::noteMatchTick), after attach(), so the logger always
+    // catches it. Same mode-name + score convention as the driver's
+    // MatchEnded console subscriber. Exported-log line only — the
+    // driver's console announcement already exists; no new print lines.
+    sub(EventType::MatchEnded,
+        [this, &match](const GameEvent& e) {
+            const std::string modeName = (e.tag == "capture")   ? "Domination"
+                                         : (e.tag == "moba")    ? "DOTGOO"
+                                                               : e.tag;
+            std::string line = "END " + modeName + " — ";
+            if (e.faction >= 0)
+                line += "team " + std::to_string(e.faction) + " wins";
+            else
+                line += "draw";
+            if (e.tag == "capture" && match.capture())
+                line += " (" +
+                        std::to_string(static_cast<int>(
+                            match.capture()->score(0))) +
+                        "-" +
+                        std::to_string(static_cast<int>(
+                            match.capture()->score(1))) +
+                        ")";
+            else if (e.tag == "moba" && match.moba())
+                line += " (base " +
+                        std::to_string(static_cast<int>(
+                            match.moba()->baseHp(0))) +
+                        "/" +
+                        std::to_string(static_cast<int>(
+                            match.moba()->baseHp(1))) +
+                        ")";
+            events_.push_back({match.elapsed(), "END", line});
+        });
+
+    // 2 PM build (2026-10-13): achievements never reached the exported
+    // story — the unlock stayed out of the GitHub log even though the
+    // driver's second-person callout fires in-game. One line per unlock
+    // with the player's name/kit/team, mirroring the KILL handler's
+    // attribution. sourceId 0 (unattributed, sim-driven) falls back to
+    // the tag alone.
+    sub(EventType::AchievementUnlocked,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* p = match.findPlayer(e.sourceId);
+            std::string line = "ACHIEVE ";
+            if (p)
+                line += p->name + "<" + shortKit(p->kitId) + ">t" +
+                        std::to_string(p->team) + " unlocked " + e.tag;
+            else
+                line += e.tag;
+            events_.push_back({match.elapsed(), "ACHIEVE", line});
+        });
+
     // Find our player index by id (stable for the match).
     sub(EventType::PlayerKilled,
         [this, &match](const GameEvent& e) {
