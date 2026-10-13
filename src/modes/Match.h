@@ -120,6 +120,11 @@ public:
         // Level 3: pick the other. Level 6: the ult (R) unlocks.
         bool qUnlocked = false, fUnlocked = false, rUnlocked = false;
         int pendingPicks = 0; // DOTGOO: unspent ability draft choices
+        // Micro-dev (2026-10-12): Domination ults start at 0% charge on a
+        // full 40–60s cooldown — the one cooldown a player actually waits
+        // on. While true, the tick publishes UltCharged once when rCd
+        // completes; consumed on fire, never re-armed by recasting.
+        bool rChargePending = false;
         // Wave 42: Cthulhu's rock (Domination only — no minions to dominate).
         // RMB aimed at the ground rips a chunk of rock: frontal shield
         // (half damage, soaks 6 melee-hits) + heavy swings (1.0 each) +

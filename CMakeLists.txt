@@ -323,3 +323,8 @@ target_link_libraries(cultulhu_tests_micro_unlockname PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_unlockname COMMAND cultulhu_tests_micro_unlockname)
 set_tests_properties(cultulhu_tests_micro_unlockname PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_ultcharged tests/tests_micro_ultcharged.cpp)
+target_link_libraries(cultulhu_tests_micro_ultcharged PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_ultcharged COMMAND cultulhu_tests_micro_ultcharged)
+set_tests_properties(cultulhu_tests_micro_ultcharged PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

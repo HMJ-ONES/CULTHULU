@@ -249,6 +249,13 @@ enum class EventType {
                          // clock expired on a tie, sudden death begins.
                          // Published once; first score ends the match
                          // (120s cap, then a draw).
+    UltCharged,          // micro-dev (2026-10-12): Domination — a fighter's
+                         // ult finished its opening full-cooldown charge and
+                         // is ready to cast. sourceId = player id;
+                         // tag = ult ability name; faction = team.
+                         // Published once per match per player (the flag is
+                         // consumed — casting the ult and re-charging it
+                         // never re-fires).
     MatchEnded,          // tag = mode name; faction = winner team (-1 draw)
     AchievementUnlocked, // tag = achievement id; the dark takes note
 

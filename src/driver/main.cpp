@@ -488,6 +488,23 @@ struct BetaGame {
         bus.subscribe(EventType::OvertimeStarted, [](const GameEvent&) {
             std::cout << "*** OVERTIME — sudden death! First score wins! ***\n";
         });
+        // Micro-dev (2026-10-12): Domination ults start at 0% charge on a
+        // full 40–60s cooldown — the one cooldown a player actually waits
+        // on. Ping once when the opening charge completes so nobody has to
+        // poll `match status`. Your own fighter gets the personal read;
+        // everyone else (bots included) is intel — you want to know when
+        // the enemy's big button comes online.
+        bus.subscribe(EventType::UltCharged, [this](const GameEvent& e) {
+            const Match::Player* p =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            const std::string who = p ? p->name : "a fighter";
+            if (e.sourceId == humanMatchId)
+                std::cout << "*** Your ULT is ready — " << e.tag
+                          << "! ***\n";
+            else
+                std::cout << "*** " << who << "'s ult is ready (" << e.tag
+                          << ") ***\n";
+        });
         // Micro-dev (2026-10-12): a match used to end with nothing on the
         // console — the only sign was the match-log upload line, so the
         // final result never landed as a beat. Name the winner out loud.

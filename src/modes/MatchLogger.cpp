@@ -227,6 +227,21 @@ void MatchLogger::attach(Match& match) {
                 {match.elapsed(), "OVERTIME",
                  "OVERTIME sudden death begins — first score wins"});
         });
+
+    // Micro-dev (2026-10-12): Domination's opening ult charge completing
+    // is a story beat — the moment each fighter's big button comes online.
+    // The exported log should carry it, not just the KILL lines.
+    match.bus().subscribe(EventType::UltCharged,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* p = match.findPlayer(e.sourceId);
+            const std::string ps =
+                p ? (p->name + "<" + shortKit(p->kitId) + ">t" +
+                     std::to_string(p->team))
+                  : "?";
+            events_.push_back(
+                {match.elapsed(), "ULTREADY",
+                 "ULTREADY " + ps + " — " + e.tag + " charged"});
+        });
 }
 
 void MatchLogger::poll(Match& match) {

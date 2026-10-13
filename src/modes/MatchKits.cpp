@@ -96,12 +96,16 @@ void Match::initAbilityUnlocks(Player& p) {
         p.qUnlocked = p.fUnlocked = p.rUnlocked = false;
         p.pendingPicks = 1; // level 1: choose your first ability
         p.qCd = p.fCd = p.rCd = 0.0;
+        p.rChargePending = false; // DOTGOO ults arrive via draft, never charged
     } else {
         p.qUnlocked = p.fUnlocked = p.rUnlocked = true;
         p.pendingPicks = 0;
         p.qCd = p.fCd = 0.0;
         // Ult starts at 0%: full cooldown from the opening whistle.
         p.rCd = kit ? kit->rAbility.cooldownSec : 45.0;
+        // Micro-dev (2026-10-12): arm the one-shot "ult ready" ping for
+        // this opening charge.
+        p.rChargePending = true;
     }
     p.rmbCd = 0.0;
 }

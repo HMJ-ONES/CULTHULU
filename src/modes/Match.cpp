@@ -189,7 +189,21 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
     // Wave 40: kit cooldowns and status timers tick for everyone.
     if (p.qCd > 0) p.qCd -= dt;
     if (p.fCd > 0) p.fCd -= dt;
+    // Micro-dev (2026-10-12): the Domination opening ult charge is the one
+    // cooldown a player actually waits on — ping once when it completes so
+    // nobody has to poll `match status`. One-shot: the flag is consumed on
+    // fire, so casting the ult and re-charging it stays silent.
+    const bool rWasCharging = p.rCd > 0.0;
     if (p.rCd > 0) p.rCd -= dt;
+    if (p.rChargePending && rWasCharging && p.rCd <= 0.0) {
+        p.rChargePending = false;
+        GameEvent uc(EventType::UltCharged);
+        uc.sourceId = p.id;
+        const CharacterDef* kit = kitOf(p);
+        uc.tag = kit ? kit->rAbility.name : "ult";
+        uc.faction = p.team;
+        bus_.publish(uc);
+    }
     if (p.rmbCd > 0) p.rmbCd -= dt;
     if (p.ccTimer > 0) p.ccTimer -= dt;
     if (p.fearTimer > 0) p.fearTimer -= dt;
@@ -619,6 +633,11 @@ bool Match::setPlayerKit(uint64_t id, const std::string& kitId) {
         if (p.id == id) {
             p.kitId = kitId;
             p.qCd = p.fCd = p.rCd = p.rmbCd = 0.0;
+            // Micro-dev (2026-10-12): a kit swap is a fresh charge in
+            // Domination (rCd is re-applied to full by the caller/8 PM fix
+            // — the rWasCharging guard means no phantom ping while rCd is
+            // zero). DOTGOO ults arrive via draft, never charged.
+            p.rChargePending = (modeName_ != "moba");
             return true;
         }
     return false;
