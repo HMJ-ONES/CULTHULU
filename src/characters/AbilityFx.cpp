@@ -271,6 +271,7 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::CCApplied:
         case EventType::OvertimeStarted:
         case EventType::RelicChannelInterrupted:
+        case EventType::SummoningInterrupted:
             // A sharp burst for the match's punctuation moments:
             // DOUBLE KILL / RAMPAGE, the shutdown callout, the held-fast
             // jolt, and the sudden-death jolt. Micro-dev (2026-10-13):
@@ -281,6 +282,11 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // Micro-dev (2026-10-13): the relic-channel-break beat lands
             // here too — a snapped conjuration reads as a jolt at the
             // channel site, the anti-image of the channel-start halo.
+            //
+            // Micro-dev (2026-10-13): a snapped GrandSummoning rite lands
+            // here as well — the anti-image of the ChampionSummoned
+            // arrival halo, a jolt at the rite site where the summoning
+            // broke (both publish sites stamp pos).
             // No new preset needed.
             return lib.find("stun");
         case EventType::FirstBlood:
