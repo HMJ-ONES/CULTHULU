@@ -274,6 +274,11 @@ static void testFxForEvent() {
     // Micro-dev (2026-10-13): slain monstrosities resolve with the
     // same impact burst as the other death beats.
     CHECK(fxForEvent(EventType::MonstrositySlain, r.library) == aoe);
+    // Micro-dev (2026-10-13): civilians slain by abilities resolve
+    // with the same impact burst — ability kills, Wave of Domination
+    // victims, and razed-city casualties were the last death beats
+    // with no visual.
+    CHECK(fxForEvent(EventType::CivilianSlain, r.library) == aoe);
     CHECK(fxForEvent(EventType::RelicManifested, r.library) == summon);
     CHECK(fxForEvent(EventType::RelicClaimed, r.library) == summon);
     // Micro-dev (2026-10-13): a champion answering the GrandSummoning

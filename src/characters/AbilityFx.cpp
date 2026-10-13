@@ -293,9 +293,16 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::PlayerKilled:
         case EventType::DholeAmbush:
         case EventType::MonstrositySlain:
+        case EventType::CivilianSlain:
             // Raw violence — impact smoke at the scene of the death.
             // Micro-dev (2026-10-13): a slain monstrosity joins the
             // death beats — same impact burst, no new preset.
+            //
+            // Micro-dev (2026-10-13): civilians slain by abilities join
+            // the death beats too — ability kills (KitCaster), Wave of
+            // Domination victims, and razed-city casualties resolved to
+            // nullptr while fighter and monstrosity deaths had impact
+            // smoke. Same burst, no new preset.
             return lib.find("aoe_damage");
         case EventType::RelicManifested:
         case EventType::RelicClaimed:
