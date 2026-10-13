@@ -334,7 +334,14 @@ static void testFxForEvent() {
     CHECK(fxForEvent(EventType::SpikePitSprung, r.library) == aoe);
     CHECK(fxForEvent(EventType::CaveIn, r.library) == aoe);
     CHECK(fxForEvent(EventType::AbyssPitFall, r.library) == aoe);
+    // Micro-dev (2026-10-13): a sprung trap joins the hazard group —
+    // world traps and dungeon hidden traps get the same impact smoke.
+    CHECK(fxForEvent(EventType::TrapSprung, r.library) == aoe);
     CHECK(fxForEvent(EventType::DholeTremors, r.library) == aura);
+    // Micro-dev (2026-10-13): a completed blighted zone joins the dread
+    // mist — the BlightLand directive's finished work is marked at the
+    // zone center the publish site stamps.
+    CHECK(fxForEvent(EventType::ZoneBlighted, r.library) == aura);
     // Micro-dev (2026-10-13): CCApplied gets the sharp alarm burst — a
     // stun/root landing is as urgent as a kill streak.
     CHECK(fxForEvent(EventType::CCApplied, r.library) == stun);

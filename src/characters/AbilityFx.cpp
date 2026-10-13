@@ -351,12 +351,22 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::MaddeningWhispers:
             // Dread mist rolling through the Vale — the fear_aura preset
             // was practically authored for this event.
+            // Micro-dev (2026-10-13): a blighted zone's completion lands
+            // here too — dread mist rolling over the zone center marks
+            // the BlightLand directive's finished work (the publish site
+            // stamps pos at the zone center). No new preset.
+        case EventType::ZoneBlighted:
             return lib.find("fear_aura");
         // Micro-dev (2026-10-12): the dungeon-hazard sweep. These fired
         // from DungeonInstance/ValeOfPnath with no preset at all, so the
         // engine got no visual cue for spike pits, cave-ins, abyss-pit
         // falls, or the dhole's tremor telegraph. All reuse existing
         // presets — no new FX asset, particle budget untouched.
+        // Micro-dev (2026-10-13): a sprung trap joins the hazard group —
+        // world traps and dungeon hidden traps fired with no visual
+        // while spike pits, cave-ins, and abyss pits all burst with
+        // impact smoke. Same preset at the trap site, no new asset.
+        case EventType::TrapSprung:
         case EventType::SpikePitSprung:
         case EventType::CaveIn:
         case EventType::AbyssPitFall:
