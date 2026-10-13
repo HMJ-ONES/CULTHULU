@@ -333,6 +333,11 @@ target_link_libraries(cultulhu_tests_micro_you PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_you COMMAND cultulhu_tests_micro_you)
 set_tests_properties(cultulhu_tests_micro_you PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_towerunderattack tests/tests_micro_towerunderattack.cpp)
+target_link_libraries(cultulhu_tests_micro_towerunderattack PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_towerunderattack COMMAND cultulhu_tests_micro_towerunderattack)
+set_tests_properties(cultulhu_tests_micro_towerunderattack PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_executable(cultulhu_tests_micro_goounderattack tests/tests_micro_goounderattack.cpp)
 target_link_libraries(cultulhu_tests_micro_goounderattack PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_goounderattack COMMAND cultulhu_tests_micro_goounderattack)

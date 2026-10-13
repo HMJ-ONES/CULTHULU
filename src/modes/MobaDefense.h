@@ -216,6 +216,12 @@ protected:
     // whose hp just crossed zero; callers guard the crossing so each
     // tower reports exactly once.
     void publishTowerDown(const Tower& t, uint64_t killerId);
+    // Micro-dev (2026-10-13): "tower under attack" warning — a tower took
+    // its first scratch. Publishes EventType::TowerUnderAttack once when a
+    // pristine tower is hit (towers never heal, so pre-hit hp == maxHp
+    // identifies the first hit by construction); the killing blow skips the
+    // warning and goes straight to publishTowerDown.
+    void damageTower(Tower& t, float dmg, uint64_t attackerId);
     Minion makeMinion(int team, int lane, const std::string& kind, Vec3 pos,
                       float empower = 1.0f);
 };

@@ -270,6 +270,13 @@ enum class EventType {
                          // sourceId = killing-blow entity id (0 when minions
                          // or siege did it); faction = fallen tower's team;
                          // amount = lane index; tag = lane name
+    TowerUnderAttack,    // micro-dev (2026-10-13): a DOTGOO tower is taking
+                         // damage — published on the first scratch only
+                         // (towers never heal, so the first hit is once-only
+                         // by construction); faction = defending team;
+                         // sourceId = attacker id (0 unknown/minion);
+                         // amount = hp fraction 0..1 after the hit;
+                         // tag = lane name; pos = tower pos
     MatchStarted,        // tag = mode name ("capture", "moba")
     MatchPoint,          // micro-dev (2026-10-12): Domination — a team
                          // first crossed MATCH_POINT_SCORE; faction = team;

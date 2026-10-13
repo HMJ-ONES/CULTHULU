@@ -177,6 +177,24 @@ void MatchLogger::attach(Match& match) {
                      std::to_string(pct) + "% << " + as});
         });
 
+    // Micro-dev (2026-10-13): the first-scratch tower warning left no trace
+    // in the exported log — the story jumped from lane pushing to a fallen
+    // tower. TOWERATTACK lands next to TOWER with the team, lane, HP %, and
+    // the attacker attribution.
+    sub(EventType::TowerUnderAttack,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* a = match.findPlayer(e.sourceId);
+            const std::string as =
+                a ? (a->name + "<" + shortKit(a->kitId) + ">t" +
+                     std::to_string(a->team))
+                  : "minions";
+            const int pct = static_cast<int>(e.amount * 100.0 + 0.5);
+            events_.push_back(
+                {match.elapsed(), "TOWERATTACK",
+                 "TOWERATTACK t" + std::to_string(e.faction) + " " + e.tag +
+                     " " + std::to_string(pct) + "% << " + as});
+        });
+
     // Micro-dev (2026-10-12): the killing blow left no trace in the
     // exported log — the story ended at the GOOATTACK warnings and the
     // VICTORY line with no record of the god falling. Name the god's

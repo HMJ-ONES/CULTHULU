@@ -60,6 +60,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <cctype>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -541,6 +542,29 @@ struct BetaGame {
             else
                 std::cout << "*** TOWER DOWN — team " << e.faction << "'s "
                           << e.tag << " tower falls to " << ks << " ***\n";
+        });
+        // Micro-dev (2026-10-13): "tower under attack" warning — a DOTGOO
+        // tower started taking damage with zero warning: the console jumped
+        // from lane pushing to TOWER DOWN, so nobody defended. MobaDefense
+        // publishes TowerUnderAttack on the first scratch (towers never
+        // heal, so the first hit is once-only by construction); the killing
+        // blow skips it — TowerDestroyed is its announcement. Same team
+        // gate as the GreatOldOneUnderAttack callout: the defending team's
+        // human gets the urgent read.
+        bus.subscribe(EventType::TowerUnderAttack, [this](const GameEvent& e) {
+            const Match::Player* h = (match && humanMatchId != 0)
+                                         ? match->findPlayer(humanMatchId)
+                                         : nullptr;
+            const int humanTeam = h ? h->team : -1;
+            const int pct = static_cast<int>(e.amount * 100.0 + 0.5);
+            std::string lane = e.tag.empty() ? "tower" : e.tag;
+            for (char& c : lane) c = static_cast<char>(std::toupper(c));
+            if (e.faction == humanTeam)
+                std::cout << "*** YOUR " << lane << " TOWER IS UNDER ATTACK! ("
+                          << pct << "% HP) ***\n";
+            else
+                std::cout << "*** Team " << e.faction << "'s " << e.tag
+                          << " tower is under attack (" << pct << "% HP) ***\n";
         });
         // Micro-dev (2026-10-12): DOTGOO teams learned their Great Old One
         // was being hit only when it died. MobaDefense warns on the first
@@ -3796,7 +3820,6 @@ void printArrivalSurvey(BetaGame& g) {
 #include <mutex>
 #include <queue>
 #include <atomic>
-#include <cctype>
 #include <chrono>
 #ifndef _WIN32
 #include <sys/select.h>
