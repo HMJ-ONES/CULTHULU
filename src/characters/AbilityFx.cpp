@@ -286,15 +286,23 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::FirstBlood:
         case EventType::PlayerKilled:
         case EventType::DholeAmbush:
+        case EventType::MonstrositySlain:
             // Raw violence — impact smoke at the scene of the death.
+            // Micro-dev (2026-10-13): a slain monstrosity joins the
+            // death beats — same impact burst, no new preset.
             return lib.find("aoe_damage");
         case EventType::RelicManifested:
         case EventType::RelicClaimed:
         case EventType::MatchStarted:
+        case EventType::ChampionSummoned:
             // A rift opens as the relic manifests / is seized — and as
             // the arena itself opens. Micro-dev (2026-10-13): the
             // match's opening beat had no visual; it reads as a
             // manifestation, same preset class, no new asset.
+            //
+            // Micro-dev (2026-10-13): a champion answering the
+            // GrandSummoning rite is the same arrival class — a
+            // manifestation at the summoning site. No new preset.
             return lib.find("summon");
         // Micro-dev (2026-10-13): the Wave of Domination's lifecycle
         // beats were FX-less — in DOTGOO, Cthulhu's signature RMB

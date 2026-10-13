@@ -271,8 +271,14 @@ static void testFxForEvent() {
     CHECK(fxForEvent(EventType::FirstBlood, r.library) == aoe);
     CHECK(fxForEvent(EventType::PlayerKilled, r.library) == aoe);
     CHECK(fxForEvent(EventType::DholeAmbush, r.library) == aoe);
+    // Micro-dev (2026-10-13): slain monstrosities resolve with the
+    // same impact burst as the other death beats.
+    CHECK(fxForEvent(EventType::MonstrositySlain, r.library) == aoe);
     CHECK(fxForEvent(EventType::RelicManifested, r.library) == summon);
     CHECK(fxForEvent(EventType::RelicClaimed, r.library) == summon);
+    // Micro-dev (2026-10-13): a champion answering the GrandSummoning
+    // rite resolves like a manifestation at the summoning site.
+    CHECK(fxForEvent(EventType::ChampionSummoned, r.library) == summon);
     // Micro-dev (2026-10-13): the match's own bookends get visuals —
     // the opening beat resolves like a manifestation, the end like a
     // triumph. No new presets; both events already exist and publish.
