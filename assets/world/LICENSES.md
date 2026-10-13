@@ -19,7 +19,7 @@ given below as a courtesy.
   stone-wall-column, gravestone-cross, gravestone-broken, gravestone-round,
   gravestone-wide, cross, pine-crooked, pine-fall, debris,
   gravestone-debris, fence-damaged, iron-fence, altar-stone, altar-wood,
-  fire-basket, pillar-obelisk, pillar-large, candle-multiple.
+  fire-basket, pillar-large, candle-multiple.
 
 ### 2. Castle Kit (v2.0)
 - Pack page: https://kenney.nl/assets/castle-kit — License row on the page

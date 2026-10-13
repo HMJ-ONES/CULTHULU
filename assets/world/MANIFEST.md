@@ -41,7 +41,6 @@ into the 512x512 palette (at the texture budget limit, not over).
 | `cult/altar-stone.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 166 | 16.8 KB | textures/colormap-graveyard-kit.png (512x512) |
 | `cult/altar-wood.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 306 | 27.7 KB | textures/colormap-graveyard-kit.png (512x512) |
 | `cult/fire-basket.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 196 | 18.3 KB | textures/colormap-graveyard-kit.png (512x512) |
-| `cult/pillar-obelisk.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 76 | 8.4 KB | textures/colormap-graveyard-kit.png (512x512) |
 | `cult/pillar-large.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 152 | 16.7 KB | textures/colormap-graveyard-kit.png (512x512) |
 | `cult/banner.glb` | [Mini Dungeon](https://kenney.nl/assets/mini-dungeon) | CC0 1.0 | 200 | 18.8 KB | textures/colormap-mini-dungeon.png (512x512) |
 | `cult/candle-multiple.glb` | [Graveyard Kit](https://kenney.nl/assets/graveyard-kit) | CC0 1.0 | 162 | 16.9 KB | textures/colormap-graveyard-kit.png (512x512) |
@@ -84,7 +83,7 @@ Spare models not referenced by the map (available for extra placements):
 wall-corner, gate, tower-square-mid, tower-square-top, stairs-stone;
 `props/`: gravestone-broken, gravestone-round, gravestone-wide, cross,
 pine-fall, gravestone-debris, fence-damaged, iron-fence, barrel;
-`cult/`: altar-wood, pillar-obelisk, pillar-large, candle-multiple.
+`cult/`: altar-wood, pillar-large, candle-multiple.
 
 ## Budget compromises / notes
 
