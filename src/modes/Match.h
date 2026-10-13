@@ -144,6 +144,13 @@ public:
     enum class RmbAim { Normal, Down, Launch };
 
     Match(EventBus& bus, GameClock& clock, RNG& rng);
+    // 8 PM bug-fix (2026-10-12): unsubscribes the constructor's RelicClaimed
+    // handler from the session bus — the same dangling-subscriber class as
+    // the MatchLogger fix (a destroyed Match must not keep receiving events).
+    // Non-copyable: a copy would alias the subscription handle.
+    ~Match();
+    Match(const Match&) = delete;
+    Match& operator=(const Match&) = delete;
 
     // mode: "capture" or "moba". Builds the mode, its default map, and
     // team spawn bases. Returns false for unknown modes.
@@ -192,6 +199,10 @@ public:
     // Test/GM utility: grant XP directly (used by tests to stage
     // level-ups without playing out full fights).
     bool grantXp(uint64_t id, int amount);
+    // 8 PM bug-fix (2026-10-12): test-only mutator — stages an exact invoke
+    // charge count so regression tests can pin the trip-home threshold
+    // (no production path produces exactly 1 charge at level 10+ on demand).
+    void debugSetPendingInvokes(size_t playerIdx, int n);
     // Wave 40: assign a specific kit (used by tests for deterministic fights).
     bool setPlayerKit(uint64_t id, const std::string& kitId);
     // Wave 42: AFK takeover — bot pilots the human's fighter while away.
@@ -220,6 +231,9 @@ private:
     EventBus& bus_;
     GameClock& clock_;
     RNG& rng_;
+    // 8 PM bug-fix (2026-10-12): handle for the constructor's RelicClaimed
+    // subscription, removed in ~Match().
+    EventBus::Subscription relicSub_ = 0;
     std::string modeName_;
     std::unique_ptr<GameMode> mode_; // owns the concrete mode below
     CapturePointMode* capture_ = nullptr;

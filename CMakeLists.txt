@@ -338,3 +338,8 @@ target_link_libraries(cultulhu_tests_micro_relicclaim PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_relicclaim COMMAND cultulhu_tests_micro_relicclaim)
 set_tests_properties(cultulhu_tests_micro_relicclaim PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_detach tests/tests_micro_detach.cpp)
+target_link_libraries(cultulhu_tests_micro_detach PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_detach COMMAND cultulhu_tests_micro_detach)
+set_tests_properties(cultulhu_tests_micro_detach PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

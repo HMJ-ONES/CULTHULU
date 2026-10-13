@@ -19,7 +19,10 @@ Match::Match(EventBus& bus, GameClock& clock, RNG& rng)
     // Wave 33: MOBA relic claims — the holder's damage multiplier grows.
     // Guarded to moba mode: free-roam publishes RelicClaimed too (avatar
     // claims), and those must not touch match players.
-    bus_.subscribe(EventType::RelicClaimed, [this](const GameEvent& e) {
+    // 8 PM bug-fix (2026-10-12): the handle is stored so ~Match() can
+    // unsubscribe — otherwise this [this]-capturing handler survives the
+    // Match on the shared session bus (use-after-free on the next match).
+    relicSub_ = bus_.subscribe(EventType::RelicClaimed, [this](const GameEvent& e) {
         if (!moba_ || modeName_ != "moba") return;
         for (auto& p : players_) {
             if (p.id != e.sourceId) continue;
@@ -28,6 +31,12 @@ Match::Match(EventBus& bus, GameClock& clock, RNG& rng)
             break;
         }
     });
+}
+
+Match::~Match() {
+    // 8 PM bug-fix (2026-10-12): the constructor subscribed on the session
+    // bus, which outlives every Match — drop the handler here.
+    bus_.unsubscribe(relicSub_);
 }
 
 bool Match::start(const std::string& mode) {
@@ -336,11 +345,13 @@ bool Match::furthestFriendlyMinion(int team, int lane, Vec3& out) const {
 void Match::updateMobaObjective(Player& p, double dt) {
     MobaDefense& md = *moba_;
     float fdt = static_cast<float>(dt);
-    // Wave 33/34: a bot holding 2+ invoke charges AND level 10+ returns
-    // to base to channel them all. (The channel itself runs in
-    // updatePlayer.) Threshold of 2 + 180s trip cooldown prevents
-    // yo-yoing home every level.
-    if (p.pendingInvokes >= 2 && p.level >= MobaDefense::kTier1Level &&
+    // Wave 33/34: a bot holding invoke charges AND level 10+ returns to
+    // base to channel them all. (The channel itself runs in updatePlayer.)
+    // 8 PM bug-fix (2026-10-12): threshold is 1, not 2 — a bot banking
+    // exactly one charge that stops leveling used to sit on it forever.
+    // The 180s lastInvokeTrip gate already prevents yo-yoing, so >= 2 was
+    // redundant.
+    if (p.pendingInvokes >= 1 && p.level >= MobaDefense::kTier1Level &&
         !p.invoking && (elapsed_ - p.lastInvokeTrip) >= 180.0) {
         p.lastInvokeTrip = elapsed_;
         const Vec3 base = md.basePos(p.team);
@@ -478,6 +489,10 @@ void Match::damagePlayer(size_t victimIdx, float dmg,
 
 // Wave 34: XP economy. Level = 1 + xp/50; each level-up grants one
 // invoke charge.
+void Match::debugSetPendingInvokes(size_t playerIdx, int n) {
+    if (playerIdx < players_.size()) players_[playerIdx].pendingInvokes = n;
+}
+
 void Match::addXp(size_t playerIdx, int amount) {
     if (playerIdx >= players_.size() || amount <= 0) return;
     Player& p = players_[playerIdx];
@@ -632,12 +647,23 @@ bool Match::setPlayerKit(uint64_t id, const std::string& kitId) {
     for (auto& p : players_)
         if (p.id == id) {
             p.kitId = kitId;
-            p.qCd = p.fCd = p.rCd = p.rmbCd = 0.0;
-            // Micro-dev (2026-10-12): a kit swap is a fresh charge in
-            // Domination (rCd is re-applied to full by the caller/8 PM fix
-            // — the rWasCharging guard means no phantom ping while rCd is
-            // zero). DOTGOO ults arrive via draft, never charged.
-            p.rChargePending = (modeName_ != "moba");
+            p.qCd = p.fCd = p.rmbCd = 0.0;
+            if (modeName_ == "moba") {
+                // DOTGOO: ults arrive via draft, never charged — keep the
+                // zeroed cooldowns and leave draft unlocks untouched.
+                p.rCd = 0.0;
+                p.rChargePending = false;
+            } else {
+                // 8 PM bug-fix (2026-10-12): a kit swap is NOT a free ult.
+                // Domination's rule is the ult starts at 0% charge with its
+                // full R cooldown from the opening whistle
+                // (initAbilityUnlocks) — re-apply it here instead of
+                // zeroing, so `match join <kit-id>` can't cheat one in.
+                // Q/F stay ready; draft unlocks untouched.
+                const CharacterDef* kit = kitOf(p);
+                p.rCd = kit ? kit->rAbility.cooldownSec : 45.0;
+                p.rChargePending = true; // ready-ping fires on completion
+            }
             return true;
         }
     return false;

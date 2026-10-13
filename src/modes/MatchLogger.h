@@ -30,6 +30,13 @@ public:
     // Attach to the match's event bus. Call once right after match start.
     void attach(Match& match);
 
+    // 8 PM bug-fix (2026-10-12): detach from the bus. The driver calls this
+    // before tearing a match down — the old code left 13 handlers capturing
+    // a dangling &match on the shared session bus, so a second `match` in
+    // one session double-logged every event AND called match.findPlayer() /
+    // match.elapsed() on the destroyed object (use-after-free). Idempotent.
+    void detach();
+
     // Poll each tick for score/point changes (events don't cover those).
     void poll(Match& match);
 
@@ -47,6 +54,10 @@ private:
     int lastScore0_ = -1;
     int lastScore1_ = -1;
     uint64_t seed_ = 0;
+    // 8 PM bug-fix (2026-10-12): the bus we attached to plus our
+    // subscription handles, so detach() can remove them all.
+    EventBus* bus_ = nullptr;
+    std::vector<EventBus::Subscription> subs_;
 
     static std::string fmtT(double t);
     static std::string fmtPos(const Vec3& v);

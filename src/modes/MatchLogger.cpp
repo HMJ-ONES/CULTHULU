@@ -58,12 +58,22 @@ std::string MatchLogger::logPath(const std::string& mode, uint64_t seed) {
 }
 
 void MatchLogger::attach(Match& match) {
+    // 8 PM bug-fix (2026-10-12): drop stale subscriptions first — a second
+    // attach() in one session (new `match`) must not accumulate handlers.
+    detach();
     events_.clear();
     lastHolder_ = -2;
     lastScore0_ = lastScore1_ = -1;
 
+    EventBus& bus = match.bus();
+    bus_ = &bus;
+    // Collect every subscription handle so detach() can remove them.
+    auto sub = [&](EventType t, EventBus::Handler h) {
+        subs_.push_back(bus.subscribe(t, std::move(h)));
+    };
+
     // Find our player index by id (stable for the match).
-    match.bus().subscribe(EventType::PlayerKilled,
+    sub(EventType::PlayerKilled,
         [this, &match](const GameEvent& e) {
             const Match::Player* k = match.findPlayer(e.sourceId);
             const Match::Player* v = match.findPlayer(e.targetId);
@@ -82,7 +92,7 @@ void MatchLogger::attach(Match& match) {
 
     // Micro-dev (2026-10-12): first blood is the match's opening beat —
     // the exported story should carry it, not just the KILL line.
-    match.bus().subscribe(EventType::FirstBlood,
+    sub(EventType::FirstBlood,
         [this, &match](const GameEvent& e) {
             const Match::Player* k = match.findPlayer(e.sourceId);
             const Match::Player* v = match.findPlayer(e.targetId);
@@ -96,7 +106,7 @@ void MatchLogger::attach(Match& match) {
     // Micro-dev (2026-10-12): the dead used to come back with no trace in
     // the exported story — the DEAD row just vanished from `match status`.
     // Name the return so the log reads as a story with a second act.
-    match.bus().subscribe(EventType::PlayerRespawned,
+    sub(EventType::PlayerRespawned,
         [this, &match](const GameEvent& e) {
             const Match::Player* p = match.findPlayer(e.sourceId);
             const std::string ps = p ? p->name : "?";
@@ -109,7 +119,7 @@ void MatchLogger::attach(Match& match) {
     // Micro-dev (2026-10-12): DOTGOO tower falls used to leave no trace
     // in the exported match log — the story jumped from lanes pushing
     // to the GOO fight with no record of a crumbled defense.
-    match.bus().subscribe(EventType::TowerDestroyed,
+    sub(EventType::TowerDestroyed,
         [this, &match](const GameEvent& e) {
             const Match::Player* k = match.findPlayer(e.sourceId);
             const std::string ks =
@@ -124,7 +134,7 @@ void MatchLogger::attach(Match& match) {
 
     // Micro-dev (2026-10-12): the GOO taking damage left no trace in the
     // exported log — the story jumped from lanes pushing to a dead god.
-    match.bus().subscribe(EventType::GreatOldOneUnderAttack,
+    sub(EventType::GreatOldOneUnderAttack,
         [this, &match](const GameEvent& e) {
             const Match::Player* a = match.findPlayer(e.sourceId);
             const std::string as =
@@ -138,7 +148,7 @@ void MatchLogger::attach(Match& match) {
                      std::to_string(pct) + "% << " + as});
         });
 
-    match.bus().subscribe(EventType::AbilityCast,
+    sub(EventType::AbilityCast,
         [this, &match](const GameEvent& e) {
             // Wave 42: Cthulhu's rock casts are landmark events — always log
             // them. Other RMB spam stays out of the log.
@@ -159,7 +169,7 @@ void MatchLogger::attach(Match& match) {
                      "\" " + fmtDir(c->facingYaw) + " " + fmtPos(c->pos)});
         });
 
-    match.bus().subscribe(EventType::AbilityUnlocked,
+    sub(EventType::AbilityUnlocked,
         [this, &match](const GameEvent& e) {
             const Match::Player* p = match.findPlayer(e.sourceId);
             if (!p) return;
@@ -169,7 +179,7 @@ void MatchLogger::attach(Match& match) {
                      " -> " + e.tag});
         });
 
-    match.bus().subscribe(EventType::RelicClaimed,
+    sub(EventType::RelicClaimed,
         [this, &match](const GameEvent& e) {
             const Match::Player* p = match.findPlayer(e.sourceId);
             std::string who = p ? (p->name + "t" + std::to_string(p->team))
@@ -179,7 +189,7 @@ void MatchLogger::attach(Match& match) {
                  "RELIC " + who + " claimed \"" + e.tag + "\""});
         });
 
-    match.bus().subscribe(EventType::RelicManifested,
+    sub(EventType::RelicManifested,
         [this, &match](const GameEvent& e) {
             events_.push_back({match.elapsed(), "RELIC",
                                "OMEN mythic relic manifests: \"" + e.tag +
@@ -189,7 +199,7 @@ void MatchLogger::attach(Match& match) {
     // 11:30 AM convenience pass: kill streaks are the match's most
     // exciting beats but never reached the exported log — the GitHub
     // story skipped DOUBLE KILL / RAMPAGE entirely.
-    match.bus().subscribe(EventType::KillStreak,
+    sub(EventType::KillStreak,
         [this, &match](const GameEvent& e) {
             const Match::Player* p = match.findPlayer(e.sourceId);
             std::string who = p ? (p->name + "<" + shortKit(p->kitId) + ">t" +
@@ -209,7 +219,7 @@ void MatchLogger::attach(Match& match) {
     // Micro-dev (2026-10-12): the match-point callout is the match's
     // climax beat — the exported story should carry it, not just SCORE
     // milestones.
-    match.bus().subscribe(EventType::MatchPoint,
+    sub(EventType::MatchPoint,
         [this, &match](const GameEvent& e) {
             const int toWin = static_cast<int>(
                 CapturePointMode::TARGET_SCORE - e.amount);
@@ -221,7 +231,7 @@ void MatchLogger::attach(Match& match) {
 
     // Micro-dev (2026-10-12): sudden death is the match's wildest beat —
     // the exported story should record the flip, not just trail off.
-    match.bus().subscribe(EventType::OvertimeStarted,
+    sub(EventType::OvertimeStarted,
         [this, &match](const GameEvent&) {
             events_.push_back(
                 {match.elapsed(), "OVERTIME",
@@ -231,7 +241,7 @@ void MatchLogger::attach(Match& match) {
     // Micro-dev (2026-10-12): Domination's opening ult charge completing
     // is a story beat — the moment each fighter's big button comes online.
     // The exported log should carry it, not just the KILL lines.
-    match.bus().subscribe(EventType::UltCharged,
+    sub(EventType::UltCharged,
         [this, &match](const GameEvent& e) {
             const Match::Player* p = match.findPlayer(e.sourceId);
             const std::string ps =
@@ -242,6 +252,13 @@ void MatchLogger::attach(Match& match) {
                 {match.elapsed(), "ULTREADY",
                  "ULTREADY " + ps + " — " + e.tag + " charged"});
         });
+}
+
+void MatchLogger::detach() {
+    if (!bus_) return;
+    for (EventBus::Subscription s : subs_) bus_->unsubscribe(s);
+    subs_.clear();
+    bus_ = nullptr;
 }
 
 void MatchLogger::poll(Match& match) {

@@ -1181,13 +1181,13 @@ struct BetaGame {
             "  join <ip> <port> <name>              join a lobby\n"
             "  ready | players | startgame [force] [domination|dotgoo|freeroam]\n"
             "  chat <msg> | netent | leave\n"
-            "  match <domination|dotgoo|join [team]|addbot <team>|status|end>\n"
+            "  match <domination|dotgoo|join [team] [kit-id]|addbot <team>|status|end>\n"
             "    (domination = 5v5 capture point, dotgoo = Defense of the Great Old Ones)\n"
+            "    run a local 5v5 match\n"
             "  select                              pick your fighter by clicking\n"
             "                                      (opens tools/match_select.html)\n"
             "  mcast <q|f|r|rmb> [yaw-degrees]  cast your kit ability (after match join)\n"
-            "  mpick <q|f>                     draft an ability (DOTGOO level-up picks)\n"
-            "                                          run a local 5v5 match\n"
+            "  mpick <q|f>                      draft an ability (DOTGOO level-up picks)\n"
             "  build <wall|barracks|watchtower|trap|portal|altar>\n"
             "                                          start construction\n"
             "  menu [cultist|location|enemy|altar]  radial command menu demo\n"
@@ -2185,6 +2185,10 @@ static bool processLine(BetaGame& g, NetSession& nets,
             if (sub == "dotgoo") modeArg = "moba";
             if (sub == "capture" || sub == "moba" || sub == "domination" ||
                 sub == "dotgoo") {
+                // 8 PM bug-fix (2026-10-12): drop the previous match's log
+                // subscriptions BEFORE the old Match is destroyed — stale
+                // handlers captured a dangling &match (double logs + UAF).
+                g.matchLogger.detach();
                 g.match = std::make_unique<Match>(g.bus, g.clock, g.rng);
                 if (!g.match->start(modeArg)) {
                     g.match.reset();
@@ -2319,10 +2323,13 @@ static bool processLine(BetaGame& g, NetSession& nets,
                     g.uploadMatchLog();
                 }
                 if (g.match) std::cout << "match aborted\n";
+                // 8 PM bug-fix (2026-10-12): same detach as above — the
+                // logger's handlers die with the match, never after it.
+                g.matchLogger.detach();
                 g.match.reset();
                 g.humanMatchId = 0;
             } else {
-                std::cout << "usage: match <domination|dotgoo|join [team]|addbot <team>|status|end>\n";
+                std::cout << "usage: match <domination|dotgoo|join [team] [kit-id]|addbot <team>|status|end>\n";
             }
             return true;
         }
