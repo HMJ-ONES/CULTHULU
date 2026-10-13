@@ -468,3 +468,8 @@ target_link_libraries(cultulhu_tests_micro_towerdown_you PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_towerdown_you COMMAND cultulhu_tests_micro_towerdown_you)
 set_tests_properties(cultulhu_tests_micro_towerdown_you PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_selectnudge tests/tests_micro_selectnudge.cpp)
+target_link_libraries(cultulhu_tests_micro_selectnudge PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_selectnudge COMMAND cultulhu_tests_micro_selectnudge)
+set_tests_properties(cultulhu_tests_micro_selectnudge PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

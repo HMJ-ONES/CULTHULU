@@ -4,6 +4,7 @@
 
 #include "achievements/AchievementSystem.h"
 #include "driver/AntiCheat.h"
+#include "driver/SelectNudge.h"
 #include "ai/AmbientBehavior.h"
 #include "ai/RitualCaster.h"
 #include "animation/AnimationDirector.h"
@@ -2603,7 +2604,12 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 std::string displayName = (modeArg == "capture")
                                               ? "Domination"
                                               : "DOTGOO (Defense of the Great Old Ones)";
-                std::cout << "5v5 " << displayName << " match started (10 bots)\n";
+                // Micro-dev (2026-10-13): name the 30s pick window — it used to
+                // close silently, dumping dawdlers back to free-roam without
+                // ever telling them a countdown existed.
+                std::cout << "5v5 " << displayName << " match started (10 bots)\n"
+                          << "  pick your fighter within 30s: "
+                             "`match join [team] <kit-id>`\n";
                 g.match->printStatus(std::cout, g.humanMatchId);
             } else if (sub == "join") {
                 if (!g.match || !g.match->started()) {
@@ -3977,9 +3983,13 @@ int main() {
     auto lastInput = std::chrono::steady_clock::now();
     constexpr auto kAfkTimeout = std::chrono::minutes(3);
     // Wave 42: character select countdown — 30s from match start to pick
-    // a fighter. Miss it and you're back in free-roam (menu).
-    constexpr auto kSelectWindow = std::chrono::seconds(30);
+    // a fighter. Miss it and you're back in free-roam (menu). The window
+    // and nudge timing live in driver/SelectNudge.h (pinned by tests).
+    using cultulhu::driver::kSelectWindow;
     bool selectTimeoutAnnounced = false;
+    // Micro-dev (2026-10-13): one nudge before the window closes — see
+    // driver/SelectNudge.h for the boundary contract.
+    bool selectNudgeAnnounced = false;
     std::string line;
     bool running = true;
     while (running) {
@@ -4010,8 +4020,24 @@ int main() {
                                  "or `match join` to jump into this one.\n";
                 }
             }
-            // Reset the timeout flag when a new match starts.
-            if (!st.matchActive) selectTimeoutAnnounced = false;
+            // Micro-dev (2026-10-13): one nudge before the window closes —
+            // the 30s countdown used to expire with zero warning, so a
+            // dawdler's first notice was the free-roam boot. The close
+            // message still owns the >= 30s boundary (see SelectNudge.h).
+            if (st.matchActive && !st.playerJoined &&
+                cultulhu::driver::selectNudgeDue(
+                    g.matchStartTime, std::chrono::steady_clock::now(),
+                    selectNudgeAnnounced)) {
+                selectNudgeAnnounced = true;
+                std::cout << "\n[select] 10s left to pick your fighter — "
+                             "`match join [team] <kit-id>` (or click JOIN "
+                             "on the select screen).\n";
+            }
+            // Reset the timeout flags when a new match starts.
+            if (!st.matchActive) {
+                selectTimeoutAnnounced = false;
+                selectNudgeAnnounced = false;
+            }
         }
 
         // Drain select-screen join requests first.
