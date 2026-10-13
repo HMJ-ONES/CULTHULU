@@ -4,6 +4,7 @@
 
 #include "achievements/AchievementSystem.h"
 #include "driver/AntiCheat.h"
+#include "driver/KitStatus.h"
 #include "driver/SelectNudge.h"
 #include "ai/AmbientBehavior.h"
 #include "ai/RitualCaster.h"
@@ -1420,12 +1421,16 @@ struct BetaGame {
                   << (executor.defenseActive() ? " (DEFENDING)" : "") << "\n";
         // At-a-glance kit cooldowns for the active character (q/f/r) —
         // no need to burn a cast to learn something is on cooldown.
-        std::cout << "kit: ";
+        // Convenience pass (2026-10-13): name the kit first — the line
+        // used to read "kit: q READY f 3s ..." with no identity, so you
+        // couldn't see who you walk as without `character select`.
+        const CharacterDef* statusKit = charReg.get(activeKitId);
+        std::cout << "kit: "
+                  << cultulhu::driver::kitStatusName(statusKit, activeKitId);
         {
-            const CharacterDef* kit = charReg.get(activeKitId);
-            if (!kit) {
-                std::cout << "none";
-            } else {
+            const CharacterDef* kit = statusKit;
+            if (kit) {
+                std::cout << " | ";
                 const double now = clock.now();
                 const char* keys[3] = {"q", "f", "r"};
                 const SpellDef* spells[3] = {&kit->qAbility,
@@ -1447,23 +1452,23 @@ struct BetaGame {
                                   << "s";
                     }
                 }
-            }
-            // Micro-dev: RMB (Wave of Domination) is the fourth button —
-            // it was invisible here, so you had to burn a cast to learn it
-            // was on cooldown. (Its cooldown now ticks in tickSecond, so
-            // this number stays truthful over game time.)
-            std::cout << "  rmb ";
-            if (waveAbility.ready()) {
-                std::cout << "READY";
-            } else if (waveAbility.cooldownRemaining() > 0.0f) {
-                std::cout << static_cast<int>(
-                                  waveAbility.cooldownRemaining() + 0.5)
-                          << "s";
-            } else {
-                // Cooldown spent but the wave is still out (caught, held,
-                // or flying victims).
-                std::cout << wavePhaseName(waveAbility.phase());
-            }
+                // Micro-dev: RMB (Wave of Domination) is the fourth button —
+                // it was invisible here, so you had to burn a cast to learn
+                // it was on cooldown. (Its cooldown now ticks in tickSecond,
+                // so this number stays truthful over game time.)
+                std::cout << "  rmb ";
+                if (waveAbility.ready()) {
+                    std::cout << "READY";
+                } else if (waveAbility.cooldownRemaining() > 0.0f) {
+                    std::cout << static_cast<int>(
+                                      waveAbility.cooldownRemaining() + 0.5)
+                              << "s";
+                } else {
+                    // Cooldown spent but the wave is still out (caught,
+                    // held, or flying victims).
+                    std::cout << wavePhaseName(waveAbility.phase());
+                }
+            }  // if (kit)
         }
         std::cout << "\n";
         for (size_t i = 0; i < cult.size(); ++i) {

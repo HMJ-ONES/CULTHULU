@@ -503,3 +503,8 @@ target_link_libraries(cultulhu_tests_micro_animuntrack PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_animuntrack COMMAND cultulhu_tests_micro_animuntrack)
 set_tests_properties(cultulhu_tests_micro_animuntrack PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_kitstatus tests/tests_micro_kitstatus.cpp)
+target_link_libraries(cultulhu_tests_micro_kitstatus PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_kitstatus COMMAND cultulhu_tests_micro_kitstatus)
+set_tests_properties(cultulhu_tests_micro_kitstatus PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
