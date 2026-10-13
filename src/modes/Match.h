@@ -137,6 +137,11 @@ public:
         // Wave 42: kill streaks (fun). Resets if 8s pass without a kill.
         int killStreak = 0;
         double lastKillAt = -1000.0;
+        // Micro-dev (2026-10-12): one-shot low-health warning — set when
+        // the fighter crosses below 35% HP, cleared by healing above 50%
+        // or by (re)spawning. The driver announces it for the joined
+        // human; bots already retreat at this line on their own.
+        bool lowHpWarned = false;
     };
 
     // Wave 42: how the RMB is aimed — Normal (at enemies), Down (at the
@@ -210,6 +215,10 @@ public:
     // charge count so regression tests can pin the trip-home threshold
     // (no production path produces exactly 1 charge at level 10+ on demand).
     void debugSetPendingInvokes(size_t playerIdx, int n);
+    // Micro-dev (2026-10-12): test-only — deal raw damage through the
+    // production damage path (stages exact HP thresholds so tests can pin
+    // the low-health warning without staging full combat).
+    bool debugDamagePlayer(uint64_t id, float dmg);
     // Wave 40: assign a specific kit (used by tests for deterministic fights).
     bool setPlayerKit(uint64_t id, const std::string& kitId);
     // Wave 42: AFK takeover — bot pilots the human's fighter while away.
@@ -273,6 +282,8 @@ private:
     // attacker's position so the frontal shield can face it. (Minion/
     // tower damage keeps the old path — rocks don't exist in DOTGOO.)
     void damagePlayer(size_t victimIdx, float dmg, const Vec3& attackerPos);
+    // Micro-dev (2026-10-12): one-shot low-health warning per crossing.
+    void checkLowHp(size_t victimIdx);
     // killerIdx < 0 = non-player killer (entityId names it in the event).
     void killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId);
     // Wave 34: XP economy. Minion kills 60, tower destructions 800,

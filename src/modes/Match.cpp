@@ -167,6 +167,9 @@ void Match::spawnPlayer(Player& p) {
     p.pos = teamBase_[p.team] + Vec3(jx, 0, jz);
     p.hp = p.maxHp;
     p.alive = true;
+    // Micro-dev (2026-10-12): a fresh (re)spawn re-arms the low-health
+    // warning — the next 35%-crossing warns again.
+    p.lowHpWarned = false;
     p.respawnTimer = 0.0;
     p.swingCd = 0.0;
     p.laneFrac = 0.0f;
@@ -470,6 +473,39 @@ void Match::damagePlayer(size_t victimIdx, float dmg) {
     const float final = (v.shieldTimer > 0.0) ? dmg * 0.5f : dmg;
     v.hp -= final;
     if (v.hp <= 0.0f) { v.hp = 0.0f; v.alive = false; }
+    else checkLowHp(victimIdx);
+}
+
+// Micro-dev (2026-10-12): one-shot low-health warning per 35%-crossing.
+// Bots already retreat at this line on their own; the driver announces
+// the event for the joined human. The killing blow stays silent — death
+// has its own announcement.
+void Match::checkLowHp(size_t victimIdx) {
+    Player& v = players_[victimIdx];
+    if (!v.alive || v.lowHpWarned || v.maxHp <= 0.0f) return;
+    if (v.hp / v.maxHp >= 0.35f) return;
+    v.lowHpWarned = true;
+    GameEvent e(EventType::PlayerLowHp);
+    e.sourceId = v.id;
+    e.faction = v.team;
+    e.amount = v.hp / v.maxHp;
+    e.tag = v.name;
+    e.pos = v.pos;
+    bus_.publish(e);
+}
+
+// Micro-dev (2026-10-12): test-only — raw damage through the production
+// path. A lethal hit mirrors the combat paths: killPlayer runs so the
+// respawn timer and death announcements behave like a real kill.
+bool Match::debugDamagePlayer(uint64_t id, float dmg) {
+    for (size_t i = 0; i < players_.size(); ++i) {
+        if (players_[i].id != id) continue;
+        const bool wasAlive = players_[i].alive;
+        damagePlayer(i, dmg);
+        if (wasAlive && !players_[i].alive) killPlayer(i, -1, 0);
+        return true;
+    }
+    return false;
 }
 
 // Wave 42 fix: melee auto-attacks route through here so Cthulhu's rock
@@ -485,6 +521,7 @@ void Match::damagePlayer(size_t victimIdx, float dmg,
     applyRockShield(victimIdx, attackerPos, final);
     v.hp -= final;
     if (v.hp <= 0.0f) { v.hp = 0.0f; v.alive = false; }
+    else checkLowHp(victimIdx);
 }
 
 // Wave 34: XP economy. Level = 1 + xp/50; each level-up grants one

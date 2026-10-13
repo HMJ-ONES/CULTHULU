@@ -218,6 +218,11 @@ enum class EventType {
                          // player revives (initial spawns at match start or
                          // `match join` are silent). sourceId = player id;
                          // tag = player name; faction = team
+    PlayerLowHp,         // micro-dev (2026-10-12): a fighter dropped below
+                         // 35% HP — one-shot per crossing (re-armed by
+                         // healing above 50% or by respawning). sourceId =
+                         // player id; faction = team; amount = hp fraction;
+                         // tag = player name; pos = position
     AbilityCast,         // wave 40: sourceId = caster id; tag = ability name;
                          // amount = slot (0=Q 1=F 2=R 3=RMB)
     AbilityUnlocked,     // wave 41: sourceId = player id; tag = unlocked

@@ -353,3 +353,8 @@ target_link_libraries(cultulhu_tests_micro_pointcapture PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_pointcapture COMMAND cultulhu_tests_micro_pointcapture)
 set_tests_properties(cultulhu_tests_micro_pointcapture PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_lowhp tests/tests_micro_lowhp.cpp)
+target_link_libraries(cultulhu_tests_micro_lowhp PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_lowhp COMMAND cultulhu_tests_micro_lowhp)
+set_tests_properties(cultulhu_tests_micro_lowhp PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

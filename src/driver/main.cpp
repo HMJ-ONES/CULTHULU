@@ -406,6 +406,18 @@ struct BetaGame {
                           << " ***\n";
             }
         });
+        // Micro-dev (2026-10-12): low-health warning for the joined human —
+        // match bots already retreat at 35% HP on their own; the human gets
+        // one console warning crossing the same line instead of dying
+        // silent. Bots stay silent (the story log doesn't need ten
+        // fighters' vitals, and UE5 gets the event for its own vignette).
+        bus.subscribe(EventType::PlayerLowHp, [this](const GameEvent& e) {
+            if (e.sourceId != humanMatchId) return;
+            const Match::Player* p =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            const int hp = p ? static_cast<int>(p->hp + 0.5f) : 0;
+            std::cout << "*** LOW HEALTH — " << hp << "hp left! ***\n";
+        });
         // Micro-dev (2026-10-12): the dead used to come back silently —
         // the respawn countdown row just cleared. Name the return so a
         // dead player watching the console knows they're back in the

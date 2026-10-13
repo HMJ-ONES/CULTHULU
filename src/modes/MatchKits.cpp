@@ -291,6 +291,10 @@ bool Match::castMatchSpell(size_t idx, int slot) {
         spent = true;
     } else if (kind == "heal") {
         p.hp = std::min(p.maxHp, p.hp + base * 2.0f);
+        // Micro-dev (2026-10-12): healing back above half HP re-arms the
+        // low-health warning — warn at <35%, re-arm at >=50% (hysteresis
+        // so hovering at the line doesn't spam).
+        if (p.hp >= p.maxHp * 0.5f) p.lowHpWarned = false;
         spent = true;
     } else if (kind == "summon") {
         // Call servants: in DOTGOO they spawn as real allied minions that
