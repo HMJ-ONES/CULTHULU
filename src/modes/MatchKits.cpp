@@ -133,6 +133,7 @@ bool Match::draftAbility(uint64_t id, int slot) {
         // log) but a human's `mpick` never did. Same event, same tag.
         GameEvent e(EventType::AbilityUnlocked);
         e.sourceId = p.id;
+        e.pos = p.pos;
         e.tag = unlockTag(p, picked);
         bus_.publish(e);
         return true;
@@ -559,6 +560,7 @@ void Match::updateBotAbilities(Player& p, size_t idx, double dt) {
         --p.pendingPicks;
         GameEvent e(EventType::AbilityUnlocked);
         e.sourceId = p.id;
+        e.pos = p.pos;
         e.tag = unlockTag(p, picked);
         bus_.publish(e);
     }

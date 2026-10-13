@@ -350,6 +350,7 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::DungeonCompleted:
         case EventType::UltCharged:
         case EventType::RelicChannelStarted:
+        case EventType::AbilityUnlocked:
             // The golden halo of triumph and return: captures, records,
             // match point, the match's own end, respawns, first
             // discoveries, dungeon clears — and the ult-ready ping.
@@ -360,6 +361,11 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // Micro-dev (2026-10-13): the relic-channel-start beat lands
             // here too — a fighter committing to a 4s/6s channel deserves
             // the same halo the claims get.
+            //
+            // Micro-dev (2026-10-13): the DOTGOO draft-pick beat (Q/F at
+            // levels 1/3, the level-6 ult) lands here too — same class as
+            // the ult-ready ping, a golden halo at the fighter's pos
+            // (stamped at all three publish sites) when the pick lands.
             return lib.find("buff");
         default:
             return nullptr;

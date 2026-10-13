@@ -297,6 +297,9 @@ static void testFxForEvent() {
     // Micro-dev (2026-10-13): RelicChannelStarted gets the same golden
     // halo — a fighter committing to a 4s/6s channel reads as triumph.
     CHECK(fxForEvent(EventType::RelicChannelStarted, r.library) == buff);
+    // Micro-dev (2026-10-13): the DOTGOO draft-pick beat (Q/F picks, the
+    // level-6 ult) gets the same halo — same class as UltCharged.
+    CHECK(fxForEvent(EventType::AbilityUnlocked, r.library) == buff);
     CHECK(fxForEvent(EventType::GreatOldOneSlain, r.library) == raze);
     // Micro-dev (2026-10-12): the low-health ping resolves to the same
     // alarm burst as the GOO-under-attack warning.

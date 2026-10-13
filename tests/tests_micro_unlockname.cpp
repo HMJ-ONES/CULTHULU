@@ -116,6 +116,28 @@ int main() {
         CHECK(count == 1);
     }
 
+    // ---------- 6. unlock FX lands on the fighter, not the origin ----
+    // Micro-dev (2026-10-13): AbilityUnlocked resolves to the buff preset
+    // in fxForEvent, but the three publish sites never stamped pos — the
+    // halo would have played at the world origin. Pin the position
+    // contract on the human draft path.
+    {
+        EventBus bus; GameClock clock; RNG rng(505);
+        Match m(bus, clock, rng);
+        CHECK(m.start("moba"));
+        uint64_t a = m.addBot(0);
+        const Match::Player* pp = m.findPlayer(a);
+        CHECK(pp != nullptr);
+        std::vector<GameEvent> events;
+        bus.subscribe(EventType::AbilityUnlocked,
+                      [&](const GameEvent& e) { events.push_back(e); });
+        CHECK(m.draftAbility(a, 0));
+        CHECK(events.size() == 1);
+        CHECK(events[0].pos.x == pp->pos.x);
+        CHECK(events[0].pos.y == pp->pos.y);
+        CHECK(events[0].pos.z == pp->pos.z);
+    }
+
     if (failures == 0) std::cout << "ALL TESTS PASSED\n";
     return failures == 0 ? 0 : 1;
 }
