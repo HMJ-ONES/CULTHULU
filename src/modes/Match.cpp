@@ -937,6 +937,12 @@ void Match::printStatus(std::ostream& os, uint64_t humanId) const {
                << ")";
             if (r.claimedBy != 0)
                 os << " — claimed";
+            else if (r.spawnTime > 0.0 && elapsed() >= r.spawnTime)
+                // Micro-dev (2026-10-12): the header countdown already went
+                // LIVE at t=spawnTime, but this line kept printing
+                // "manifests at 600s" after the relic had manifested.
+                os << " — LIVE at center ("
+                   << (r.tier == 2 ? "4" : "6") << "s channel to claim)";
             else if (r.spawnTime > 0.0)
                 os << " — manifests at " << static_cast<int>(r.spawnTime) << "s";
             else if (r.tier > 1)

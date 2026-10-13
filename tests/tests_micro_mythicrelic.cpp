@@ -86,6 +86,23 @@ int main() {
         CHECK(oss.str().find("mythic relic") == std::string::npos);
     }
 
+    // ---------- the per-relic list line says "manifests at" pre-manifest ---
+    {
+        std::string s = dotgooStatus(5.0, 25);
+        CHECK(s.find("[t3] ") != std::string::npos);
+        CHECK(s.find("— manifests at 600s") != std::string::npos);
+    }
+    // ---------- after manifest the list line says LIVE, not "manifests at" -
+    // Micro-dev (2026-10-12): the header countdown flipped to LIVE at t=600
+    // but the relic list line kept printing "— manifests at 600s",
+    // contradicting the header one section above it.
+    {
+        std::string s = dotgooStatus(601.0, 26);
+        CHECK(s.find("— LIVE at center (6s channel to claim)") !=
+              std::string::npos);
+        CHECK(s.find("— manifests at ") == std::string::npos);
+    }
+
     if (failures == 0) std::cout << "OK\n";
     return failures == 0 ? 0 : 1;
 }
