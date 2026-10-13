@@ -383,3 +383,8 @@ target_link_libraries(cultulhu_tests_micro_mythicrelic PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_mythicrelic COMMAND cultulhu_tests_micro_mythicrelic)
 set_tests_properties(cultulhu_tests_micro_mythicrelic PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_matchstart tests/tests_micro_matchstart.cpp)
+target_link_libraries(cultulhu_tests_micro_matchstart PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_matchstart COMMAND cultulhu_tests_micro_matchstart)
+set_tests_properties(cultulhu_tests_micro_matchstart PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

@@ -72,6 +72,20 @@ void MatchLogger::attach(Match& match) {
         subs_.push_back(bus.subscribe(t, std::move(h)));
     };
 
+    // Micro-dev (2026-10-12): the exported story had no opening beat —
+    // it jumped straight to KILL lines. MatchStarted fires on the first
+    // update tick (GameMode::noteMatchTick), i.e. after attach(), so the
+    // logger always catches it. The tag uses the same capture/moba
+    // convention as the driver's MatchEnded console subscriber.
+    sub(EventType::MatchStarted,
+        [this, &match](const GameEvent& e) {
+            const std::string modeName = (e.tag == "capture")   ? "Domination"
+                                         : (e.tag == "moba")    ? "DOTGOO"
+                                                               : e.tag;
+            events_.push_back({match.elapsed(), "START",
+                               "START " + modeName + " (5v5)"});
+        });
+
     // Find our player index by id (stable for the match).
     sub(EventType::PlayerKilled,
         [this, &match](const GameEvent& e) {

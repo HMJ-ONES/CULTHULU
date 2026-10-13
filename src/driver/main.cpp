@@ -578,6 +578,16 @@ struct BetaGame {
         // the live match: Domination's point race, DOTGOO's remaining base
         // HP. The event fires from inside Match::update, so the match is
         // alive here; the null-guard is belt and braces.
+        // Micro-dev (2026-10-12): MatchStarted had no arena callout — the
+        // driver printed a plain status line and the exported story had no
+        // opening beat. Announce the whistle too, same tag mapping as
+        // MatchEnded.
+        bus.subscribe(EventType::MatchStarted, [](const GameEvent& e) {
+            const std::string modeName = (e.tag == "capture") ? "Domination"
+                : (e.tag == "moba")                            ? "DOTGOO"
+                                                              : e.tag;
+            std::cout << "*** " << modeName << " — the battle begins! ***\n";
+        });
         bus.subscribe(EventType::MatchEnded, [this](const GameEvent& e) {
             const std::string modeName = (e.tag == "capture") ? "Domination"
                 : (e.tag == "moba")                            ? "DOTGOO"
