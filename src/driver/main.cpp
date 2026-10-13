@@ -2328,6 +2328,11 @@ static bool processLine(BetaGame& g, NetSession& nets,
                                "'mcast rmb down' rips it from the ground, "
                                "'mcast rmb launch' hurls it)\n";
                 }
+                // Micro-dev: orientation at join — the move survey (20:24)
+                // only fires after a move, so a fresh join lands the player
+                // at their base with no read of where the point/enemies are.
+                // Print the same survey once, right here.
+                g.match->printMatchSurvey(std::cout, id);
             } else if (sub == "addbot") {
                 if (!g.match || !g.match->started()) {
                     std::cout << "no active match (match domination|dotgoo first)\n";
