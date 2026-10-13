@@ -12,6 +12,7 @@
 #include "core/Vec3.h"
 
 #include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -58,6 +59,11 @@ private:
     // subscription handles, so detach() can remove them all.
     EventBus* bus_ = nullptr;
     std::vector<EventBus::Subscription> subs_;
+    // Micro-dev (2026-10-13): per-player last level at the previous
+    // PlayerLeveledUp, so gate crossings (10/20/30) are detected even when
+    // one addXp call jumps over a gate (the event only carries the final
+    // level). Seeded in attach(); absent players are treated as level 1.
+    std::map<uint64_t, int> lastLevel_;
 
     static std::string fmtT(double t);
     static std::string fmtPos(const Vec3& v);

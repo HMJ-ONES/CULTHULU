@@ -64,6 +64,11 @@ void MatchLogger::attach(Match& match) {
     events_.clear();
     lastHolder_ = -2;
     lastScore0_ = lastScore1_ = -1;
+    // Micro-dev (2026-10-13): seed the level map so gate-crossing
+    // detection has a baseline for players already in the match.
+    lastLevel_.clear();
+    for (size_t i = 0; i < match.playerCount(); ++i)
+        lastLevel_[match.player(i).id] = match.player(i).level;
 
     EventBus& bus = match.bus();
     bus_ = &bus;
@@ -302,7 +307,7 @@ void MatchLogger::attach(Match& match) {
                  "OVERTIME sudden death begins — first score wins"});
         });
 
-    // Micro-dev (2026-10-12): Domination's opening ult charge completing
+    // Micro-dev (2026-10-13): Domination's opening ult charge completing
     // is a story beat — the moment each fighter's big button comes online.
     // The exported log should carry it, not just the KILL lines.
     sub(EventType::UltCharged,
@@ -315,6 +320,35 @@ void MatchLogger::attach(Match& match) {
             events_.push_back(
                 {match.elapsed(), "ULTREADY",
                  "ULTREADY " + ps + " — " + e.tag + " charged"});
+        });
+
+    // Micro-dev (2026-10-13): the tiered-invocation gates at 10/20/30 are
+    // the match's progression beats, but the exported story skipped them
+    // entirely — the log jumped from streaks to fallen gods with no record
+    // of a fighter unlocking tier-2 or tier-3 invocations. Log only the
+    // gate crossings (30 lines max in a 10-player match, never per-level
+    // noise); the crossing check catches multi-level jumps that land past
+    // a gate, since PlayerLeveledUp only carries the final level.
+    sub(EventType::PlayerLeveledUp,
+        [this, &match](const GameEvent& e) {
+            const int prev =
+                lastLevel_.count(e.sourceId) ? lastLevel_[e.sourceId] : 1;
+            const int lv = static_cast<int>(e.amount);
+            lastLevel_[e.sourceId] = lv;
+            const Match::Player* p = match.findPlayer(e.sourceId);
+            const std::string ps =
+                p ? (p->name + "<" + shortKit(p->kitId) + ">t" +
+                     std::to_string(p->team))
+                  : e.tag;
+            for (int g = 10; g <= 30; g += 10) {
+                if (prev < g && lv >= g) {
+                    events_.push_back(
+                        {match.elapsed(), "LEVEL",
+                         "LEVEL " + ps + " hits level " +
+                             std::to_string(g) + " — invocation tier " +
+                             std::to_string(g / 10) + " unlocked"});
+                }
+            }
         });
 }
 

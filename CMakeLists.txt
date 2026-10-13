@@ -393,3 +393,8 @@ target_link_libraries(cultulhu_tests_micro_respawnsurvey PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_respawnsurvey COMMAND cultulhu_tests_micro_respawnsurvey)
 set_tests_properties(cultulhu_tests_micro_respawnsurvey PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_levellog tests/tests_micro_levellog.cpp)
+target_link_libraries(cultulhu_tests_micro_levellog PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_levellog COMMAND cultulhu_tests_micro_levellog)
+set_tests_properties(cultulhu_tests_micro_levellog PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
