@@ -692,6 +692,10 @@ net::Message Match::modeStateMessage() const {
 }
 
 void Match::printStatus(std::ostream& os) const {
+    printStatus(os, 0);
+}
+
+void Match::printStatus(std::ostream& os, uint64_t humanId) const {
     // Wave 39: display names — Domination and DOTGOO.
     std::string displayMode = modeName_;
     if (modeName_ == "capture") displayMode = "domination";
@@ -729,7 +733,11 @@ void Match::printStatus(std::ostream& os) const {
     auto rows = stats_.rows();
     for (size_t i = 0; i < players_.size() && i < rows.size(); ++i) {
         const Player& pl = players_[i];
-        os << "    " << pl.name << " t" << pl.team;
+        // Micro-dev: mark the local human's row (" (YOU)") so they can find
+        // their own fighter in a 10-row bot roster at a glance.
+        os << "    " << pl.name;
+        if (humanId != 0 && pl.id == humanId) os << " (YOU)";
+        os << " t" << pl.team;
         if (pl.alive) {
             os << " ";
         } else {

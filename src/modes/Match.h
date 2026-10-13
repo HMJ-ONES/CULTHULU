@@ -175,7 +175,10 @@ public:
     net::Message modeStateMessage() const;
 
     // Human-readable match dump for the driver's `match status`.
+    // humanId marks the local human's roster row with " (YOU)" so they can
+    // spot their own fighter among the bots; 0 = no marker.
     void printStatus(std::ostream& os) const;
+    void printStatus(std::ostream& os, uint64_t humanId) const;
 
     // Test/GM utility: reposition a player (used by tests to stage fights).
     bool movePlayer(uint64_t id, Vec3 pos);

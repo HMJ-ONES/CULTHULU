@@ -2123,7 +2123,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
                                               ? "Domination"
                                               : "DOTGOO (Defense of the Great Old Ones)";
                 std::cout << "5v5 " << displayName << " match started (10 bots)\n";
-                g.match->printStatus(std::cout);
+                g.match->printStatus(std::cout, g.humanMatchId);
             } else if (sub == "join") {
                 if (!g.match || !g.match->started()) {
                     std::cout << "no active match (match domination|dotgoo first)\n";
@@ -2231,7 +2231,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
                     std::cout << "no active match\n";
                     return true;
                 }
-                g.match->printStatus(std::cout);
+                g.match->printStatus(std::cout, g.humanMatchId);
             } else if (sub == "end") {
                 // Wave 42: upload the action log even for aborted matches.
                 if (g.match && g.match->started() && !g.matchLogUploaded) {
