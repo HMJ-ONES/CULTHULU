@@ -287,6 +287,11 @@ target_link_libraries(cultulhu_tests_micro_streakyou PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_streakyou COMMAND cultulhu_tests_micro_streakyou)
 set_tests_properties(cultulhu_tests_micro_streakyou PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_streakended_you tests/tests_micro_streakended_you.cpp)
+target_link_libraries(cultulhu_tests_micro_streakended_you PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_streakended_you COMMAND cultulhu_tests_micro_streakended_you)
+set_tests_properties(cultulhu_tests_micro_streakended_you PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_executable(cultulhu_tests_micro_rockbreak tests/tests_micro_rockbreak.cpp)
 target_link_libraries(cultulhu_tests_micro_rockbreak PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_rockbreak COMMAND cultulhu_tests_micro_rockbreak)

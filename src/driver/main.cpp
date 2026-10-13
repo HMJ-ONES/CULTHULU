@@ -392,8 +392,22 @@ struct BetaGame {
             const char* label = (s == 3)   ? "TRIPLE KILL"
                                 : (s == 4) ? "QUAD KILL"
                                            : "RAMPAGE";
-            std::cout << "*** " << vs << "'s " << label << " is ended by "
-                      << ks << "! ***\n";
+            // Micro-dev (2026-10-13): the shutdown read third-person even
+            // for the two personal cases — the human's own shutdown
+            // ("<your fighter>'s RAMPAGE is ended by X") and the human
+            // playing executioner ("X's RAMPAGE is ended by <your
+            // fighter>"). Same second-person treatment as kills/streaks:
+            // the shutdown of a streak you earned, and a shutdown you
+            // inflicted, now name you.
+            if (humanMatchId != 0 && e.sourceId == humanMatchId)
+                std::cout << "*** You ended " << vs << "'s " << label
+                          << "! ***\n";
+            else if (humanMatchId != 0 && e.targetId == humanMatchId)
+                std::cout << "*** YOUR " << label << " was ended by " << ks
+                          << "! ***\n";
+            else
+                std::cout << "*** " << vs << "'s " << label
+                          << " is ended by " << ks << "! ***\n";
         });
         // Micro-dev (2026-10-12): the match's first death gets an arena
         // callout — the only kill printed to console besides streaks, so
