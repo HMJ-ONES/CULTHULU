@@ -270,12 +270,18 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::StreakEnded:
         case EventType::CCApplied:
         case EventType::OvertimeStarted:
+        case EventType::RelicChannelInterrupted:
             // A sharp burst for the match's punctuation moments:
             // DOUBLE KILL / RAMPAGE, the shutdown callout, the held-fast
             // jolt, and the sudden-death jolt. Micro-dev (2026-10-13):
             // a stun/root landing on anyone is now visible to the engine
             // at the victim's position — the console alert was text-only
             // until now.
+            //
+            // Micro-dev (2026-10-13): the relic-channel-break beat lands
+            // here too — a snapped conjuration reads as a jolt at the
+            // channel site, the anti-image of the channel-start halo.
+            // No new preset needed.
             return lib.find("stun");
         case EventType::FirstBlood:
         case EventType::PlayerKilled:

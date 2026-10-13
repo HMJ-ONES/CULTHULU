@@ -305,6 +305,9 @@ static void testFxForEvent() {
     // Micro-dev (2026-10-13): CCApplied gets the sharp alarm burst — a
     // stun/root landing is as urgent as a kill streak.
     CHECK(fxForEvent(EventType::CCApplied, r.library) == stun);
+    // Micro-dev (2026-10-13): RelicChannelInterrupted gets the same
+    // jolt — a snapped channel is the anti-image of the start halo.
+    CHECK(fxForEvent(EventType::RelicChannelInterrupted, r.library) == stun);
     // Quiet background events stay unmapped (still text-only / silent).
     CHECK(fxForEvent(EventType::CombatStarted, r.library) == nullptr);
     CHECK(fxForEvent(EventType::SuppliesGathered, r.library) == nullptr);
