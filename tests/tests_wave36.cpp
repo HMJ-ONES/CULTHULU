@@ -250,6 +250,9 @@ static void testFxForEvent() {
     }
     CHECK(fxForEvent(EventType::CityDestroyed, r.library) == raze);
     CHECK(fxForEvent(EventType::CityBuildingDestroyed, r.library) == raze);
+    // Micro-dev (2026-10-13): a toppled tower is a razed structure — a
+    // fallen tower joins the destruction beats (mapped 2026-10-12).
+    CHECK(fxForEvent(EventType::TowerDestroyed, r.library) == raze);
 
     // 5 PM beauty (2026-10-12): the announced-events FX sweep — the
     // game's punctuation marks now resolve to existing presets instead
@@ -309,10 +312,18 @@ static void testFxForEvent() {
     // Micro-dev (2026-10-13): the DOTGOO draft-pick beat (Q/F picks, the
     // level-6 ult) gets the same halo — same class as UltCharged.
     CHECK(fxForEvent(EventType::AbilityUnlocked, r.library) == buff);
+    // Micro-dev (2026-10-13): the level-up beat reuses the golden halo
+    // (mapped 2026-10-12) — the last buff-group mapping without a pin.
+    CHECK(fxForEvent(EventType::PlayerLeveledUp, r.library) == buff);
     CHECK(fxForEvent(EventType::GreatOldOneSlain, r.library) == raze);
     // Micro-dev (2026-10-12): the low-health ping resolves to the same
     // alarm burst as the GOO-under-attack warning.
     CHECK(fxForEvent(EventType::PlayerLowHp, r.library) == stun);
+    // Micro-dev (2026-10-13): the other two alarm beats — a GOO or a
+    // tower taking its first hit — resolve to the same sharp cue at
+    // the attacker's position (mapped 2026-10-12 / 2026-10-13).
+    CHECK(fxForEvent(EventType::GreatOldOneUnderAttack, r.library) == stun);
+    CHECK(fxForEvent(EventType::TowerUnderAttack, r.library) == stun);
     // Micro-dev (2026-10-12): the dungeon-hazard sweep — spike pits,
     // cave-ins and abyss falls get impact smoke; the dhole's tremor
     // telegraph gets the dread mist, like the whispers it precedes.
