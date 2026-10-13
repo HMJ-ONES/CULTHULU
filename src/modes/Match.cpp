@@ -820,6 +820,24 @@ void Match::printStatus(std::ostream& os, uint64_t humanId) const {
                     os << " " << moba_->towerHp(team, static_cast<int>(l), k);
                 os << "\n";
             }
+        // Micro-dev: the tier-3 mythic relic (10:00 manifest) is the MOBA's
+        // endgame beat, but match status never said when it lands — show the
+        // countdown / live / claimed state in the header so players don't
+        // have to wait for the global announcement to plan for it. One
+        // tier-3 relic exists per match; sourced from the same spawnTime that
+        // fires the RelicManifested announcement (ceil, never 0s inbound).
+        for (const auto& r : moba_->relics()) {
+            if (r.tier != 3) continue;
+            os << "  mythic relic \"" << r.name << "\": ";
+            if (r.claimedBy != 0)
+                os << "claimed\n";
+            else if (moba_->elapsed() < r.spawnTime)
+                os << "manifests in "
+                   << static_cast<int>(r.spawnTime - moba_->elapsed() + 0.999)
+                   << "s\n";
+            else
+                os << "LIVE at center (6s channel to claim)\n";
+        }
     } else {
         os << " (no mode)\n";
     }
