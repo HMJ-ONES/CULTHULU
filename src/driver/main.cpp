@@ -617,11 +617,25 @@ struct BetaGame {
         // notices crossing them. tag carries the player name.
         bus.subscribe(EventType::PlayerLeveledUp, [this](const GameEvent& e) {
             const int lv = static_cast<int>(e.amount);
-            std::cout << "[level] " << e.tag << " reached level " << lv;
-            if (lv == 10 || lv == 20 || lv == 30)
-                std::cout << " — invocation tier "
-                          << (lv / 10) << " unlocked";
-            std::cout << "\n";
+            const bool gate = (lv == 10 || lv == 20 || lv == 30);
+            // Micro-dev (2026-10-13): crossing an invocation tier gate is
+            // the joined human's loudest progression moment — the whole
+            // tiered-invocation endgame turns on it. The third-person
+            // "[level] <name> reached level 10" read now belongs to bots
+            // only; the human's own crossing gets the second-person
+            // arena callout (same thread as the kill/streak/shutdown
+            // callouts). Guarded on humanMatchId like those.
+            if (humanMatchId != 0 && e.sourceId == humanMatchId && gate)
+                std::cout << "*** You reached level " << lv
+                          << " — INVOCATION TIER " << (lv / 10)
+                          << " unlocked! ***\n";
+            else {
+                std::cout << "[level] " << e.tag << " reached level " << lv;
+                if (gate)
+                    std::cout << " — invocation tier "
+                              << (lv / 10) << " unlocked";
+                std::cout << "\n";
+            }
             // Micro-dev: DOTGOO's second draft pick lands at level 3, but
             // the human only saw "[level] ... reached level 3" — no call
             // to draft. Prompt once per crossed level 3: XP jumps still
