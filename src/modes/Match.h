@@ -248,6 +248,10 @@ private:
     // Wave 40: directional kit combat (defined in MatchKits.cpp).
     static constexpr float kKitDmgScale = 0.2f; // free-roam power -> match scale
     const CharacterDef* kitOf(const Player& p) const;
+    // Micro-dev: name an unlocked ability for the AbilityUnlocked tag —
+    // "Q (Pounce)" instead of the bare slot token, so the console
+    // [unlock] line and the exported match log say what was unlocked.
+    std::string unlockTag(const Player& p, const std::string& slot) const;
     void assignKit(Player& p);
     // Wave 41: set initial ability unlocks per mode.
     void initAbilityUnlocks(Player& p);

@@ -221,7 +221,8 @@ enum class EventType {
     AbilityCast,         // wave 40: sourceId = caster id; tag = ability name;
                          // amount = slot (0=Q 1=F 2=R 3=RMB)
     AbilityUnlocked,     // wave 41: sourceId = player id; tag = unlocked
-                         // ability ("Q"/"F"/"ULT") in DOTGOO draft
+                         // ability in DOTGOO draft — "Q (name)"/"F (name)"/
+                         // "ULT (name)" (micro: names the ability)
     KillStreak,          // wave 42: sourceId = player id; amount = streak
                          // count (2+=double kill); tag = player name
     PlayerLeveledUp,     // 2 PM build (2026-10-12): sourceId = player id;

@@ -2412,9 +2412,25 @@ static bool processLine(BetaGame& g, NetSession& nets,
                 std::cout << "usage: mpick <q|f>\n";
                 return true;
             }
-            if (g.match->draftAbility(g.humanMatchId, slot))
-                std::cout << "unlocked " << which << "!\n";
-            else
+            if (g.match->draftAbility(g.humanMatchId, slot)) {
+                // Micro-dev: name what was unlocked — "unlocked q!" is
+                // dead air when the player is choosing their fighter's
+                // identity. The AbilityUnlocked event (console [unlock]
+                // line + exported match log) now carries the same name.
+                const auto* hp = g.match->findPlayer(g.humanMatchId);
+                std::string what = which;
+                if (hp) {
+                    if (const CharacterDef* kd =
+                            g.charReg.get(hp->kitId)) {
+                        const SpellDef* sp =
+                            slot == 0 ? &kd->qAbility : &kd->fAbility;
+                        if (!sp->id.empty() && !sp->name.empty())
+                            what = sp->name;
+                    }
+                }
+                std::cout << "unlocked " << what << " (" << which
+                          << ")!\n";
+            } else
                 std::cout << "no draft pick available (or already unlocked).\n";
             return true;
         }

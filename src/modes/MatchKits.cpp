@@ -54,6 +54,18 @@ const CharacterDef* Match::kitOf(const Player& p) const {
     return kits_.get(p.kitId);
 }
 
+std::string Match::unlockTag(const Player& p,
+                             const std::string& slot) const {
+    const CharacterDef* kit = kitOf(p);
+    std::string name;
+    if (kit) {
+        if (slot == "Q") name = kit->qAbility.name;
+        else if (slot == "F") name = kit->fAbility.name;
+        else if (slot == "ULT") name = kit->rAbility.name;
+    }
+    return name.empty() ? slot : slot + " (" + name + ")";
+}
+
 void Match::assignKit(Player& p) {
     // Wave 42: only the 20 playable roster entities fight in matches.
     // NPC packages are minions/ambient life — never match fighters.
@@ -99,17 +111,25 @@ bool Match::draftAbility(uint64_t id, int slot) {
     for (auto& p : players_) {
         if (p.id != id) continue;
         if (p.pendingPicks <= 0) return false;
+        std::string picked;
         if (slot == 0 && !p.qUnlocked) {
             p.qUnlocked = true;
-            --p.pendingPicks;
-            return true;
-        }
-        if (slot == 1 && !p.fUnlocked) {
+            picked = "Q";
+        } else if (slot == 1 && !p.fUnlocked) {
             p.fUnlocked = true;
-            --p.pendingPicks;
-            return true;
+            picked = "F";
+        } else {
+            return false;
         }
-        return false;
+        --p.pendingPicks;
+        // Micro-dev: human draft picks used to be silent on the bus —
+        // bot picks published AbilityUnlocked (console + exported match
+        // log) but a human's `mpick` never did. Same event, same tag.
+        GameEvent e(EventType::AbilityUnlocked);
+        e.sourceId = p.id;
+        e.tag = unlockTag(p, picked);
+        bus_.publish(e);
+        return true;
     }
     return false;
 }
@@ -515,7 +535,7 @@ void Match::updateBotAbilities(Player& p, size_t idx, double dt) {
         --p.pendingPicks;
         GameEvent e(EventType::AbilityUnlocked);
         e.sourceId = p.id;
-        e.tag = picked;
+        e.tag = unlockTag(p, picked);
         bus_.publish(e);
     }
 

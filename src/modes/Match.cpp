@@ -498,7 +498,7 @@ void Match::addXp(size_t playerIdx, int amount) {
                     p.rUnlocked = true;
                     GameEvent e(EventType::AbilityUnlocked);
                     e.sourceId = p.id;
-                    e.tag = "ULT";
+                    e.tag = unlockTag(p, "ULT");
                     bus_.publish(e);
                 }
             }

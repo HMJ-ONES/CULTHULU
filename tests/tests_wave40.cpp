@@ -241,7 +241,8 @@ void wave41_checks() {
         EventBus bus; GameClock clock; RNG rng(103);
         int ults = 0;
         bus.subscribe(EventType::AbilityUnlocked, [&](const GameEvent& e) {
-            if (e.tag == "ULT") ++ults;
+            // Micro-dev: the tag now names the ult ("ULT (name)").
+            if (e.tag.rfind("ULT", 0) == 0) ++ults;
         });
         Match m(bus, clock, rng);
         CHECK(m.start("moba"));

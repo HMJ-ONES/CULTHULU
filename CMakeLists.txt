@@ -318,3 +318,8 @@ target_link_libraries(cultulhu_tests_micro_dotgoolimit PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_dotgoolimit COMMAND cultulhu_tests_micro_dotgoolimit)
 set_tests_properties(cultulhu_tests_micro_dotgoolimit PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_unlockname tests/tests_micro_unlockname.cpp)
+target_link_libraries(cultulhu_tests_micro_unlockname PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_unlockname COMMAND cultulhu_tests_micro_unlockname)
+set_tests_properties(cultulhu_tests_micro_unlockname PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
