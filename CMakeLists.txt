@@ -298,3 +298,8 @@ target_link_libraries(cultulhu_tests_micro_botretreat PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_botretreat COMMAND cultulhu_tests_micro_botretreat)
 set_tests_properties(cultulhu_tests_micro_botretreat PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_victory tests/tests_micro_victory.cpp)
+target_link_libraries(cultulhu_tests_micro_victory PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_victory COMMAND cultulhu_tests_micro_victory)
+set_tests_properties(cultulhu_tests_micro_victory PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

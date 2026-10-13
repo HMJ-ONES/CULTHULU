@@ -470,6 +470,21 @@ struct BetaGame {
         bus.subscribe(EventType::OvertimeStarted, [](const GameEvent&) {
             std::cout << "*** OVERTIME — sudden death! First score wins! ***\n";
         });
+        // Micro-dev (2026-10-12): a match used to end with nothing on the
+        // console — the only sign was the match-log upload line, so the
+        // final result never landed as a beat. Name the winner out loud.
+        bus.subscribe(EventType::MatchEnded, [](const GameEvent& e) {
+            const std::string modeName = (e.tag == "capture") ? "Domination"
+                : (e.tag == "moba")                            ? "DOTGOO"
+                                                              : e.tag;
+            if (e.faction >= 0) {
+                std::cout << "*** VICTORY — team " << e.faction << " wins the "
+                          << modeName << " match! ***\n";
+            } else {
+                std::cout << "*** DRAW — the " << modeName
+                          << " match ends in a draw. ***\n";
+            }
+        });
         bus.subscribe(EventType::DirectiveProgress, [](const GameEvent& e) {
             std::cout << "[directive] " << e.tag << " "
                       << static_cast<int>(e.amount * 100.0f + 0.5f)
