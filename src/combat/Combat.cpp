@@ -32,6 +32,11 @@ bool dealDamage(Entity& target, float dmg, EventBus& bus,
         GameEvent m(EventType::MaulStruck);
         m.sourceId = attackerId;
         m.targetId = target.id();
+        // Micro-dev (2026-10-13): a maul is a violence beat in the FX
+        // pipeline (MaulStruck -> aoe_damage) — stamp the victim's
+        // position so the burst lands on the mauling, not the world
+        // origin. Same contract as the free-roam kill-beat pos stamps.
+        m.pos = target.position();
         bus.publish(m);
     }
     if (killed) {

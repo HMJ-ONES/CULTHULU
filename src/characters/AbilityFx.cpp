@@ -300,6 +300,7 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::MonstrositySlain:
         case EventType::CivilianSlain:
         case EventType::FeralRampage:
+        case EventType::MaulStruck:
             // Raw violence — impact smoke at the scene of the death.
             // Micro-dev (2026-10-13): a slain monstrosity joins the
             // death beats — same impact burst, no new preset.
@@ -420,6 +421,13 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // — the RebuildSanctum directive's completion is a triumph
             // beat, and the publish site stamps pos at the sanctum, so
             // the halo lands there. No new preset.
+            //
+            // Micro-dev (2026-10-13): the Vale of Pnath's relic is the
+            // same class — claiming the dungeon's signature treasure is
+            // a triumph beat alongside DungeonCompleted/DiscoveryMade,
+            // and the claimRelic publish site already stamps pos at the
+            // relic spot, so the halo lands there. No new preset.
+            case EventType::ValeRelicClaimed:
             return lib.find("buff");
         default:
             return nullptr;

@@ -518,3 +518,8 @@ target_link_libraries(cultulhu_tests_micro_slaypos PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_slaypos COMMAND cultulhu_tests_micro_slaypos)
 set_tests_properties(cultulhu_tests_micro_slaypos PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_maulrelic tests/tests_micro_maulrelic.cpp)
+target_link_libraries(cultulhu_tests_micro_maulrelic PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_maulrelic COMMAND cultulhu_tests_micro_maulrelic)
+set_tests_properties(cultulhu_tests_micro_maulrelic PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
