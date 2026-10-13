@@ -272,6 +272,7 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::OvertimeStarted:
         case EventType::RelicChannelInterrupted:
         case EventType::SummoningInterrupted:
+        case EventType::SacrificeInterrupted:
             // A sharp burst for the match's punctuation moments:
             // DOUBLE KILL / RAMPAGE, the shutdown callout, the held-fast
             // jolt, and the sudden-death jolt. Micro-dev (2026-10-13):
@@ -287,6 +288,10 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // here as well — the anti-image of the ChampionSummoned
             // arrival halo, a jolt at the rite site where the summoning
             // broke (both publish sites stamp pos).
+            //
+            // Micro-dev (2026-10-13): a broken sacrifice rite joins the
+            // same group — the anti-image of the SacrificeCompleted
+            // rift halo, a jolt where the rite snapped.
             // No new preset needed.
             return lib.find("stun");
         case EventType::FirstBlood:

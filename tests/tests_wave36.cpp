@@ -344,6 +344,9 @@ static void testFxForEvent() {
     // Micro-dev (2026-10-13): a snapped GrandSummoning rite gets the
     // same jolt — the anti-image of the ChampionSummoned arrival halo.
     CHECK(fxForEvent(EventType::SummoningInterrupted, r.library) == stun);
+    // Micro-dev (2026-10-13): a broken sacrifice rite gets the same
+    // jolt — the anti-image of the SacrificeCompleted rift halo.
+    CHECK(fxForEvent(EventType::SacrificeInterrupted, r.library) == stun);
     // Micro-dev (2026-10-13): the Wave of Domination's lifecycle beats
     // — Cthulhu's DOTGOO signature RMB — now resolve to existing
     // presets: the gaze stun is a jolt, the levitation is the wave's
