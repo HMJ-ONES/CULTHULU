@@ -312,6 +312,10 @@ static void testFxForEvent() {
     // Micro-dev (2026-10-13): the DOTGOO draft-pick beat (Q/F picks, the
     // level-6 ult) gets the same halo — same class as UltCharged.
     CHECK(fxForEvent(EventType::AbilityUnlocked, r.library) == buff);
+    // Micro-dev (2026-10-13): a rebuilt sanctum is a triumph beat — the
+    // RebuildSanctum completion publishes pos at the sanctum, so the
+    // golden halo lands there.
+    CHECK(fxForEvent(EventType::SanctumRebuilt, r.library) == buff);
     // Micro-dev (2026-10-13): the level-up beat reuses the golden halo
     // (mapped 2026-10-12) — the last buff-group mapping without a pin.
     CHECK(fxForEvent(EventType::PlayerLeveledUp, r.library) == buff);

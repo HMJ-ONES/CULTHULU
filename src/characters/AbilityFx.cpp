@@ -371,6 +371,7 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::UltCharged:
         case EventType::RelicChannelStarted:
         case EventType::AbilityUnlocked:
+        case EventType::SanctumRebuilt:
             // The golden halo of triumph and return: captures, records,
             // match point, the match's own end, respawns, first
             // discoveries, dungeon clears — and the ult-ready ping.
@@ -386,6 +387,11 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // levels 1/3, the level-6 ult) lands here too — same class as
             // the ult-ready ping, a golden halo at the fighter's pos
             // (stamped at all three publish sites) when the pick lands.
+            //
+            // Micro-dev (2026-10-13): a rebuilt sanctum is the same class
+            // — the RebuildSanctum directive's completion is a triumph
+            // beat, and the publish site stamps pos at the sanctum, so
+            // the halo lands there. No new preset.
             return lib.find("buff");
         default:
             return nullptr;
