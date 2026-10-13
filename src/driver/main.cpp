@@ -426,6 +426,13 @@ struct BetaGame {
             const std::string ks = k ? k->name : "the minions";
             if (v && v->id == humanMatchId)
                 std::cout << "*** You were slain by " << ks << " ***\n";
+            // Micro-dev (2026-10-13): kill credit in second person — a
+            // kill is the game's loudest personal moment and the console
+            // reported it in third person even when the human landed it
+            // ("X was slain by <your fighter>"). The human's own kills now
+            // read "You slew <victim>!".
+            else if (v && e.sourceId == humanMatchId)
+                std::cout << "*** You slew " << v->name << "! ***\n";
             else {
                 const std::string vs = v ? v->name : "an unfortunate soul";
                 std::cout << "*** " << vs << " was slain by " << ks
