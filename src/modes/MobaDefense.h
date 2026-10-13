@@ -57,6 +57,9 @@ public:
         bool announced = false;
         uint64_t channelBy = 0;       // player currently channeling
         double channelT = 0.0;        // channel progress seconds
+        int channelTeam = 0;          // micro-dev (2026-10-13): channeler's
+                                     // team, so the interrupt event can name
+                                     // it after they die/walk off.
     };
     static constexpr int kTier1Level = 10;
     static constexpr int kTier2Level = 20;

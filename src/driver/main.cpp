@@ -961,6 +961,26 @@ struct BetaGame {
                 std::cout << "*** " << p->name << " is channeling " << relic
                           << " (" << tier << ")! ***\n";
         });
+        // Micro-dev (2026-10-13): a broken channel was the one relic beat
+        // with no voice — the channeler invested up to 6s and the progress
+        // died in silence (the rival's later claim line was the only hint).
+        // Second-person for the joined human's own interruption, same gate
+        // pattern as the other personal callouts; amount carries the
+        // seconds already invested.
+        bus.subscribe(EventType::RelicChannelInterrupted, [this](const GameEvent& e) {
+            const Match::Player* p =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            if (!p) return;
+            const std::string relic =
+                e.tag.empty() ? "an unnamed relic" : e.tag;
+            const int secs = static_cast<int>(e.amount + 0.5);
+            if (e.sourceId == humanMatchId)
+                std::cout << "*** Your channel was interrupted! (" << relic
+                          << ", " << secs << "s lost) ***\n";
+            else
+                std::cout << "*** " << p->name << "'s channel was interrupted "
+                          << "(" << relic << ", " << secs << "s lost) ***\n";
+        });
         // Micro-dev (2026-10-12): the dungeon hazards were narratively
         // silent — SpikePitSprung, CaveIn, AbyssPitFall, MaddeningWhispers,
         // DholeTremors, DholeAmbush and DungeonCompleted all publish on the

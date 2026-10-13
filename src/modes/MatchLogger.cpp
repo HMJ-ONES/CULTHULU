@@ -257,6 +257,22 @@ void MatchLogger::attach(Match& match) {
                      std::to_string(static_cast<int>(e.amount)) + ")"});
         });
 
+    // Micro-dev (2026-10-13): an interrupted channel left no trace — the
+    // story jumped from "starts channeling" to the next claim with no
+    // record of the contest breaking it. One line per break.
+    sub(EventType::RelicChannelInterrupted,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* p = match.findPlayer(e.sourceId);
+            std::string who = p ? (p->name + "t" + std::to_string(p->team))
+                                : "?";
+            events_.push_back(
+                {match.elapsed(), "RELIC",
+                 "INTERRUPT " + who + " channel broken on \"" + e.tag +
+                     "\" (" +
+                     std::to_string(static_cast<int>(e.amount + 0.5f)) +
+                     "s invested)"});
+        });
+
     // Micro-dev (2026-10-13): a stun/root landing was invisible in the
     // exported story — the reader saw a fighter go quiet with no
     // explanation. One CC line per application.

@@ -473,3 +473,8 @@ target_link_libraries(cultulhu_tests_micro_selectnudge PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_selectnudge COMMAND cultulhu_tests_micro_selectnudge)
 set_tests_properties(cultulhu_tests_micro_selectnudge PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_relicinterrupt tests/tests_micro_relicinterrupt.cpp)
+target_link_libraries(cultulhu_tests_micro_relicinterrupt PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_relicinterrupt COMMAND cultulhu_tests_micro_relicinterrupt)
+set_tests_properties(cultulhu_tests_micro_relicinterrupt PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

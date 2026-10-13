@@ -600,6 +600,7 @@ void MobaDefense::update(double dt) {
         } else if (claimant != 0) {
             r.channelBy = claimant;
             r.channelT = dt;
+            r.channelTeam = claimantTeam;
             // Micro-dev (2026-10-12): the 4s/6s channel was silent — a
             // contesting player had no way to know someone was already
             // mid-channel on the relic. Announce the start; interruptions
@@ -612,6 +613,20 @@ void MobaDefense::update(double dt) {
             cs.pos = r.pos;
             bus_.publish(cs);
         } else {
+            // Micro-dev (2026-10-13): an interrupted channel died silently
+            // — the channeler saw "start channeling", then nothing until
+            // (maybe) the enemy's claim line. Publish the break once, with
+            // the seconds already invested, so it lands as a beat in the
+            // console and the exported story.
+            if (r.channelBy != 0) {
+                GameEvent intr(EventType::RelicChannelInterrupted);
+                intr.sourceId = r.channelBy;
+                intr.faction = r.channelTeam;
+                intr.tag = r.name;
+                intr.amount = static_cast<float>(r.channelT);
+                intr.pos = r.pos;
+                bus_.publish(intr);
+            }
             r.channelBy = 0;
             r.channelT = 0.0;
         }

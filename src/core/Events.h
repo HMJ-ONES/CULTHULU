@@ -212,6 +212,13 @@ enum class EventType {
                          // was already claiming it. sourceId = channeler
                          // player id; faction = channeler's team;
                          // tag = relic name; amount = tier; pos = site.
+    RelicChannelInterrupted, // micro-dev (2026-10-13): a tier-2/3 channel
+                             // was broken mid-cast (channeler left the
+                             // radius or died) — the channeler got no
+                             // feedback that their progress died.
+                             // sourceId = interrupted channeler player id;
+                             // faction = channeler's team; tag = relic name;
+                             // amount = seconds channeled; pos = site.
     MonstrositySlain,    // targetId = monstrosity id; faction = its faction;
                          // tag = species (e.g. "dhole")
     CityDestroyed,       // tag = city name; amount = 1; all districts razed
