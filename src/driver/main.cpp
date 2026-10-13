@@ -460,6 +460,26 @@ struct BetaGame {
                           << "'s Great Old One is under attack (" << pct
                           << "% HP) ***\n";
         });
+        // Micro-dev (2026-10-12): the killing blow was narratively silent —
+        // the GOO died and the console jumped straight to the VICTORY line
+        // with no record of the god falling or who struck the killing blow.
+        // GreatOldOneSlain (sourceId = killer, faction = losing team) is the
+        // dramatic beat; name it, with the urgent read for the defending
+        // player's team.
+        bus.subscribe(EventType::GreatOldOneSlain, [this](const GameEvent& e) {
+            const Match::Player* h = (match && humanMatchId != 0)
+                                         ? match->findPlayer(humanMatchId)
+                                         : nullptr;
+            const int humanTeam = h ? h->team : -1;
+            const Match::Player* k =
+                match ? match->findPlayer(e.sourceId) : nullptr;
+            const std::string ks = k ? k->name : "the minions";
+            if (e.faction == humanTeam)
+                std::cout << "*** YOUR GREAT OLD ONE HAS FALLEN! ***\n";
+            else
+                std::cout << "*** Team " << e.faction
+                          << "'s Great Old One falls to " << ks << "! ***\n";
+        });
         // Micro-dev (2026-10-12): a broken rock arrives silently on the
         // console — the match log records it, but the Cthulhu player never
         // learns their shield is gone. breakRock publishes AbilityCast

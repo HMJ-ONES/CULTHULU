@@ -158,6 +158,23 @@ void MatchLogger::attach(Match& match) {
                      std::to_string(pct) + "% << " + as});
         });
 
+    // Micro-dev (2026-10-12): the killing blow left no trace in the
+    // exported log — the story ended at the GOOATTACK warnings and the
+    // VICTORY line with no record of the god falling. Name the god's
+    // death and the killer so the story has an ending.
+    sub(EventType::GreatOldOneSlain,
+        [this, &match](const GameEvent& e) {
+            const Match::Player* a = match.findPlayer(e.sourceId);
+            const std::string as =
+                a ? (a->name + "<" + shortKit(a->kitId) + ">t" +
+                     std::to_string(a->team))
+                  : "minions";
+            events_.push_back(
+                {match.elapsed(), "GOOSLAIN",
+                 "GOOSLAIN t" + std::to_string(e.faction) +
+                     " falls << " + as});
+        });
+
     sub(EventType::AbilityCast,
         [this, &match](const GameEvent& e) {
             // Wave 42: Cthulhu's rock casts are landmark events — always log
