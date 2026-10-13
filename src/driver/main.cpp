@@ -419,8 +419,19 @@ struct BetaGame {
                 match ? match->findPlayer(e.targetId) : nullptr;
             const std::string ks = k ? k->name : "the minions";
             const std::string vs = v ? v->name : "an unfortunate soul";
-            std::cout << "*** FIRST BLOOD — " << ks << " struck down " << vs
-                      << " ***\n";
+            // Micro-dev (2026-10-13): first blood in second person — the
+            // match's opening kill is a personal moment, and the console
+            // reported it in third person even when the joined human
+            // landed it. Being the first victim keeps the death-receipt
+            // line ("You were slain by ..."), so this covers the killer
+            // side only; the nonzero guard keeps minion-kill attribution
+            // (unresolvable sourceId) third-person when no one is joined.
+            if (humanMatchId != 0 && e.sourceId == humanMatchId)
+                std::cout << "*** FIRST BLOOD — you struck down " << vs
+                          << "! ***\n";
+            else
+                std::cout << "*** FIRST BLOOD — " << ks << " struck down "
+                          << vs << " ***\n";
         });
         // Micro-dev (2026-10-12): seizing the point used to arrive silently
         // on the console — the score ticked up but a player watching the
