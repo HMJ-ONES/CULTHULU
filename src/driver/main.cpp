@@ -686,11 +686,23 @@ struct BetaGame {
         // Micro-dev (2026-10-12): Domination's climax beat — first team to
         // 300/400 gets an arena-style callout so the ending never arrives
         // quietly.
-        bus.subscribe(EventType::MatchPoint, [](const GameEvent& e) {
+        // Micro-dev (2026-10-13): the joined human's own match point in
+        // second person — the climax beat reads "YOUR TEAM" when the human's
+        // team is the one on the verge of victory; rival teams (and the
+        // no-human case) keep the third-person read.
+        bus.subscribe(EventType::MatchPoint, [this](const GameEvent& e) {
+            const Match::Player* h = (match && humanMatchId != 0)
+                                         ? match->findPlayer(humanMatchId)
+                                         : nullptr;
+            const int humanTeam = h ? h->team : -1;
             const int toWin = static_cast<int>(
                 CapturePointMode::TARGET_SCORE - e.amount);
-            std::cout << "*** MATCH POINT — team " << e.faction << " is "
-                      << toWin << " points from victory ***\n";
+            if (humanTeam >= 0 && e.faction == humanTeam)
+                std::cout << "*** MATCH POINT — YOUR TEAM is " << toWin
+                          << " points from victory! ***\n";
+            else
+                std::cout << "*** MATCH POINT — team " << e.faction << " is "
+                          << toWin << " points from victory ***\n";
         });
         // Micro-dev (2026-10-12): sudden death used to arrive silently on
         // the console (only match status showed OVERTIME) — announce the
