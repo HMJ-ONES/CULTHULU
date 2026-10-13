@@ -796,6 +796,34 @@ struct BetaGame {
                 std::cout << "*** DRAW — the " << modeName
                           << " match ends in a draw." << score << " ***\n";
             }
+            // Micro-dev (2026-10-13): end-of-match personal line — the
+            // VICTORY/DEFEAT beat names the winner but never tells the
+            // joined human how THEY did. Read their K/D/A off the same
+            // stats rows `match status` shows (player-index order, so the
+            // human's index is found by id), plus level and relics — the
+            // three things a player asks themselves after a match. Human
+            // only; the event fires from inside Match::update, so the
+            // match and its stats are still alive here. AFK needs no
+            // special case: the rewards line handles AFK separately.
+            if (match && humanMatchId != 0) {
+                const auto rows = match->stats().rows();
+                for (size_t i = 0; i < match->playerCount() &&
+                                     i < rows.size();
+                     ++i) {
+                    const Match::Player& pl = match->player(i);
+                    if (pl.id != humanMatchId) continue;
+                    std::cout << "*** Your line: " << rows[i].kills << "/"
+                              << rows[i].deaths << "/" << rows[i].assists
+                              << " K/D/A, level " << pl.level;
+                    if (!pl.relicNames.empty()) {
+                        std::cout << ", " << pl.relicNames.size() << " relic"
+                                  << (pl.relicNames.size() == 1 ? "" : "s")
+                                  << " (x" << pl.dmgMult << " damage)";
+                    }
+                    std::cout << " ***\n";
+                    break;
+                }
+            }
         });
         bus.subscribe(EventType::DirectiveProgress, [](const GameEvent& e) {
             std::cout << "[directive] " << e.tag << " "
