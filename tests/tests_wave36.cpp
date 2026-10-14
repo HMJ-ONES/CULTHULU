@@ -425,6 +425,20 @@ static void testFxForEvent() {
     // nullptr, and the expose branch is exclusive with the kill branch —
     // no double-fire. It joins the snapped-plan jolts (stun).
     CHECK(fxForEvent(EventType::AssassinExposed, r.library) == stun);
+    // Micro-dev (2026-10-14): three more deliberate silences, pinned so
+    // the sweep stays closed — each surveyed and skipped for cause:
+    // BrawlBrokeOut stamps no pos (AmbientBehavior.cpp) — a mapping would
+    // render the burst at the world origin, worse than silence; the brawl's
+    // visual is already carried by the AnimationDirector's 0.9s brawl
+    // one-shot (behavior animation), so the particle layer owes nothing.
+    CHECK(fxForEvent(EventType::BrawlBrokeOut, r.library) == nullptr);
+    // CreatureAttracted is ambient background (a wild thing slinks closer
+    // off-screen, AmbientBehavior.cpp) with no world position — nothing
+    // for a visual to land on.
+    CHECK(fxForEvent(EventType::CreatureAttracted, r.library) == nullptr);
+    // Explosion fires only from ScenarioBot (sim-only, no world position),
+    // the same class as the pinned MimicKill silence.
+    CHECK(fxForEvent(EventType::Explosion, r.library) == nullptr);
 }
 
 // Wave 43: RMB heavy attacks resolve to presets (kind default, with
