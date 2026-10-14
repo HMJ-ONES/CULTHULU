@@ -59,7 +59,7 @@ static void testMapParses() {
     ++checks;
     CHECK(map.name == "ruined_city");
     CHECK(map.zones.size() == 4);
-    CHECK(map.placements.size() == 115);  // 90 (wave 11) + 25 outskirts scatter
+    CHECK(map.placements.size() == 139);  // 90 (wave 11) + 25 outskirts scatter + 24 graveyard pass
     // Zone defs feed WorldMap unchanged (insertion order = file order).
     WorldMap wm("surface");
     map.applyZones(wm);

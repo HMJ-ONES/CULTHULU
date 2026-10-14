@@ -92,6 +92,23 @@ lod assets/world/props/ash-thicket.glb hide=250 low=120
 lod assets/world/props/arch-ruined.glb hide=400 low=200
 lod assets/world/props/bones-scattered.glb hide=250 low=120
 lod assets/world/props/broken-obelisk.glb hide=250 low=120
+# --- 5 PM beauty pass (2026-10-13): haunted-graveyard props (burial-mound
+#     is an in-house procgen prop; the rest are Kenney CC0 graveyard-kit
+#     models already shipped elsewhere in the map set) ---
+lod assets/world/props/burial-mound.glb hide=150 low=60
+lod assets/world/props/iron-fence.glb hide=250 low=120
+lod assets/world/props/gravestone-wide.glb hide=250 low=120
+lod assets/world/props/gravestone-broken.glb hide=150 low=60
+# (battlefield-tuned distances reused for the other graveyard models)
+lod assets/world/props/coffin-stone.glb hide=250 low=120
+lod assets/world/props/dead-bush.glb hide=150 low=60
+lod assets/world/props/fence-broken.glb hide=250 low=120
+lod assets/world/props/grave-obelisk.glb hide=150 low=60
+lod assets/world/props/lantern-iron.glb hide=300 low=150
+lod assets/world/props/mist-bank.glb hide=60 low=0
+lod assets/world/props/skull-candle.glb hide=200 low=100
+lod assets/world/props/tombstone-carved.glb hide=250 low=120
+lod assets/world/props/tombstone-weathered.glb hide=250 low=120
 
 # -- cult base: the altar plaza --
 place assets/world/cult/altar-stone.glb 0 0 300 0 1.5 cult_base nevercull
@@ -216,3 +233,34 @@ place assets/world/props/pine-crooked.glb -420 0 -380 100 1.2 outskirts cull=400
 place assets/world/props/pine-crooked.glb 250 0 -450 300 0.8 outskirts cull=400
 place assets/world/props/gravestone-cross.glb -260 0 420 0 1.0 outskirts cull=180
 place assets/world/props/gravestone-cross.glb -240 0 440 25 0.9 outskirts cull=180
+# --- 5 PM beauty pass (2026-10-13): haunted-graveyard pass. The graveyard was
+#     14 placements (10 crosses in two neat rows + 4 pines) across 160x200 m —
+#     now 38, with a mausoleum centerpiece, a breached iron fence line, three
+#     fresh-dug burial mounds, broken stones scattered between the rows, and
+#     mist/dead-brush atmosphere. All in the graveyard's green tint (see
+#     ART DIRECTION note above); no new models shipped from outside (one new
+#     in-house procgen prop: burial-mound, 64 tris).
+place assets/world/props/coffin-stone.glb -280 0 10 12 1.0 graveyard
+place assets/world/props/grave-obelisk.glb -280 0 18 5 1.1 graveyard cull=180
+place assets/world/props/skull-candle.glb -277 0 12 40 1.0 graveyard
+place assets/world/props/skull-candle.glb -283 0 12 -60 0.9 graveyard
+place assets/world/props/lantern-iron.glb -277.5 0 17 0 1.0 graveyard
+place assets/world/props/iron-fence.glb -350 0 -70 0 1.0 graveyard
+place assets/world/props/iron-fence.glb -330 0 -70 0 1.0 graveyard
+place assets/world/props/iron-fence.glb -310 0 -70 0 1.0 graveyard
+place assets/world/props/fence-broken.glb -288 0 -70 15 1.0 graveyard
+place assets/world/props/iron-fence.glb -265 0 -70 0 1.0 graveyard
+place assets/world/props/iron-fence.glb -245 0 -70 0 1.0 graveyard
+place assets/world/props/iron-fence.glb -225 0 -70 0 1.0 graveyard
+place assets/world/props/burial-mound.glb -255 0 5 20 1.0 graveyard
+place assets/world/props/burial-mound.glb -295 0 30 140 1.15 graveyard
+place assets/world/props/burial-mound.glb -335 0 25 75 0.9 graveyard
+place assets/world/props/tombstone-weathered.glb -268 0 -5 -18 1.0 graveyard
+place assets/world/props/gravestone-wide.glb -305 0 -15 30 1.0 graveyard
+place assets/world/props/gravestone-broken.glb -248 0 40 -45 1.0 graveyard
+place assets/world/props/mist-bank.glb -270 0 20 0 1.4 graveyard
+place assets/world/props/mist-bank.glb -310 0 45 90 1.6 graveyard
+place assets/world/props/dead-bush.glb -290 0 50 0 1.2 graveyard
+place assets/world/props/dead-bush.glb -320 0 -10 130 1.0 graveyard
+place assets/world/props/bones-scattered.glb -262 0 12 200 1.0 graveyard
+place assets/world/props/tombstone-carved.glb -352 0 0 80 1.05 graveyard

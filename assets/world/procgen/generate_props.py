@@ -420,6 +420,50 @@ def broken_obelisk(rng):
     return _merge(parts)
 
 
+_BURIAL = (0.13, 0.10, 0.085, 1.0)       # disturbed dark earth
+_BURIAL_ASH = (0.30, 0.28, 0.30, 1.0)    # ash-grey scabbed crown
+_BURIAL_WOOD = (0.24, 0.15, 0.10, 1.0)   # weathered grave-plank
+_BURIAL_PEB = (0.20, 0.19, 0.22, 1.0)    # scattered stones
+
+
+def burial_mound(rng):
+    """Fresh-dug burial mound: a lumpy noise-displaced earth dome whose
+    crown is scabbed ash-grey, with a snapped weathered grave-plank
+    jutting out and a few stones scattered at the base. ~70 tris."""
+    tris, colors = [], []
+    rad = rng.uniform(1.9, 2.4)
+    h = rng.uniform(0.7, 1.0)
+    dome = cone(rad, h, 14, rng, jitter=0.38)
+    for tri in dome:
+        cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3.0
+        # ash scab on the crown, dark earth below the rim
+        ash = max(0.0, min(1.0, ((cy / h) - 0.45) / 0.55))
+        tris.append(tri)
+        colors.append((
+            _BURIAL[0] + (_BURIAL_ASH[0] - _BURIAL[0]) * ash,
+            _BURIAL[1] + (_BURIAL_ASH[1] - _BURIAL[1]) * ash,
+            _BURIAL[2] + (_BURIAL_ASH[2] - _BURIAL[2]) * ash,
+            1.0))
+    # snapped grave-plank jutting out of the mound
+    plank = box(rng.uniform(0.22, 0.30), rng.uniform(0.8, 1.1), 0.12)
+    plank = _xform(plank, rot_z=rng.uniform(-0.5, 0.5),
+                   rot_y=rng.uniform(0.0, 3.14),
+                   translate=(rng.uniform(-0.5, 0.5), h * 0.75,
+                              rng.uniform(-0.5, 0.5)))
+    tris.extend(plank)
+    colors.extend([_BURIAL_WOOD] * len(plank))
+    # scattered pebbles around the base
+    for _ in range(rng.randint(3, 5)):
+        a = rng.uniform(0.0, 2 * math.pi)
+        rr = rng.uniform(rad * 0.9, rad * 1.5)
+        p = octahedron(0.14, 0.10, 0.14)
+        p = _xform(p, rot_y=rng.uniform(0.0, 3.14),
+                   translate=(math.cos(a) * rr, 0.06, math.sin(a) * rr))
+        tris.extend(p)
+        colors.extend([_BURIAL_PEB] * len(p))
+    return tris, colors
+
+
 PROPS_WAVE35 = [
     ("ash-thicket", ash_thicket, (0.0, 0.0, 0.0)),
     ("hanging-moss", hanging_moss, (0.0, 0.0, 0.0)),
@@ -429,6 +473,7 @@ PROPS_WAVE35 = [
     ("fallen-lintel", fallen_lintel, (0.0, 0.0, 0.0)),
     ("flagstone-slab", flagstone_slab, (0.0, 0.0, 0.0)),
     ("broken-obelisk", broken_obelisk, (0.0, 0.0, 0.0)),
+    ("burial-mound", burial_mound, (0.0, 0.0, 0.0)),
 ]
 
 

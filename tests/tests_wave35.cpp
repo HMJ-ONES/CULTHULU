@@ -4,7 +4,7 @@
 //   - every placement in eldritch_battlefield.map names a decoded .glb
 //     that exists on disk (catches typos before they reach the driver);
 //   - no two placements share identical coordinates;
-//   - the 8 new wave-35 procgen props exist and stay under the 2000-tri
+//   - the 9 new wave-35 procgen props exist and stay under the 2000-tri
 //     world-prop budget (they also carry COLOR_0 vertex colors, which the
 //     budget test counts as extra vertex data but not extra triangles).
 
@@ -78,7 +78,7 @@ static void testBattlefieldUniqueCoords() {
     CHECK(coords.size() == map.placements.size());
 }
 
-// The 8 new procgen props exist and stay under the world-prop tri budget.
+// The 9 new procgen props exist and stay under the world-prop tri budget.
 static void testWave35PropBudgets() {
     const std::string prefix = repoPrefix();
     for (const auto& [prop, maxTris] :
@@ -86,7 +86,8 @@ static void testWave35PropBudgets() {
              {"ash-thicket", 2000}, {"hanging-moss", 2000},
              {"fungal-shelf", 2000}, {"root-tangle", 2000},
              {"ruined-column-b", 2000}, {"fallen-lintel", 2000},
-             {"flagstone-slab", 2000}, {"broken-obelisk", 2000}}) {
+             {"flagstone-slab", 2000}, {"broken-obelisk", 2000},
+             {"burial-mound", 2000}}) {
         const std::string path = prefix + "assets/world/props/" + prop +
                                  ".glb";
         GlbStats st = readGlbStats(path);
