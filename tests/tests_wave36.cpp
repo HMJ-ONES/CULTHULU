@@ -291,6 +291,10 @@ static void testFxForEvent() {
     // the publish site stamps pos at the target, so the smoke lands
     // at the assassination site. Previously nullptr.
     CHECK(fxForEvent(EventType::LeaderAssassinated, r.library) == aoe);
+    // Micro-dev (2026-10-13): a raid hit on a city building gets the
+    // same impact burst — all three publish sites stamp pos at the
+    // struck building, and the hit beat previously resolved to nullptr.
+    CHECK(fxForEvent(EventType::RaidPerformed, r.library) == aoe);
     CHECK(fxForEvent(EventType::RelicManifested, r.library) == summon);
     CHECK(fxForEvent(EventType::RelicClaimed, r.library) == summon);
     // Micro-dev (2026-10-13): a champion answering the GrandSummoning

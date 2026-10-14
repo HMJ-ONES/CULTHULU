@@ -302,12 +302,22 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::FeralRampage:
         case EventType::MaulStruck:
         case EventType::LeaderAssassinated:
+        case EventType::RaidPerformed:
             // Raw violence — impact smoke at the scene of the death.
             // Micro-dev (2026-10-13): an assassinated leader joins the
             // death beats — the blade finding its mark at the target's
             // position (pos-stamped at the publish site) is a sudden
             // violent death like the rest, so it gets the same burst.
             // No new preset.
+            // Micro-dev (2026-10-13): a raided building joins the impact
+            // class — every raid hit (CitySystem.damageBuilding, the
+            // RaidCity follow-through, and the CommandSystem RaidCity
+            // command) stamps pos at the struck building, and the
+            // destruction beat previously resolved to nullptr, so a raid
+            // played with no impact smoke while full destruction got the
+            // raze burst. Same aoe_damage preset, no new payload. A hit
+            // that destroys reads as smoke-then-rubble: aoe_damage on
+            // the hit tick, raze on the collapse beat.
             // Micro-dev (2026-10-13): a slain monstrosity joins the
             // death beats — same impact burst, no new preset.
             //
