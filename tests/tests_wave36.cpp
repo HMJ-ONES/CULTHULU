@@ -329,6 +329,12 @@ static void testFxForEvent() {
     // RebuildSanctum completion publishes pos at the sanctum, so the
     // golden halo lands there.
     CHECK(fxForEvent(EventType::SanctumRebuilt, r.library) == buff);
+    // Micro-dev (2026-10-13): a finished construction site is the same
+    // triumph class — BuilderAI's emitBuild stamps pos at the site, so
+    // the halo lands on the raised building. BuildingRebuilt is NOT
+    // mapped: the RebuildSanctum directive fires it in the same tick as
+    // SanctumRebuilt at the same site, and the halo would double-fire.
+    CHECK(fxForEvent(EventType::BuildCompleted, r.library) == buff);
     // Micro-dev (2026-10-13): the level-up beat reuses the golden halo
     // (mapped 2026-10-12) — the last buff-group mapping without a pin.
     CHECK(fxForEvent(EventType::PlayerLeveledUp, r.library) == buff);

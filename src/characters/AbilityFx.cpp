@@ -407,6 +407,7 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::RelicChannelStarted:
         case EventType::AbilityUnlocked:
         case EventType::SanctumRebuilt:
+        case EventType::BuildCompleted:
             // The golden halo of triumph and return: captures, records,
             // match point, the match's own end, respawns, first
             // discoveries, dungeon clears — and the ult-ready ping.
