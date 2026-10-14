@@ -137,28 +137,6 @@ void printUnknownBelief(const std::string& bad, bool toReplace) {
     std::cout << "\n";
 }
 
-// Convenience pass (2026-10-14): typo-tolerant help for the `cast`
-// command's slot token. A mistyped slot (e.g. `cast qq`) used to fall
-// into the legacy sorcerer-spell path, whose target lookup printed the
-// misleading "no target in range" before ever reaching the usage line.
-// Now the token is validated first: "unknown cast 'qq'. Did you mean
-// 'q'?" plus the valid tokens, so the player never dead-ends.
-static bool isCastToken(const std::string& s) {
-    return s == "q" || s == "f" || s == "r" || s == "fireball" ||
-           s == "fear";
-}
-
-void printUnknownCast(const std::string& bad) {
-    static const std::vector<std::string> kCastTokens = {
-        "q", "f", "r", "fireball", "fear"};
-    std::cout << "unknown cast '" << bad << "'.";
-    const std::string sug = suggestCommand(bad, kCastTokens);
-    if (!sug.empty()) std::cout << " Did you mean '" << sug << "'?";
-    std::cout << "\nusage: cast <q|f|r> | cast <fireball|fear>\n"
-                 "  q/f/r casts the active kit's ability "
-                 "(character select <id>)\n";
-}
-
 // Wave 5b: entity type ids in a save file are trusted only after this check.
 // Wave 23: range extended to EntityType::Rival (newest enumerator; keep last).
 bool validEntityType(int t) {
@@ -2405,15 +2383,6 @@ static bool processLine(BetaGame& g, NetSession& nets,
 
         if (cmd == "cast") {
             std::string spell; in >> spell;
-            // Convenience pass (2026-10-14): validate the slot token
-            // BEFORE the legacy spell path's target lookup — a mistyped
-            // slot used to print the misleading "no target in range".
-            for (auto& ch : spell)
-                ch = static_cast<char>(std::tolower(ch));
-            if (!isCastToken(spell)) {
-                printUnknownCast(spell);
-                return true;
-            }
             // Wave 27: cast the active kit's abilities — q/f/r resolve
             // through the character registry with real cooldowns.
             if (spell == "q" || spell == "f" || spell == "r") {
@@ -2504,13 +2473,18 @@ static bool processLine(BetaGame& g, NetSession& nets,
                                 EventType::CivilianSlain,
                                 g.exertion.stats().combatPowerMult);
                 std::cout << "fear cast for " << dmg << "\n";
-            } else {  // spell == "fireball" (token validated above)
+            } else if (spell == "fireball") {
                 dmg = castSpell(g.avatar.id(), EntityType::Sorcerer, *t,
                                 35.0f, DamageType::Fire, CCType::Stun, 3.0f,
                                 g.beliefs, g.bus, g.fx,
                                 EventType::CivilianSlain,
                                 g.exertion.stats().combatPowerMult);
                 std::cout << "fireball for " << dmg << "\n";
+            } else {
+                std::cout << "usage: cast <q|f|r> | cast <fireball|fear>\n"
+                          << "  q/f/r casts the active kit's ability "
+                             "(character select <id>)\n";
+                return true;
             }
             std::cout << "target hp " << t->hp() << "\n";
             g.tickSecond();

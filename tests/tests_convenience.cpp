@@ -100,19 +100,6 @@ int main() {
     CHECK(suggestCommand("breeding", beliefLower) == "breeding"); // exact passes through
     CHECK(suggestCommand("xyzzy", beliefLower) == "");         // too far: no guess
 
-    // `cast` slot typo forgiveness (convenience pass 2026-10-14): the
-    // unknown-cast message suggests from the valid slot vocabulary
-    // (q/f/r + the two legacy sorcerer spells), so `cast qq` gets
-    // "Did you mean 'q'?" instead of the legacy path's misleading
-    // "no target in range". Vocabulary mirrors the driver's kCastTokens.
-    const std::vector<std::string> castTokens = {"q", "f", "r", "fireball",
-                                                "fear"};
-    CHECK(suggestCommand("qq", castTokens) == "q");            // extra letter
-    CHECK(suggestCommand("z", castTokens) == "q");             // adjacent key, tie -> first
-    CHECK(suggestCommand("fearr", castTokens) == "fear");      // extra letter
-    CHECK(suggestCommand("firebal", castTokens) == "fireball"); // missing letter
-    CHECK(suggestCommand("xyzzy", castTokens) == "");         // too far: no guess
-
     if (failures == 0)
         std::cout << "convenience: all " << checks << " checks passed\n";
     else
