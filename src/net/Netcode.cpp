@@ -63,9 +63,9 @@ bool decodeSnapshot(const Message& m, uint32_t& tickOut,
         // fieldStr: one fewer heap string per entity at 20 Hz.
         // A missing key behaves exactly as before (empty string fails
         // the sscanf below, so the entity is skipped).
-        auto it = m.fields.find("e" + std::to_string(i));
-        if (it == m.fields.end()) continue;
-        const std::string& s = it->second;
+        const std::string* f = m.fields.find("e" + std::to_string(i));
+        if (!f) continue;
+        const std::string& s = *f;
         SnapshotEntity e;
         // id,x,y,z,hp,state — parse the five floats/ints, then the
         // trailing state byte separately for robustness.

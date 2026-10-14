@@ -28,9 +28,9 @@
 //                                   moba: base HPs + tower HPs + minion count
 
 #include <cstdint>
-#include <map>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "net/Kda.h"
@@ -54,14 +54,52 @@ enum class MsgType : uint8_t {
 
 constexpr int kProtocolVersion = 1;
 
-struct Message {
-    MsgType type;
-    std::map<std::string, std::string> fields;
+// Insertion-ordered field list (wave 36: replaces std::map<string,string>).
+// Encode walks the items in insertion order with zero node allocations
+// (one tree-node + one string pair per field, per snapshot, at 20 Hz on
+// the host before this); lookup is a linear scan, fine at <= ~30 fields.
+// Keys are unique: operator[] keeps std::map's replace-if-present
+// semantics, so the last of any duplicate keys in a hand-built payload
+// still wins.
+class Fields {
+public:
+    Fields() { items_.reserve(24); } // typical HostSnapshot = 22 fields
+    // Brace-init ("a","1") lists keep old test payloads readable; routes
+    // through operator[] so duplicate keys keep last-wins semantics.
+    Fields(std::initializer_list<std::pair<std::string, std::string>> init) {
+        items_.reserve(init.size());
+        for (auto& [k, v] : init) (*this)[k] = v;
+    }
+    std::string& operator[](const std::string& key) {
+        for (auto& [k, v] : items_)
+            if (k == key) return v;
+        items_.emplace_back(key, std::string{});
+        return items_.back().second;
+    }
+    const std::string* find(const std::string& key) const {
+        for (const auto& [k, v] : items_)
+            if (k == key) return &v;
+        return nullptr;
+    }
+    bool empty() const { return items_.empty(); }
+    size_t size() const { return items_.size(); }
+    using const_iterator =
+        std::vector<std::pair<std::string, std::string>>::const_iterator;
+    const_iterator begin() const { return items_.begin(); }
+    const_iterator end() const { return items_.end(); }
+
+private:
+    std::vector<std::pair<std::string, std::string>> items_;
 };
 
-// "key=value;key=value;" — deterministic order (std::map), ';' stripped.
-std::string encodeFields(const std::map<std::string, std::string>& fields);
-std::map<std::string, std::string> decodeFields(const std::string& payload);
+struct Message {
+    MsgType type;
+    Fields fields;
+};
+
+// "key=value;key=value;" — insertion order, ';' stripped.
+std::string encodeFields(const Fields& fields);
+Fields decodeFields(const std::string& payload);
 
 // One framed packet.
 std::vector<uint8_t> encode(const Message& m);

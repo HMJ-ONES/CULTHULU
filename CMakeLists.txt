@@ -523,3 +523,8 @@ target_link_libraries(cultulhu_tests_micro_maulrelic PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_maulrelic COMMAND cultulhu_tests_micro_maulrelic)
 set_tests_properties(cultulhu_tests_micro_maulrelic PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_lightweight_fields tests/tests_micro_lightweight_fields.cpp)
+target_link_libraries(cultulhu_tests_micro_lightweight_fields PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_lightweight_fields COMMAND cultulhu_tests_micro_lightweight_fields)
+set_tests_properties(cultulhu_tests_micro_lightweight_fields PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

@@ -16,7 +16,7 @@ void appendSanitized(std::string& out, const std::string& v) {
 
 } // namespace
 
-std::string encodeFields(const std::map<std::string, std::string>& fields) {
+std::string encodeFields(const Fields& fields) {
     // Upper bound (sanitizing only removes characters): one allocation
     // for the whole payload instead of a realloc chain per '+=', and no
     // per-field temporary strings.
@@ -33,8 +33,8 @@ std::string encodeFields(const std::map<std::string, std::string>& fields) {
     return out;
 }
 
-std::map<std::string, std::string> decodeFields(const std::string& payload) {
-    std::map<std::string, std::string> out;
+Fields decodeFields(const std::string& payload) {
+    Fields out;
     size_t i = 0;
     while (i < payload.size()) {
         const size_t semi = payload.find(';', i);
@@ -102,20 +102,20 @@ std::vector<Message> MessageReader::drain() {
 
 std::string fieldStr(const Message& m, const std::string& key,
                      const std::string& dflt) {
-    auto it = m.fields.find(key);
-    return it == m.fields.end() ? dflt : it->second;
+    if (const std::string* v = m.fields.find(key)) return *v;
+    return dflt;
 }
 
 int fieldInt(const Message& m, const std::string& key, int dflt) {
-    auto it = m.fields.find(key);
-    if (it == m.fields.end()) return dflt;
-    try { return std::stoi(it->second); } catch (...) { return dflt; }
+    const std::string* v = m.fields.find(key);
+    if (!v) return dflt;
+    try { return std::stoi(*v); } catch (...) { return dflt; }
 }
 
 float fieldFloat(const Message& m, const std::string& key, float dflt) {
-    auto it = m.fields.find(key);
-    if (it == m.fields.end()) return dflt;
-    try { return std::stof(it->second); } catch (...) { return dflt; }
+    const std::string* v = m.fields.find(key);
+    if (!v) return dflt;
+    try { return std::stof(*v); } catch (...) { return dflt; }
 }
 
 // ---------------- PlayerKda ----------------
