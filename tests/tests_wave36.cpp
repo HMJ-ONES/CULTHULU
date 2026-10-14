@@ -308,6 +308,12 @@ static void testFxForEvent() {
     // manifestation at the breeding pit — births were the last
     // announced arrival-class beat with no visual.
     CHECK(fxForEvent(EventType::MonstrosityBred, r.library) == summon);
+    // Micro-dev (2026-10-13): crossing a dungeon threshold reads as
+    // a manifestation at the entrance portal — entering and leaving
+    // both stamp pos at the doorway, fire once per crossing, and had
+    // no engine visual.
+    CHECK(fxForEvent(EventType::DungeonEntered, r.library) == summon);
+    CHECK(fxForEvent(EventType::DungeonExited, r.library) == summon);
     CHECK(fxForEvent(EventType::MaddeningWhispers, r.library) == aura);
     CHECK(fxForEvent(EventType::PointCaptured, r.library) == buff);
     CHECK(fxForEvent(EventType::AchievementUnlocked, r.library) == buff);

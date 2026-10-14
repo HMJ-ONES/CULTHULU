@@ -328,6 +328,8 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::ChampionSummoned:
         case EventType::SacrificeCompleted:
         case EventType::MonstrosityBred:
+        case EventType::DungeonEntered:
+        case EventType::DungeonExited:
             // A rift opens as the relic manifests / is seized — and as
             // the arena itself opens. Micro-dev (2026-10-13): the
             // match's opening beat had no visual; it reads as a
@@ -348,6 +350,12 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // manifestation, and the publish site now stamps pos so the
             // rift opens there instead of the world origin. No new
             // preset.
+            //
+            // Micro-dev (2026-10-13): crossing a dungeon threshold joins
+            // the arrival class too — entering or leaving fires once
+            // per crossing (not a tick), and both publish sites stamp
+            // pos at the entrance portal, so the rift shimmer lands on
+            // the doorway. No new preset.
             return lib.find("summon");
         // Micro-dev (2026-10-13): the Wave of Domination's lifecycle
         // beats were FX-less — in DOTGOO, Cthulhu's signature RMB
