@@ -230,11 +230,14 @@ static void testAssassinateSuccess() {
 
 // 5. AssassinateProphet failure branch (seeded): the assassin is exposed,
 // the target escapes, the cult fears retaliation, the enemy deity notices.
+// Micro-dev (2026-10-14): the exposure event now stamps pos at the
+// assassination target — a nonzero target here so the stamp is asserted.
 static void testAssassinateExposure() {
+    const Vec3 kTarget{120.0f, 0.0f, 300.0f};
     int doomSeed = -1;
     for (int s = 1; s <= 60 && doomSeed < 0; ++s) {
         AssassResult r = runAssassination(static_cast<uint64_t>(s), 0.0f,
-                                         Vec3{0, 0, 0});
+                                         kTarget);
         if (r.exposed && !r.killed) doomSeed = s;
     }
     CHECK(doomSeed > 0);
@@ -248,7 +251,7 @@ static void testAssassinateExposure() {
     risk.attach(w.bus, EventType::InsurrectionRiskUp);
     war.attach(w.bus, EventType::CombatStarted);
     w.bus.publish(resolvedEvent(DirectiveType::AssassinateProphet,
-                                CommandOutcome::Obeyed, 0.8f, Vec3{0, 0, 0},
+                                CommandOutcome::Obeyed, 0.8f, kTarget,
                                 2));
     for (int i = 0; i < 40 && w.executor.activeCount() > 0; ++i) {
         w.executor.update(5.0);
@@ -258,6 +261,10 @@ static void testAssassinateExposure() {
     CHECK(killed.events.empty()); // the target escapes: no kill
     CHECK(exposed.events.size() == 1);
     CHECK(exposed.events[0].sourceId != 0); // the infiltrator is named
+    // The exposure lands at the assassination site, not the world origin.
+    CHECK_CLOSE(exposed.events[0].pos.x, kTarget.x, 1e-3f);
+    CHECK_CLOSE(exposed.events[0].pos.y, kTarget.y, 1e-3f);
+    CHECK_CLOSE(exposed.events[0].pos.z, kTarget.z, 1e-3f);
     // Fear of retaliation: insurrection nudge among the cultists.
     bool foundNudge = false;
     for (const auto& e : risk.events)

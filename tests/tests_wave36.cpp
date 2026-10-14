@@ -417,9 +417,14 @@ static void testFxForEvent() {
     // is the one that carries the rite's visual, pos-stamped.)
     CHECK(fxForEvent(EventType::SacrificeStarted, r.library) == nullptr);
     CHECK(fxForEvent(EventType::NecromancyPerformed, r.library) == nullptr);
-    // AssassinExposed stamps no pos; its sibling CombatStarted
-    // ("deity_noticed") fires the same tick WITH pos at the target.
-    CHECK(fxForEvent(EventType::AssassinExposed, r.library) == nullptr);
+    // Micro-dev (2026-10-14): AssassinExposed is mapped after all — the
+    // 07:38 pin assumed its sibling CombatStarted ("deity_noticed")
+    // carried the visual, but CombatStarted resolves to nullptr, so the
+    // exposure beat was silently FX-less. The publish site stamps pos at
+    // the assassination target, the same-tick sibling resolves to
+    // nullptr, and the expose branch is exclusive with the kill branch —
+    // no double-fire. It joins the snapped-plan jolts (stun).
+    CHECK(fxForEvent(EventType::AssassinExposed, r.library) == stun);
 }
 
 // Wave 43: RMB heavy attacks resolve to presets (kind default, with

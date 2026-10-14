@@ -184,7 +184,8 @@ enum class EventType {
                           // Conversion-exertion it feeds stays high.
     AssassinExposed,      // AssassinateProphet failed: the infiltrator was
                           // uncovered. sourceId = assassin's cultist id;
-                          // tag = directive name. The target escapes.
+                          // tag = directive name; pos = assassination site.
+                          // The target escapes.
     ZoneBlightTick,       // BlightLand corruption tick: tag = zone name;
                           // amount = blight progress 0..1; pos = zone center.
                           // The city system reads this to scale civilian

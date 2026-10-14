@@ -321,6 +321,7 @@ protected:
             GameEvent exposed(EventType::AssassinExposed);
             exposed.sourceId = assassinId_;
             exposed.tag = name();
+            exposed.pos = target_; // the exposure happens at the target site
             bus_.publish(exposed);
             GameEvent risk(EventType::InsurrectionRiskUp);
             risk.amount = ASSASSIN_RISK_NUDGE;

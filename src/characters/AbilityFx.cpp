@@ -292,6 +292,17 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // Micro-dev (2026-10-13): a broken sacrifice rite joins the
             // same group — the anti-image of the SacrificeCompleted
             // rift halo, a jolt where the rite snapped.
+            //
+            // Micro-dev (2026-10-14): a blown assassination lands here
+            // too — the infiltrator uncovered at the target site is a
+            // snapped plan like the interrupted rites above, so it reads
+            // as the same sharp jolt. The publish site stamps pos at
+            // the assassination target, and the same-tick CombatStarted
+            // ("deity_noticed") sibling resolves to nullptr, so the jolt
+            // fires exactly once — no double-fire. The kill branch is
+            // exclusive with this one (it returns first), so
+            // LeaderAssassinated's impact burst never shares the tick.
+            case EventType::AssassinExposed:
             // No new preset needed.
             return lib.find("stun");
         case EventType::FirstBlood:
