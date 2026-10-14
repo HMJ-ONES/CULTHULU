@@ -286,6 +286,11 @@ static void testFxForEvent() {
     // impact burst as the death beats — the beast tearing loose at
     // the breeding pit had no engine visual.
     CHECK(fxForEvent(EventType::FeralRampage, r.library) == aoe);
+    // Micro-dev (2026-10-13): an assassinated leader gets the same
+    // impact burst — the blade finding its mark is a death beat, and
+    // the publish site stamps pos at the target, so the smoke lands
+    // at the assassination site. Previously nullptr.
+    CHECK(fxForEvent(EventType::LeaderAssassinated, r.library) == aoe);
     CHECK(fxForEvent(EventType::RelicManifested, r.library) == summon);
     CHECK(fxForEvent(EventType::RelicClaimed, r.library) == summon);
     // Micro-dev (2026-10-13): a champion answering the GrandSummoning

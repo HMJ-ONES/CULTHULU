@@ -301,7 +301,13 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::CivilianSlain:
         case EventType::FeralRampage:
         case EventType::MaulStruck:
+        case EventType::LeaderAssassinated:
             // Raw violence — impact smoke at the scene of the death.
+            // Micro-dev (2026-10-13): an assassinated leader joins the
+            // death beats — the blade finding its mark at the target's
+            // position (pos-stamped at the publish site) is a sudden
+            // violent death like the rest, so it gets the same burst.
+            // No new preset.
             // Micro-dev (2026-10-13): a slain monstrosity joins the
             // death beats — same impact burst, no new preset.
             //
