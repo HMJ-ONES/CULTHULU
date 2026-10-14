@@ -156,6 +156,80 @@ static void testB64Sidecars() {
     CHECK(sidecars > 0);
 }
 
+// ---------------- external texture URIs resolve ----------------
+
+static std::string glbJsonOf(const std::string& path) {
+    std::ifstream in(path, std::ios::binary);
+    if (!in) return "";
+    char hdr[12];
+    in.read(hdr, 12);
+    if (in.gcount() < 12 || std::string(hdr, 4) != "glTF") return "";
+    uint32_t chunkLen = 0, chunkType = 0;
+    in.read(reinterpret_cast<char*>(&chunkLen), 4);
+    in.read(reinterpret_cast<char*>(&chunkType), 4);
+    if (chunkType != 0x4E4F534Au) return ""; // 'JSON'
+    std::string json(chunkLen, '\0');
+    in.read(&json[0], chunkLen);
+    return json;
+}
+
+static void testExternalTexturesResolve() {
+    // Every GLB image with an external (non-data:) uri must resolve to a
+    // file on disk, relative to the GLB's own directory. Regression pin
+    // for Oct 14 2026: three Kenney creature GLBs referenced
+    // Textures/colormap.png, which was never committed — UE's importer
+    // threw UInterchange warnings and the meshes (risen_dead and friends)
+    // came in untextured.
+    using namespace glb_detail;
+    std::set<std::string> glbs;
+    for (const auto& [key, path] : ModelCatalog::creatureModels())
+        glbs.insert(repoPrefix() + path);
+    for (const auto& [key, path] : ModelCatalog::worldModels())
+        glbs.insert(repoPrefix() + path);
+    int external = 0;
+    for (const auto& full : glbs) {
+        if (full == repoPrefix()) continue; // intentional empty placeholder (dhole)
+        const std::string json = glbJsonOf(full);
+        CHECK(!json.empty());
+        if (json.empty()) continue;
+        const auto root = rootObject(json);
+        const size_t arr = findArray(json, root.first, root.second, "images");
+        if (arr == std::string::npos) continue; // no images at all
+        const size_t arrEnd = matchBracket(json, arr, '[', ']');
+        const size_t slash = full.find_last_of("/\\");
+        const std::string dir = slash == std::string::npos ? "" : full.substr(0, slash + 1);
+        size_t i = arr + 1;
+        while (true) {
+            skipWs(json, i);
+            if (i >= arrEnd || json[i] == ']') break;
+            if (json[i] == ',') { ++i; continue; }
+            if (json[i] != '{') { CHECK(false); break; }
+            const size_t objEnd = matchBracket(json, i, '{', '}');
+            const size_t u = json.find("\"uri\"", i);
+            std::string uri;
+            if (u != std::string::npos && u < objEnd) {
+                size_t k = u + 5;
+                skipWs(json, k);
+                if (k < objEnd && json[k] == ':') { ++k; skipWs(json, k); }
+                if (k < objEnd && json[k] == '"') {
+                    ++k;
+                    while (k < objEnd && json[k] != '"') {
+                        if (json[k] == '\\' && k + 1 < objEnd) k += 2;
+                        else uri += json[k++];
+                    }
+                }
+            }
+            if (!uri.empty() && uri.compare(0, 5, "data:") != 0) {
+                ++external;
+                CHECK(fileExists(dir + uri));
+            }
+            i = objEnd + 1;
+        }
+    }
+    std::cout << "  [info] external texture URIs resolved: " << external << "\n";
+    CHECK(external > 0); // the Kenney trio keeps this honest
+}
+
 // ---------------- NPC packages validate ----------------
 
 static void testNpcPackages() {
@@ -201,6 +275,7 @@ int main() {
     testCatalogResolves();
     testBudgets();
     testB64Sidecars();
+    testExternalTexturesResolve();
     testNpcPackages();
     std::cout << checks << " checks, " << failures << " failures\n";
     return failures == 0 ? 0 : 1;

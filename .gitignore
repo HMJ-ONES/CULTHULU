@@ -11,3 +11,5 @@ build/
 # working copies are not (decode via python assets/decode_assets.py).
 assets/world/terrain/dark_wilds_ground.obj
 assets/world/terrain/dark_wilds_height.png
+# Creature textures: same deal as world textures — .png.b64 sidecars tracked.
+assets/creatures/Textures/*.png

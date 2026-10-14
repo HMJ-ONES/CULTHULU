@@ -37,10 +37,22 @@ KayKit models:
 - Dead BIN data pruned (unreferenced accessors/bufferViews from the stripped
   clips): ~4.8MB → ~270–373KB per model.
 
-Kenney models (wraith, risen_dead):
+Kenney models (wraith, risen_dead, dagon_spawn):
 - Source: https://kenney.nl/assets/graveyard-kit (`Models/GLB format/`)
-- Used as-is (already tiny: 114KB / 245KB). Static meshes, no skeleton;
+  (wraith, risen_dead) and https://kenney.nl/assets/mini-dungeon
+  (dagon_spawn). Used as-is (already tiny). Static meshes, no skeleton;
   procedural animation fallback applies.
+- TEXTURE FIX (Oct 14, 2026): the three Kenney GLBs reference
+  `Textures/colormap.png`, which was never committed — UE's importer
+  threw UInterchange warnings and rendered them untextured. Fixed by
+  vendoring the kits' own CC0 colormaps (already in-repo under
+  assets/world/textures/): `assets/creatures/Textures/colormap.png`
+  (= colormap-graveyard-kit.png, serves wraith + risen_dead) and
+  `assets/creatures/Textures/colormap-mini-dungeon.png` (serves
+  dagon_spawn — its GLB image URI was rewritten from
+  `Textures/colormap.png`). Both travel as `.png.b64` sidecars; run
+  `python3 assets/decode_assets.py` after cloning. UV->texel spot checks
+  confirm sane palettes (zombie greens/greys, ghost whites, orc tans).
 
 Naming is honest: the KayKit models are undead horrors re-themed for the
 bestiary, the Kenney pair are graveyard spooks, and the orc is a brute

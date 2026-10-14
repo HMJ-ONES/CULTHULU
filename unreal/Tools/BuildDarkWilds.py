@@ -55,6 +55,44 @@ def section(name, fn):
 
 
 # --------------------------------------------------------------------------
+# cleanup: make every rerun a true rebuild, not a duplicate pile.
+# Without this, rerunning after a `git pull` would spawn a second moon,
+# a second fog, 36 more prop anchors, and keep appending orphaned
+# expression nodes to the two materials.
+# --------------------------------------------------------------------------
+
+def cleanup_previous():
+    import unreal
+    ell = unreal.EditorLevelLibrary
+    eal = unreal.EditorAssetLibrary
+    prefixes = ("WILD_", "SM_DarkWilds_Terrain", "SM_SwampWater")
+    removed = 0
+    try:
+        actors = ell.get_all_level_actors()
+    except Exception:
+        actors = []
+    for a in actors:
+        try:
+            label = a.get_actor_label()
+        except Exception:
+            continue
+        if label.startswith(prefixes):
+            try:
+                a.destroy_actor()
+                removed += 1
+            except Exception:
+                pass
+    for m in (DEST_MAT + "/M_Ground_DarkWilds",
+              DEST_MAT + "/M_SwampWater"):
+        try:
+            if eal.does_asset_exist(m):
+                eal.delete_asset(m)
+        except Exception:
+            pass
+    log("OK", "cleared previous run (%d actors)" % removed)
+
+
+# --------------------------------------------------------------------------
 # .map parsing (place + spawn lines only)
 # --------------------------------------------------------------------------
 
@@ -162,52 +200,54 @@ def build_materials():
         path = DEST_MAT + "/" + name
         mat = unreal.EditorAssetLibrary.load_asset(path)
         if mat:
-            return mat
-        return tools.create_asset(name, DEST_MAT, unreal.Material,
-                                  unreal.MaterialFactoryNew())
+            return mat, False
+        return (tools.create_asset(name, DEST_MAT, unreal.Material,
+                                   unreal.MaterialFactoryNew()), True)
 
     # --- ground: detail texture x vertex colors, rough dark soil ---
-    g = get_or_create("M_Ground_DarkWilds")
-    tex_path = DEST_TERRAIN + "/ground-detail-dark"
-    tex = unreal.EditorAssetLibrary.load_asset(tex_path)
-    if tex:
-        ts = mel.create_material_expression(
-            g, unreal.MaterialExpressionTextureSample, -400, 100)
-        ts.texture = tex
-        # tile the 512px detail every ~60m: texture coordinate scale
-        tc = mel.create_material_expression(
-            g, unreal.MaterialExpressionTextureCoordinate, -600, 100)
-        mel.connect_material_expressions(tc, "UV", ts, "UV")
-        vc = mel.create_material_expression(
-            g, unreal.MaterialExpressionVertexColor, -400, -100)
-        mul = mel.create_material_expression(
-            g, unreal.MaterialExpressionMultiply, -150, 0)
-        mel.connect_material_expressions(ts, "RGB", mul, "A")
-        mel.connect_material_expressions(vc, "RGB", mul, "B")
-        mel.connect_material_property(mul, "", unreal.MaterialProperty.MP_BASE_COLOR)
-    rough = mel.create_material_expression(
-        g, unreal.MaterialExpressionScalarParameter, -150, 200)
-    rough.set_editor_property("parameter_name", "Roughness")
-    rough.set_editor_property("default_value", 0.88)
-    mel.connect_material_property(rough, "",
-                                  unreal.MaterialProperty.MP_ROUGHNESS)
-    unreal.EditorAssetLibrary.save_asset(DEST_MAT + "/M_Ground_DarkWilds")
+    g, g_fresh = get_or_create("M_Ground_DarkWilds")
+    if g_fresh:
+        tex_path = DEST_TERRAIN + "/ground-detail-dark"
+        tex = unreal.EditorAssetLibrary.load_asset(tex_path)
+        if tex:
+            ts = mel.create_material_expression(
+                g, unreal.MaterialExpressionTextureSample, -400, 100)
+            ts.texture = tex
+            # tile the 512px detail every ~60m: texture coordinate scale
+            tc = mel.create_material_expression(
+                g, unreal.MaterialExpressionTextureCoordinate, -600, 100)
+            mel.connect_material_expressions(tc, "UV", ts, "UV")
+            vc = mel.create_material_expression(
+                g, unreal.MaterialExpressionVertexColor, -400, -100)
+            mul = mel.create_material_expression(
+                g, unreal.MaterialExpressionMultiply, -150, 0)
+            mel.connect_material_expressions(ts, "RGB", mul, "A")
+            mel.connect_material_expressions(vc, "RGB", mul, "B")
+            mel.connect_material_property(mul, "", unreal.MaterialProperty.MP_BASE_COLOR)
+        rough = mel.create_material_expression(
+            g, unreal.MaterialExpressionScalarParameter, -150, 200)
+        rough.set_editor_property("parameter_name", "Roughness")
+        rough.set_editor_property("default_value", 0.88)
+        mel.connect_material_property(rough, "",
+                                      unreal.MaterialProperty.MP_ROUGHNESS)
+        unreal.EditorAssetLibrary.save_asset(DEST_MAT + "/M_Ground_DarkWilds")
     build_materials.ground = DEST_MAT + "/M_Ground_DarkWilds"
 
     # --- swamp water: dark, translucent, mirror-smooth ---
-    w = get_or_create("M_SwampWater")
-    w.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
-    bc = mel.create_material_expression(
-        w, unreal.MaterialExpressionVectorParameter, -300, 0)
-    bc.set_editor_property("parameter_name", "WaterColor")
-    bc.set_editor_property("default_value", unreal.LinearColor(0.03, 0.07, 0.05, 0.88))
-    mel.connect_material_property(bc, "", unreal.MaterialProperty.MP_BASE_COLOR)
-    wr = mel.create_material_expression(
-        w, unreal.MaterialExpressionScalarParameter, -300, 200)
-    wr.set_editor_property("parameter_name", "Roughness")
-    wr.set_editor_property("default_value", 0.06)
-    mel.connect_material_property(wr, "", unreal.MaterialProperty.MP_ROUGHNESS)
-    unreal.EditorAssetLibrary.save_asset(DEST_MAT + "/M_SwampWater")
+    w, w_fresh = get_or_create("M_SwampWater")
+    if w_fresh:
+        w.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
+        bc = mel.create_material_expression(
+            w, unreal.MaterialExpressionVectorParameter, -300, 0)
+        bc.set_editor_property("parameter_name", "WaterColor")
+        bc.set_editor_property("default_value", unreal.LinearColor(0.03, 0.07, 0.05, 0.88))
+        mel.connect_material_property(bc, "", unreal.MaterialProperty.MP_BASE_COLOR)
+        wr = mel.create_material_expression(
+            w, unreal.MaterialExpressionScalarParameter, -300, 200)
+        wr.set_editor_property("parameter_name", "Roughness")
+        wr.set_editor_property("default_value", 0.06)
+        mel.connect_material_property(wr, "", unreal.MaterialProperty.MP_ROUGHNESS)
+        unreal.EditorAssetLibrary.save_asset(DEST_MAT + "/M_SwampWater")
     build_materials.water = DEST_MAT + "/M_SwampWater"
 
 
@@ -396,15 +436,40 @@ def build_lighting():
             pass
 
 
+# --------------------------------------------------------------------------
+# player starts (so there's somewhere to spawn and walk from)
+# --------------------------------------------------------------------------
+
+def place_player_starts():
+    import unreal
+    ell = unreal.EditorLevelLibrary
+    # (label, x_m, y_m, z_m, yaw_deg) — y_m = ground height + 2m hover,
+    # measured from the height field (generate_dark_wilds.height)
+    starts = [
+        ("WILD_PlayerStart_Plateau", 150, 6.8, 60, -90),      # razed-city forum
+        ("WILD_PlayerStart_CavernRim", -300, 15.6, -180, 180),  # cavern overlook
+        ("WILD_PlayerStart_SwampEdge", 150, 2.7, -280, 0),    # swamp edge
+    ]
+    for label, xm, ym, zm, yaw in starts:
+        x, y, z = to_ue(xm, ym, zm)
+        a = ell.spawn_actor_from_class(
+            unreal.PlayerStart, unreal.Vector(x, y, z),
+            unreal.Rotator(0, yaw, 0))
+        a.set_actor_label(label)
+    log("OK", "%d player starts placed" % len(starts))
+
+
 def main():
     log("OK", "repo: %s" % REPO)
     if not os.path.exists(MAP_PATH):
         raise RuntimeError("map not found: %s (git pull?)" % MAP_PATH)
+    section("clear previous run", cleanup_previous)
     section("import assets", import_assets)
     section("build materials", build_materials)
     section("place terrain + water", place_terrain)
     section("scatter props", scatter_props)
     section("build lighting rig", build_lighting)
+    section("place player starts", place_player_starts)
     log("OK", "done — PIE to walk the wilds. Rerun after every git pull.")
 
 
