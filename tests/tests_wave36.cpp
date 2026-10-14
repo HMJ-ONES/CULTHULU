@@ -400,6 +400,26 @@ static void testFxForEvent() {
     CHECK(fxForEvent(EventType::CombatStarted, r.library) == nullptr);
     CHECK(fxForEvent(EventType::SuppliesGathered, r.library) == nullptr);
     CHECK(fxForEvent(EventType::BuildProgress, r.library) == nullptr);
+    // Micro-dev (2026-10-14): the remaining deliberate silences, pinned so
+    // the sweep stays closed — each was surveyed and skipped for cause:
+    // Defeated fires in the same breath as the pos-stamped
+    // GreatOldOneSlain (MobaDefense.cpp) — mapping both would double-fire
+    // the godfall visual at the same site.
+    CHECK(fxForEvent(EventType::Defeated, r.library) == nullptr);
+    // BuildingRebuilt fires in the same tick as SanctumRebuilt at the
+    // same site (RebuildSanctum directive) — the halo would double-fire.
+    CHECK(fxForEvent(EventType::BuildingRebuilt, r.library) == nullptr);
+    // MimicKill is sim-only (ScenarioBot) with no world position.
+    CHECK(fxForEvent(EventType::MimicKill, r.library) == nullptr);
+    // The Ritual class holds no position: SacrificeStarted and
+    // NecromancyPerformed stamp no pos, so a mapping would render the
+    // visual at the world origin — worse than silence. (SacrificeCompleted
+    // is the one that carries the rite's visual, pos-stamped.)
+    CHECK(fxForEvent(EventType::SacrificeStarted, r.library) == nullptr);
+    CHECK(fxForEvent(EventType::NecromancyPerformed, r.library) == nullptr);
+    // AssassinExposed stamps no pos; its sibling CombatStarted
+    // ("deity_noticed") fires the same tick WITH pos at the target.
+    CHECK(fxForEvent(EventType::AssassinExposed, r.library) == nullptr);
 }
 
 // Wave 43: RMB heavy attacks resolve to presets (kind default, with
