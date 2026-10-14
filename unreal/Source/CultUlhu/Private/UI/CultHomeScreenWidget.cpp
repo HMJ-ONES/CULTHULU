@@ -1,0 +1,123 @@
+// CULT-ULHU home screen implementation.
+#include "UI/CultHomeScreenWidget.h"
+
+#include "Components/CanvasPanel.h"
+#include "Components/CanvasPanelSlot.h"
+#include "Components/VerticalBox.h"
+#include "Components/VerticalBoxSlot.h"
+#include "Components/Button.h"
+#include "Components/TextBlock.h"
+#include "Components/Border.h"
+#include "Styling/SlateColor.h"
+
+#include "CultUlhuGameInstance.h"
+
+namespace
+{
+	// Eldritch-dark palette.
+	const FLinearColor kBack(0.015f, 0.01f, 0.03f, 1.0f);
+	const FLinearColor kBtnNormal(0.09f, 0.06f, 0.14f, 1.0f);
+	const FLinearColor kBtnHover(0.22f, 0.12f, 0.34f, 1.0f);
+	const FLinearColor kBtnPress(0.38f, 0.22f, 0.55f, 1.0f);
+	const FLinearColor kGold(0.85f, 0.68f, 0.35f, 1.0f);
+	const FLinearColor kBone(0.82f, 0.80f, 0.74f, 1.0f);
+	const FLinearColor kDim(0.55f, 0.52f, 0.60f, 1.0f);
+
+	void StyleMenuButton(UButton* B)
+	{
+		FButtonStyle S = B->GetStyle();
+		S.Normal.TintColor = FSlateColor(kBtnNormal);
+		S.Hovered.TintColor = FSlateColor(kBtnHover);
+		S.Pressed.TintColor = FSlateColor(kBtnPress);
+		// Keep the default rounded border, just recolored.
+		B->SetStyle(S);
+	}
+
+	UTextBlock* MakeText(const FString& Str, float Size, const FLinearColor& Color)
+	{
+		UTextBlock* T = NewObject<UTextBlock>();
+		T->SetText(FText::FromString(Str));
+		FSlateFontInfo F = T->GetFont();
+		F.Size = static_cast<int32>(Size);
+		T->SetFont(F);
+		T->SetColorAndOpacity(FSlateColor(Color));
+		T->SetJustification(ETextJustify::Center);
+		return T;
+	}
+}
+
+void UCultHomeScreenWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+	BuildLayout();
+}
+
+void UCultHomeScreenWidget::BuildLayout()
+{
+	Root_ = NewObject<UCanvasPanel>(this);
+	// Full-screen backdrop.
+	if (UBorder* Back = NewObject<UBorder>(this))
+	{
+		Back->SetBrushColor(kBack);
+		if (UCanvasPanelSlot* S = Root_->AddChildToCanvas(Back))
+		{
+			S->SetAnchors(FAnchors(0, 0, 1, 1));
+			S->SetOffsets(FMargin(0));
+		}
+	}
+
+	ButtonBox_ = NewObject<UVerticalBox>(this);
+	if (UCanvasPanelSlot* S = Root_->AddChildToCanvas(ButtonBox_))
+	{
+		S->SetAnchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f));
+		S->SetAlignment(FVector2D(0.5f, 0.5f));
+		S->SetAutoSize(true);
+	}
+
+	// Title block.
+	UTextBlock* Title = MakeText(TEXT("CULT-ULHU"), 84, kGold);
+	UTextBlock* Sub = MakeText(TEXT("Pick your apocalypse"), 24, kDim);
+	if (UVerticalBoxSlot* S = ButtonBox_->AddChildToVerticalBox(Title)) S->SetPadding(FMargin(0, 0, 0, 4));
+	if (UVerticalBoxSlot* S = ButtonBox_->AddChildToVerticalBox(Sub)) S->SetPadding(FMargin(0, 0, 0, 36));
+
+	ButtonBox_->AddChildToVerticalBox(MakeModeButton(
+		TEXT("FREE ROAM"), TEXT("Walk the Dark Wilds. No teams, no clock.")))->SetPadding(FMargin(0, 0, 0, 14));
+	ButtonBox_->AddChildToVerticalBox(MakeModeButton(
+		TEXT("DOMINATION"), TEXT("5v5 — hold the seals, break the city.")))->SetPadding(FMargin(0, 0, 0, 14));
+	ButtonBox_->AddChildToVerticalBox(MakeModeButton(
+		TEXT("DEFENSE OF THE GREAT OLD ONES"), TEXT("5v5 MOBA — defend your god, kill theirs.")));
+
+	// The canvas must be the widget's root.
+	WidgetTree->RootWidget = Root_;
+}
+
+UButton* UCultHomeScreenWidget::MakeModeButton(const FString& Title, const FString& Sub)
+{
+	UButton* B = NewObject<UButton>(this);
+	StyleMenuButton(B);
+	UVerticalBox* V = NewObject<UVerticalBox>(B);
+	UTextBlock* T = MakeText(Title, 30, kBone);
+	UTextBlock* S = MakeText(Sub, 16, kDim);
+	if (UVerticalBoxSlot* VS = V->AddChildToVerticalBox(T)) VS->SetPadding(FMargin(24, 12, 24, 2));
+	if (UVerticalBoxSlot* VS = V->AddChildToVerticalBox(S)) VS->SetPadding(FMargin(24, 0, 24, 12));
+	B->AddChild(V);
+	B->SetClickMethod(EButtonClickMethod::DownAndUp);
+
+	if (Title == TEXT("FREE ROAM")) B->OnClicked.AddDynamic(this, &UCultHomeScreenWidget::OnFreeRoamClicked);
+	else if (Title == TEXT("DOMINATION")) B->OnClicked.AddDynamic(this, &UCultHomeScreenWidget::OnDominationClicked);
+	else B->OnClicked.AddDynamic(this, &UCultHomeScreenWidget::OnDotgooClicked);
+	return B;
+}
+
+void UCultHomeScreenWidget::OnFreeRoamClicked()
+{
+	if (auto* GI = Cast<UCultUlhuGameInstance>(GetGameInstance())) GI->OpenCharacterSelect(ECultPlayMode::FreeRoam);
+}
+void UCultHomeScreenWidget::OnDominationClicked()
+{
+	if (auto* GI = Cast<UCultUlhuGameInstance>(GetGameInstance())) GI->OpenCharacterSelect(ECultPlayMode::Domination);
+}
+void UCultHomeScreenWidget::OnDotgooClicked()
+{
+	if (auto* GI = Cast<UCultUlhuGameInstance>(GetGameInstance())) GI->OpenCharacterSelect(ECultPlayMode::Dotgoo);
+}

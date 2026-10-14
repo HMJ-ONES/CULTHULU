@@ -459,10 +459,31 @@ def place_player_starts():
     log("OK", "%d player starts placed" % len(starts))
 
 
+def ensure_wilds_level():
+    # The playable world lives in /Game/Maps/L_DarkWilds (created by
+    # BuildMainMenu.py). Make sure it is the open level before building.
+    import unreal
+    ell = unreal.EditorLevelLibrary
+    eal = unreal.EditorAssetLibrary
+    try:
+        cur = ell.get_editor_world().get_full_name()
+    except Exception:
+        cur = ""
+    if "L_DarkWilds" in cur:
+        return
+    path = "/Game/Maps/L_DarkWilds"
+    if eal.does_asset_exist(path):
+        ell.load_level(path)
+    else:
+        ell.new_level(path)
+    log("OK", "building in %s" % path)
+
+
 def main():
     log("OK", "repo: %s" % REPO)
     if not os.path.exists(MAP_PATH):
         raise RuntimeError("map not found: %s (git pull?)" % MAP_PATH)
+    ensure_wilds_level()
     section("clear previous run", cleanup_previous)
     section("import assets", import_assets)
     section("build materials", build_materials)
@@ -470,6 +491,12 @@ def main():
     section("scatter props", scatter_props)
     section("build lighting rig", build_lighting)
     section("place player starts", place_player_starts)
+    try:
+        import unreal
+        unreal.EditorLevelLibrary.save_current_level()
+        log("OK", "level saved")
+    except Exception as e:
+        log("ERROR", "save failed: %s" % e)
     log("OK", "done — PIE to walk the wilds. Rerun after every git pull.")
 
 
