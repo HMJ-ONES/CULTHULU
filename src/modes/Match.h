@@ -66,6 +66,13 @@ public:
     // Wave 33: base invocation — 20s channel within 15m of your base.
     static constexpr float kBaseInvokeRadius = 15.0f;
     static constexpr double kInvokeChannelSec = 20.0;
+    // 2 PM build (2026-10-14): DOTGOO bot relic contesting — bots steer
+    // to the nearest manifested, unclaimed jungle relic within chase
+    // range; chasers per team per relic are capped so the lane push
+    // survives a mythic manifest.
+    static constexpr float kRelicChaseRange = 60.0f;
+    static constexpr float kRelicCommitRange = 40.0f;
+    static constexpr int kMaxRelicChasers = 2;
     static constexpr uint64_t kPlayerIdBase = 1000;
 
     struct Player {
@@ -278,6 +285,11 @@ private:
     void updatePlayer(Player& p, size_t idx, double dt);
     void updateCaptureObjective(Player& p, double dt);
     void updateMobaObjective(Player& p, double dt);
+    // 2 PM build (2026-10-14): pick a jungle relic for this bot to
+    // contest — nearest manifested + unclaimed within kRelicChaseRange,
+    // capped chasers per team per relic. True + target when worth the
+    // detour. Only bots/AFK pilots reach it (humans drive themselves).
+    bool relicSteerTarget(const Player& p, Vec3& out) const;
     // Furthest-advanced live friendly minion in (team, lane); bot escort anchor.
     bool furthestFriendlyMinion(int team, int lane, Vec3& out) const;
     bool enemyInMeleeRange(const Player& p, size_t idx) const;

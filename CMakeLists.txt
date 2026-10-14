@@ -539,3 +539,8 @@ target_link_libraries(cultulhu_tests_micro_menulabels PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_menulabels COMMAND cultulhu_tests_micro_menulabels)
 set_tests_properties(cultulhu_tests_micro_menulabels PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_relicbots tests/tests_micro_relicbots.cpp)
+target_link_libraries(cultulhu_tests_micro_relicbots PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_relicbots COMMAND cultulhu_tests_micro_relicbots)
+set_tests_properties(cultulhu_tests_micro_relicbots PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

@@ -64,6 +64,10 @@ public:
     static constexpr int kTier1Level = 10;
     static constexpr int kTier2Level = 20;
     static constexpr int kTier3Level = 30;
+    // 2 PM build (2026-10-14): was protected — Match needs it for relic
+    // steering (hold inside the claim circle to channel). Mirrors
+    // free-roam.
+    static constexpr float kRelicClaimRadius = 6.0f;
     struct Minion {
         uint64_t id = 0;
         int team = 0;
@@ -202,7 +206,6 @@ protected:
     std::function<void(uint64_t, float, uint64_t)> playerDamageHook_;
     // Wave 33: relic pickups on the map.
     std::vector<RelicPickup> relics_;
-    static constexpr float kRelicClaimRadius = 6.0f; // mirrors free-roam
     // Tower entity ids for the damage hook (stable per tower index).
     static constexpr uint64_t kTowerIdBase = 5000;
 

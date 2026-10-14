@@ -375,6 +375,34 @@ bool Match::furthestFriendlyMinion(int team, int lane, Vec3& out) const {
     return found;
 }
 
+// 2 PM build (2026-10-14): pick a jungle relic for this bot to contest.
+// Nearest manifested + unclaimed within kRelicChaseRange; teammates
+// already committed to the site (within kRelicCommitRange) count toward
+// the kMaxRelicChasers cap so the whole team doesn't dogpile one relic.
+bool Match::relicSteerTarget(const Player& p, Vec3& out) const {
+    if (!moba_) return false;
+    const MobaDefense& md = *moba_;
+    const MobaDefense::RelicPickup* best = nullptr;
+    float bestD = 0.0f;
+    for (const auto& r : md.relics()) {
+        if (r.claimedBy != 0) continue;           // already held
+        if (md.elapsed() < r.spawnTime) continue; // not yet manifested
+        const float d = p.pos.distance(r.pos);
+        if (d > kRelicChaseRange) continue;
+        if (!best || d < bestD) { best = &r; bestD = d; }
+    }
+    if (!best) return false;
+    const float commitRSq = kRelicCommitRange * kRelicCommitRange;
+    int chasers = 0;
+    for (const auto& o : players_) {
+        if (o.id == p.id || o.team != p.team || !o.alive) continue;
+        if (o.pos.distanceSq(best->pos) <= commitRSq) ++chasers;
+    }
+    if (chasers >= kMaxRelicChasers) return false;
+    out = best->pos;
+    return true;
+}
+
 void Match::updateMobaObjective(Player& p, double dt) {
     MobaDefense& md = *moba_;
     float fdt = static_cast<float>(dt);
@@ -398,9 +426,37 @@ void Match::updateMobaObjective(Player& p, double dt) {
         }
         return;
     }
-    // Push with the minion wave: escort it so the wave tanks the tower,
+    // 2 PM build (2026-10-14): DOTGOO bots contest jungle relics. A bot
+    // already in a tower fight (the existing 12m lane-threat check
+    // below) never abandons it for a relic; otherwise the bot steers to
+    // the nearest manifested, unclaimed relic within chase range and
+    // holds inside the claim circle — walk-over claims tier 1, the 4s/6s
+    // channel runs for tiers 2/3 while it stands there.
     Vec3 tp;
-    if (md.nearestEnemyTowerPos(p.team, p.pos, 12.0f, tp)) {
+    const bool sieging = md.nearestEnemyTowerPos(p.team, p.pos, 12.0f, tp);
+    if (!sieging) {
+        Vec3 relicTgt;
+        if (relicSteerTarget(p, relicTgt)) {
+            Vec3 to = relicTgt - p.pos;
+            float d = to.length();
+            const float stopR = MobaDefense::kRelicClaimRadius * 0.7f;
+            if (d > stopR) {
+                float stepLen = moveSpeedOf(p) * fdt;
+                Vec3 step = (d <= stepLen) ? to : to.normalized() * stepLen;
+                // Settle inside the claim circle; overshooting past it
+                // would break the channel on the following ticks.
+                if (step.length() > d - stopR && d > stopR)
+                    step = to.normalized() * (d - stopR);
+                if (step.length() > 0.01f) {
+                    p.pos += step;
+                    p.facingYaw = std::atan2(step.z, step.x);
+                }
+            }
+            return;
+        }
+    }
+    // Push with the minion wave: escort it so the wave tanks the tower,
+    if (sieging) {
         Vec3 to = tp - p.pos;
         float d = to.length();
         if (d > 3.5f) {
