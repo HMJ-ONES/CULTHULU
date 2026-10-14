@@ -25,6 +25,7 @@ colors; wave-35 builders return (tris, per-triangle RGBA).
 
 import argparse
 import base64
+import hashlib
 import json
 import math
 import os
@@ -649,14 +650,25 @@ PROPS = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Deterministic per-prop seeding (micro-dev 2026-10-14): Python's hash() is
+# salted per process (PYTHONHASHSEED), so `seed + hash(name)` produced
+# DIFFERENT geometry on every run — adding one builder silently reshaped
+# every existing prop. sha256 is stable, so a re-run now reproduces
+# byte-identical props and only new builders introduce new geometry.
+# ---------------------------------------------------------------------------
+def stable_name_seed(name, seed):
+    digest = hashlib.sha256(name.encode("utf-8")).hexdigest()
+    return seed + int(digest, 16) % 100000
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=None,
                     help="output dir (default: props/ next to this script)")
     ap.add_argument("--seed", type=int, default=20261009)
     ap.add_argument("--wave35", action="store_true",
-                    help="build only the wave-35 props (skip wave-32 list, "
-                         "whose seeding is not stable across runs)")
+                    help="build only the wave-35 props (skip the wave-32 list)")
     args = ap.parse_args()
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -665,7 +677,7 @@ def main():
 
     if not args.wave35:
         for name, builder, color, emissive in PROPS:
-            rng = random.Random(args.seed + hash(name) % 100000)
+            rng = random.Random(stable_name_seed(name, args.seed))
             tris = builder(rng)
             path = os.path.join(out, name + ".glb")
             ntris = write_glb(path, tris, base_color=color, emissive=emissive)
@@ -680,7 +692,7 @@ def main():
 
     # Wave 35: multi-tone props (builders return (tris, per-tri colors)).
     for name, builder, emissive in PROPS_WAVE35:
-        rng = random.Random(args.seed + hash(name) % 100000)
+        rng = random.Random(stable_name_seed(name, args.seed))
         tris, colors = builder(rng)
         path = os.path.join(out, name + ".glb")
         ntris = write_glb(path, tris, emissive=emissive, colors=colors,
