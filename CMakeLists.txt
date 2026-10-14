@@ -70,6 +70,9 @@ target_link_libraries(cultulhu_tests_wave37 PRIVATE cultulhu)
 add_executable(cultulhu_tests_wave38 tests/tests_wave38.cpp)
 target_link_libraries(cultulhu_tests_wave38 PRIVATE cultulhu)
 
+add_executable(cultulhu_tests_dark_wilds tests/tests_dark_wilds.cpp)
+target_link_libraries(cultulhu_tests_dark_wilds PRIVATE cultulhu)
+
 add_executable(cultulhu_tests_convenience tests/tests_convenience.cpp)
 target_link_libraries(cultulhu_tests_convenience PRIVATE cultulhu)
 
@@ -184,6 +187,9 @@ add_test(NAME cultulhu_tests_wave37 COMMAND cultulhu_tests_wave37)
 set_tests_properties(cultulhu_tests_wave37 PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME cultulhu_tests_wave38 COMMAND cultulhu_tests_wave38)
+add_test(NAME cultulhu_tests_dark_wilds COMMAND cultulhu_tests_dark_wilds)
+set_tests_properties(cultulhu_tests_dark_wilds PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME cultulhu_tests_convenience COMMAND cultulhu_tests_convenience)
 set_tests_properties(cultulhu_tests_wave38 PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

@@ -32,6 +32,13 @@ struct PlacedProp {
     bool neverCull = false; // pin visible at any distance (hero landmarks)
 };
 
+// Dark wilds: one feral-creature spawn entry from a `spawn` line.
+struct SpawnEntry {
+    std::string species;  // key of ModelCatalog::creatureModels()
+    Vec3 pos;             // y baked from the height field at generation time
+    int count = 1;
+    std::string zone;     // zone name; must be declared in the same file
+};
 // Wave 38: one LOD rule from a `lod` line — per-model render-distance
 // hints authored in the .map file. hideAt is the distance past which the
 // engine may skip rendering the model entirely; lowAt (0 = none) is the
@@ -49,6 +56,7 @@ struct MapData {
     std::vector<ZoneDef> zones;
     std::vector<PlacedProp> placements;
     std::vector<LodRule> lodRules;  // wave 38: per-model LOD distances
+    std::vector<SpawnEntry> spawns;  // dark wilds: feral-creature spawns
 
     // Feed the zone defs into an existing WorldMap (insertion order =
     // file order, so list specific zones before general ones).

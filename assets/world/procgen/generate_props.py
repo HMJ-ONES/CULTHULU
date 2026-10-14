@@ -464,6 +464,98 @@ def burial_mound(rng):
     return tris, colors
 
 
+def reed_cluster(rng):
+    """Swamp reeds: 7-10 tapered stalks with olive tips; some carry brown
+    cattail heads. ~550 tris."""
+    tris, colors = [], []
+    _REED_BASE = (0.10, 0.12, 0.07, 1.0)
+    _REED_TIP = (0.34, 0.36, 0.18, 1.0)
+    _CATTAIL = (0.26, 0.17, 0.09, 1.0)
+    n = rng.randint(7, 10)
+    for _ in range(n):
+        h = rng.uniform(1.2, 2.3)
+        ox, oz = rng.uniform(-0.9, 0.9), rng.uniform(-0.9, 0.9)
+        stalk = cylinder(0.035, 0.012, h, 5, segments=2, rng=rng,
+                         jitter=0.15)
+        stalk = _xform(stalk, rot_x=rng.uniform(-0.12, 0.12),
+                       rot_z=rng.uniform(-0.12, 0.12),
+                       translate=(ox, 0, oz))
+        for tri in stalk:
+            cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3.0
+            t = max(0.0, min(1.0, cy / h))
+            tris.append(tri)
+            colors.append((
+                _REED_BASE[0] + (_REED_TIP[0] - _REED_BASE[0]) * t,
+                _REED_BASE[1] + (_REED_TIP[1] - _REED_BASE[1]) * t,
+                _REED_BASE[2] + (_REED_TIP[2] - _REED_BASE[2]) * t, 1.0))
+        if rng.random() < 0.45:
+            head = cylinder(0.05, 0.05, 0.35, 6, rng=rng)
+            head = _xform(head, translate=(ox, h - 0.45, oz))
+            tris.extend(head)
+            colors.extend([_CATTAIL] * len(head))
+    return tris, colors
+
+
+def rock_arch(rng):
+    """Natural rock arch: half-torus of dark stone on two boulder feet.
+    ~260 tris."""
+    tris, colors = [], []
+    _ARCH_A = (0.16, 0.15, 0.18, 1.0)
+    _ARCH_B = (0.27, 0.26, 0.30, 1.0)
+    R = rng.uniform(3.2, 4.2)
+    r = rng.uniform(0.9, 1.3)
+    for tri in torus(R, r, 10, 22):
+        cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3.0
+        if cy < -0.2:
+            continue  # keep the upper half -> an arch
+        t = rng.random()
+        tris.append(tri)
+        colors.append((
+            _ARCH_A[0] + (_ARCH_B[0] - _ARCH_A[0]) * t,
+            _ARCH_A[1] + (_ARCH_B[1] - _ARCH_A[1]) * t,
+            _ARCH_A[2] + (_ARCH_B[2] - _ARCH_A[2]) * t, 1.0))
+    tris = _xform(tris, translate=(0, 0.2, 0))
+    for sx in (-1.0, 1.0):
+        foot = octahedron(rng.uniform(1.2, 1.7), rng.uniform(1.0, 1.4),
+                          rng.uniform(1.2, 1.7))
+        foot = _xform(foot, rot_y=rng.uniform(0.0, 3.14),
+                      translate=(sx * R, 0.4, rng.uniform(-0.4, 0.4)))
+        tris.extend(foot)
+        colors.extend([_ARCH_A] * len(foot))
+    return tris, colors
+
+
+def cave_mouth(rng):
+    """Cave entrance: a ring of dark fangs around a near-black disc —
+    reads as a lightless opening. ~330 tris."""
+    tris, colors = [], []
+    _FANG = (0.10, 0.10, 0.12, 1.0)
+    _FANG_HI = (0.18, 0.18, 0.21, 1.0)
+    _DARK = (0.005, 0.005, 0.008, 1.0)
+    n = rng.randint(9, 12)
+    rad = rng.uniform(3.0, 3.8)
+    for i in range(n):
+        a = 2 * math.pi * i / n + rng.uniform(-0.15, 0.15)
+        h = rng.uniform(2.5, 5.0)
+        fang = cone(rng.uniform(0.7, 1.1), h, 6, rng, jitter=0.3)
+        fang = _xform(fang, rot_z=rng.uniform(-0.25, 0.25),
+                      translate=(math.cos(a) * rad, h * 0.28,
+                                 math.sin(a) * rad))
+        t = rng.random()
+        col = (_FANG[0] + (_FANG_HI[0] - _FANG[0]) * t,
+               _FANG[1] + (_FANG_HI[1] - _FANG[1]) * t,
+               _FANG[2] + (_FANG_HI[2] - _FANG[2]) * t, 1.0)
+        tris.extend(fang)
+        colors.extend([col] * len(fang))
+    # the lightless disc, facing outward, tilted back slightly
+    disc = cylinder(rad * 0.92, rad * 0.92, 0.15, 18, rng=rng)
+    disc = _xform(disc, rot_x=-math.pi / 2 - 0.12,
+                  translate=(0, rad * 0.75, -0.4))
+    tris.extend(disc)
+    colors.extend([_DARK] * len(disc))
+    return tris, colors
+
+
 PROPS_WAVE35 = [
     ("ash-thicket", ash_thicket, (0.0, 0.0, 0.0)),
     ("hanging-moss", hanging_moss, (0.0, 0.0, 0.0)),
@@ -474,6 +566,9 @@ PROPS_WAVE35 = [
     ("flagstone-slab", flagstone_slab, (0.0, 0.0, 0.0)),
     ("broken-obelisk", broken_obelisk, (0.0, 0.0, 0.0)),
     ("burial-mound", burial_mound, (0.0, 0.0, 0.0)),
+    ("reed-cluster", reed_cluster, (0.0, 0.0, 0.0)),
+    ("rock-arch", rock_arch, (0.0, 0.0, 0.0)),
+    ("cave-mouth", cave_mouth, (0.0, 0.0, 0.0)),
 ]
 
 

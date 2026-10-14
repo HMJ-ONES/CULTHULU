@@ -265,10 +265,37 @@ MapData MapLoader::load(const std::string& path) {
                                             "' (fog|ambient|sky|stars)");
                 }
             }
+        } else if (kw == "spawn") {
+            // Dark wilds: feral-creature spawn entry.
+            //   spawn <species> <x> <y> <z> <count> <zone>
+            if (toks.size() != 7)
+                throw MapParseError(path, lineNo,
+                                    "'spawn' needs 6 arguments: "
+                                    "species x y z count zone");
+            if (!haveMap)
+                throw MapParseError(path, lineNo,
+                                    "'spawn' before 'map' declaration");
+            SpawnEntry s;
+            s.species = toks[1];
+            s.pos = Vec3(parseFloat(path, lineNo, toks[2], "x"),
+                         parseFloat(path, lineNo, toks[3], "y"),
+                         parseFloat(path, lineNo, toks[4], "z"));
+            s.count = static_cast<int>(parseFloat(path, lineNo, toks[5],
+                                                  "count"));
+            if (s.count <= 0)
+                throw MapParseError(path, lineNo, "count must be > 0");
+            s.zone = toks[6];
+            bool known = false;
+            for (const auto& z : data.zones)
+                if (z.name == s.zone) { known = true; break; }
+            if (!known)
+                throw MapParseError(path, lineNo,
+                                    "unknown zone '" + s.zone + "'");
+            data.spawns.push_back(std::move(s));
         } else {
             throw MapParseError(path, lineNo,
                                 "unknown directive '" + kw +
-                                    "' (expected map|zone|atmosphere|place|lod)");
+                                    "' (expected map|zone|atmosphere|place|lod|spawn)");
         }
     }
 

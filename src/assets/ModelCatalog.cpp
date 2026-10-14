@@ -77,6 +77,10 @@ ModelCatalog::worldModels() {
         {"ember_cluster",   "assets/world/props/ember-cluster.glb"},
         {"collapsed_beams", "assets/world/props/beams-collapsed.glb"},
         {"dead_bush",       "assets/world/props/dead-bush.glb"},
+        // dark wilds (new terrain): in-house procgen atmosphere props.
+        {"reed_cluster", "assets/world/props/reed-cluster.glb"},
+        {"rock_arch",    "assets/world/props/rock-arch.glb"},
+        {"cave_mouth",   "assets/world/props/cave-mouth.glb"},
     };
     return kModels;
 }
