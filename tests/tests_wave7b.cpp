@@ -150,12 +150,13 @@ static void testMenuContexts() {
     CHECK(findButton(own, MenuAction::Cancel) != nullptr);
     CHECK(findButton(own, MenuAction::RaidAt) == nullptr);
 
-    // Location -> MoveTo / RaidAt / BuildAltarAt / ScoutAt
+    // Location -> MoveTo / RaidAt / BuildAltarAt / BuildAt / ScoutAt
     auto loc = menu.generateMenu(ctxWith(MenuContext::Kind::Location), s);
-    CHECK(loc.size() == 5);
+    CHECK(loc.size() == 6);
     CHECK(findButton(loc, MenuAction::MoveTo) != nullptr);
     CHECK(findButton(loc, MenuAction::RaidAt) != nullptr);
     CHECK(findButton(loc, MenuAction::BuildAltarAt) != nullptr);
+    CHECK(findButton(loc, MenuAction::BuildAt) != nullptr);
     CHECK(findButton(loc, MenuAction::ScoutAt) != nullptr);
 
     // Enemy -> AttackTarget / CaptureOrder

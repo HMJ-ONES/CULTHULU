@@ -85,6 +85,8 @@ std::vector<MenuButton> CommandMenu::generateMenu(
                 !noOrders && !summary.hasAltarNearby,
                 noOrders ? "No cultists to command"
                          : (summary.hasAltarNearby ? "Altar already nearby" : "")));
+            buttons.push_back(makeButton(MenuAction::BuildAt, !noOrders,
+                noOrders ? "No cultists to command" : ""));
             buttons.push_back(makeButton(MenuAction::ScoutAt, !noOrders,
                 noOrders ? "No cultists to command" : ""));
             break;
