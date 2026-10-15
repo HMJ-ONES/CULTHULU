@@ -185,8 +185,14 @@ individual files were retired and the five models' UVs remapped.*
 | `props/fallen-lintel.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 24 | 3.7 KB | vertex colors (deep-ruin stone) |
 | `props/flagstone-slab.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 36 | 5.2 KB | vertex colors (deep-ruin stone) |
 | `props/broken-obelisk.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 36 | 5.2 KB | vertex colors (deep-ruin stone) |
+| `props/reed-cluster.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 258 | 31.2 KB | vertex colors (dead reeds) |
+| `props/rock-arch.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 236 | 28.6 KB | vertex colors (dark rock) |
+| `props/cave-mouth.glb` | in-house procgen, `procgen/generate_props.py` (wave 35) | n/a (original) | 180 | 22.0 KB | vertex colors (fang rock + lightless disc) |
+| `props/glowcap-ring.glb` | in-house procgen, `procgen/generate_props.py` (5 PM beauty 2026-10-14) | n/a (original) | 270 | 32.6 KB | vertex colors (moss + pale stems + luminous green caps, green emissive) |
+| `props/rune-spike.glb` | in-house procgen, `procgen/generate_props.py` (5 PM beauty 2026-10-14) | n/a (original) | 270 | 32.6 KB | vertex colors (obsidian + violet rune bands, violet emissive) |
 
 Wave-19 new payload: 536 KB decoded GLB (+ ~90 KB new textures).
 Wave-32 new payload: ~109 KB decoded GLB (+ 53 KB detail texture). Procgen pipeline committed: `assets/world/procgen/generate_props.py` (GLB writer + builders) and `generate_detail_texture.py` (512px grime/crack/rune detail layer).
 Wave-35 new payload: ~108 KB decoded GLB (8 multi-tone procgen props via COLOR_0 vertex colors). Map: `assets/maps/eldritch_battlefield.map` extended 72 -> 120 (wave 19), 120 -> 134 (wave 32), 134 -> 162 placements (wave 35: forest mid-storey + deep-ruins masonry).
+5 PM beauty 2026-10-14: +~65 KB decoded GLB (2 new procgen props: glowcap-ring, rune-spike, each 270 tris with emissive + vertex colors). `dark_wilds.map` 393 -> 403 placements (cavern_approach pilgrim trail: 5 glowcap rings + 5 rune spikes, lod hide=400 auto). Also documented 3 wave-35 props that were in the map but missing from this MANIFEST (reed-cluster, rock-arch, cave-mouth — their `.b64` sidecars were already in the repo).
 `ruined_city.map` untouched.

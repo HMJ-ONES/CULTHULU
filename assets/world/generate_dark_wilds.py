@@ -399,6 +399,24 @@ def write_map():
         at(P + "cave-mouth.glb", x, z, rot=deg, scale=rng.uniform(1.0, 1.4))
     scatter("cavern_approach", P + "cave-boulder-c.glb", 10, 0.9, 1.7)
     scatter("cavern_approach", P + "stalagmite-cluster.glb", 8, 0.8, 1.3)
+    # ---- cavern approach: pilgrim trail (beauty pass 2026-10-14) ----
+    # The thin approach zone (26 placements, all bare rock) gets its own
+    # story: glowcap rings + rune spikes mark the descent route — faint
+    # bioluminescence and old cult markers against the dark stone.
+    # at() bakes y from the height field and draws no rng, so a regen
+    # keeps every existing placement line byte-identical; only these
+    # 10 lines are appended to the placements section.
+    G, S = P + "glowcap-ring.glb", P + "rune-spike.glb"
+    at(G, -452, -548, rot=20, scale=1.1)     # flanking the arch gateway
+    at(G, -428, -562, rot=140, scale=0.9)
+    at(S, -440, -556, rot=70, scale=1.0)
+    at(S, -380, -600, rot=150, scale=1.0)    # southern path markers
+    at(G, -300, -580, rot=200, scale=1.0)
+    at(S, -220, -580, rot=40, scale=0.9)
+    at(G, -160, -540, rot=300, scale=1.2)
+    at(S, -420, -260, rot=250, scale=1.1)    # north rim overlook
+    at(G, -150, -280, rot=90, scale=1.0)
+    at(S, -90, -420, rot=310, scale=1.1)     # eastern passage marker
 
     # ---- deep cavern: the lightless bowl ----
     scatter("deep_cavern", P + "stalagmite-cluster.glb", 18, 1.0, 2.2)

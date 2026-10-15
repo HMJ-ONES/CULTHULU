@@ -34,7 +34,7 @@ atmosphere dead_swamp fog=#0a120c,0.75 ambient=#14201a,0.20 sky=#030805 stars=0.
 atmosphere drywood fog=#0e0c10,0.40 ambient=#241e2e,0.32 sky=#060410 stars=0.85
 atmosphere highlands fog=#0c0a14,0.45 ambient=#201c34,0.35 sky=#05030f stars=0.90
 
-# --- placements (393) ---
+# --- placements (403) ---
 place assets/world/props/cave-rock-tall-a.glb -335.0 -0.6 324.8 343 1.09 highlands
 place assets/world/props/cave-rock-tall-a.glb -357.3 16.1 -163.2 10 1.02 highlands
 place assets/world/props/cave-rock-tall-a.glb -273.4 13.9 -144.1 231 1.14 highlands
@@ -126,6 +126,16 @@ place assets/world/props/stalagmite-cluster.glb -477.4 -1.3 -545.4 147 1.19 cave
 place assets/world/props/stalagmite-cluster.glb -465.9 -3.1 -507.3 151 0.90 cavern_approach
 place assets/world/props/stalagmite-cluster.glb -368.7 15.8 -225.9 225 1.00 cavern_approach
 place assets/world/props/stalagmite-cluster.glb -474.8 19.7 -260.7 75 1.00 cavern_approach
+place assets/world/props/glowcap-ring.glb -452.0 -1.0 -548.0 20 1.10 cavern_approach
+place assets/world/props/glowcap-ring.glb -428.0 0.2 -562.0 140 0.90 cavern_approach
+place assets/world/props/rune-spike.glb -440.0 -0.4 -556.0 70 1.00 cavern_approach
+place assets/world/props/rune-spike.glb -380.0 1.9 -600.0 150 1.00 cavern_approach
+place assets/world/props/glowcap-ring.glb -300.0 -2.6 -580.0 200 1.00 cavern_approach
+place assets/world/props/rune-spike.glb -220.0 -4.1 -580.0 40 0.90 cavern_approach
+place assets/world/props/glowcap-ring.glb -160.0 -3.4 -540.0 300 1.20 cavern_approach
+place assets/world/props/rune-spike.glb -420.0 14.5 -260.0 250 1.10 cavern_approach
+place assets/world/props/glowcap-ring.glb -150.0 0.5 -280.0 90 1.00 cavern_approach
+place assets/world/props/rune-spike.glb -90.0 -0.5 -420.0 310 1.10 cavern_approach
 place assets/world/props/stalagmite-cluster.glb -293.5 -26.8 -471.0 84 1.32 deep_cavern
 place assets/world/props/stalagmite-cluster.glb -339.0 -26.9 -438.7 27 1.90 deep_cavern
 place assets/world/props/stalagmite-cluster.glb -271.1 -23.7 -521.4 309 1.58 deep_cavern
@@ -485,6 +495,7 @@ lod assets/world/props/dead-trunk.glb hide=400
 lod assets/world/props/debris.glb hide=400
 lod assets/world/props/fallen-lintel.glb hide=400
 lod assets/world/props/flagstone-slab.glb hide=400
+lod assets/world/props/glowcap-ring.glb hide=400
 lod assets/world/props/mist-bank.glb hide=400
 lod assets/world/props/pine-dead-crooked.glb hide=400
 lod assets/world/props/reed-cluster.glb hide=400
@@ -494,6 +505,7 @@ lod assets/world/props/rocks-tall.glb hide=400
 lod assets/world/props/root-tangle.glb hide=400
 lod assets/world/props/rubble-large.glb hide=400
 lod assets/world/props/ruined-column-b.glb hide=400
+lod assets/world/props/rune-spike.glb hide=400
 lod assets/world/props/stalactite-cluster.glb hide=400
 lod assets/world/props/stalagmite-cluster.glb hide=400
 lod assets/world/props/tree-dead-bare.glb hide=400

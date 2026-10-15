@@ -557,6 +557,63 @@ def cave_mouth(rng):
     return tris, colors
 
 
+def glowcap_ring(rng):
+    """Ring of bioluminescent cave mushrooms on a low mossy hummock —
+    the pilgrim-trail lights of the cavern approach. ~270 tris."""
+    tris, colors = [], []
+    _MOSS_D = (0.09, 0.12, 0.09, 1.0)
+    _STEM = (0.55, 0.60, 0.52, 1.0)
+    _CAP = (0.62, 0.92, 0.66, 1.0)
+    hummock = cylinder(0.95, 0.55, 0.35, 8, 1, rng, 0.2)
+    tris.extend(hummock)
+    colors.extend([_MOSS_D] * len(hummock))
+    n = rng.randint(6, 7)
+    for i in range(n):
+        h = rng.uniform(0.5, 0.95)
+        cap_r = rng.uniform(0.20, 0.30)
+        stem = cylinder(0.06, 0.10, h, 5, 1, rng, 0.18)
+        cap = cone(cap_r, cap_r * 1.1, 7, rng, jitter=0.12, tip_jitter=0.15)
+        cap = _xform(cap, scale=(1.0, 0.55, 1.0), translate=(0, h * 0.94, 0))
+        shroom = stem + cap
+        a = 2 * math.pi * i / n + rng.uniform(-0.2, 0.2)
+        r = rng.uniform(0.45, 0.6)
+        shroom = _xform(shroom, rot_x=rng.uniform(-0.15, 0.15),
+                        rot_z=rng.uniform(-0.15, 0.15),
+                        translate=(math.cos(a) * r, 0.25, math.sin(a) * r))
+        tris.extend(shroom)
+        colors.extend([_STEM] * len(stem) + [_CAP] * len(cap))
+    return tris, colors
+
+
+def rune_spike(rng):
+    """Jagged obsidian shard driven into the trail; thin rune bands hover
+    around it in faint violet — old cult markers on the pilgrim route.
+    ~270 tris."""
+    tris, colors = [], []
+    _OBSID = (0.07, 0.05, 0.11, 1.0)
+    _RUNE = (0.58, 0.32, 0.95, 1.0)
+    spike = cone(rng.uniform(0.38, 0.5), rng.uniform(2.6, 3.4), 7, rng,
+                 jitter=0.35, tip_jitter=0.5)
+    tris.extend(spike)
+    colors.extend([_OBSID] * len(spike))
+    for y in (rng.uniform(1.0, 1.3), rng.uniform(1.9, 2.3)):
+        band = torus(0.40, 0.035, 6, 10)
+        band = _xform(band, translate=(0, y, 0))
+        tris.extend(band)
+        colors.extend([_RUNE] * len(band))
+    # base rubble: two tilted shards
+    for _ in range(2):
+        ch = octahedron(rng.uniform(0.15, 0.25), rng.uniform(0.2, 0.35),
+                        rng.uniform(0.15, 0.25))
+        a = rng.uniform(0, 2 * math.pi)
+        ch = _xform(ch, rot_z=rng.uniform(-0.5, 0.5),
+                    translate=(math.cos(a) * 0.55, 0.05,
+                               math.sin(a) * 0.55))
+        tris.extend(ch)
+        colors.extend([_OBSID] * len(ch))
+    return tris, colors
+
+
 PROPS_WAVE35 = [
     ("ash-thicket", ash_thicket, (0.0, 0.0, 0.0)),
     ("hanging-moss", hanging_moss, (0.0, 0.0, 0.0)),
@@ -570,6 +627,8 @@ PROPS_WAVE35 = [
     ("reed-cluster", reed_cluster, (0.0, 0.0, 0.0)),
     ("rock-arch", rock_arch, (0.0, 0.0, 0.0)),
     ("cave-mouth", cave_mouth, (0.0, 0.0, 0.0)),
+    ("glowcap-ring", glowcap_ring, (0.10, 0.30, 0.18)),
+    ("rune-spike", rune_spike, (0.12, 0.03, 0.24)),
 ]
 
 
