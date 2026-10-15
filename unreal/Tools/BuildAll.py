@@ -58,6 +58,9 @@ def main():
     print("V toggles camera, Esc back to menu.", flush=True)
     print("DESTRUCTION: walk to the razed city and LEFT-CLICK to smash —", flush=True)
     print("columns, walls, towers, crypts, arches and obelisks break apart.", flush=True)
+    print("BEASTS: feral beasts now roam the wilds — they chase and swipe.", flush=True)
+    print("Smash them too. (If a beast walks sideways, tell me and I'll", flush=True)
+    print("fix its facing — I can't see the models from here.)", flush=True)
 
 
 if __name__ == "__main__":

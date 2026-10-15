@@ -12,6 +12,7 @@
 
 #include "CultBlastFX.h"
 #include "CultDestructible.h"
+#include "CultFeralBeast.h"
 #include "CultUlhuGameInstance.h"
 
 ACultUlhuPlayerPawn::ACultUlhuPlayerPawn()
@@ -104,10 +105,25 @@ void ACultUlhuPlayerPawn::Smash()
 			It->ApplyDamage(135.0f * Falloff, Feet);
 		}
 	}
+	for (TActorIterator<ACultFeralBeast> It(GetWorld()); It; ++It)
+	{
+		const float D = FVector::Dist(It->GetActorLocation(), Feet);
+		if (D < RadiusCm)
+		{
+			const float Falloff = 1.0f - 0.6f * (D / RadiusCm);
+			It->ApplyDamage(135.0f * Falloff);
+		}
+	}
 
 	ACultBlastFX::SpawnBlast(GetWorld(), ECultBlastKind::ShockRing,
 		Feet + FVector(0.0f, 0.0f, 50.0f), RadiusCm / 100.0f);
 	ShakeTime_ = ShakeDur_;
+}
+
+void ACultUlhuPlayerPawn::AddCameraKick(float Strength)
+{
+	ShakeTime_ = FMath::Max(ShakeTime_,
+		ShakeDur_ * FMath::Clamp(Strength, 0.0f, 1.0f));
 }
 
 void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)

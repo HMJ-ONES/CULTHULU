@@ -44,6 +44,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CultUlhu|Destruction")
 	void Smash();
 
+	// Small camera nudge (0..1 strength) — used by beast swipes.
+	UFUNCTION(BlueprintCallable, Category = "CultUlhu|Destruction")
+	void AddCameraKick(float Strength);
+
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 

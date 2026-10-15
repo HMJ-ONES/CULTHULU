@@ -435,8 +435,16 @@ def scatter_props():
                 placed += 1
         log("OK", "%s: %d instances" % (name, placed))
 
-    # feral-beast spawns: static display meshes (wire as actors via
-    # CharacterPipeline when the creature Blueprints exist)
+    # feral-beast spawns: live ACultFeralBeast actors when the C++ module is
+    # compiled, static display meshes otherwise (rerun after compiling).
+    beast_class = None
+    try:
+        beast_class = unreal.load_class(None, "/Script/CultUlhu.CultFeralBeast")
+    except Exception:
+        beast_class = None
+    if beast_class is None:
+        log("SKIP", "CultFeralBeast class not found — compile the C++ module, "
+                    "then rerun; using static displays")
     by_species = {}
     for s in import_assets.spawns:
         by_species.setdefault(s["species"], []).append(s)
@@ -446,6 +454,28 @@ def scatter_props():
             mesh = eal.load_asset(DEST_CREATURES + "/" + species)
         if not mesh:
             log("SKIP", "no creature mesh for %s" % species)
+            continue
+        if beast_class is not None:
+            n = 0
+            for s in items:
+                for k in range(s["count"]):
+                    # deterministic small spread so packs don't stack
+                    ox = ((k * 173) % 7 - 3) * 120.0
+                    oy = ((k * 311) % 5 - 2) * 120.0
+                    x, y, z = to_ue(s["x"], s["y"], s["z"])
+                    a = ell.spawn_actor_from_class(
+                        beast_class, unreal.Vector(x + ox, y + oy, z),
+                        unreal.Rotator(0, 0, 0))
+                    if not a:
+                        continue
+                    a.set_actor_label("WILD_Beast_%s_%d" % (species, n))
+                    try:
+                        a.set_mesh(mesh)
+                        a.set_species(species)
+                    except Exception as e:  # noqa: BLE001
+                        log("ERROR", "beast setup failed (%s): %s" % (species, e))
+                    n += 1
+            log("OK", "%s: %d live beasts" % (species, n))
             continue
         anchor = ell.spawn_actor_from_class(
             unreal.Actor, unreal.Vector(0, 0, 0), unreal.Rotator(0, 0, 0))
