@@ -173,6 +173,17 @@ void MatchLogger::attach(Match& match) {
                                    " seized the point"});
         });
 
+    // 2 PM build (2026-10-15): the bank-stopping beat left no trace in
+    // the exported story — the reader saw the bank stop with no record
+    // of the contest. One CONTESTED line per team->contested flip,
+    // naming the team that lost the bank (faction = prev holder).
+    sub(EventType::PointContested,
+        [this, &match](const GameEvent& e) {
+            events_.push_back({match.elapsed(), "CONTESTED",
+                               "CONTESTED t" + std::to_string(e.faction) +
+                                   " loses the bank — point contested"});
+        });
+
     // Micro-dev (2026-10-12): first blood is the match's opening beat —
     // the exported story should carry it, not just the KILL line.
     sub(EventType::FirstBlood,

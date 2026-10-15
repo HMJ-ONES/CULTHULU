@@ -17,7 +17,10 @@ namespace cultulhu {
 //
 // Seizing uncontested control publishes PointCaptured (faction = the team
 // taking the point) so the Standard-Bearer achievement keeps firing on a
-// real event. Re-contesting (both teams present) publishes nothing.
+// real event. Losing the bank to a contest (an enemy stepping in while a
+// team holds) publishes PointContested (faction = the team that lost the
+// bank) once per flip — contested->contested holding and neutral->contested
+// arrivals stay silent.
 //
 // Tunables (documented): HOLD_POINTS_PER_SEC = 1 -> uncontested holding
 // banks 60 pts/min, so a shutout wins in ~6.7 min; KILL_POINTS = 5 makes

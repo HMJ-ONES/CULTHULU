@@ -564,3 +564,8 @@ target_link_libraries(cultulhu_tests_micro_relicbots PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_relicbots COMMAND cultulhu_tests_micro_relicbots)
 set_tests_properties(cultulhu_tests_micro_relicbots PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_pointcontest tests/tests_micro_pointcontest.cpp)
+target_link_libraries(cultulhu_tests_micro_pointcontest PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_pointcontest COMMAND cultulhu_tests_micro_pointcontest)
+set_tests_properties(cultulhu_tests_micro_pointcontest PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

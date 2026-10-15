@@ -262,6 +262,13 @@ enum class EventType {
                          // amount = new level; tag = player name; published
                          // once per addXp call even on multi-level jumps
     PointCaptured,       // targetId = point index; faction = capturing team
+    PointContested,      // 2 PM build (2026-10-15): a team->contested flip —
+                         // the bank stopped. targetId = point index;
+                         // faction = the team that LOST the bank; pos =
+                         // point pos. Fires once per flip: neutral->contested
+                         // and contested->contested stay silent, and
+                         // contested->team is already covered by
+                         // PointCaptured.
     GreatOldOneSlain,    // sourceId = killing-blow entity id (0 unknown);
                          // faction = fallen GOO's team
     GreatOldOneUnderAttack, // micro-dev (2026-10-12): a GOO is taking

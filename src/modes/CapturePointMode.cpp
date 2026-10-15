@@ -60,11 +60,27 @@ void CapturePointMode::update(double dt) {
 
     int holder = currentHolder();
     if (holder != holder_) {
+        const int prevHolder = holder_;
         holder_ = holder;
         if (holder_ >= 0 && !points_.empty()) {
             GameEvent e(EventType::PointCaptured);
             e.targetId = 0;
             e.faction = holder_;
+            e.amount = 1.0f;
+            e.pos = points_[0].pos;
+            bus_.publish(e);
+        } else if (prevHolder >= 0 && contested()) {
+            // 2 PM build (2026-10-15): the team->contested flip used to
+            // flip the bank silently — the point stopped ticking with no
+            // event and no MatchLogger line, so the exported story could
+            // never answer "when did we lose the point." One beat per
+            // flip: holder_ staying -1 across ticks guards
+            // contested->contested, the prevHolder>=0 check skips
+            // neutral->contested (nobody lost a bank), and
+            // contested()->team is already covered by PointCaptured.
+            GameEvent e(EventType::PointContested);
+            e.targetId = 0;
+            e.faction = prevHolder; // the team that lost the bank
             e.amount = 1.0f;
             e.pos = points_[0].pos;
             bus_.publish(e);
