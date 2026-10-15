@@ -8,6 +8,7 @@
 
 #include "ui/StatsPanel.h"
 #include "core/CommandSuggest.h"
+#include "driver/CompassWord.h"
 #include "modes/RosterUtils.h"
 #include "beliefs/Belief.h"
 
@@ -17,6 +18,7 @@
 #include <vector>
 
 using namespace cultulhu;
+using cultulhu::driver::compassWord;
 
 static int checks = 0;
 static int failures = 0;
@@ -99,6 +101,23 @@ int main() {
     CHECK(suggestCommand("onslaugt", beliefLower) == "onslaught"); // transposition
     CHECK(suggestCommand("breeding", beliefLower) == "breeding"); // exact passes through
     CHECK(suggestCommand("xyzzy", beliefLower) == "");         // too far: no guess
+
+    // compassWord — the direction dialect shared by `look`, the arrival
+    // survey's "nearest wonder", and the `interact` civilian rumor.
+    // x+ = east, z+ = south (the game's standing convention). Diagonal
+    // pairs keep the historical hyphenated form; a target due along one
+    // axis collapses to the single word.
+    const Vec3 origin(0.0f, 0.0f, 0.0f);
+    CHECK(compassWord(origin, Vec3(3.0f, 0.0f, 4.0f)) == "east-south");
+    CHECK(compassWord(origin, Vec3(-3.0f, 0.0f, -4.0f)) == "west-north");
+    CHECK(compassWord(origin, Vec3(3.0f, 0.0f, -4.0f)) == "east-north");
+    CHECK(compassWord(origin, Vec3(-3.0f, 0.0f, 4.0f)) == "west-south");
+    CHECK(compassWord(origin, Vec3(5.0f, 0.0f, 0.0f)) == "east");  // due axis
+    CHECK(compassWord(origin, Vec3(0.0f, 0.0f, -5.0f)) == "north"); // due axis
+    CHECK(compassWord(origin, Vec3(0.0f, 0.0f, 0.0f)) == "here");   // on top
+    // Relative origin, not absolute: same delta, same word.
+    CHECK(compassWord(Vec3(10.0f, 0.0f, -7.0f),
+                      Vec3(13.0f, 0.0f, -3.0f)) == "east-south");
 
     if (failures == 0)
         std::cout << "convenience: all " << checks << " checks passed\n";

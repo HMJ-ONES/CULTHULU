@@ -5,6 +5,7 @@
 #include "achievements/AchievementSystem.h"
 #include "driver/AntiCheat.h"
 #include "driver/KitStatus.h"
+#include "driver/CompassWord.h"
 #include "driver/SelectNudge.h"
 #include "ai/AmbientBehavior.h"
 #include "ai/RitualCaster.h"
@@ -2085,9 +2086,19 @@ static bool processLine(BetaGame& g, NetSession& nets,
                       << g.freeroam.relics().size() << " relics on the map. ";
             Entity* t = g.nearestTarget(g.avatar.position(), 200.0f);
             if (t)
-                std::cout << "nearest target " << dist(g.avatar.position(),
-                                                       t->position())
-                          << "m away (hp " << t->hp() << ").\n";
+                // Convenience pass (2026-10-15): `look` used to say how far
+                // the nearest target was but never which way — unactionable
+                // without wandering. Now it names the direction in the same
+                // compass dialect the arrival survey and rumors use, and the
+                // distance reads as whole meters.
+                std::cout << "nearest target "
+                          << static_cast<int>(dist(g.avatar.position(),
+                                                   t->position()) +
+                                              0.5f)
+                          << "m to the "
+                          << cultulhu::driver::compassWord(
+                                 g.avatar.position(), t->position())
+                          << " (hp " << t->hp() << ").\n";
             else
                 std::cout << "no targets in range.\n";
             return true;
@@ -3560,8 +3571,7 @@ static bool processLine(BetaGame& g, NetSession& nets,
             if (target) {
                 std::cout << "  \"they say " << target->name << " lies "
                           << static_cast<int>(targetD + 0.5f) << "m "
-                          << (target->pos.x >= ap.x ? "east" : "west") << "-"
-                          << (target->pos.z >= ap.z ? "south" : "north")
+                          << cultulhu::driver::compassWord(ap, target->pos)
                           << ". " << target->flavor << "\"\n";
             } else {
                 static const char* done[] = {
@@ -3807,8 +3817,7 @@ void printArrivalSurvey(BetaGame& g) {
         std::ostringstream ss;
         ss << "  nearest wonder: " << near->name << " ("
            << static_cast<int>(nearD + 0.5f) << "m "
-           << (near->pos.x >= ap.x ? "east" : "west") << "-"
-           << (near->pos.z >= ap.z ? "south" : "north") << ")\n";
+           << cultulhu::driver::compassWord(ap, near->pos) << ")\n";
         bits += ss.str();
     }
     int relics = 0, civs = 0, beasts = 0;
