@@ -303,6 +303,11 @@ target_link_libraries(cultulhu_tests_micro_rockbreak PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_rockbreak COMMAND cultulhu_tests_micro_rockbreak)
 set_tests_properties(cultulhu_tests_micro_rockbreak PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_castpos tests/tests_micro_castpos.cpp)
+target_link_libraries(cultulhu_tests_micro_castpos PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_castpos COMMAND cultulhu_tests_micro_castpos)
+set_tests_properties(cultulhu_tests_micro_castpos PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME cultulhu_fuzz_smoke COMMAND cultulhu_fuzz all 2000 42)
 add_executable(cultulhu_tests_micro_respawned tests/tests_micro_respawned.cpp)
 target_link_libraries(cultulhu_tests_micro_respawned PRIVATE cultulhu)

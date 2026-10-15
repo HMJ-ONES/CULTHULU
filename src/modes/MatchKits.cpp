@@ -324,6 +324,10 @@ bool Match::castMatchSpell(size_t idx, int slot) {
         e.sourceId = p.id;
         e.tag = sp->name;
         e.amount = slot;
+        // Micro-dev (2026-10-15): the cast happens at the caster — stamp
+        // pos so the engine's FX pipeline renders the cast visual at the
+        // fighter, not the world origin.
+        e.pos = p.pos;
         bus_.publish(e);
     }
     return spent;
@@ -420,6 +424,7 @@ bool Match::castMatchRmb(size_t idx, RmbAim aim) {
         e.sourceId = p.id;
         e.tag = hk.name;
         e.amount = 3; // slot 3 = RMB
+        e.pos = p.pos; // heavy attacks land from the fighter's position
         bus_.publish(e);
     }
     return spent;
@@ -436,6 +441,7 @@ bool Match::ripRock(size_t idx) {
     e.sourceId = p.id;
     e.tag = kRockRipTag;
     e.amount = 3;
+    e.pos = p.pos; // the rip tears out of the ground at the holder
     bus_.publish(e);
     return true;
 }
@@ -454,6 +460,7 @@ void Match::breakRock(size_t idx, const char* why) {
     e.sourceId = p.id;
     e.tag = why;
     e.amount = 3;
+    e.pos = p.pos; // the shatter happens at the holder's position
     bus_.publish(e);
 }
 
@@ -507,6 +514,7 @@ bool Match::swingRock(size_t idx) {
         e.sourceId = p.id;
         e.tag = kRockSwingTag;
         e.amount = 3; // slot 3 = RMB
+        e.pos = p.pos; // the swing cleaves from the holder's position
         bus_.publish(e);
     }
     return true;

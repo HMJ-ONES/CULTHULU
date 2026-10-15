@@ -250,6 +250,9 @@ enum class EventType {
                          // tag = player name; pos = position
     AbilityCast,         // wave 40: sourceId = caster id; tag = ability name;
                          // amount = slot (0=Q 1=F 2=R 3=RMB)
+                         // micro-dev (2026-10-15): pos = caster's position,
+                         // stamped at every publish site so the engine's
+                         // cast FX lands at the fighter, not the origin
     AbilityUnlocked,     // wave 41: sourceId = player id; tag = unlocked
                          // ability in DOTGOO draft — "Q (name)"/"F (name)"/
                          // "ULT (name)" (micro: names the ability)
