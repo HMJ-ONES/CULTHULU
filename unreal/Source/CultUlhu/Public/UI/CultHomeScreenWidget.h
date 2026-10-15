@@ -22,7 +22,12 @@ class CULTULHU_API UCultHomeScreenWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	virtual void NativeConstruct() override;
+	// Builds the UWidget tree at Slate-build time. NOTE: the tree must be
+	// built here, NOT in NativeConstruct — RebuildWidget() is what produces
+	// the Slate widget and it runs before NativeConstruct, so a
+	// WidgetTree->RootWidget assigned there would never be taken, leaving
+	// an invisible menu.
+	virtual TSharedRef<SWidget> RebuildWidget() override;
 
 protected:
 	UFUNCTION() void OnFreeRoamClicked();
@@ -35,4 +40,5 @@ private:
 
 	UPROPERTY() UCanvasPanel* Root_ = nullptr;
 	UPROPERTY() UVerticalBox* ButtonBox_ = nullptr;
+	bool bBuilt_ = false;
 };

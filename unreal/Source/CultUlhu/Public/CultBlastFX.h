@@ -22,7 +22,8 @@ UENUM(BlueprintType)
 enum class ECultBlastKind : uint8
 {
 	ShockRing,
-	DustBurst
+	DustBurst,
+	HitFlash // single bright pop at a damage hit (buildings, beasts)
 };
 
 UCLASS()

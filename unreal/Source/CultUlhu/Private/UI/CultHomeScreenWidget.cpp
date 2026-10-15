@@ -15,7 +15,9 @@
 namespace
 {
 	// Eldritch-dark palette.
-	const FLinearColor kBack(0.015f, 0.01f, 0.03f, 1.0f);
+	// Slightly translucent: the menu vista (MENU_VistaCamera diorama built
+	// by BuildMainMenu.py) breathes through behind the buttons.
+	const FLinearColor kBack(0.015f, 0.01f, 0.03f, 0.86f);
 	const FLinearColor kBtnNormal(0.09f, 0.06f, 0.14f, 1.0f);
 	const FLinearColor kBtnHover(0.22f, 0.12f, 0.34f, 1.0f);
 	const FLinearColor kBtnPress(0.38f, 0.22f, 0.55f, 1.0f);
@@ -46,10 +48,14 @@ namespace
 	}
 }
 
-void UCultHomeScreenWidget::NativeConstruct()
+TSharedRef<SWidget> UCultHomeScreenWidget::RebuildWidget()
 {
-	Super::NativeConstruct();
-	BuildLayout();
+	if (!bBuilt_)
+	{
+		bBuilt_ = true;
+		BuildLayout();
+	}
+	return Super::RebuildWidget();
 }
 
 void UCultHomeScreenWidget::BuildLayout()

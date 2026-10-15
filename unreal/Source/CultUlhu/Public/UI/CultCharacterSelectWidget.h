@@ -24,7 +24,9 @@ class CULTULHU_API UCultCharacterSelectWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	virtual void NativeConstruct() override;
+	// See CultHomeScreenWidget::RebuildWidget — the UWidget tree must be
+	// built at Slate-build time, not in NativeConstruct.
+	virtual TSharedRef<SWidget> RebuildWidget() override;
 
 	void SetMode(ECultPlayMode Mode) { Mode_ = Mode; }
 
@@ -52,4 +54,5 @@ private:
 	UPROPERTY() UButton* BackButton_ = nullptr;
 	UPROPERTY() UButton* PlayButton_ = nullptr;
 	UPROPERTY() TArray<UCultCharacterCardWidget*> Cards_;
+	bool bBuilt_ = false;
 };

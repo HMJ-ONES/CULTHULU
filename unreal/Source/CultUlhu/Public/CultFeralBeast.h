@@ -47,12 +47,19 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "CultUlhu|Beast")
 	UStaticMeshComponent* MeshComp_ = nullptr;
 
+	// Glowing predator eyes (HDR material, positioned from mesh bounds).
+	UPROPERTY(VisibleAnywhere, Category = "CultUlhu|Beast")
+	UStaticMeshComponent* EyeL_ = nullptr;
+	UPROPERTY(VisibleAnywhere, Category = "CultUlhu|Beast")
+	UStaticMeshComponent* EyeR_ = nullptr;
+
 private:
 	enum class EState : uint8 { Wander, Chase, Dying, Dead };
 	EState State_ = EState::Wander;
 
 	void ApplySpeciesStats();
 	void PickWanderTarget();
+	void AttachEyes();
 	void MoveToward(const FVector& Dest, float SpeedMs, float DeltaSeconds);
 	void FaceToward(const FVector& Dest, float DeltaSeconds, float Rate = 6.0f);
 	void Die();

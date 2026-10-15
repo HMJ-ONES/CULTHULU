@@ -2,6 +2,8 @@
 #include "CultUlhuGameInstance.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Camera/CameraActor.h"
+#include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "UI/CultHomeScreenWidget.h"
@@ -106,6 +108,24 @@ void UCultUlhuGameInstance::ShowHomeScreen()
 		CreateWidget<UCultHomeScreenWidget>(this, UCultHomeScreenWidget::StaticClass()))
 	{
 		ShowWidget(Widget, true);
+	}
+
+	// Menu vista: if the map provides a MENU_VistaCamera (built by
+	// BuildMainMenu.py), look through it so the menu floats over a live
+	// eldritch vista instead of a black void. Harmless if absent.
+	if (UWorld* W = GetWorld())
+	{
+		if (APlayerController* PC = W->GetFirstPlayerController())
+		{
+			for (TActorIterator<ACameraActor> It(W); It; ++It)
+			{
+				if (It->GetActorLabel() == TEXT("MENU_VistaCamera"))
+				{
+					PC->SetViewTargetWithBlend(*It, 0.0f);
+					break;
+				}
+			}
+		}
 	}
 }
 

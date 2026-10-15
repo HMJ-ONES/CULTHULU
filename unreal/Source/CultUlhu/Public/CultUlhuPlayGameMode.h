@@ -25,4 +25,9 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual AActor* ChoosePlayerStart(AController* Player) override;
+
+	// Menu map: UI only — suppress the default pawn so nothing spawns,
+	// falls, or steals the camera behind the menu vista.
+	virtual APawn* SpawnDefaultPawnFor_Implementation(
+		AController* NewPlayer, AActor* StartSpot) override;
 };

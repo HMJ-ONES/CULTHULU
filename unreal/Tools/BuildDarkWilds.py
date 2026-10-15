@@ -218,6 +218,10 @@ def build_materials():
                                    unreal.MaterialFactoryNew()), True)
 
     # --- ground: detail texture x vertex colors, rough dark soil ---
+    # VERTEX-COLOR SAFETY: the tint multiplies the detail texture. If the
+    # OBJ importer ever drops the vertex colors (or bakes them black), the
+    # ground would render pitch black. The clamp floors the tint at 0.30 so
+    # the detail texture always keeps the terrain visible.
     g, g_fresh = get_or_create("M_Ground_DarkWilds")
     if g_fresh:
         tex_path = DEST_TERRAIN + "/ground-detail-dark"
@@ -232,10 +236,19 @@ def build_materials():
             mel.connect_material_expressions(tc, "UV", ts, "UV")
             vc = mel.create_material_expression(
                 g, unreal.MaterialExpressionVertexColor, -400, -100)
+            try:
+                cl = mel.create_material_expression(
+                    g, unreal.MaterialExpressionClamp, -275, -100)
+                cl.set_editor_property("min_default", 0.30)
+                cl.set_editor_property("max_default", 1.0)
+                mel.connect_material_expressions(vc, "RGB", cl, "Input")
+                tint_out, tint_pin = cl, ""
+            except Exception:
+                tint_out, tint_pin = vc, "RGB"  # clamp unsupported: raw tint
             mul = mel.create_material_expression(
                 g, unreal.MaterialExpressionMultiply, -150, 0)
             mel.connect_material_expressions(ts, "RGB", mul, "A")
-            mel.connect_material_expressions(vc, "RGB", mul, "B")
+            mel.connect_material_expressions(tint_out, tint_pin, mul, "B")
             mel.connect_material_property(mul, "", unreal.MaterialProperty.MP_BASE_COLOR)
         rough = mel.create_material_expression(
             g, unreal.MaterialExpressionScalarParameter, -150, 200)
@@ -246,7 +259,7 @@ def build_materials():
         unreal.EditorAssetLibrary.save_asset(DEST_MAT + "/M_Ground_DarkWilds")
     build_materials.ground = DEST_MAT + "/M_Ground_DarkWilds"
 
-    # --- swamp water: dark, translucent, mirror-smooth ---
+    # --- swamp water: dark, translucent, mirror-smooth, slow shimmer ---
     w, w_fresh = get_or_create("M_SwampWater")
     if w_fresh:
         w.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
@@ -254,7 +267,34 @@ def build_materials():
             w, unreal.MaterialExpressionVectorParameter, -300, 0)
         bc.set_editor_property("parameter_name", "WaterColor")
         bc.set_editor_property("default_value", unreal.LinearColor(0.03, 0.07, 0.05, 0.88))
-        mel.connect_material_property(bc, "", unreal.MaterialProperty.MP_BASE_COLOR)
+        try:
+            # drifting shimmer: pan the ground detail texture slowly and
+            # fold a whisper of it into the base color
+            tex = unreal.EditorAssetLibrary.load_asset(
+                DEST_TERRAIN + "/ground-detail-dark")
+            if tex:
+                tc = mel.create_material_expression(
+                    w, unreal.MaterialExpressionTextureCoordinate, -700, 100)
+                pan = mel.create_material_expression(
+                    w, unreal.MaterialExpressionPanner, -500, -30)
+                pan.set_editor_property("speed_x", 0.008)
+                pan.set_editor_property("speed_y", 0.013)
+                mel.connect_material_expressions(tc, "UV", pan, "UV")
+                ts = mel.create_material_expression(
+                    w, unreal.MaterialExpressionTextureSample, -350, -30)
+                ts.texture = tex
+                mel.connect_material_expressions(pan, "", ts, "UV")
+                shim = mel.create_material_expression(
+                    w, unreal.MaterialExpressionMultiply, -150, -30)
+                mel.connect_material_expressions(ts, "RGB", shim, "A")
+                mel.connect_material_expressions(bc, "RGB", shim, "B")
+                mel.connect_material_property(shim, "",
+                                              unreal.MaterialProperty.MP_BASE_COLOR)
+            else:
+                raise RuntimeError("no detail tex")
+        except Exception:
+            mel.connect_material_property(bc, "",
+                                          unreal.MaterialProperty.MP_BASE_COLOR)
         wr = mel.create_material_expression(
             w, unreal.MaterialExpressionScalarParameter, -300, 200)
         wr.set_editor_property("parameter_name", "Roughness")
@@ -328,6 +368,29 @@ def build_fx_materials():
     # pale dust grey, warm flash white — C++ fades them by shrinking
     make_unlit("M_FX_Dust", (0.45, 0.42, 0.37, 1.0))
     make_unlit("M_FX_Flash", (1.0, 0.82, 0.50, 1.0))
+
+    # --- glow accents: HDR unlit colors (>1 blooms through the post-process)
+    # applied to small accent props so the night world has light sources ---
+    make_unlit("M_Glow_Rune", (1.2, 0.35, 2.2, 1.0))      # rune-spike violet
+    make_unlit("M_Glow_Cap", (0.35, 1.8, 1.0, 1.0))       # glowcap teal-green
+    make_unlit("M_Glow_Crystal", (0.5, 1.6, 2.0, 1.0))    # dark crystal cyan
+    make_unlit("M_Glow_Eye", (1.6, 2.2, 0.5, 1.0))        # beast eyes
+    make_unlit("M_Glow_Moon", (2.5, 2.6, 3.0, 1.0))       # moon disc
+    make_unlit("M_Glow_Star", (3.0, 3.0, 3.2, 1.0))        # starfield points
+    # scorch mark: near-black unlit disc left where buildings fall
+    make_unlit("M_Decal_Scorch", (0.02, 0.015, 0.025, 1.0))
+    # player vessel: shadowy placeholder body until the roster FBX drops
+    make_unlit("M_PawnVessel", (0.09, 0.06, 0.16, 1.0))
+    log("OK", "glow + scorch materials ready")
+
+
+# Models whose whole mesh reads as a light source at night: override the
+# imported glTF material with the glow material on the instanced mesh.
+GLOW_MODELS = {
+    "glowcap-ring": "M_Glow_Cap",
+    "rune-spike": "M_Glow_Rune",
+    "dark-crystal-cluster": "M_Glow_Crystal",
+}
 
 
 # --------------------------------------------------------------------------
@@ -408,6 +471,15 @@ def scatter_props():
                 ism = unreal.InstancedStaticMeshComponent()
                 anchor.add_instance_component(ism)
                 ism.set_static_mesh(mesh)
+                # glow accents: whole-mesh emissive override (see GLOW_MODELS)
+                glow_name = GLOW_MODELS.get(name)
+                if glow_name:
+                    glow_mat = eal.load_asset(DEST_MAT + "/" + glow_name)
+                    if glow_mat:
+                        try:
+                            ism.set_material(0, glow_mat)
+                        except Exception:
+                            pass
                 for p in items:
                     x, y, z = to_ue(p["x"], p["y"], p["z"])
                     t = unreal.Transform(
@@ -424,6 +496,9 @@ def scatter_props():
                 except Exception:
                     pass
         if not use_instancing:
+            glow_name = GLOW_MODELS.get(name)
+            glow_mat = (eal.load_asset(DEST_MAT + "/" + glow_name)
+                        if glow_name else None)
             for p in items:
                 x, y, z = to_ue(p["x"], p["y"], p["z"])
                 a = ell.spawn_actor_from_object(
@@ -432,6 +507,11 @@ def scatter_props():
                 a.set_actor_scale3d(
                     unreal.Vector(p["scale"], p["scale"], p["scale"]))
                 a.set_actor_label(label)
+                if glow_mat:
+                    try:
+                        a.static_mesh_component.set_material(0, glow_mat)
+                    except Exception:
+                        pass
                 placed += 1
         log("OK", "%s: %d instances" % (name, placed))
 
@@ -510,26 +590,48 @@ def build_lighting():
         a.set_actor_label(label)
         return a
 
-    # cold moonlight
+    # cold moonlight — calibrated for a readable night (was 0.55: too dim)
     sun = spawn(unreal.DirectionalLight, "WILD_MoonLight",
                 rot=(-52, -30, 0))
     try:
-        sun.light_component.set_intensity(0.55)
+        sun.light_component.set_intensity(2.4)
         sun.light_component.set_light_color(
             unreal.LinearColor(0.55, 0.68, 1.0, 1.0))
     except Exception:
         pass
 
-    # faint blue skylight so shadowed ground is never pitch black
+    # blue skylight so shadowed ground is never pitch black (was 0.35)
     sky = spawn(unreal.SkyLight, "WILD_SkyLight")
     try:
-        sky.light_component.set_intensity(0.35)
+        sky.light_component.set_intensity(0.9)
         sky.light_component.set_light_color(
             unreal.LinearColor(0.25, 0.30, 0.55, 1.0))
     except Exception:
         pass
 
     spawn(unreal.SkyAtmosphere, "WILD_SkyAtmosphere")
+
+    # post-process: keep auto-exposure from hunting at night, gentle vignette
+    try:
+        ppv = spawn(unreal.PostProcessVolume, "WILD_PostProcess")
+        ppv.set_actor_scale3d(unreal.Vector(60, 60, 30))
+        ppv.set_editor_property("b_unbound", True)
+        s = ppv.get_editor_property("settings")
+        s.set_editor_property("b_override_auto_exposure_min_brightness", True)
+        s.set_editor_property("auto_exposure_min_brightness", 0.5)
+        s.set_editor_property("b_override_auto_exposure_max_brightness", True)
+        s.set_editor_property("auto_exposure_max_brightness", 1.75)
+        s.set_editor_property("b_override_vignette_intensity", True)
+        s.set_editor_property("vignette_intensity", 0.35)
+        # bloom: only HDR emissives (>1.0 luminance) glow — the M_Glow_*
+        # materials above; everything else is unaffected
+        s.set_editor_property("b_override_bloom_intensity", True)
+        s.set_editor_property("bloom_intensity", 0.45)
+        s.set_editor_property("b_override_bloom_threshold", True)
+        s.set_editor_property("bloom_threshold", 1.0)
+        ppv.set_editor_property("settings", s)
+    except Exception:
+        pass
 
     # violet-black height fog ("beautiful but very dark")
     fog = spawn(unreal.ExponentialHeightFog, "WILD_HeightFog")
@@ -552,6 +654,52 @@ def build_lighting():
                 "influence_radius", 450 * CM)
         except Exception:
             pass
+
+    # moon disc: HDR unlit sphere parked far away in the moonlight's
+    # direction, so the night sky has a visible moon that blooms
+    try:
+        eal = unreal.EditorAssetLibrary
+        moon_mat = eal.load_asset(DEST_MAT + "/M_Glow_Moon")
+        sphere = eal.load_asset("/Engine/BasicShapes/Sphere")
+        if moon_mat and sphere:
+            moon = ell.spawn_actor_from_object(
+                sphere, unreal.Vector(-52000, -30000, 38000),
+                unreal.Rotator(0, 0, 0))
+            moon.set_actor_label("WILD_Moon")
+            moon.set_actor_scale3d(unreal.Vector(28, 28, 28))
+            moon.static_mesh_component.set_material(0, moon_mat)
+    except Exception:
+        pass
+
+    # stars: one instanced-mesh actor, 260 HDR points on a dome —
+    # a single draw call, visible everywhere except under the cavern bowl
+    try:
+        eal = unreal.EditorAssetLibrary
+        star_mat = eal.load_asset(DEST_MAT + "/M_Glow_Star")
+        sphere = eal.load_asset("/Engine/BasicShapes/Sphere")
+        if star_mat and sphere:
+            anchor = spawn(unreal.Actor, "WILD_Stars")
+            ism = unreal.InstancedStaticMeshComponent()
+            anchor.add_instance_component(ism)
+            ism.set_static_mesh(sphere)
+            ism.set_material(0, star_mat)
+            import math as _math
+            import random as _random
+            rng = _random.Random(137)
+            R = 60000.0
+            for _ in range(260):
+                az = rng.uniform(0, 2 * _math.pi)
+                el = rng.uniform(0.12, 1.35)
+                x = R * _math.cos(el) * _math.cos(az)
+                y = R * _math.cos(el) * _math.sin(az)
+                z = R * _math.sin(el)
+                sc = rng.uniform(2.2, 5.0)
+                ism.add_instance(unreal.Transform(
+                    unreal.Vector(x, y, z), unreal.Rotator(0, 0, 0),
+                    unreal.Vector(sc, sc, sc)))
+            log("OK", "starfield: 260 instances")
+    except Exception as e:  # noqa: BLE001
+        log("SKIP", "starfield failed: %s" % e)
 
 
 # --------------------------------------------------------------------------

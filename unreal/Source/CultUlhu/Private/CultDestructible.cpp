@@ -53,6 +53,10 @@ void ACultDestructible::ApplyDamage(float Amount, FVector HitLocation)
 	if (bDestroyed_ || Amount <= 0.0f)
 		return;
 	Health_ -= Amount;
+	// Hit feedback even when the building survives: a bright pop at the
+	// impact point so every smash reads.
+	ACultBlastFX::SpawnBlast(GetWorld(), ECultBlastKind::HitFlash,
+		HitLocation, 2.2f);
 	if (Health_ <= 0.0f)
 		Collapse(HitLocation);
 }
@@ -90,6 +94,29 @@ void ACultDestructible::Collapse(FVector HitLocation)
 	SpawnDebris(Base + FVector(0.0f, 0.0f, RadiusCm * 0.45f), RadiusCm);
 	ACultBlastFX::SpawnBlast(GetWorld(), ECultBlastKind::DustBurst,
 		Base + FVector(0.0f, 0.0f, RadiusCm * 0.35f), RadiusCm / 100.0f);
+
+	// Scorch mark: a near-black disc where the building stood, so the
+	// destruction leaves a lasting read on the ground.
+	if (UStaticMesh* Plane = SharedMesh(TEXT("/Engine/BasicShapes/Plane")))
+	{
+		UMaterialInterface* Scorch = LoadObject<UMaterialInterface>(
+			nullptr, TEXT("/Game/CultUlhu/Materials/M_Decal_Scorch"));
+		FActorSpawnParameters P;
+		P.SpawnCollisionHandlingOverride =
+			ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		if (AStaticMeshActor* D = GetWorld()->SpawnActor<AStaticMeshActor>(
+				AStaticMeshActor::StaticClass(),
+				Base + FVector(0.0f, 0.0f, 6.0f), FRotator::ZeroRotator, P))
+		{
+			D->GetStaticMeshComponent()->SetStaticMesh(Plane);
+			if (Scorch)
+				D->GetStaticMeshComponent()->SetMaterial(0, Scorch);
+			const float S = FMath::Clamp(RadiusCm / 100.0f * 1.4f, 3.0f, 14.0f);
+			D->SetActorScale3D(FVector(S, S, 1.0f));
+			D->SetActorLabel(FString::Printf(TEXT("WILD_Scorch_%s"),
+				*GetActorLabel()));
+		}
+	}
 	(void)HitLocation;
 }
 

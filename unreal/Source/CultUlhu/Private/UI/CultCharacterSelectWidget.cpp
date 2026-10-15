@@ -53,10 +53,14 @@ namespace
 	}
 }
 
-void UCultCharacterSelectWidget::NativeConstruct()
+TSharedRef<SWidget> UCultCharacterSelectWidget::RebuildWidget()
 {
-	Super::NativeConstruct();
-	BuildLayout();
+	if (!bBuilt_)
+	{
+		bBuilt_ = true;
+		BuildLayout();
+	}
+	return Super::RebuildWidget();
 }
 
 void UCultCharacterSelectWidget::BuildLayout()

@@ -49,6 +49,37 @@ void ACultUlhuPlayerPawn::BeginPlay()
 	SpringArm_->TargetArmLength = 700.0f * CharScale_;
 	SpringArm_->SetRelativeLocation(FVector(0.0f, 0.0f, HalfH * 0.75f));
 	bThirdPerson_ = true;
+
+	// Vessel treatment: the roster FBX models haven't landed yet, so wear
+	// a shadowy vessel — dark unlit capsule + glowing eyes — instead of a
+	// flat gray capsule. Positions use the UNSCALED half-height: the actor
+	// scale applies once on top.
+	if (UMaterialInterface* Vessel = LoadObject<UMaterialInterface>(
+			nullptr, TEXT("/Game/CultUlhu/Materials/M_PawnVessel")))
+		GetCapsuleComponent()->SetMaterial(0, Vessel);
+	if (UStaticMesh* Sphere = LoadObject<UStaticMesh>(
+			nullptr, TEXT("/Engine/BasicShapes/Sphere")))
+	{
+		UMaterialInterface* EyeGlow = LoadObject<UMaterialInterface>(
+			nullptr, TEXT("/Game/CultUlhu/Materials/M_Glow_Eye"));
+		const float UH = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+		const float S = FMath::Clamp(UH * 0.09f, 8.0f, 60.0f) / 100.0f;
+		for (int32 i = 0; i < 2; ++i)
+		{
+			UStaticMeshComponent* E = NewObject<UStaticMeshComponent>(this);
+			E->SetStaticMesh(Sphere);
+			if (EyeGlow)
+				E->SetMaterial(0, EyeGlow);
+			E->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			E->SetCastShadow(false);
+			E->RegisterComponent();
+			E->AttachToComponent(GetCapsuleComponent(),
+				FAttachmentTransformRules::KeepRelativeTransform);
+			E->SetRelativeLocation(FVector(UH * 0.30f,
+				(i == 0 ? UH * 0.14f : -UH * 0.14f), UH * 0.72f));
+			E->SetRelativeScale3D(FVector(S));
+		}
+	}
 }
 
 void ACultUlhuPlayerPawn::SetupPlayerInputComponent(UInputComponent* IC)

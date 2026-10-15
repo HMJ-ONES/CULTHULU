@@ -30,15 +30,18 @@ def log(kind, msg):
 
 
 def main():
-    log("STEP", "1/3 — menu maps")
+    log("STEP", "1/4 — menu maps")
     import BuildMainMenu
     BuildMainMenu.build_menu_maps()
 
-    log("STEP", "2/3 — dark wilds world (about a minute)")
+    log("STEP", "2/4 — dark wilds world (about a minute)")
     import BuildDarkWilds
     BuildDarkWilds.build_wilds()
 
-    log("STEP", "3/3 — opening the menu map")
+    log("STEP", "3/4 — menu vista (the scene behind the title)")
+    BuildMainMenu.build_menu_vista()
+
+    log("STEP", "4/4 — opening the menu map")
     try:
         import unreal
         unreal.EditorLevelLibrary.load_level("/Game/Maps/L_MainMenu")

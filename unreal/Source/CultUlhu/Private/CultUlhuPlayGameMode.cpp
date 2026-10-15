@@ -50,3 +50,11 @@ AActor* ACultUlhuPlayGameMode::ChoosePlayerStart(AController* Player)
 	}
 	return Super::ChoosePlayerStart(Player);
 }
+
+APawn* ACultUlhuPlayGameMode::SpawnDefaultPawnFor_Implementation(
+	AController* NewPlayer, AActor* StartSpot)
+{
+	if (GetWorld() && GetWorld()->GetName().Contains(TEXT("L_MainMenu")))
+		return nullptr;
+	return Super::SpawnDefaultPawnFor_Implementation(NewPlayer, StartSpot);
+}

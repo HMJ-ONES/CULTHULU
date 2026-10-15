@@ -87,6 +87,19 @@ void ACultBlastFX::BuildPuffs()
 		Flash_->SetWorldScale3D(FVector(0.5f));
 		FlashLife_ = FlashMaxLife_;
 	}
+	else if (Kind_ == ECultBlastKind::HitFlash)
+	{
+		// Single bright pop exactly at the hit: fast in, fast out.
+		Flash_ = NewObject<UStaticMeshComponent>(this);
+		Flash_->SetStaticMesh(Sphere);
+		if (FlashMat)
+			Flash_->SetMaterial(0, FlashMat);
+		Flash_->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Flash_->RegisterComponent();
+		Flash_->SetWorldLocation(GetActorLocation());
+		Flash_->SetWorldScale3D(FVector(FMath::Max(RadiusM_ * 0.9f, 0.8f)));
+		FlashMaxLife_ = FlashLife_ = 0.22f;
+	}
 	else // DustBurst
 	{
 		for (int32 i = 0; i < 9; ++i)

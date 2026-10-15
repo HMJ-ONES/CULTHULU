@@ -15,6 +15,18 @@ ACultFeralBeast::ACultFeralBeast()
 	MeshComp_ = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BeastMesh"));
 	RootComponent = MeshComp_;
 	MeshComp_->SetCollisionProfileName(TEXT("BlockAll"));
+
+	// Glowing eyes: plain sphere components, positioned from the mesh
+	// bounds in BeginPlay so they fit any creature model.
+	EyeL_ = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EyeL"));
+	EyeR_ = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EyeR"));
+	for (UStaticMeshComponent* E : { EyeL_, EyeR_ })
+	{
+		E->SetupAttachment(MeshComp_);
+		E->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		E->SetCastShadow(false);
+		E->SetVisibility(false); // shown once AttachEyes places them
+	}
 }
 
 void ACultFeralBeast::SetMesh(UStaticMesh* InMesh)
@@ -49,8 +61,46 @@ void ACultFeralBeast::BeginPlay()
 	Home_ = GetActorLocation();
 	MoveTarget_ = Home_;
 	ApplySpeciesStats();
+	AttachEyes();
 	Player_ = Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	PickWanderTarget();
+}
+
+void ACultFeralBeast::AttachEyes()
+{
+	// Two HDR-glow spheres at the front-upper of the body. Positions come
+	// from the mesh's own bounding box, so every species gets fitting eyes
+	// without per-model tuning. Assumes the model faces +X (same assumption
+	// as movement — if beasts walk sideways, both get fixed together).
+	UStaticMesh* Mesh = MeshComp_ ? MeshComp_->GetStaticMesh() : nullptr;
+	if (!Mesh) return;
+	UStaticMesh* Sphere = LoadObject<UStaticMesh>(
+		nullptr, TEXT("/Engine/BasicShapes/Sphere"));
+	if (!Sphere) return;
+	UMaterialInterface* Glow = LoadObject<UMaterialInterface>(
+		nullptr, TEXT("/Game/CultUlhu/Materials/M_Glow_Eye"));
+
+	const FBoxSphereBounds B = Mesh->GetBounds();
+	const float FrontX = B.Origin.X + B.BoxExtent.X * 0.72f;
+	const float EyeY = FMath::Max(B.BoxExtent.Y * 0.30f, 8.0f);
+	const float EyeZ = B.Origin.Z + B.BoxExtent.Z * 0.55f;
+	const float EyeD = FMath::Clamp(B.SphereRadius * 0.09f, 6.0f, 30.0f);
+	// BasicShapes/Sphere is 100 cm across: scale to the wanted diameter.
+	const float S = EyeD / 100.0f;
+
+	EyeL_->SetStaticMesh(Sphere);
+	EyeR_->SetStaticMesh(Sphere);
+	if (Glow)
+	{
+		EyeL_->SetMaterial(0, Glow);
+		EyeR_->SetMaterial(0, Glow);
+	}
+	EyeL_->SetRelativeLocation(FVector(FrontX, EyeY, EyeZ));
+	EyeR_->SetRelativeLocation(FVector(FrontX, -EyeY, EyeZ));
+	EyeL_->SetRelativeScale3D(FVector(S));
+	EyeR_->SetRelativeScale3D(FVector(S));
+	EyeL_->SetVisibility(true);
+	EyeR_->SetVisibility(true);
 }
 
 void ACultFeralBeast::ApplyDamage(float Amount)
