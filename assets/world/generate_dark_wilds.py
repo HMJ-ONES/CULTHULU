@@ -5,7 +5,7 @@ Builds the surface world the owner asked for (Oct 14, 2026): real terrain
 with altitude variation instead of a stretched cube — hills, a massive open
 cavern, cave mouths, three clumped razed-city complexes, dry dead woods and
 a deadly swamp with feral-beast spawns — plus the data the UE5 side needs
-to rebuild it in-editor in one step (see unreal/Tools/BuildDarkWilds.py).
+to rebuild it in-editor in one step (see unreal 5.8/Tools/BuildDarkWilds.py).
 
 Outputs (all deterministic, seed 20261014, stdlib only):
   assets/world/terrain/dark_wilds_ground.obj   terrain mesh, 256x256 grid,

@@ -4,7 +4,7 @@
 Generates a single 512px "eldritch detail" texture — grime, cracks, and
 faint rune-scratches — intended as a multiply/overlay detail layer in the
 UE5 master materials. One texture drags all 50+ props toward the art
-direction at once for ~100KB. See unreal/Docs/ArtImportAndPerf.md.
+direction at once for ~100KB. See unreal 5.8/Docs/ArtImportAndPerf.md.
 
 Neutral mid-grey base (128): as a multiply layer it leaves albedo
 unchanged where clean, darkens where grimed. Deterministic (seeded).

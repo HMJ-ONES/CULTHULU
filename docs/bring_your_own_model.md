@@ -135,4 +135,4 @@ spawn cultist 3                # the world still works around you
 ```
 
 When the model looks right in-engine later, the UE5 side is covered in
-`unreal/Docs/CharacterPipeline.md` (FBX import checklist, retargeting).
+`unreal 5.8/Docs/CharacterPipeline.md` (FBX import checklist, retargeting).

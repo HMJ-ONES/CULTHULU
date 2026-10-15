@@ -851,7 +851,7 @@ terrors; the owner's own sculpts remain the real fix.
 `assets/maps/ruined_city.map`: 90 placements across cult base, graveyard,
 old city, and outskirts. `ModelCatalog` + `MapLoader` + the `mapinfo`
 driver command validate the art; UE5 import/performance guidance lives in
-`unreal/Docs/ArtImportAndPerf.md`. Quaternius was evaluated and rejected
+`unreal 5.8/Docs/ArtImportAndPerf.md`. Quaternius was evaluated and rejected
 (its license is no longer CC0). Binaries travel as `.b64` text because
 GitHub's file API mangles raw binary uploads.
 
@@ -1042,7 +1042,7 @@ in-order levers — cheapest wins first:
 1. **Instanced rendering** — repeated props (tombstones, wall segments,
    braziers, trees) become UE5 Instanced Static Meshes: one draw call per
    prop type instead of one per prop. (See
-   `unreal/Docs/ArtImportAndPerf.md`.)
+   `unreal 5.8/Docs/ArtImportAndPerf.md`.)
 2. **LODs** — auto-generated LOD chains on buildings/props (UE5 can
    generate these on FBX import); Nanite is an option for hero pieces only,
    never for instanced small props.
@@ -1241,7 +1241,7 @@ Total wave-12 model bytes stay under the 10 MB cap. Enforced by
 
 ### UE5 import
 
-See `unreal/Docs/ArtImportAndPerf.md`: Content Browser folder layout,
+See `unreal 5.8/Docs/ArtImportAndPerf.md`: Content Browser folder layout,
 import settings, and the key rule — repeated props become **Instanced
 Static Meshes** (one draw call per prop type), LOD chains on import,
 shared darkening material for the grade.
