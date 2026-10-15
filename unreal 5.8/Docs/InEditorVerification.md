@@ -125,6 +125,12 @@ the markers — it can't verify the engine behavior, only the bookkeeping.)
 
 ## Gameplay slice
 
+- [ ] `Source/CultUlhu/Public/CultUlhuGameInstance.h`: set as the Game
+      Instance class (`DefaultEngine.ini` does this); home screen appears
+      on Play in `L_MainMenu`.
+- [ ] `Source/CultUlhu/Public/CultUlhuPlayGameMode.h`: set as the default
+      GameMode (`DefaultEngine.ini` does this); mode/character selection
+      flows into `L_DarkWilds` with the pawn possessed.
 - [ ] `Docs/IntegrationGuide.md` §6: full Wave of Domination loop
       (wave → levitate → swing → drop/slam/launch → Onslaught feed).
 - [ ] `Source/CultUlhu/Private/CultUlhuGameMode.cpp`: two-machine Radmin
