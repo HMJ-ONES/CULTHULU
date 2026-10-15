@@ -17,11 +17,22 @@
 // 4. A landed rock swing publishes "rock swing" with pos.
 // 5. Hurling the rock (the break path) publishes "Hurl the Mountain"
 //    with pos.
+// 6. Micro-dev (2026-10-15): a free-roam cast (castKitSpell, the
+//    driver's `cast q/f/r` path) publishes AbilityCast with
+//    pos == the caster's position, tag = spell name, amount = slot —
+//    the free-roam path was the only AbilityCast site with no event at
+//    all. A fizzled cast publishes nothing.
 
 #include "modes/Match.h"
+#include "beliefs/BeliefSystem.h"
+#include "characters/CharacterDef.h"
+#include "combat/CrowdControl.h"
+#include "combat/KitCaster.h"
 #include "core/EventBus.h"
 #include "core/GameClock.h"
 #include "core/RNG.h"
+#include "entities/Units.h"
+#include "power/PowerSystem.h"
 
 #include <cmath>
 #include <cstdint>
@@ -162,6 +173,47 @@ int main() {
             CHECK(rmb->amount == 3.0f);
             CHECK(near(rmb->pos, m.player(ih).pos));
         }
+    }
+
+    // 6: free-roam casts (castKitSpell, the driver's `cast q/f/r` path)
+    // publish AbilityCast with the caster's position — the free-roam
+    // path was the only AbilityCast site with no event at all.
+    {
+        EventBus bus; GameClock clock; RNG rng(31);
+        std::vector<GameEvent> casts;
+        bus.subscribe(EventType::AbilityCast,
+                      [&casts](const GameEvent& e) { casts.push_back(e); });
+        PowerSystem power;
+        BeliefSystem beliefs(bus, clock);
+        ActiveEffects fx;
+        EldritchAvatar av{FACTION_CTHULHU, Vec3(11.0f, 0.0f, -7.0f), power};
+        Civilian target{Vec3(13.0f, 0.0f, -7.0f)};
+        SpellDef slam;
+        slam.id = "slam";
+        slam.name = "Test Slam";
+        slam.effectKind = "aoe_damage";
+        slam.effectPower = 40.0f;
+        slam.range = 10.0f;
+        slam.cooldownSec = 8.0f;
+        std::vector<Entity*> foes;
+        KitCastResult r =
+            castKitSpell(slam, av, &target, foes, beliefs, bus, fx, 1.0f,
+                         0);
+        CHECK(r.ok);
+        const GameEvent* q = findCast(casts, "Test Slam");
+        CHECK(q != nullptr);
+        if (q) {
+            CHECK(q->amount == 0.0f);
+            CHECK(q->sourceId == av.id());
+            CHECK(near(q->pos, av.position()));
+        }
+        // A fizzled cast (no target) publishes nothing.
+        casts.clear();
+        KitCastResult r2 =
+            castKitSpell(slam, av, nullptr, foes, beliefs, bus, fx, 1.0f,
+                         0);
+        CHECK(!r2.ok);
+        CHECK(casts.empty());
     }
 
     std::cout << failures << " failures\n";

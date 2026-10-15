@@ -2430,9 +2430,15 @@ static bool processLine(BetaGame& g, NetSession& nets,
                         c->faction() != FACTION_CTHULHU)
                         foes.push_back(c.get());
                 g.avatarAnim.requestState(AnimationState::Cast);
+                // Micro-dev (2026-10-15): pass the slot so the AbilityCast
+                // event castKitSpell publishes carries Q/F/R like the match
+                // casts (q=0, f=1, r=2) — the engine's cast FX needs it.
+                const int castSlot =
+                    spell == "q" ? 0 : (spell == "f" ? 1 : 2);
                 KitCastResult r = castKitSpell(
                     *sp, g.avatar, t, foes, g.beliefs, g.bus, g.fx,
-                    g.exertion.stats().combatPowerMult * g.kitBuffMult_);
+                    g.exertion.stats().combatPowerMult * g.kitBuffMult_,
+                    castSlot);
                 std::cout << r.message << "\n";
                 if (r.ok) {
                     g.kitCooldowns_[sp->id] = now + sp->cooldownSec;

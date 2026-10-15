@@ -3,6 +3,7 @@
 #include "characters/CharacterDef.h"
 #include "combat/Attacks.h"
 #include "combat/CrowdControl.h"
+#include "core/EventBus.h"
 #include "entities/Entity.h"
 
 #include <cmath>
@@ -32,11 +33,13 @@ std::string fmtDmg(float d) {
 
 } // namespace
 
-KitCastResult castKitSpell(const SpellDef& spell, Entity& caster,
-                           Entity* target,
-                           const std::vector<Entity*>& foes,
-                           BeliefSystem& beliefs, EventBus& bus,
-                           ActiveEffects& fx, float powerMult) {
+// The cast pipeline; the public castKitSpell wraps this and publishes the
+// AbilityCast event on success.
+static KitCastResult castKitSpellImpl(const SpellDef& spell, Entity& caster,
+                                      Entity* target,
+                                      const std::vector<Entity*>& foes,
+                                      BeliefSystem& beliefs, EventBus& bus,
+                                      ActiveEffects& fx, float powerMult) {
     KitCastResult r;
     const std::string& kind = spell.effectKind;
     const float power = spell.effectPower * powerMult;
@@ -195,6 +198,31 @@ KitCastResult castKitSpell(const SpellDef& spell, Entity& caster,
     }
 
     r.message = spell.name + " fizzles — unknown effect '" + kind + "'.";
+    return r;
+}
+
+KitCastResult castKitSpell(const SpellDef& spell, Entity& caster,
+                           Entity* target,
+                           const std::vector<Entity*>& foes,
+                           BeliefSystem& beliefs, EventBus& bus,
+                           ActiveEffects& fx, float powerMult, int slot) {
+    KitCastResult r =
+        castKitSpellImpl(spell, caster, target, foes, beliefs, bus, fx,
+                         powerMult);
+    if (r.ok) {
+        // Micro-dev (2026-10-15): the free-roam cast path published no
+        // AbilityCast, so the engine's cast-FX pipeline got nothing here
+        // while match casts publish theirs. Same convention as
+        // MatchKits: pos = caster position, tag = spell name,
+        // amount = slot (0=Q 1=F 2=R; -1 when untracked). Fizzles publish
+        // nothing — a failed cast has no visual.
+        GameEvent e(EventType::AbilityCast);
+        e.sourceId = caster.id();
+        e.tag = spell.name;
+        e.amount = static_cast<float>(slot);
+        e.pos = caster.position();
+        bus.publish(e);
+    }
     return r;
 }
 

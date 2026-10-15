@@ -32,12 +32,19 @@ struct KitCastResult {
 
 // Cast spell from caster. target = single-target focus (may be null for
 // self-centered kinds). foes = nearby hostiles for aura kinds. powerMult
-// scales damage (belief/exertion pipeline). Unknown effect kinds fizzle
-// with an explanatory message instead of crashing.
+// scales damage (belief/exertion pipeline). slot = the ability slot for the
+// AbilityCast event (0=Q, 1=F, 2=R; -1 when the caller doesn't track slots).
+// Unknown effect kinds fizzle with an explanatory message instead of
+// crashing.
+// Micro-dev (2026-10-15): a successful cast publishes AbilityCast (pos =
+// caster position, tag = spell name, amount = slot) — the free-roam path
+// had no cast event, so the engine's cast-FX pipeline got nothing here
+// while match casts publish theirs (2026-10-15 10:09 micro).
 KitCastResult castKitSpell(const SpellDef& spell, Entity& caster,
                            Entity* target,
                            const std::vector<Entity*>& foes,
                            BeliefSystem& beliefs, EventBus& bus,
-                           ActiveEffects& fx, float powerMult);
+                           ActiveEffects& fx, float powerMult,
+                           int slot = -1);
 
 } // namespace cultulhu
