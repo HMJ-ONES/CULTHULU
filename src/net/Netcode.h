@@ -56,6 +56,13 @@ Message encodeSnapshot(uint32_t tick,
 bool decodeSnapshot(const Message& m, uint32_t& tickOut,
                     std::vector<SnapshotEntity>& entsOut);
 
+// Fast path for the 20 Hz host broadcast: returns the framed wire bytes
+// byte-identical to encode(encodeSnapshot(tick, ents)) but skips the
+// intermediate Message/Fields (~21 heap allocs for 20 entities).
+// encodeSnapshot stays the Message-level API (tests, non-hot call sites).
+std::vector<uint8_t> encodeSnapshotBytes(
+    uint32_t tick, const std::vector<SnapshotEntity>& ents);
+
 // Host side: owns the lobby's client sockets after StartGame.
 class NetHost {
 public:

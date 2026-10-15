@@ -534,6 +534,11 @@ target_link_libraries(cultulhu_tests_micro_lightweight_fields PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_lightweight_fields COMMAND cultulhu_tests_micro_lightweight_fields)
 set_tests_properties(cultulhu_tests_micro_lightweight_fields PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_snapshotbytes tests/tests_micro_snapshotbytes.cpp)
+target_link_libraries(cultulhu_tests_micro_snapshotbytes PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_snapshotbytes COMMAND cultulhu_tests_micro_snapshotbytes)
+set_tests_properties(cultulhu_tests_micro_snapshotbytes PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_executable(cultulhu_tests_micro_menulabels tests/tests_micro_menulabels.cpp)
 target_link_libraries(cultulhu_tests_micro_menulabels PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_menulabels COMMAND cultulhu_tests_micro_menulabels)
