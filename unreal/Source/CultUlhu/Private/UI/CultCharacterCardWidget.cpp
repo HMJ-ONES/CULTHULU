@@ -60,6 +60,8 @@ void UCultCharacterCardWidget::Setup(int32 InIndex, const FString& Name,
 	if (UVerticalBoxSlot* VS = V->AddChildToVerticalBox(Fl)) VS->SetPadding(FMargin(10, 0, 10, 10));
 	CardButton_->AddChild(V);
 
+	if (!WidgetTree)
+		WidgetTree = NewObject<UWidgetTree>(this, TEXT("WidgetTree"));
 	WidgetTree->RootWidget = CardButton_;
 }
 

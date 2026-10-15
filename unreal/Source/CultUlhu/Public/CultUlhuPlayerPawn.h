@@ -38,6 +38,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CultUlhu|Menu")
 	void ReturnToMenu();
 
+	// Kaiju ground smash (left mouse): damages destructible buildings in a
+	// radius, kicks the camera, plays the shockwave. The test tool for the
+	// destruction pass until kit abilities are bridged into UE.
+	UFUNCTION(BlueprintCallable, Category = "CultUlhu|Destruction")
+	void Smash();
+
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
@@ -52,4 +58,9 @@ private:
 
 	bool bThirdPerson_ = true;
 	float CharScale_ = 1.0f; // actor scale for the selected entity's height
+
+	// Destruction pass: smash cooldown + manual camera kick.
+	float SmashCooldown_ = 0.0f;
+	float ShakeTime_ = 0.0f;
+	const float ShakeDur_ = 0.35f;
 };

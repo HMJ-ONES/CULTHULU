@@ -106,6 +106,8 @@ void UCultCharacterSelectWidget::BuildLayout()
 	Row->AddChildToHorizontalBox(PlayButton_);
 	Col->AddChildToVerticalBox(Row);
 
+	if (!WidgetTree)
+		WidgetTree = NewObject<UWidgetTree>(this, TEXT("WidgetTree"));
 	WidgetTree->RootWidget = Root_;
 }
 

@@ -88,6 +88,8 @@ void UCultHomeScreenWidget::BuildLayout()
 		TEXT("DEFENSE OF THE GREAT OLD ONES"), TEXT("5v5 MOBA — defend your god, kill theirs.")));
 
 	// The canvas must be the widget's root.
+	if (!WidgetTree)
+		WidgetTree = NewObject<UWidgetTree>(this, TEXT("WidgetTree"));
 	WidgetTree->RootWidget = Root_;
 }
 

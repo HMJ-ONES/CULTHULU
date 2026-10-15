@@ -38,6 +38,19 @@ DEST_WORLD = "/Game/CultUlhu/World"
 DEST_CREATURES = "/Game/CultUlhu/Creatures"
 DEST_MAT = "/Game/CultUlhu/Materials"
 
+# Razed-city structures that become ACultDestructible actors (per-building
+# HP) instead of instanced statics. Basenames of the .map model paths.
+DESTRUCTIBLE_MODELS = {
+    "stone-wall-damaged",
+    "ruined-column-b",
+    "wall-broken",
+    "crypt-ruined",
+    "arch-dungeon",
+    "tower-square-mid",
+    "tower-square-base",
+    "broken-obelisk",
+}
+
 CM = 100.0
 
 
@@ -287,6 +300,37 @@ def place_terrain():
 
 
 # --------------------------------------------------------------------------
+# FX materials (unlit, for the C++ blast/debris effects)
+# --------------------------------------------------------------------------
+
+def build_fx_materials():
+    import unreal
+    tools = unreal.AssetToolsHelpers.get_asset_tools()
+    mel = unreal.MaterialEditingLibrary
+
+    def make_unlit(name, color):
+        path = DEST_MAT + "/" + name
+        mat = unreal.EditorAssetLibrary.load_asset(path)
+        if mat:
+            return
+        mat = tools.create_asset(name, DEST_MAT, unreal.Material,
+                                 unreal.MaterialFactoryNew())
+        mat.set_editor_property("shading_model",
+                                unreal.MaterialShadingModel.MSM_UNLIT)
+        c = mel.create_material_expression(
+            mat, unreal.MaterialExpressionConstant3Vector, -400, 0)
+        c.set_editor_property("constant", unreal.LinearColor(*color))
+        mel.connect_material_property(c, "",
+                                      unreal.MaterialProperty.MP_BASE_COLOR)
+        unreal.EditorAssetLibrary.save_asset(path)
+        log("OK", "fx material %s" % name)
+
+    # pale dust grey, warm flash white — C++ fades them by shrinking
+    make_unlit("M_FX_Dust", (0.45, 0.42, 0.37, 1.0))
+    make_unlit("M_FX_Flash", (1.0, 0.82, 0.50, 1.0))
+
+
+# --------------------------------------------------------------------------
 # prop scattering (one instanced-mesh actor per model)
 # --------------------------------------------------------------------------
 
@@ -298,6 +342,50 @@ def scatter_props():
     by_model = {}
     for p in import_assets.places:
         by_model.setdefault(p["model"], []).append(p)
+
+    # Destructible city structures become ACultDestructible actors (they
+    # need per-building HP), not instanced statics. If the C++ module is
+    # not compiled yet the class won't exist — then we leave them instanced
+    # so the world still looks complete; rerun after compiling.
+    cult_class = None
+    try:
+        cult_class = unreal.load_class(None, "/Script/CultUlhu.CultDestructible")
+    except Exception:
+        cult_class = None
+    if cult_class is not None:
+        dcount = 0
+        for model in sorted(list(by_model.keys())):
+            name = os.path.splitext(os.path.basename(model))[0]
+            if name not in DESTRUCTIBLE_MODELS:
+                continue
+            items = by_model.pop(model)
+            mesh = eal.load_asset("/Game/CultUlhu/World/SM_" + name)
+            if not mesh:
+                mesh = eal.load_asset(DEST_WORLD + "/" + name)
+            if not mesh:
+                log("SKIP", "no static mesh for destructible %s" % model)
+                continue
+            for i, p in enumerate(items):
+                x, y, z = to_ue(p["x"], p["y"], p["z"])
+                a = ell.spawn_actor_from_class(
+                    cult_class, unreal.Vector(x, y, z),
+                    unreal.Rotator(0, -p["rot"], 0))
+                if not a:
+                    log("SKIP", "spawn failed for destructible %s" % name)
+                    break
+                a.set_actor_label("WILD_Destructible_%s_%d" % (name, i))
+                a.set_actor_scale3d(
+                    unreal.Vector(p["scale"], p["scale"], p["scale"]))
+                try:
+                    a.set_mesh(mesh)
+                except Exception as e:  # noqa: BLE001
+                    log("ERROR", "set_mesh failed on %s: %s" % (name, e))
+                dcount += 1
+        log("OK", "destructible buildings: %d" % dcount)
+    elif any(os.path.splitext(os.path.basename(m))[0] in DESTRUCTIBLE_MODELS
+             for m in by_model):
+        log("SKIP", "CultDestructible class not found — compile the C++ "
+                    "module first, then rerun this script")
 
     use_instancing = True
     for model, items in sorted(by_model.items()):
@@ -487,6 +575,7 @@ def main():
     section("clear previous run", cleanup_previous)
     section("import assets", import_assets)
     section("build materials", build_materials)
+    section("build FX materials", build_fx_materials)
     section("place terrain + water", place_terrain)
     section("scatter props", scatter_props)
     section("build lighting rig", build_lighting)

@@ -4,11 +4,14 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "CultBlastFX.h"
+#include "CultDestructible.h"
 #include "CultUlhuGameInstance.h"
 
 ACultUlhuPlayerPawn::ACultUlhuPlayerPawn()
@@ -55,6 +58,7 @@ void ACultUlhuPlayerPawn::SetupPlayerInputComponent(UInputComponent* IC)
 	IC->BindKey(EKeys::SpaceBar, IE_Pressed, this, &ACharacter::Jump);
 	IC->BindKey(EKeys::SpaceBar, IE_Released, this, &ACharacter::StopJumping);
 	IC->BindKey(EKeys::Escape, IE_Pressed, this, &ACultUlhuPlayerPawn::ReturnToMenu);
+	IC->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &ACultUlhuPlayerPawn::Smash);
 }
 
 void ACultUlhuPlayerPawn::ToggleCamera()
@@ -79,12 +83,52 @@ void ACultUlhuPlayerPawn::ReturnToMenu()
 		GI->ReturnToMenu();
 }
 
+void ACultUlhuPlayerPawn::Smash()
+{
+	if (SmashCooldown_ > 0.0f)
+		return;
+	SmashCooldown_ = 0.9f;
+
+	// Radius ~1.25x the entity's canonical height, in cm.
+	const float HeightCm = CharScale_ * 1.8f * 100.0f;
+	const float RadiusCm = 1.25f * HeightCm;
+	const float HalfH = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	const FVector Feet = GetActorLocation() - FVector(0.0f, 0.0f, HalfH);
+
+	for (TActorIterator<ACultDestructible> It(GetWorld()); It; ++It)
+	{
+		const float D = FVector::Dist(It->GetActorLocation(), Feet);
+		if (D < RadiusCm)
+		{
+			const float Falloff = 1.0f - 0.6f * (D / RadiusCm);
+			It->ApplyDamage(135.0f * Falloff, Feet);
+		}
+	}
+
+	ACultBlastFX::SpawnBlast(GetWorld(), ECultBlastKind::ShockRing,
+		Feet + FVector(0.0f, 0.0f, 50.0f), RadiusCm / 100.0f);
+	ShakeTime_ = ShakeDur_;
+}
+
 void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (!PC) return;
+
+	if (SmashCooldown_ > 0.0f)
+		SmashCooldown_ -= DeltaSeconds;
+
+	// Manual camera kick: decays over ShakeDur_. Version-proof (no
+	// UCameraShakeBase subclass needed).
+	if (ShakeTime_ > 0.0f)
+	{
+		ShakeTime_ -= DeltaSeconds;
+		const float K = FMath::Clamp(ShakeTime_ / ShakeDur_, 0.0f, 1.0f);
+		PC->AddPitchInput(FMath::FRandRange(-1.0f, 1.0f) * 0.012f * K);
+		PC->AddYawInput(FMath::FRandRange(-1.0f, 1.0f) * 0.012f * K);
+	}
 
 	// Mouse-look via raw delta (no axis mappings needed). DX/DY are the
 	// pixels moved since last frame, so a flat per-pixel factor is
