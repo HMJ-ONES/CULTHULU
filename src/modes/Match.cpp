@@ -218,6 +218,10 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
         const CharacterDef* kit = kitOf(p);
         uc.tag = kit ? kit->rAbility.name : "ult";
         uc.faction = p.team;
+        // Micro-dev (2026-10-15): the ult-ready halo resolves to "buff"
+        // in fxForEvent — without pos it played at the world origin
+        // instead of on the charged fighter.
+        uc.pos = p.pos;
         bus_.publish(uc);
     }
     if (p.rmbCd > 0) p.rmbCd -= dt;
@@ -234,12 +238,17 @@ void Match::updatePlayer(Player& p, size_t idx, double dt) {
             // Micro-dev (2026-10-12): a dead player comes back silently
             // today — the respawn countdown row just clears. Publish so
             // the driver can announce the return.
+            // Micro-dev (2026-10-15): spawn first — the return halo
+            // (fxForEvent "buff") and the driver's arrival survey read
+            // p.pos, so the event must carry the actual spawn point,
+            // not the death site.
+            spawnPlayer(p);
             GameEvent rp(EventType::PlayerRespawned);
             rp.sourceId = p.id;
             rp.tag = p.name;
             rp.faction = p.team;
+            rp.pos = p.pos;
             bus_.publish(rp);
-            spawnPlayer(p);
         }
         return;
     }
@@ -646,6 +655,10 @@ void Match::addXp(size_t playerIdx, int amount) {
         le.sourceId = p.id;
         le.amount = static_cast<float>(p.level);
         le.tag = p.name;
+        // Micro-dev (2026-10-15): the level-up halo resolves to "buff"
+        // in fxForEvent — without pos it played at the world origin
+        // instead of on the leveling fighter.
+        le.pos = p.pos;
         bus_.publish(le);
         // Wave 41: DOTGOO ability draft. Level 3: second pick (Q/F).
         // Level 6: the ult (R) unlocks.
@@ -700,6 +713,10 @@ void Match::killPlayer(size_t victimIdx, int killerIdx, uint64_t killerEntityId)
             ? players_[static_cast<size_t>(killerIdx)].id
             : killerEntityId;
         fb.targetId = v.id;
+        // Micro-dev (2026-10-15): first blood resolves to the impact
+        // smoke in fxForEvent — without pos it burst at the world
+        // origin instead of at the fallen fighter.
+        fb.pos = v.pos;
         fb.faction = byPlayer
             ? players_[static_cast<size_t>(killerIdx)].team
             : -1;

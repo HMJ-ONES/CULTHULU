@@ -464,6 +464,11 @@ target_link_libraries(cultulhu_tests_micro_levelup_you PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_levelup_you COMMAND cultulhu_tests_micro_levelup_you)
 set_tests_properties(cultulhu_tests_micro_levelup_you PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_lifefx tests/tests_micro_lifefx.cpp)
+target_link_libraries(cultulhu_tests_micro_lifefx PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_lifefx COMMAND cultulhu_tests_micro_lifefx)
+set_tests_properties(cultulhu_tests_micro_lifefx PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_executable(cultulhu_tests_micro_achievementyou tests/tests_micro_achievementyou.cpp)
 target_link_libraries(cultulhu_tests_micro_achievementyou PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_achievementyou COMMAND cultulhu_tests_micro_achievementyou)
