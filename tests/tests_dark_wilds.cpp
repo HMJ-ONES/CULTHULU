@@ -6,7 +6,8 @@
 // generator outputs (terrain OBJ, heightmap, detail texture) exist;
 // the three new procgen props resolve via ModelCatalog, as do the two
 // 5 PM pilgrim-trail props and the ten other wilds-placed models;
-// every distinct placement path is catalog-registered.
+// every distinct placement path is catalog-registered, across all three
+// maps (dark_wilds, ruined_city, eldritch_battlefield).
 
 #include "assets/GlbInfo.h"
 #include "assets/ModelCatalog.h"
@@ -268,6 +269,46 @@ static void testAllPlacementsRegistered() {
     }
 }
 
+// ---------------- older maps: same registration pin ----------------
+
+static void testAllMapsPlacementsRegistered() {
+    // 08:00 micro-dev (2026-10-15): the 21:30 run closed the gap class
+    // for dark_wilds only, but the two older maps had the same hole:
+    // three ruined_city graveyard props (burial-mound + two gravestone
+    // variants, from the haunted-graveyard pass) and three
+    // eldritch_battlefield atmosphere props (fungal-shelf, hanging-chain,
+    // hanging-moss) had no ModelCatalog keys. This pins the whole class
+    // for every map, and the six newly registered keys must resolve to
+    // on-disk GLBs under the per-prop tri budget.
+    const std::string pre = repoPrefix();
+    std::set<std::string> registeredPaths;
+    for (const auto& kv : ModelCatalog::worldModels())
+        registeredPaths.insert(kv.second);
+    for (const char* name : {"dark_wilds", "ruined_city", "eldritch_battlefield"}) {
+        MapData map = MapLoader::load(pre + "assets/maps/" + name + ".map");
+        std::set<std::string> distinct;
+        for (const auto& p : map.placements) distinct.insert(p.modelPath);
+        for (const auto& m : distinct) {
+            bool known = registeredPaths.count(m) == 1;
+            if (!known)
+                std::cout << "  unregistered " << name << " model: " << m << "\n";
+            CHECK(known);
+        }
+    }
+    for (const char* key :
+         {"burial_mound", "gravestone_broken", "gravestone_wide",
+          "fungal_shelf", "hanging_chain", "hanging_moss"}) {
+        const std::string path = ModelCatalog::lookup(key);
+        CHECK(!path.empty());
+        std::ifstream f(pre + path, std::ios::binary);
+        CHECK(static_cast<bool>(f));
+        if (f) {
+            GlbStats st = readGlbStats(pre + path);
+            CHECK(st.ok && st.triangles < 2000 && st.triangles > 0);
+        }
+    }
+}
+
 int main() {
     testZonesAndAtmosphere();
     testPlacements();
@@ -276,6 +317,7 @@ int main() {
     testGeneratorOutputs();
     testNewProps();
     testAllPlacementsRegistered();
+    testAllMapsPlacementsRegistered();
 
     std::cout << "dark_wilds checks: " << checks << ", failures: " << failures
               << "\n";

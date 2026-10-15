@@ -98,6 +98,19 @@ ModelCatalog::worldModels() {
         {"ruined_column_b",     "assets/world/props/ruined-column-b.glb"},
         {"stalactite_cluster",  "assets/world/props/stalactite-cluster.glb"},
         {"stalagmite_cluster",  "assets/world/props/stalagmite-cluster.glb"},
+        // 08:00 micro-dev 2026-10-15: the same gap class on the older maps.
+        // The haunted-graveyard pass added burial-mound + two gravestone
+        // variants to ruined_city.map, and three atmosphere props
+        // (fungal-shelf, hanging-chain, hanging-moss) were already placed
+        // in eldritch_battlefield.map — all six had no catalog keys, so a
+        // map edit or catalog sweep could silently drop them. All are on
+        // disk (CC0 vendor or in-house procgen) and under the tri budget.
+        {"burial_mound",     "assets/world/props/burial-mound.glb"},
+        {"gravestone_broken","assets/world/props/gravestone-broken.glb"},
+        {"gravestone_wide",  "assets/world/props/gravestone-wide.glb"},
+        {"fungal_shelf",     "assets/world/props/fungal-shelf.glb"},
+        {"hanging_chain",    "assets/world/props/hanging-chain.glb"},
+        {"hanging_moss",     "assets/world/props/hanging-moss.glb"},
     };
     return kModels;
 }
