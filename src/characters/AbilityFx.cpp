@@ -464,6 +464,15 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // and the claimRelic publish site already stamps pos at the
             // relic spot, so the halo lands there. No new preset.
             case EventType::ValeRelicClaimed:
+            // Micro-dev (2026-10-14): a harvested oneiric crop joins the
+            // triumph class — the OneiricHarvest directive's completion
+            // (dreams distilled into power at the site) resolved to
+            // nullptr, so the engine got no visual for a player-issued
+            // directive running its course. The onComplete publish site
+            // already stamps pos at the harvest site, so the halo lands
+            // there, not the world origin. No new preset. No double-fire:
+            // onComplete publishes this event alone.
+            case EventType::OneiricHarvestCompleted:
             return lib.find("buff");
         default:
             return nullptr;

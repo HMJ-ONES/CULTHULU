@@ -348,6 +348,11 @@ static void testFxForEvent() {
     // Micro-dev (2026-10-13): the level-up beat reuses the golden halo
     // (mapped 2026-10-12) — the last buff-group mapping without a pin.
     CHECK(fxForEvent(EventType::PlayerLeveledUp, r.library) == buff);
+    // Micro-dev (2026-10-14): a harvested oneiric crop is the same
+    // triumph class — the OneiricHarvest onComplete publish site stamps
+    // pos at the harvest site, so the halo lands there; onComplete
+    // publishes this event alone, so no double-fire.
+    CHECK(fxForEvent(EventType::OneiricHarvestCompleted, r.library) == buff);
     CHECK(fxForEvent(EventType::GreatOldOneSlain, r.library) == raze);
     // Micro-dev (2026-10-12): the low-health ping resolves to the same
     // alarm burst as the GOO-under-attack warning.
