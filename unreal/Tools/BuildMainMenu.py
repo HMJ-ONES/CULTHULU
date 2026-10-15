@@ -28,11 +28,16 @@ def ensure_map(name):
     log("OK", "created %s" % path)
 
 
-def main():
+def build_menu_maps():
     log("OK", "building menu maps")
     ensure_map("L_MainMenu")
     ensure_map("L_DarkWilds")
     log("OK", "done. Set PIE to start at L_MainMenu (Config/DefaultEngine.ini does this).")
 
 
-main()
+def main():
+    build_menu_maps()
+
+
+if __name__ == "__main__":
+    main()

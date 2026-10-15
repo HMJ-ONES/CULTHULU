@@ -500,4 +500,10 @@ def main():
     log("OK", "done — PIE to walk the wilds. Rerun after every git pull.")
 
 
-main()
+def build_wilds():
+    """Entry point for BuildAll.py (import-safe)."""
+    main()
+
+
+if __name__ == "__main__":
+    main()
