@@ -106,6 +106,16 @@ static void testPlacements() {
             ++wardWalls;
     }
     CHECK(wardWalls >= 10);
+    // 5 PM beauty (2026-10-14): the cavern_approach pilgrim trail —
+    // five glowcap rings + five rune spikes — is pinned so a future
+    // map edit cannot silently drop it.
+    int trail = 0;
+    for (const auto& p : map.placements) {
+        if (p.modelPath == "assets/world/props/glowcap-ring.glb" ||
+            p.modelPath == "assets/world/props/rune-spike.glb")
+            ++trail;
+    }
+    CHECK(trail == 10);
     std::cout << "  placements: " << map.placements.size()
               << ", distinct models: " << distinct.size()
               << ", total bytes: " << totalBytes << "\n";
@@ -200,7 +210,11 @@ static void testGeneratorOutputs() {
 
 static void testNewProps() {
     const std::string pre = repoPrefix();
-    for (const char* key : {"reed_cluster", "rock_arch", "cave_mouth"}) {
+    // 5 PM beauty (2026-10-14) added glowcap_ring + rune_spike; both
+    // resolve through the same catalog as the three wave-35 props.
+    for (const char* key :
+         {"reed_cluster", "rock_arch", "cave_mouth", "glowcap_ring",
+          "rune_spike"}) {
         const std::string path = ModelCatalog::lookup(key);
         CHECK(!path.empty());
         std::ifstream f(pre + path, std::ios::binary);

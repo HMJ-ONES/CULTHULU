@@ -81,6 +81,9 @@ ModelCatalog::worldModels() {
         {"reed_cluster", "assets/world/props/reed-cluster.glb"},
         {"rock_arch",    "assets/world/props/rock-arch.glb"},
         {"cave_mouth",   "assets/world/props/cave-mouth.glb"},
+        // 5 PM beauty 2026-10-14: cavern_approach pilgrim-trail props.
+        {"glowcap_ring", "assets/world/props/glowcap-ring.glb"},
+        {"rune_spike",   "assets/world/props/rune-spike.glb"},
     };
     return kModels;
 }
