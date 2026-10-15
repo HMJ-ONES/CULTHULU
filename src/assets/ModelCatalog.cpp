@@ -84,6 +84,20 @@ ModelCatalog::worldModels() {
         // 5 PM beauty 2026-10-14: cavern_approach pilgrim-trail props.
         {"glowcap_ring", "assets/world/props/glowcap-ring.glb"},
         {"rune_spike",   "assets/world/props/rune-spike.glb"},
+        // 21:30 micro-dev 2026-10-14: the other ten distinct models placed
+        // in dark_wilds.map (38 total) had no catalog keys — a map edit or
+        // catalog sweep could silently drop them. All are on disk and
+        // under the per-prop tri budget.
+        {"tower_square_mid",    "assets/world/buildings/tower-square-mid.glb"},
+        {"ash_thicket",         "assets/world/props/ash-thicket.glb"},
+        {"broken_obelisk",      "assets/world/props/broken-obelisk.glb"},
+        {"dark_crystal_cluster","assets/world/props/dark-crystal-cluster.glb"},
+        {"fallen_lintel",       "assets/world/props/fallen-lintel.glb"},
+        {"flagstone_slab",      "assets/world/props/flagstone-slab.glb"},
+        {"root_tangle",         "assets/world/props/root-tangle.glb"},
+        {"ruined_column_b",     "assets/world/props/ruined-column-b.glb"},
+        {"stalactite_cluster",  "assets/world/props/stalactite-cluster.glb"},
+        {"stalagmite_cluster",  "assets/world/props/stalagmite-cluster.glb"},
     };
     return kModels;
 }

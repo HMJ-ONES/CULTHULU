@@ -4,7 +4,9 @@
 // placement heights sane; `spawn` lines parse into MapData::spawns with
 // valid species/zone/count; loader rejects bad spawn lines loudly;
 // generator outputs (terrain OBJ, heightmap, detail texture) exist;
-// the three new procgen props resolve via ModelCatalog.
+// the three new procgen props resolve via ModelCatalog, as do the two
+// 5 PM pilgrim-trail props and the ten other wilds-placed models;
+// every distinct placement path is catalog-registered.
 
 #include "assets/GlbInfo.h"
 #include "assets/ModelCatalog.h"
@@ -226,6 +228,46 @@ static void testNewProps() {
     }
 }
 
+// ---------------- every placed model is catalog-registered ----------------
+
+static void testAllPlacementsRegistered() {
+    // 21:30 micro-dev (2026-10-14): ten of the 38 distinct models placed
+    // in dark_wilds.map had no ModelCatalog key (the map uses raw paths,
+    // so nothing broke at runtime — but the catalog is the reconciliation
+    // point a future map edit or catalog sweep works from, and an
+    // unregistered model can be silently dropped). This pins the whole
+    // class: every distinct placement path must resolve through the
+    // catalog, and the ten newly registered keys must exist on disk
+    // under the per-prop tri budget.
+    const std::string pre = repoPrefix();
+    MapData map = loadWilds();
+    std::set<std::string> registeredPaths;
+    for (const auto& kv : ModelCatalog::worldModels())
+        registeredPaths.insert(kv.second);
+    std::set<std::string> distinct;
+    for (const auto& p : map.placements) distinct.insert(p.modelPath);
+    for (const auto& m : distinct) {
+        bool known = registeredPaths.count(m) == 1;
+        if (!known)
+            std::cout << "  unregistered wilds model: " << m << "\n";
+        CHECK(known);
+    }
+    for (const char* key :
+         {"tower_square_mid", "ash_thicket", "broken_obelisk",
+          "dark_crystal_cluster", "fallen_lintel", "flagstone_slab",
+          "root_tangle", "ruined_column_b", "stalactite_cluster",
+          "stalagmite_cluster"}) {
+        const std::string path = ModelCatalog::lookup(key);
+        CHECK(!path.empty());
+        std::ifstream f(pre + path, std::ios::binary);
+        CHECK(static_cast<bool>(f));
+        if (f) {
+            GlbStats st = readGlbStats(pre + path);
+            CHECK(st.ok && st.triangles < 2000 && st.triangles > 0);
+        }
+    }
+}
+
 int main() {
     testZonesAndAtmosphere();
     testPlacements();
@@ -233,6 +275,7 @@ int main() {
     testSpawnErrors();
     testGeneratorOutputs();
     testNewProps();
+    testAllPlacementsRegistered();
 
     std::cout << "dark_wilds checks: " << checks << ", failures: " << failures
               << "\n";
