@@ -314,6 +314,7 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
         case EventType::MaulStruck:
         case EventType::LeaderAssassinated:
         case EventType::RaidPerformed:
+        case EventType::ArtifactTriggered:
             // Raw violence — impact smoke at the scene of the death.
             // Micro-dev (2026-10-13): an assassinated leader joins the
             // death beats — the blade finding its mark at the target's
@@ -342,6 +343,14 @@ const FxPreset* fxForEvent(EventType type, const FxLibrary& lib) {
             // violence class too — the beast tearing loose at the
             // breeding pit gets the same impact burst, and the publish
             // site already stamps pos. No new preset.
+            //
+            // Micro-dev (2026-10-15): a triggered artifact joins the
+            // impact class — a single-use artifact trap (RelicSystem::
+            // checkTrigger) detonating on an intruder resolved to
+            // nullptr, so the blast had no visual. The publish site
+            // already stamps pos at the artifact, fires once per trigger
+            // (single-use, armed=false on the same tick), and publishes
+            // no sibling event — no double-fire. Same aoe_damage burst.
             return lib.find("aoe_damage");
         case EventType::RelicManifested:
         case EventType::RelicClaimed:

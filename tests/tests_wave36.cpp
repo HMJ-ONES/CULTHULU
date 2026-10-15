@@ -295,6 +295,11 @@ static void testFxForEvent() {
     // same impact burst — all three publish sites stamp pos at the
     // struck building, and the hit beat previously resolved to nullptr.
     CHECK(fxForEvent(EventType::RaidPerformed, r.library) == aoe);
+    // Micro-dev (2026-10-15): a triggered artifact trap gets the same
+    // impact burst — RelicSystem::checkTrigger stamps pos at the
+    // artifact and fires once per single-use trigger, so the detonation
+    // gets smoke at the trap site. Previously nullptr.
+    CHECK(fxForEvent(EventType::ArtifactTriggered, r.library) == aoe);
     CHECK(fxForEvent(EventType::RelicManifested, r.library) == summon);
     CHECK(fxForEvent(EventType::RelicClaimed, r.library) == summon);
     // Micro-dev (2026-10-13): a champion answering the GrandSummoning
