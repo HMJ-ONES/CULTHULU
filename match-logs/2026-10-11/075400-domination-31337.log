@@ -1,0 +1,252 @@
+# CULT-ULHU match log
+# mode: capture
+# winner: team 0
+# final score: 400-333 (target 1491707221)
+# roster:
+#   Bot1<Bast> team 0 KDA 10/7/28 level 30
+#   Bot2<Bokrug> team 0 KDA 22/6/22 level 30
+#   Bot3<Civilian> team 0 KDA 3/8/4 level 11
+#   Bot4<Civilian> team 0 KDA 7/8/12 level 30
+#   Bot5<Civilian> team 0 KDA 5/9/7 level 30
+#   Bot6<Cthulhu> team 1 KDA 9/10/28 level 30
+#   Bot7<Cultist> team 1 KDA 11/9/8 level 30
+#   Bot8<Cultist> team 1 KDA 6/9/6 level 30
+#   Bot9<Dagon> team 1 KDA 6/10/27 level 30
+#   Bot10<Echo> team 1 KDA 6/9/18 level 30
+# events:
+[00:01] POINT neutral — nobody holds the center
+[00:21] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 225deg (2,2)
+[00:21] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 226deg (1,1)
+[00:22] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 43deg (-4,-4)
+[00:22] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" NE 46deg (-5,-5)
+[00:22] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" E 0deg (0,0)
+[00:22] KILL Bot7<Cultist>t1 (1,1) SW 227deg >> Bot4<Civilian>t0 (0,0)
+[00:26] CAST Bot1<Bast>t0 F "Pounce" NE 43deg (9,8)
+[00:26] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 46deg (-2,-2)
+[00:26] KILL Bot5<Civilian>t0 (0,0) NE 45deg >> Bot9<Dagon>t1 (0,0)
+[00:26] CAST Bot10<Echo>t1 Q "Hollow Grasp" SW 226deg (0,0)
+[00:26] KILL Bot10<Echo>t1 (0,0) SW 226deg >> Bot5<Civilian>t0 (0,0)
+[00:27] KILL Bot2<Bokrug>t0 (0,0) E 0deg >> Bot6<Cthulhu>t1 (0,0)
+[00:27] KILL Bot2<Bokrug>t0 (0,0) E 0deg >> Bot7<Cultist>t1 (0,0)
+[00:27] KILL Bot3<Civilian>t0 (-1,-1) NE 48deg >> Bot8<Cultist>t1 (0,0)
+[00:28] KILL Bot2<Bokrug>t0 (0,0) E 0deg >> Bot10<Echo>t1 (0,0)
+[00:28] POINT team 0 seizes the point
+[00:49] CAST Bot6<Cthulhu>t1 R "Call of the Deep" SW 225deg (14,14)
+[00:50] CAST Bot1<Bast>t0 R "The Cats of Ulthar" NE 45deg (0,0)
+[00:51] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" NE 45deg (0,0)
+[00:51] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" SW 225deg (7,7)
+[00:51] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 226deg (5,5)
+[00:51] POINT neutral — nobody holds the center
+[00:53] KILL Bot6<Cthulhu>t1 (0,0) SW 223deg >> Bot2<Bokrug>t0 (-3,-3)
+[00:53] KILL Bot6<Cthulhu>t1 (0,0) SW 223deg >> Bot3<Civilian>t0 (-3,-3)
+[00:53] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 223deg (0,0)
+[00:54] KILL Bot9<Dagon>t1 (2,2) SW 226deg >> Bot5<Civilian>t0 (0,0)
+[00:55] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 44deg (0,0)
+[00:55] KILL Bot4<Civilian>t0 (0,0) NE 44deg >> Bot6<Cthulhu>t1 (0,0)
+[00:55] CAST Bot9<Dagon>t1 R "Rise, Deep Ones" SW 226deg (2,2)
+[00:55] KILL Bot10<Echo>t1 (1,1) SW 225deg >> Bot1<Bast>t0 (0,0)
+[00:55] CAST Bot10<Echo>t1 Q "Hollow Grasp" SW 225deg (1,1)
+[00:56] KILL Bot8<Cultist>t1 (0,0) SW 225deg >> Bot4<Civilian>t0 (0,0)
+[00:56] POINT team 1 seizes the point
+[01:19] CAST Bot2<Bokrug>t0 R "Wrath of the Water-Lizard" NE 48deg (-6,-7)
+[01:19] POINT neutral — nobody holds the center
+[01:20] KILL Bot2<Bokrug>t0 (-2,-3) NE 48deg >> Bot7<Cultist>t1 (0,0)
+[01:20] KILL Bot2<Bokrug>t0 (-2,-3) NE 48deg >> Bot8<Cultist>t1 (0,0)
+[01:20] KILL Bot2<Bokrug>t0 (-2,-3) NE 48deg >> Bot9<Dagon>t1 (0,0)
+[01:20] KILL Bot2<Bokrug>t0 (-2,-3) NE 48deg >> Bot10<Echo>t1 (0,0)
+[01:20] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 48deg (-2,-3)
+[01:21] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" NE 44deg (0,0)
+[01:21] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 225deg (4,4)
+[01:22] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" SW 225deg (2,2)
+[01:26] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 44deg (0,0)
+[01:26] KILL Bot2<Bokrug>t0 (0,0) NE 44deg >> Bot6<Cthulhu>t1 (0,0)
+[01:26] POINT team 0 seizes the point
+[01:44] CAST Bot1<Bast>t0 R "The Cats of Ulthar" NE 42deg (0,0)
+[01:45] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" NE 42deg (0,0)
+[01:45] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 228deg (4,4)
+[01:45] POINT neutral — nobody holds the center
+[01:46] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 47deg (0,0)
+[01:46] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 47deg (0,0)
+[01:46] KILL Bot9<Dagon>t1 (0,1) SW 228deg >> Bot4<Civilian>t0 (0,0)
+[01:47] KILL Bot1<Bast>t0 (0,0) NE 47deg >> Bot9<Dagon>t1 (0,1)
+[01:47] KILL Bot8<Cultist>t1 (0,0) SW 224deg >> Bot1<Bast>t0 (0,0)
+[01:47] KILL Bot8<Cultist>t1 (0,0) SW 224deg >> Bot2<Bokrug>t0 (0,0)
+[01:47] KILL Bot8<Cultist>t1 (0,0) SW 224deg >> Bot3<Civilian>t0 (0,0)
+[01:47] KILL Bot8<Cultist>t1 (0,0) SW 224deg >> Bot5<Civilian>t0 (0,0)
+[01:47] POINT team 1 seizes the point
+[01:47] SCORE 102-84
+[02:03] SCORE 102-100
+[02:10] CAST Bot6<Cthulhu>t1 R "Call of the Deep" SW 224deg (0,0)
+[02:12] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" SW 224deg (0,0)
+[02:12] CAST Bot9<Dagon>t1 R "Rise, Deep Ones" SW 225deg (6,7)
+[02:13] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" NE 43deg (-8,-7)
+[02:13] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 229deg (0,0)
+[02:13] POINT neutral — nobody holds the center
+[02:14] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 43deg (-2,-2)
+[02:14] CAST Bot2<Bokrug>t0 R "Wrath of the Water-Lizard" NE 43deg (-4,-4)
+[02:14] KILL Bot3<Civilian>t0 (-1,-1) NE 48deg >> Bot6<Cthulhu>t1 (0,0)
+[02:14] KILL Bot5<Civilian>t0 (-2,-2) NE 43deg >> Bot8<Cultist>t1 (0,0)
+[02:14] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 229deg (0,0)
+[02:14] CAST Bot10<Echo>t1 Q "Hollow Grasp" SW 229deg (0,0)
+[02:15] CAST Bot1<Bast>t0 F "Pounce" E 0deg (14,0)
+[02:15] KILL Bot2<Bokrug>t0 (0,0) NE 43deg >> Bot7<Cultist>t1 (0,0)
+[02:15] KILL Bot2<Bokrug>t0 (0,0) NE 43deg >> Bot9<Dagon>t1 (0,0)
+[02:15] KILL Bot2<Bokrug>t0 (0,0) NE 43deg >> Bot10<Echo>t1 (0,0)
+[02:15] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 43deg (0,0)
+[02:15] POINT team 0 seizes the point
+[02:38] CAST Bot1<Bast>t0 R "The Cats of Ulthar" NE 42deg (0,0)
+[02:39] POINT neutral — nobody holds the center
+[02:40] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 42deg (0,0)
+[02:40] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 42deg (0,0)
+[02:40] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" SW 225deg (7,7)
+[02:40] KILL Bot9<Dagon>t1 (2,2) SW 226deg >> Bot3<Civilian>t0 (0,0)
+[02:40] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 226deg (2,2)
+[02:42] KILL Bot6<Cthulhu>t1 (0,0) SW 225deg >> Bot1<Bast>t0 (-3,-3)
+[02:42] KILL Bot6<Cthulhu>t1 (0,0) SW 225deg >> Bot5<Civilian>t0 (-3,-3)
+[02:42] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 225deg (0,0)
+[02:43] CAST Bot10<Echo>t1 Q "Hollow Grasp" SW 225deg (0,0)
+[02:44] KILL Bot7<Cultist>t1 (0,0) SW 225deg >> Bot4<Civilian>t0 (0,0)
+[02:45] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" E 0deg (0,0)
+[02:45] KILL Bot6<Cthulhu>t1 (0,0) E 0deg >> Bot2<Bokrug>t0 (0,0)
+[02:45] POINT team 1 seizes the point
+[03:04] CAST Bot6<Cthulhu>t1 R "Call of the Deep" SW 227deg (0,0)
+[03:06] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" SW 227deg (0,0)
+[03:07] CAST Bot9<Dagon>t1 R "Rise, Deep Ones" SW 227deg (0,0)
+[03:08] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 229deg (0,0)
+[03:08] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 229deg (0,0)
+[03:08] POINT neutral — nobody holds the center
+[03:09] KILL Bot1<Bast>t0 (-2,-2) NE 41deg >> Bot8<Cultist>t1 (0,0)
+[03:09] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 41deg (-2,-2)
+[03:09] KILL Bot5<Civilian>t0 (-1,-2) NE 48deg >> Bot6<Cthulhu>t1 (0,0)
+[03:09] KILL Bot9<Dagon>t1 (0,0) SW 229deg >> Bot5<Civilian>t0 (-1,-2)
+[03:09] CAST Bot10<Echo>t1 Q "Hollow Grasp" SW 222deg (0,0)
+[03:10] CAST Bot1<Bast>t0 F "Pounce" E 0deg (14,0)
+[03:11] KILL Bot3<Civilian>t0 (0,0) NE 46deg >> Bot7<Cultist>t1 (0,0)
+[03:12] KILL Bot2<Bokrug>t0 (-5,-6) NE 45deg >> Bot9<Dagon>t1 (0,0)
+[03:12] KILL Bot2<Bokrug>t0 (-5,-6) NE 45deg >> Bot10<Echo>t1 (0,0)
+[03:12] CAST Bot2<Bokrug>t0 R "Wrath of the Water-Lizard" NE 45deg (-5,-6)
+[03:12] POINT team 0 seizes the point
+[03:33] CAST Bot1<Bast>t0 R "The Cats of Ulthar" NE 46deg (0,0)
+[03:34] POINT neutral — nobody holds the center
+[03:35] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" NE 46deg (0,0)
+[03:35] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" SW 226deg (5,5)
+[03:37] KILL Bot6<Cthulhu>t1 (0,0) SW 227deg >> Bot3<Civilian>t0 (-3,-3)
+[03:37] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 227deg (0,0)
+[03:38] KILL Bot9<Dagon>t1 (0,0) SW 226deg >> Bot5<Civilian>t0 (-1,-1)
+[03:38] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 226deg (0,0)
+[03:38] CAST Bot10<Echo>t1 Q "Hollow Grasp" SW 226deg (0,0)
+[03:39] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" E 0deg (0,0)
+[03:39] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" E 0deg (0,0)
+[03:39] KILL Bot2<Bokrug>t0 (0,0) E 0deg >> Bot6<Cthulhu>t1 (0,0)
+[03:39] KILL Bot4<Civilian>t0 (0,0) NE 45deg >> Bot8<Cultist>t1 (0,0)
+[03:39] KILL Bot4<Civilian>t0 (0,0) NE 45deg >> Bot9<Dagon>t1 (0,0)
+[03:39] KILL Bot4<Civilian>t0 (0,0) NE 45deg >> Bot10<Echo>t1 (0,0)
+[03:39] KILL Bot7<Cultist>t1 (0,0) E 0deg >> Bot1<Bast>t0 (0,0)
+[03:39] KILL Bot7<Cultist>t1 (0,0) E 0deg >> Bot2<Bokrug>t0 (0,0)
+[03:39] SCORE 218-182
+[03:41] KILL Bot7<Cultist>t1 (0,0) SW 226deg >> Bot4<Civilian>t0 (0,0)
+[03:41] POINT team 1 seizes the point
+[03:53] SCORE 218-200
+[04:04] CAST Bot6<Cthulhu>t1 R "Call of the Deep" SW 226deg (6,6)
+[04:04] CAST Bot9<Dagon>t1 R "Rise, Deep Ones" SW 228deg (4,5)
+[04:04] POINT neutral — nobody holds the center
+[04:05] KILL Bot1<Bast>t0 (-5,-5) NE 46deg >> Bot7<Cultist>t1 (0,0)
+[04:05] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 46deg (-5,-5)
+[04:05] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 225deg (3,2)
+[04:05] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 228deg (1,1)
+[04:05] KILL Bot10<Echo>t1 (0,0) SW 228deg >> Bot5<Civilian>t0 (0,0)
+[04:05] CAST Bot10<Echo>t1 Q "Hollow Grasp" SW 228deg (0,0)
+[04:06] KILL Bot2<Bokrug>t0 (-4,-4) NE 42deg >> Bot10<Echo>t1 (0,0)
+[04:06] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 42deg (-4,-4)
+[04:06] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" E 0deg (0,0)
+[04:06] KILL Bot9<Dagon>t1 (1,1) SW 228deg >> Bot3<Civilian>t0 (0,0)
+[04:10] CAST Bot2<Bokrug>t0 R "Wrath of the Water-Lizard" NE 42deg (0,0)
+[04:10] KILL Bot2<Bokrug>t0 (0,0) NE 42deg >> Bot6<Cthulhu>t1 (0,0)
+[04:11] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" NE 42deg (0,0)
+[04:11] KILL Bot2<Bokrug>t0 (0,0) NE 42deg >> Bot8<Cultist>t1 (0,0)
+[04:11] KILL Bot4<Civilian>t0 (0,0) E 0deg >> Bot9<Dagon>t1 (0,0)
+[04:11] POINT team 0 seizes the point
+[04:30] CAST Bot1<Bast>t0 R "The Cats of Ulthar" NE 45deg (0,0)
+[04:31] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" NE 45deg (0,0)
+[04:31] POINT neutral — nobody holds the center
+[04:33] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 45deg (0,0)
+[04:33] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 45deg (0,0)
+[04:33] CAST Bot10<Echo>t1 Q "Hollow Grasp" SW 225deg (2,2)
+[04:34] KILL Bot6<Cthulhu>t1 (5,5) SW 226deg >> Bot2<Bokrug>t0 (0,0)
+[04:34] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 226deg (5,5)
+[04:34] KILL Bot7<Cultist>t1 (1,1) SW 226deg >> Bot4<Civilian>t0 (0,0)
+[04:34] KILL Bot7<Cultist>t1 (1,1) SW 226deg >> Bot1<Bast>t0 (0,0)
+[04:34] KILL Bot10<Echo>t1 (0,0) E 0deg >> Bot3<Civilian>t0 (0,0)
+[04:34] KILL Bot10<Echo>t1 (0,0) E 0deg >> Bot5<Civilian>t0 (0,0)
+[04:34] POINT team 1 seizes the point
+[04:56] CAST Bot6<Cthulhu>t1 R "Call of the Deep" SW 226deg (0,0)
+[04:58] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" SW 226deg (0,0)
+[04:59] CAST Bot9<Dagon>t1 R "Rise, Deep Ones" SW 225deg (0,0)
+[04:59] POINT neutral — nobody holds the center
+[05:00] KILL Bot1<Bast>t0 (-2,-2) NE 44deg >> Bot7<Cultist>t1 (0,0)
+[05:00] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 44deg (-2,-2)
+[05:00] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" NE 44deg (-7,-7)
+[05:00] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 225deg (0,0)
+[05:00] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 225deg (0,0)
+[05:00] CAST Bot10<Echo>t1 Q "Hollow Grasp" SW 225deg (0,0)
+[05:01] CAST Bot1<Bast>t0 F "Pounce" E 0deg (14,0)
+[05:01] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 44deg (-3,-3)
+[05:02] KILL Bot2<Bokrug>t0 (0,0) NE 44deg >> Bot6<Cthulhu>t1 (0,0)
+[05:02] KILL Bot2<Bokrug>t0 (0,0) NE 44deg >> Bot8<Cultist>t1 (0,0)
+[05:02] KILL Bot2<Bokrug>t0 (0,0) NE 44deg >> Bot9<Dagon>t1 (0,0)
+[05:02] KILL Bot2<Bokrug>t0 (0,0) NE 44deg >> Bot10<Echo>t1 (0,0)
+[05:02] POINT team 0 seizes the point
+[05:13] SCORE 300-270
+[05:24] CAST Bot1<Bast>t0 R "The Cats of Ulthar" NE 48deg (0,0)
+[05:25] POINT neutral — nobody holds the center
+[05:26] CAST Bot2<Bokrug>t0 R "Wrath of the Water-Lizard" NE 48deg (0,0)
+[05:27] KILL Bot1<Bast>t0 (0,0) NE 48deg >> Bot7<Cultist>t1 (2,2)
+[05:27] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 48deg (0,0)
+[05:27] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 44deg (0,0)
+[05:27] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" SW 226deg (6,6)
+[05:27] KILL Bot8<Cultist>t1 (1,1) SW 225deg >> Bot1<Bast>t0 (0,0)
+[05:29] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 226deg (0,0)
+[05:29] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 226deg (0,0)
+[05:31] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" NE 45deg (0,0)
+[05:31] KILL Bot4<Civilian>t0 (0,0) E 0deg >> Bot8<Cultist>t1 (0,0)
+[05:31] KILL Bot5<Civilian>t0 (0,0) NE 45deg >> Bot6<Cthulhu>t1 (0,0)
+[05:31] KILL Bot5<Civilian>t0 (0,0) NE 45deg >> Bot9<Dagon>t1 (0,0)
+[05:31] CAST Bot10<Echo>t1 Q "Hollow Grasp" SW 228deg (0,0)
+[05:31] KILL Bot10<Echo>t1 (0,0) SW 228deg >> Bot4<Civilian>t0 (0,0)
+[05:32] KILL Bot2<Bokrug>t0 (0,0) NE 46deg >> Bot10<Echo>t1 (0,0)
+[05:32] POINT team 0 seizes the point
+[05:52] POINT neutral — nobody holds the center
+[05:53] CAST Bot2<Bokrug>t0 F "Curse of Sarnath" NE 45deg (0,0)
+[05:54] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 45deg (0,0)
+[05:54] CAST Bot6<Cthulhu>t1 R "Call of the Deep" SW 227deg (11,11)
+[05:54] CAST Bot9<Dagon>t1 R "Rise, Deep Ones" SW 227deg (12,13)
+[05:55] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 45deg (0,0)
+[05:55] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" SW 227deg (7,8)
+[05:55] KILL Bot7<Cultist>t1 (1,1) SW 226deg >> Bot2<Bokrug>t0 (0,0)
+[05:55] KILL Bot7<Cultist>t1 (1,1) SW 226deg >> Bot3<Civilian>t0 (0,0)
+[05:55] KILL Bot7<Cultist>t1 (1,1) SW 226deg >> Bot5<Civilian>t0 (0,0)
+[05:57] KILL Bot4<Civilian>t0 (0,0) NE 45deg >> Bot7<Cultist>t1 (0,0)
+[05:57] KILL Bot6<Cthulhu>t1 (0,0) SW 227deg >> Bot1<Bast>t0 (-3,-3)
+[05:57] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 227deg (0,0)
+[05:57] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 227deg (2,2)
+[05:57] SCORE 361-300
+[05:58] KILL Bot6<Cthulhu>t1 (0,0) SW 227deg >> Bot4<Civilian>t0 (0,0)
+[05:58] POINT team 1 seizes the point
+[06:20] CAST Bot6<Cthulhu>t1 F "Nightmare Veil" SW 228deg (0,0)
+[06:21] CAST Bot1<Bast>t0 R "The Cats of Ulthar" NE 45deg (-10,-10)
+[06:21] POINT neutral — nobody holds the center
+[06:22] CAST Bot2<Bokrug>t0 R "Wrath of the Water-Lizard" NE 45deg (-7,-7)
+[06:22] CAST Bot6<Cthulhu>t1 Q "Tentacle Slam" SW 225deg (0,0)
+[06:22] CAST Bot9<Dagon>t1 Q "Crushing Maw" SW 225deg (0,0)
+[06:22] CAST Bot10<Echo>t1 Q "Hollow Grasp" SW 225deg (0,0)
+[06:23] KILL Bot1<Bast>t0 (-3,-3) NE 45deg >> Bot6<Cthulhu>t1 (0,0)
+[06:23] KILL Bot1<Bast>t0 (-3,-3) NE 45deg >> Bot8<Cultist>t1 (0,0)
+[06:23] KILL Bot1<Bast>t0 (-3,-3) NE 45deg >> Bot9<Dagon>t1 (0,0)
+[06:23] KILL Bot1<Bast>t0 (-3,-3) NE 45deg >> Bot10<Echo>t1 (0,0)
+[06:23] CAST Bot1<Bast>t0 Q "Claw of the Sphinx" NE 45deg (-3,-3)
+[06:24] CAST Bot2<Bokrug>t0 Q "Doomfall Stomp" NE 46deg (0,0)
+[06:24] KILL Bot7<Cultist>t1 (1,1) SW 227deg >> Bot3<Civilian>t0 (0,0)
+[06:25] KILL Bot1<Bast>t0 (0,0) NE 46deg >> Bot7<Cultist>t1 (1,1)
+[06:25] POINT team 0 seizes the point
+[06:38] SCORE 400-333
+# end of log (235 events)

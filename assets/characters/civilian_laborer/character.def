@@ -1,0 +1,10 @@
+# Laborer — burly dockworker / townsfolk NPC.
+# NPC package: model wired, logic-only otherwise (procedural anim fallback).
+# Model: KayKit Adventurers "Barbarian" (CC0), animations stripped for size.
+
+id = civilian_laborer
+display_name = Laborer
+flavor = Broad shoulders, tired eyes. The deep ones watch it work.
+max_hp = 70
+move_speed = 4.2
+max_stamina = 70

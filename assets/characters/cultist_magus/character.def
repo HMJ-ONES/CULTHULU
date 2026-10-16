@@ -1,0 +1,10 @@
+# Ritual Magus — cult leader / high priest figure.
+# NPC package: model wired, logic-only otherwise (procedural anim fallback).
+# Model: KayKit Adventurers "Mage" (CC0), animations stripped for size.
+
+id = cultist_magus
+display_name = Ritual Magus
+flavor = It speaks, and the candles lean toward its voice.
+max_hp = 90
+move_speed = 4.0
+max_stamina = 80

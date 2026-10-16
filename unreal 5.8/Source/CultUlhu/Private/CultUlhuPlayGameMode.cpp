@@ -1,0 +1,60 @@
+// CULT-ULHU play game mode implementation.
+#include "CultUlhuPlayGameMode.h"
+
+#include "EngineUtils.h"
+#include "GameFramework/PlayerStart.h"
+
+#include "CultUlhuGameInstance.h"
+#include "CultUlhuPlayerPawn.h"
+#include "CultUlhuPlayerController.h"
+
+ACultUlhuPlayGameMode::ACultUlhuPlayGameMode()
+{
+	DefaultPawnClass = ACultUlhuPlayerPawn::StaticClass();
+	PlayerControllerClass = ACultUlhuPlayerController::StaticClass();
+}
+
+void ACultUlhuPlayGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UCultUlhuGameInstance* GI = Cast<UCultUlhuGameInstance>(GetGameInstance());
+	if (!GI) return;
+
+	FString Map = GetWorld()->GetName();
+	if (Map.Contains(TEXT("L_MainMenu")))
+	{
+		// Menu map: UI only, no pawn needed.
+		GI->ShowHomeScreen();
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[CultUlhu] mode=%s character=%s"),
+		*UCultUlhuGameInstance::ModeDisplayName(GI->SelectedMode),
+		*GI->SelectedCharacterId);
+}
+
+AActor* ACultUlhuPlayGameMode::ChoosePlayerStart(AController* Player)
+{
+	if (UCultUlhuGameInstance* GI = Cast<UCultUlhuGameInstance>(GetGameInstance()))
+	{
+		const FString Want = UCultUlhuGameInstance::ModeStartLabel(GI->SelectedMode);
+		for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
+		{
+			if (It->GetActorLabel() == Want)
+				return *It;
+		}
+		UE_LOG(LogTemp, Warning,
+			TEXT("[CultUlhu] start '%s' not found (run BuildDarkWilds.py); using default."),
+			*Want);
+	}
+	return Super::ChoosePlayerStart(Player);
+}
+
+APawn* ACultUlhuPlayGameMode::SpawnDefaultPawnFor_Implementation(
+	AController* NewPlayer, AActor* StartSpot)
+{
+	if (GetWorld() && GetWorld()->GetName().Contains(TEXT("L_MainMenu")))
+		return nullptr;
+	return Super::SpawnDefaultPawnFor_Implementation(NewPlayer, StartSpot);
+}

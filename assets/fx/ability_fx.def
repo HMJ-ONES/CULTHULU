@@ -1,0 +1,336 @@
+# CULT-ULHU ability visual-effect library (wave 36).
+#
+# Event-driven presets: fxForEvent() maps non-spell game events onto this
+# same catalog so the engine plays real visuals through the same particle
+# pipeline. Destruction events (CityBuildingDestroyed / DistrictRazed /
+# CityDestroyed / TowerDestroyed / GreatOldOneSlain) resolve to `raze`;
+# streak and sudden-death punctuation (KillStreak / OvertimeStarted) to
+# `stun`; raw violence (FirstBlood / PlayerKilled / DholeAmbush) to
+# `aoe_damage`; relic moments (RelicManifested / RelicClaimed) to
+# `summon`; MaddeningWhispers to `fear_aura`; triumphs and returns
+# (PointCaptured / AchievementUnlocked / MatchPoint / PlayerRespawned /
+# DiscoveryMade / DungeonCompleted) to `buff`. No new presets were added
+# for events — all within the low-spec particle budget. A spell with no
+# explicit `fx` line in character.def automatically uses the preset whose
+# id matches its effect kind, so all 60 Q/F/R abilities across the 20
+# kits get visuals for free. Character authors can override with
+# `fx = <id>` in [q]/[f]/[r].
+#
+# RMB heavy attacks resolve the same way through fxForHeavyAttack():
+# one preset per HeavyAttackKind (ids match the kind names), with an
+# optional `fx = <id>` override in [rightclick]. The rock kit's rip /
+# hurl / shatter moments are event-driven (AbilityCast, slot 3, rock
+# tags) and resolve to the rock_* presets through fxForEvent().
+#
+# Format: [preset id], then key = value. Ranges are "min,max".
+# colors are hex RRGGBB "start,end". texture is one of
+# none|smoke|spark|rune|mist|ichor.
+#
+# Low-spec budget rules (enforced by tests_wave36):
+#   count <= 256 per burst; additive presets <= 128 (fill-rate);
+#   looping emitters <= 64; duration <= 4 s; size <= 6 m.
+
+[aoe_damage]
+display_name = Eldritch Impact
+emitter = sphere
+count = 120
+lifetime = 0.4,1.2
+speed = 6,18
+spread = 90
+size = 0.8,3.0
+colors = 1a0b2e,7a2fd0
+additive = false
+gravity = -2.0
+texture = smoke
+duration = 1.6
+loop = false
+
+[projectile]
+display_name = Void Bolt
+emitter = cone
+count = 40
+lifetime = 0.3,0.8
+speed = 18,30
+spread = 8
+size = 0.4,1.0
+colors = 00e5ff,7a2fd0
+additive = true
+gravity = 0.0
+texture = spark
+duration = 1.2
+loop = false
+
+[dash]
+display_name = Blur Trail
+emitter = point
+count = 48
+lifetime = 0.3,0.7
+speed = 1,4
+spread = 180
+size = 0.6,1.6
+colors = 3a3a4a,8a7fd0
+additive = false
+gravity = 1.5
+texture = mist
+duration = 0.8
+loop = false
+
+[summon]
+display_name = Rift Opening
+emitter = ring
+count = 96
+lifetime = 0.8,1.8
+speed = 2,6
+spread = 60
+size = 0.6,2.0
+colors = 1a4a2e,7a2fd0
+additive = true
+gravity = -4.0
+texture = rune
+duration = 2.0
+loop = false
+
+[fear_aura]
+display_name = Dread Mist
+emitter = sphere
+count = 48
+lifetime = 1.5,3.0
+speed = 0.5,2
+spread = 180
+size = 1.5,4.0
+colors = 2e0b0b,000000
+additive = false
+gravity = -1.0
+texture = mist
+duration = 3.0
+loop = true
+
+[stun]
+display_name = Mind Shatter
+emitter = beam
+count = 32
+lifetime = 0.2,0.6
+speed = 8,16
+spread = 25
+size = 0.3,0.9
+colors = ffffff,7a2fd0
+additive = true
+gravity = 0.0
+texture = spark
+duration = 0.8
+loop = false
+
+[debuff]
+display_name = Corruption Veil
+emitter = cone
+count = 80
+lifetime = 0.6,1.4
+speed = 4,10
+spread = 45
+size = 0.5,1.4
+colors = 2e4a1a,4a7a1a
+additive = false
+gravity = 6.0
+texture = ichor
+duration = 1.8
+loop = false
+
+[buff]
+display_name = Zealot's Halo
+emitter = ring
+count = 56
+lifetime = 0.6,1.2
+speed = 2,5
+spread = 90
+size = 0.5,1.2
+colors = d0a03a,fff0b0
+additive = true
+gravity = -3.0
+texture = mist
+duration = 1.5
+loop = false
+
+[pull]
+display_name = Grasping Tide
+emitter = beam
+count = 72
+lifetime = 0.5,1.0
+speed = 10,20
+spread = 20
+size = 0.4,1.2
+colors = 0b2e2e,00b0a0
+additive = false
+gravity = 0.0
+texture = spark
+duration = 1.2
+loop = false
+
+[shield]
+display_name = Warding Carapace
+emitter = sphere
+count = 40
+lifetime = 1.0,2.0
+speed = 0.2,1
+spread = 180
+size = 0.8,1.6
+colors = 0b2e3a,00c8ff
+additive = true
+gravity = 0.0
+texture = rune
+duration = 3.0
+loop = true
+
+[heal]
+display_name = Flesh Mending
+emitter = point
+count = 48
+lifetime = 0.8,1.6
+speed = 1,4
+spread = 60
+size = 0.4,1.0
+colors = 4a7a3a,d0ffb0
+additive = true
+gravity = -2.5
+texture = mist
+duration = 1.6
+loop = false
+
+# Destruction preset: not an ability effect kind — fired through
+# fxForEvent() when buildings, districts, and cities fall. City
+# destruction is the game's core fantasy, so it gets the heaviest
+# single burst in the catalog: billowing dust that catches an ember
+# tint as it rises, still inside the low-spec budget (count <= 256,
+# non-additive, one-shot).
+[raze]
+display_name = Building Collapse
+emitter = sphere
+count = 192
+lifetime = 0.8,3.2
+speed = 4,16
+spread = 120
+size = 1.0,4.0
+colors = 2a2624,a04010
+additive = false
+gravity = -3.0
+texture = smoke
+duration = 2.5
+loop = false
+
+# ---- RMB heavy-attack presets (wave 43) ----
+# One per HeavyAttackKind; fxForHeavyAttack() uses the preset whose id
+# matches the kind name, so every kit's RMB gets visuals with zero
+# per-character authoring ([rightclick] `fx = <id>` overrides).
+
+[MeleeHeavy]
+display_name = Heavy Cleave
+emitter = sphere
+count = 110
+lifetime = 0.3,0.9
+speed = 8,20
+spread = 90
+size = 1.0,3.5
+colors = 2e2624,7a2fd0
+additive = false
+gravity = 4.0
+texture = smoke
+duration = 1.2
+loop = false
+
+[MindControl]
+display_name = Dominion Wave
+emitter = sphere
+count = 64
+lifetime = 0.8,1.6
+speed = 2,8
+spread = 180
+size = 1.5,4.0
+colors = 4a0b6e,d09aff
+additive = true
+gravity = -2.0
+texture = mist
+duration = 2.0
+loop = false
+
+[AcidSpit]
+display_name = Vitriol Spit
+emitter = cone
+count = 60
+lifetime = 0.5,1.2
+speed = 14,26
+spread = 12
+size = 0.5,1.5
+colors = 3a6e10,b0ff40
+additive = false
+gravity = 8.0
+texture = ichor
+duration = 1.4
+loop = false
+
+[EldritchGrasp]
+display_name = Tendril Drag
+emitter = beam
+count = 72
+lifetime = 0.5,1.0
+speed = 10,22
+spread = 20
+size = 0.4,1.2
+colors = 0b2e2e,00d0b0
+additive = false
+gravity = 0.0
+texture = spark
+duration = 1.2
+loop = false
+
+# ---- Rock-kit presets (wave 43) ----
+# Event-driven, not kinds: Cthulhu's Domination rock publishes
+# AbilityCast events (slot 3) whose tags fxForEvent() maps here —
+# "Sunder the Earth" -> rock_rip, "Hurl the Mountain" -> rock_hurl,
+# and any rock break prose ("the rock shatters", "the rock crumbles
+# to dust") -> rock_shatter. A landed rock swing that leaves the rock
+# intact publishes "rock swing" and resolves to the MeleeHeavy preset
+# (micro-dev 2026-10-13) — it is a heavy frontal cleave, kind and all.
+
+[rock_rip]
+display_name = Sunder the Earth
+emitter = sphere
+count = 128
+lifetime = 0.6,1.8
+speed = 6,18
+spread = 120
+size = 1.0,4.0
+colors = 3a2e24,8a5a2a
+additive = false
+gravity = -4.0
+texture = smoke
+duration = 2.0
+loop = false
+
+[rock_hurl]
+display_name = Hurl the Mountain
+emitter = cone
+count = 80
+lifetime = 0.4,1.0
+speed = 20,36
+spread = 10
+size = 1.2,3.0
+colors = 4a4038,a07040
+additive = false
+gravity = 6.0
+texture = smoke
+duration = 1.6
+loop = false
+
+[rock_shatter]
+display_name = Rock Shatter
+emitter = sphere
+count = 96
+lifetime = 0.4,1.2
+speed = 10,24
+spread = 180
+size = 0.6,2.0
+colors = 5a5048,2e2a26
+additive = false
+gravity = 10.0
+texture = none
+duration = 1.0
+loop = false

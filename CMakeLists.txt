@@ -1,0 +1,571 @@
+cmake_minimum_required(VERSION 3.16)
+project(cult_ulhu CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Engine-agnostic core library (pure standard C++; Unreal binding later).
+# The interactive driver has its own main() and is excluded here.
+file(GLOB_RECURSE CULTULHU_SRC CONFIGURE_DEPENDS src/*.cpp)
+list(FILTER CULTULHU_SRC EXCLUDE REGEX "src/driver/")
+# Micro-dev fix: BetaGame (lib code, src/fuzz/) constructs AntiCheat, so
+# its implementation must live in the lib — otherwise every lib consumer
+# (e.g. cultulhu_fuzz) fails to link with undefined AntiCheat symbols.
+list(APPEND CULTULHU_SRC src/driver/AntiCheat.cpp)
+add_library(cultulhu ${CULTULHU_SRC})
+target_include_directories(cultulhu PUBLIC src)
+
+# Windows: the net layer uses Winsock2 + GetAdaptersAddresses().
+if(WIN32)
+    target_link_libraries(cultulhu PUBLIC ws2_32 iphlpapi)
+endif()
+
+# Playable beta driver (headless console REPL).
+# AntiCheat's implementation lives in the cultulhu lib (see above).
+add_executable(cultulhu_play src/driver/main.cpp)
+target_link_libraries(cultulhu_play PRIVATE cultulhu)
+
+# Test binaries.
+add_executable(cultulhu_tests tests/tests_main.cpp)
+target_link_libraries(cultulhu_tests PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave2 tests/tests_wave2.cpp)
+target_link_libraries(cultulhu_tests_wave2 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave3 tests/tests_wave3.cpp)
+target_link_libraries(cultulhu_tests_wave3 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_beta tests/tests_beta.cpp)
+target_link_libraries(cultulhu_tests_beta PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave25 tests/tests_wave25.cpp)
+target_link_libraries(cultulhu_tests_wave25 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave26 tests/tests_wave26.cpp)
+target_link_libraries(cultulhu_tests_wave26 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave27 tests/tests_wave27.cpp)
+target_link_libraries(cultulhu_tests_wave27 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave28 tests/tests_wave28.cpp)
+target_link_libraries(cultulhu_tests_wave28 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave29 tests/tests_wave29.cpp)
+target_link_libraries(cultulhu_tests_wave29 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave30 tests/tests_wave30.cpp)
+target_link_libraries(cultulhu_tests_wave30 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave33 tests/tests_wave33.cpp)
+target_link_libraries(cultulhu_tests_wave33 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave35 tests/tests_wave35.cpp)
+target_link_libraries(cultulhu_tests_wave35 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave36 tests/tests_wave36.cpp)
+target_link_libraries(cultulhu_tests_wave36 PRIVATE cultulhu)
+add_executable(cultulhu_tests_wave37 tests/tests_wave37.cpp)
+target_link_libraries(cultulhu_tests_wave37 PRIVATE cultulhu)
+add_executable(cultulhu_tests_wave38 tests/tests_wave38.cpp)
+target_link_libraries(cultulhu_tests_wave38 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_dark_wilds tests/tests_dark_wilds.cpp)
+target_link_libraries(cultulhu_tests_dark_wilds PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_convenience tests/tests_convenience.cpp)
+target_link_libraries(cultulhu_tests_convenience PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave4 tests/tests_wave4.cpp)
+target_link_libraries(cultulhu_tests_wave4 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_anim tests/tests_anim.cpp)
+target_link_libraries(cultulhu_tests_anim PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave5b tests/tests_wave5b.cpp)
+target_link_libraries(cultulhu_tests_wave5b PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_net tests/tests_net.cpp)
+target_link_libraries(cultulhu_tests_net PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave7a tests/tests_wave7a.cpp)
+target_link_libraries(cultulhu_tests_wave7a PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave7b tests/tests_wave7b.cpp)
+target_link_libraries(cultulhu_tests_wave7b PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave7c tests/tests_wave7c.cpp)
+target_link_libraries(cultulhu_tests_wave7c PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave7d tests/tests_wave7d.cpp)
+target_link_libraries(cultulhu_tests_wave7d PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave7e tests/tests_wave7e.cpp)
+target_link_libraries(cultulhu_tests_wave7e PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_sim tests/tests_sim.cpp)
+target_link_libraries(cultulhu_tests_sim PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_directives_wave9 tests/tests_directives_wave9.cpp)
+target_link_libraries(cultulhu_tests_directives_wave9 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_content_wave9 tests/tests_content_wave9.cpp)
+target_link_libraries(cultulhu_tests_content_wave9 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_fuzz tests/tests_fuzz.cpp)
+target_link_libraries(cultulhu_tests_fuzz PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave11 tests/tests_wave11.cpp)
+target_link_libraries(cultulhu_tests_wave11 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave12 tests/tests_wave12.cpp)
+target_link_libraries(cultulhu_tests_wave12 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave13 tests/tests_wave13.cpp)
+target_link_libraries(cultulhu_tests_wave13 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave14 tests/tests_wave14.cpp)
+target_link_libraries(cultulhu_tests_wave14 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave15 tests/tests_wave15.cpp)
+target_link_libraries(cultulhu_tests_wave15 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave16 tests/tests_wave16.cpp)
+target_link_libraries(cultulhu_tests_wave16 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave18 tests/tests_wave18.cpp)
+target_link_libraries(cultulhu_tests_wave18 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave19 tests/tests_wave19.cpp)
+target_link_libraries(cultulhu_tests_wave19 PRIVATE cultulhu)
+
+add_executable(cultulhu_tests_wave21 tests/tests_wave21.cpp)
+target_link_libraries(cultulhu_tests_wave21 PRIVATE cultulhu)
+
+# Headless balance simulator (see src/sim/ and sim_reports/analysis.md).
+add_executable(cultulhu_sim src/sim/main.cpp)
+target_compile_definitions(cultulhu_sim PRIVATE CULTULHU_SIM_MAIN)
+target_link_libraries(cultulhu_sim PRIVATE cultulhu)
+
+# Fuzz harness binary: cultulhu_fuzz [all|target1|2|3] [iterations] [seed].
+add_executable(cultulhu_fuzz src/fuzz/fuzz_main.cpp)
+target_link_libraries(cultulhu_fuzz PRIVATE cultulhu)
+
+enable_testing()
+add_test(NAME cultulhu_tests COMMAND cultulhu_tests)
+add_test(NAME cultulhu_tests_wave2 COMMAND cultulhu_tests_wave2)
+add_test(NAME cultulhu_tests_wave3 COMMAND cultulhu_tests_wave3)
+add_test(NAME cultulhu_tests_beta COMMAND cultulhu_tests_beta)
+add_test(NAME cultulhu_tests_wave25 COMMAND cultulhu_tests_wave25)
+set_tests_properties(cultulhu_tests_wave25 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave26 COMMAND cultulhu_tests_wave26)
+set_tests_properties(cultulhu_tests_wave26 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave27 COMMAND cultulhu_tests_wave27)
+set_tests_properties(cultulhu_tests_wave27 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave28 COMMAND cultulhu_tests_wave28)
+set_tests_properties(cultulhu_tests_wave28 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave29 COMMAND cultulhu_tests_wave29)
+set_tests_properties(cultulhu_tests_wave29 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave30 COMMAND cultulhu_tests_wave30)
+set_tests_properties(cultulhu_tests_wave30 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave33 COMMAND cultulhu_tests_wave33)
+set_tests_properties(cultulhu_tests_wave33 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave35 COMMAND cultulhu_tests_wave35)
+set_tests_properties(cultulhu_tests_wave35 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave36 COMMAND cultulhu_tests_wave36)
+set_tests_properties(cultulhu_tests_wave36 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave37 COMMAND cultulhu_tests_wave37)
+set_tests_properties(cultulhu_tests_wave37 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave38 COMMAND cultulhu_tests_wave38)
+add_test(NAME cultulhu_tests_dark_wilds COMMAND cultulhu_tests_dark_wilds)
+set_tests_properties(cultulhu_tests_dark_wilds PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_convenience COMMAND cultulhu_tests_convenience)
+set_tests_properties(cultulhu_tests_wave38 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave4 COMMAND cultulhu_tests_wave4)
+add_test(NAME cultulhu_tests_anim COMMAND cultulhu_tests_anim)
+add_test(NAME cultulhu_tests_wave5b COMMAND cultulhu_tests_wave5b)
+add_test(NAME cultulhu_tests_net COMMAND cultulhu_tests_net)
+add_test(NAME cultulhu_tests_wave7a COMMAND cultulhu_tests_wave7a)
+add_test(NAME cultulhu_tests_wave7b COMMAND cultulhu_tests_wave7b)
+add_test(NAME cultulhu_tests_wave7c COMMAND cultulhu_tests_wave7c)
+add_test(NAME cultulhu_tests_wave7d COMMAND cultulhu_tests_wave7d)
+add_test(NAME cultulhu_tests_wave7e COMMAND cultulhu_tests_wave7e)
+add_test(NAME cultulhu_tests_sim COMMAND cultulhu_tests_sim)
+add_test(NAME cultulhu_tests_directives_wave9 COMMAND cultulhu_tests_directives_wave9)
+add_test(NAME cultulhu_tests_content_wave9 COMMAND cultulhu_tests_content_wave9)
+add_test(NAME cultulhu_tests_fuzz COMMAND cultulhu_tests_fuzz)
+add_test(NAME cultulhu_tests_wave11 COMMAND cultulhu_tests_wave11)
+add_test(NAME cultulhu_tests_wave12 COMMAND cultulhu_tests_wave12)
+add_test(NAME cultulhu_tests_wave13 COMMAND cultulhu_tests_wave13)
+add_test(NAME cultulhu_tests_wave14 COMMAND cultulhu_tests_wave14)
+set_tests_properties(cultulhu_tests_wave14 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave15 COMMAND cultulhu_tests_wave15)
+add_test(NAME cultulhu_tests_wave16 COMMAND cultulhu_tests_wave16)
+add_test(NAME cultulhu_tests_wave18 COMMAND cultulhu_tests_wave18)
+set_tests_properties(cultulhu_tests_wave18 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave19 COMMAND cultulhu_tests_wave19)
+set_tests_properties(cultulhu_tests_wave19 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave21 COMMAND cultulhu_tests_wave21)
+set_tests_properties(cultulhu_tests_wave21 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_wave40 tests/tests_wave40.cpp)
+target_link_libraries(cultulhu_tests_wave40 PRIVATE cultulhu)
+add_executable(cultulhu_tests_wave42 tests/tests_wave42.cpp)
+target_link_libraries(cultulhu_tests_wave42 PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_wave40 COMMAND cultulhu_tests_wave40)
+set_tests_properties(cultulhu_tests_wave40 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_tests_wave42 COMMAND cultulhu_tests_wave42)
+set_tests_properties(cultulhu_tests_wave42 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_wave43 tests/tests_wave43.cpp)
+target_link_libraries(cultulhu_tests_wave43 PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_wave43 COMMAND cultulhu_tests_wave43)
+set_tests_properties(cultulhu_tests_wave43 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_anticheat tests/tests_anticheat.cpp)
+target_link_libraries(cultulhu_tests_anticheat PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_anticheat COMMAND cultulhu_tests_anticheat)
+set_tests_properties(cultulhu_tests_anticheat PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_wave44 tests/tests_wave44.cpp)
+target_link_libraries(cultulhu_tests_wave44 PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_wave44 COMMAND cultulhu_tests_wave44)
+set_tests_properties(cultulhu_tests_wave44 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_wave45 tests/tests_wave45.cpp)
+target_link_libraries(cultulhu_tests_wave45 PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_wave45 COMMAND cultulhu_tests_wave45)
+set_tests_properties(cultulhu_tests_wave45 PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_respawn tests/tests_micro_respawn.cpp)
+target_link_libraries(cultulhu_tests_micro_respawn PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_respawn COMMAND cultulhu_tests_micro_respawn)
+set_tests_properties(cultulhu_tests_micro_respawn PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_matchpoint tests/tests_micro_matchpoint.cpp)
+target_link_libraries(cultulhu_tests_micro_matchpoint PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_matchpoint COMMAND cultulhu_tests_micro_matchpoint)
+set_tests_properties(cultulhu_tests_micro_matchpoint PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_overtime tests/tests_micro_overtime.cpp)
+target_link_libraries(cultulhu_tests_micro_overtime PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_overtime COMMAND cultulhu_tests_micro_overtime)
+set_tests_properties(cultulhu_tests_micro_overtime PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_towerdown tests/tests_micro_towerdown.cpp)
+target_link_libraries(cultulhu_tests_micro_towerdown PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_towerdown COMMAND cultulhu_tests_micro_towerdown)
+set_tests_properties(cultulhu_tests_micro_towerdown PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_firstblood tests/tests_micro_firstblood.cpp)
+target_link_libraries(cultulhu_tests_micro_firstblood PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_firstblood COMMAND cultulhu_tests_micro_firstblood)
+set_tests_properties(cultulhu_tests_micro_firstblood PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_streakend tests/tests_micro_streakend.cpp)
+target_link_libraries(cultulhu_tests_micro_streakend PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_streakend COMMAND cultulhu_tests_micro_streakend)
+set_tests_properties(cultulhu_tests_micro_streakend PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_killcredit tests/tests_micro_killcredit.cpp)
+target_link_libraries(cultulhu_tests_micro_killcredit PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_killcredit COMMAND cultulhu_tests_micro_killcredit)
+set_tests_properties(cultulhu_tests_micro_killcredit PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_streakyou tests/tests_micro_streakyou.cpp)
+target_link_libraries(cultulhu_tests_micro_streakyou PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_streakyou COMMAND cultulhu_tests_micro_streakyou)
+set_tests_properties(cultulhu_tests_micro_streakyou PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_streakended_you tests/tests_micro_streakended_you.cpp)
+target_link_libraries(cultulhu_tests_micro_streakended_you PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_streakended_you COMMAND cultulhu_tests_micro_streakended_you)
+set_tests_properties(cultulhu_tests_micro_streakended_you PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_rockbreak tests/tests_micro_rockbreak.cpp)
+target_link_libraries(cultulhu_tests_micro_rockbreak PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_rockbreak COMMAND cultulhu_tests_micro_rockbreak)
+set_tests_properties(cultulhu_tests_micro_rockbreak PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_castpos tests/tests_micro_castpos.cpp)
+target_link_libraries(cultulhu_tests_micro_castpos PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_castpos COMMAND cultulhu_tests_micro_castpos)
+set_tests_properties(cultulhu_tests_micro_castpos PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME cultulhu_fuzz_smoke COMMAND cultulhu_fuzz all 2000 42)
+add_executable(cultulhu_tests_micro_respawned tests/tests_micro_respawned.cpp)
+target_link_libraries(cultulhu_tests_micro_respawned PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_respawned COMMAND cultulhu_tests_micro_respawned)
+set_tests_properties(cultulhu_tests_micro_respawned PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_botselfcast tests/tests_micro_botselfcast.cpp)
+target_link_libraries(cultulhu_tests_micro_botselfcast PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_botselfcast COMMAND cultulhu_tests_micro_botselfcast)
+set_tests_properties(cultulhu_tests_micro_botselfcast PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_deathcallout tests/tests_micro_deathcallout.cpp)
+target_link_libraries(cultulhu_tests_micro_deathcallout PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_deathcallout COMMAND cultulhu_tests_micro_deathcallout)
+set_tests_properties(cultulhu_tests_micro_deathcallout PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_botretreat tests/tests_micro_botretreat.cpp)
+target_link_libraries(cultulhu_tests_micro_botretreat PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_botretreat COMMAND cultulhu_tests_micro_botretreat)
+set_tests_properties(cultulhu_tests_micro_botretreat PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_mcastparse tests/tests_micro_mcastparse.cpp)
+target_link_libraries(cultulhu_tests_micro_mcastparse PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_mcastparse COMMAND cultulhu_tests_micro_mcastparse)
+set_tests_properties(cultulhu_tests_micro_mcastparse PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_victory tests/tests_micro_victory.cpp)
+target_link_libraries(cultulhu_tests_micro_victory PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_victory COMMAND cultulhu_tests_micro_victory)
+set_tests_properties(cultulhu_tests_micro_victory PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_you tests/tests_micro_you.cpp)
+target_link_libraries(cultulhu_tests_micro_you PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_you COMMAND cultulhu_tests_micro_you)
+set_tests_properties(cultulhu_tests_micro_you PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_towerunderattack tests/tests_micro_towerunderattack.cpp)
+target_link_libraries(cultulhu_tests_micro_towerunderattack PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_towerunderattack COMMAND cultulhu_tests_micro_towerunderattack)
+set_tests_properties(cultulhu_tests_micro_towerunderattack PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_goounderattack tests/tests_micro_goounderattack.cpp)
+target_link_libraries(cultulhu_tests_micro_goounderattack PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_goounderattack COMMAND cultulhu_tests_micro_goounderattack)
+set_tests_properties(cultulhu_tests_micro_goounderattack PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_gooslain tests/tests_micro_gooslain.cpp)
+target_link_libraries(cultulhu_tests_micro_gooslain PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_gooslain COMMAND cultulhu_tests_micro_gooslain)
+set_tests_properties(cultulhu_tests_micro_gooslain PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_gooslain_you tests/tests_micro_gooslain_you.cpp)
+target_link_libraries(cultulhu_tests_micro_gooslain_you PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_gooslain_you COMMAND cultulhu_tests_micro_gooslain_you)
+set_tests_properties(cultulhu_tests_micro_gooslain_you PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_dotgoolimit tests/tests_micro_dotgoolimit.cpp)
+target_link_libraries(cultulhu_tests_micro_dotgoolimit PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_dotgoolimit COMMAND cultulhu_tests_micro_dotgoolimit)
+set_tests_properties(cultulhu_tests_micro_dotgoolimit PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_unlockname tests/tests_micro_unlockname.cpp)
+target_link_libraries(cultulhu_tests_micro_unlockname PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_unlockname COMMAND cultulhu_tests_micro_unlockname)
+set_tests_properties(cultulhu_tests_micro_unlockname PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_ultunlock tests/tests_micro_ultunlock.cpp)
+target_link_libraries(cultulhu_tests_micro_ultunlock PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_ultunlock COMMAND cultulhu_tests_micro_ultunlock)
+set_tests_properties(cultulhu_tests_micro_ultunlock PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_ultcharged tests/tests_micro_ultcharged.cpp)
+target_link_libraries(cultulhu_tests_micro_ultcharged PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_ultcharged COMMAND cultulhu_tests_micro_ultcharged)
+set_tests_properties(cultulhu_tests_micro_ultcharged PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_relicclaim tests/tests_micro_relicclaim.cpp)
+target_link_libraries(cultulhu_tests_micro_relicclaim PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_relicclaim COMMAND cultulhu_tests_micro_relicclaim)
+set_tests_properties(cultulhu_tests_micro_relicclaim PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_relicchannel tests/tests_micro_relicchannel.cpp)
+target_link_libraries(cultulhu_tests_micro_relicchannel PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_relicchannel COMMAND cultulhu_tests_micro_relicchannel)
+set_tests_properties(cultulhu_tests_micro_relicchannel PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_detach tests/tests_micro_detach.cpp)
+target_link_libraries(cultulhu_tests_micro_detach PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_detach COMMAND cultulhu_tests_micro_detach)
+set_tests_properties(cultulhu_tests_micro_detach PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_matchsurvey tests/tests_micro_matchsurvey.cpp)
+target_link_libraries(cultulhu_tests_micro_matchsurvey PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_matchsurvey COMMAND cultulhu_tests_micro_matchsurvey)
+set_tests_properties(cultulhu_tests_micro_matchsurvey PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_joinsurvey tests/tests_micro_joinsurvey.cpp)
+target_link_libraries(cultulhu_tests_micro_joinsurvey PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_joinsurvey COMMAND cultulhu_tests_micro_joinsurvey)
+set_tests_properties(cultulhu_tests_micro_joinsurvey PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_pointcapture tests/tests_micro_pointcapture.cpp)
+target_link_libraries(cultulhu_tests_micro_pointcapture PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_pointcapture COMMAND cultulhu_tests_micro_pointcapture)
+set_tests_properties(cultulhu_tests_micro_pointcapture PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_lowhp tests/tests_micro_lowhp.cpp)
+target_link_libraries(cultulhu_tests_micro_lowhp PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_lowhp COMMAND cultulhu_tests_micro_lowhp)
+set_tests_properties(cultulhu_tests_micro_lowhp PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_dotgoowave tests/tests_micro_dotgoowave.cpp)
+target_link_libraries(cultulhu_tests_micro_dotgoowave PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_dotgoowave COMMAND cultulhu_tests_micro_dotgoowave)
+set_tests_properties(cultulhu_tests_micro_dotgoowave PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_draftpick tests/tests_micro_draftpick.cpp)
+target_link_libraries(cultulhu_tests_micro_draftpick PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_draftpick COMMAND cultulhu_tests_micro_draftpick)
+set_tests_properties(cultulhu_tests_micro_draftpick PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_mythicrelic tests/tests_micro_mythicrelic.cpp)
+target_link_libraries(cultulhu_tests_micro_mythicrelic PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_mythicrelic COMMAND cultulhu_tests_micro_mythicrelic)
+set_tests_properties(cultulhu_tests_micro_mythicrelic PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_matchstart tests/tests_micro_matchstart.cpp)
+target_link_libraries(cultulhu_tests_micro_matchstart PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_matchstart COMMAND cultulhu_tests_micro_matchstart)
+set_tests_properties(cultulhu_tests_micro_matchstart PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_respawnsurvey tests/tests_micro_respawnsurvey.cpp)
+target_link_libraries(cultulhu_tests_micro_respawnsurvey PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_respawnsurvey COMMAND cultulhu_tests_micro_respawnsurvey)
+set_tests_properties(cultulhu_tests_micro_respawnsurvey PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_levellog tests/tests_micro_levellog.cpp)
+target_link_libraries(cultulhu_tests_micro_levellog PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_levellog COMMAND cultulhu_tests_micro_levellog)
+set_tests_properties(cultulhu_tests_micro_levellog PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_ccalert tests/tests_micro_ccalert.cpp)
+target_link_libraries(cultulhu_tests_micro_ccalert PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_ccalert COMMAND cultulhu_tests_micro_ccalert)
+set_tests_properties(cultulhu_tests_micro_ccalert PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_levelgate_you tests/tests_micro_levelgate_you.cpp)
+target_link_libraries(cultulhu_tests_micro_levelgate_you PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_levelgate_you COMMAND cultulhu_tests_micro_levelgate_you)
+set_tests_properties(cultulhu_tests_micro_levelgate_you PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_levelup_you tests/tests_micro_levelup_you.cpp)
+target_link_libraries(cultulhu_tests_micro_levelup_you PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_levelup_you COMMAND cultulhu_tests_micro_levelup_you)
+set_tests_properties(cultulhu_tests_micro_levelup_you PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_lifefx tests/tests_micro_lifefx.cpp)
+target_link_libraries(cultulhu_tests_micro_lifefx PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_lifefx COMMAND cultulhu_tests_micro_lifefx)
+set_tests_properties(cultulhu_tests_micro_lifefx PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_achievementyou tests/tests_micro_achievementyou.cpp)
+target_link_libraries(cultulhu_tests_micro_achievementyou PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_achievementyou COMMAND cultulhu_tests_micro_achievementyou)
+set_tests_properties(cultulhu_tests_micro_achievementyou PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_matchend_you tests/tests_micro_matchend_you.cpp)
+target_link_libraries(cultulhu_tests_micro_matchend_you PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_matchend_you COMMAND cultulhu_tests_micro_matchend_you)
+set_tests_properties(cultulhu_tests_micro_matchend_you PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_yourline tests/tests_micro_yourline.cpp)
+target_link_libraries(cultulhu_tests_micro_yourline PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_yourline COMMAND cultulhu_tests_micro_yourline)
+set_tests_properties(cultulhu_tests_micro_yourline PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_towerdown_you tests/tests_micro_towerdown_you.cpp)
+target_link_libraries(cultulhu_tests_micro_towerdown_you PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_towerdown_you COMMAND cultulhu_tests_micro_towerdown_you)
+set_tests_properties(cultulhu_tests_micro_towerdown_you PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_selectnudge tests/tests_micro_selectnudge.cpp)
+target_link_libraries(cultulhu_tests_micro_selectnudge PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_selectnudge COMMAND cultulhu_tests_micro_selectnudge)
+set_tests_properties(cultulhu_tests_micro_selectnudge PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_relicinterrupt tests/tests_micro_relicinterrupt.cpp)
+target_link_libraries(cultulhu_tests_micro_relicinterrupt PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_relicinterrupt COMMAND cultulhu_tests_micro_relicinterrupt)
+set_tests_properties(cultulhu_tests_micro_relicinterrupt PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_oneshotrestart tests/tests_micro_oneshotrestart.cpp)
+target_link_libraries(cultulhu_tests_micro_oneshotrestart PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_oneshotrestart COMMAND cultulhu_tests_micro_oneshotrestart)
+set_tests_properties(cultulhu_tests_micro_oneshotrestart PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_oneshotblend tests/tests_micro_oneshotblend.cpp)
+target_link_libraries(cultulhu_tests_micro_oneshotblend PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_oneshotblend COMMAND cultulhu_tests_micro_oneshotblend)
+set_tests_properties(cultulhu_tests_micro_oneshotblend PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_rockswing tests/tests_micro_rockswing.cpp)
+target_link_libraries(cultulhu_tests_micro_rockswing PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_rockswing COMMAND cultulhu_tests_micro_rockswing)
+set_tests_properties(cultulhu_tests_micro_rockswing PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_animuntrack tests/tests_micro_animuntrack.cpp)
+target_link_libraries(cultulhu_tests_micro_animuntrack PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_animuntrack COMMAND cultulhu_tests_micro_animuntrack)
+set_tests_properties(cultulhu_tests_micro_animuntrack PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_kitstatus tests/tests_micro_kitstatus.cpp)
+target_link_libraries(cultulhu_tests_micro_kitstatus PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_kitstatus COMMAND cultulhu_tests_micro_kitstatus)
+set_tests_properties(cultulhu_tests_micro_kitstatus PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_matchendlog tests/tests_micro_matchendlog.cpp)
+target_link_libraries(cultulhu_tests_micro_matchendlog PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_matchendlog COMMAND cultulhu_tests_micro_matchendlog)
+set_tests_properties(cultulhu_tests_micro_matchendlog PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_slaypos tests/tests_micro_slaypos.cpp)
+target_link_libraries(cultulhu_tests_micro_slaypos PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_slaypos COMMAND cultulhu_tests_micro_slaypos)
+set_tests_properties(cultulhu_tests_micro_slaypos PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_maulrelic tests/tests_micro_maulrelic.cpp)
+target_link_libraries(cultulhu_tests_micro_maulrelic PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_maulrelic COMMAND cultulhu_tests_micro_maulrelic)
+set_tests_properties(cultulhu_tests_micro_maulrelic PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_lightweight_fields tests/tests_micro_lightweight_fields.cpp)
+target_link_libraries(cultulhu_tests_micro_lightweight_fields PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_lightweight_fields COMMAND cultulhu_tests_micro_lightweight_fields)
+set_tests_properties(cultulhu_tests_micro_lightweight_fields PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_snapshotbytes tests/tests_micro_snapshotbytes.cpp)
+target_link_libraries(cultulhu_tests_micro_snapshotbytes PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_snapshotbytes COMMAND cultulhu_tests_micro_snapshotbytes)
+set_tests_properties(cultulhu_tests_micro_snapshotbytes PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_menulabels tests/tests_micro_menulabels.cpp)
+target_link_libraries(cultulhu_tests_micro_menulabels PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_menulabels COMMAND cultulhu_tests_micro_menulabels)
+set_tests_properties(cultulhu_tests_micro_menulabels PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_menucoverage tests/tests_micro_menucoverage.cpp)
+target_link_libraries(cultulhu_tests_micro_menucoverage PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_menucoverage COMMAND cultulhu_tests_micro_menucoverage)
+set_tests_properties(cultulhu_tests_micro_menucoverage PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_relicbots tests/tests_micro_relicbots.cpp)
+target_link_libraries(cultulhu_tests_micro_relicbots PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_relicbots COMMAND cultulhu_tests_micro_relicbots)
+set_tests_properties(cultulhu_tests_micro_relicbots PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(cultulhu_tests_micro_pointcontest tests/tests_micro_pointcontest.cpp)
+target_link_libraries(cultulhu_tests_micro_pointcontest PRIVATE cultulhu)
+add_test(NAME cultulhu_tests_micro_pointcontest COMMAND cultulhu_tests_micro_pointcontest)
+set_tests_properties(cultulhu_tests_micro_pointcontest PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

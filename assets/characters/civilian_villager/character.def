@@ -1,0 +1,10 @@
+# Villager — ordinary townsfolk, future convert or victim.
+# NPC package: model wired, logic-only otherwise (procedural anim fallback).
+# Model: KayKit Adventurers "Rogue" (CC0), animations stripped for size.
+
+id = civilian_villager
+display_name = Villager
+flavor = It has heard the chanting at night and pretends it hasn't.
+max_hp = 40
+move_speed = 4.0
+max_stamina = 50
