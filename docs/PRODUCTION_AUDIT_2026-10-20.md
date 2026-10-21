@@ -269,3 +269,62 @@ The preceding goal turn made verified progress on camera-constrained input and r
 Native file/rig verification covers all 48 clips, all six body parts/accessories per skin and actual imported bone matches. Native pose verification covers civilian/cultist/sorcerer activity poses and compares them with the expected original clip at actual observed sample times. Runtime mode-start selection is also checked through the real game-mode API. Editor builds can force staged clips; the standalone test refuses an adjacent repository animation tree. These checks are not yet final packaged evidence until cooking/staging and executable verification succeed.
 
 The first actual game-target build failed because its V5 build settings conflicted with UE 5.8's shared UnrealGame environment. The target now uses V7 rather than suppressing validation. The next compile exposed unguarded editor-only actor-label functions; failures are retained in Saved/Logs/StandaloneCompileBaseline.log. Debug label writes are now editor-only, and rubble/scorch debug names use the runtime-safe ActorNameOrLabel accessor. Mode spawns and the menu camera were also identified by editor labels, so those lookups are being migrated to serialized PlayerStartTag/Actor.Tags rather than silently falling back to arbitrary runtime object names. PrepareRuntimeAnchors.py changes only that metadata on the existing maps; Content is backed up in Saved/Backups/BeforeRuntimeAnchorTags.zip. The standalone Development executable has compiled successfully, with the final runtime verification test update still to be included by the next build/cook step. A compiled executable alone does not prove packaged assets or gameplay.
+
+
+## Independent standalone delivery and visual baseline — 2026-10-21
+
+The preceding goal turn made authoritative progress by backing up the playable
+project and authored assets in GitHub draft PR #2, preserving the live upstream
+migration, correcting generated-output exclusions and removing 2.47 GiB of
+obsolete editor PCH/object cache. This continuation completes actual Windows
+Game compilation, cooking, staging and executable verification, rather than
+inferring packaged behavior from PIE. The missing upstream validation/setup
+scripts were restored. The retired local unreal directory was moved without
+copying or deleting its contents to Source_Backup_LegacyUnreal_20261021; the
+canonical validator now passes. No retired project is built.
+
+The initial standalone run passed the humanoid file/pose tests but reported 16
+unique Nanite usage fallbacks across original and living rock/tree/crystal
+materials. It also could not load the dynamically referenced daylight skylight
+cubemap. These were real presentation defects despite the narrow tests passing.
+PrepareNaniteMaterials.py persists Nanite usage on the 16 actual material
+interfaces, using UE 5.8 per-instance flags for imported materials with engine
+parents. The eight living base materials also retain their usage flags; textures,
+colors and graph connections are preserved. BuildLivingMaterials.py now sets
+Nanite usage when recreating living copies. Explicit cooking of the existing
+engine sky directory supplies the runtime cubemap. The strengthened native test
+asserts that the actual TextureCube loads.
+
+The final Editor and Game builds succeeded. Windows BuildCookRun succeeded;
+the temporary stage was 638.1 MiB with 48 loose .canim files and no PDBs. Its
+independently launched executable, without a source-project argument or adjacent
+assets tree, passed CultUlhu.Runtime.HumanAnimationFiles and
+CultUlhu.Runtime.StagedHumanPoses with Editor=0. That verifies all three imported
+humanoid rigs and original clip tracks, six observed activity poses per skin,
+actual tagged mode-start selection, the grounded player and cooked skylight.
+Final runtime counts were zero material-usage fallbacks, zero missing cubemap
+warnings, zero automation errors and zero warnings in this short run. Earlier
+movement warnings remain an unresolved concern; no movement or performance fix
+is claimed here. Baseline/intermediate/final logs remain distinct.
+
+Saved/Reports/StandaloneDeliveryFinal.json records the executable SHA-256
+051549730480aa8b08834d5f80a6b1a6cfb910e5f7228ae247c334e4b4826a5c
+and screenshot hash. Saved/Screenshots/StagedFreeRoam_20261021.png is an actual
+initialized game frame captured by the runtime fixture before it raises the
+isolated pose platform. It was visually inspected. The earlier startup
+HighResShot was black and is not evidence of presentation quality. The useful
+frame shows a bright blue/gray blockout, pale monumental columns and temple,
+sparse visible ground detail, the placeholder Mi-Go vessel and a prototype HUD.
+The Nanite fix removes material substitution; it does not supply final art or
+make this dark Lovecraftian presentation coherent. It is plainly below the
+requested professional refinement. A consistent darker world palette, authored
+hero silhouettes/animation, better environment detail and HUD hierarchy remain
+necessary, as do sustained performance and human combat/match evaluation.
+
+After the final process exited, its useful screenshot, coverage CSV, hashes and
+logs were preserved outside staging. The temporary standalone package, cooked
+metadata, Game-target build cache and Game executable/debug outputs were removed,
+freeing another 3.74 GiB. The current editor DLLs and editor build cache remain.
+No package or debug symbols are uploaded to GitHub. This is Free Roam/asset
+runtime evidence; actual packaged competitive matches and all 16 individual
+hero kits are still unverified. The full objective remains active.

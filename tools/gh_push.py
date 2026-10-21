@@ -18,6 +18,8 @@ def main():
     parser.add_argument('--base', default='game-core')
     parser.add_argument('--branch', required=True)
     parser.add_argument('--message', required=True)
+    parser.add_argument('--update-existing', action='store_true',
+                        help='Append to the existing branch; --base must equal --branch')
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
 
@@ -30,7 +32,11 @@ def main():
     parent = git('rev-parse', 'FETCH_HEAD').decode().strip()
     live = git('ls-remote', 'origin', 'refs/heads/' + args.base).decode().split()[0]
     assert live == parent, 'Remote changed during fetch; retry'
-    assert not git('ls-remote', 'origin', 'refs/heads/' + args.branch).strip(), 'Branch already exists'
+    existing = git('ls-remote', 'origin', 'refs/heads/' + args.branch).decode().strip()
+    if args.update_existing:
+        assert args.base == args.branch and existing.split()[0] == parent, 'Update must append to the live branch HEAD'
+    else:
+        assert not existing, 'Branch already exists'
     paths = json.loads(Path(args.manifest).read_text(encoding='utf-8'))
     assert isinstance(paths, list) and paths and len(paths) == len(set(paths))
     upstream = {}

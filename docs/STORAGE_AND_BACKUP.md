@@ -21,3 +21,6 @@ For a backup, review an explicit JSON file manifest and run tools/gh_push.py.
 It layers those files onto the live game-core HEAD on a new codex/ branch,
 compares binary bytes, performs a normal push and verifies the remote ref.
 It does not change the working checkout or remove upstream files.
+To append a verified follow-up to that same branch, pass `--update-existing`
+and set `--base` to the identical branch name. The script fetches its live HEAD
+and uses a normal fast-forward push; it never force-pushes over concurrent work.

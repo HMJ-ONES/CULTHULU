@@ -10,6 +10,7 @@
 #include "Engine/Engine.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/TextureCube.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/PoseableMeshComponent.h"
@@ -75,6 +76,7 @@ bool FCultHumanAnimationFilesTest::RunTest(const FString&)
  TestFalse(TEXT("Standalone verification has no adjacent repository animation tree"),FPaths::DirectoryExists(FPaths::ProjectDir()/TEXT("../assets/characters")));
 #endif
  FString Report=TEXT("skin,clip,tracks,matching_bones,duration,staged_path\n"); int Loaded=0;
+ TestNotNull(TEXT("Runtime world skylight cubemap is present in cooked assets"),LoadObject<UTextureCube>(nullptr,TEXT("/Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap")));
  for(const auto& Skin:HumanSkins()) {
   const bool Mage=Skin==TEXT("cultist_magus"); const FString Prefix=Mage?TEXT("Mage_"):TEXT("Rogue_");
   const FString Folder=TEXT("/Game/CultUlhu/People/")+Skin+TEXT("/")+Skin;
@@ -108,6 +110,7 @@ class FCultStagedHumanPoseObservation:public IAutomationLatentCommand {
  FAutomationTestBase* Test; bool Entered=false; int Action=-1; double Began=FPlatformTime::Seconds(); float At=0;
  TArray<TWeakObjectPtr<ACultPopulation>> People; TWeakObjectPtr<ACameraActor> Camera; TWeakObjectPtr<AStaticMeshActor> Floor;
  int OldStaged=0;
+ bool SceneRequested=false; FString SceneScreenshot;
  TArray<float> SampleTimes;
  const TArray<FString> Actions={TEXT("Pray"),TEXT("Build"),TEXT("Convert"),TEXT("SacrificePerformer"),TEXT("SacrificeVictim"),TEXT("Attack")};
  const TArray<FString> Clips={TEXT("channel"),TEXT("work"),TEXT("cast"),TEXT("sacrifice_performer"),TEXT("sacrifice_victim"),TEXT("attack")};
@@ -119,6 +122,14 @@ public:
   if(W->GetName().Contains(TEXT("L_MainMenu"))) { if(!Entered) { auto* G=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); G->SelectedCharacterId=TEXT("mi_go"); G->OpenCharacterSelect(ECultPlayMode::FreeRoam); G->SetInitialBeliefs({5,6,11}); G->StartPlay(); Entered=true; } return false; }
   auto* PC=W->GetFirstPlayerController(); if(!PC||!PC->GetPawn()||W->GetTimeSeconds()<3) return false;
   if(Action<0) {
+   // Capture after real map initialization, rather than the black startup frame.
+   if(!SceneRequested) {
+    SceneScreenshot=FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir()/TEXT("Screenshots/StagedFreeRoam.png"));
+    IFileManager::Get().MakeDirectory(*FPaths::GetPath(SceneScreenshot),true); IFileManager::Get().Delete(*SceneScreenshot);
+    FScreenshotRequest::RequestScreenshot(SceneScreenshot,true,false); SceneRequested=true; return false;
+   }
+   if(FScreenshotRequest::IsScreenshotRequested()) return false;
+   Test->TestTrue(TEXT("Actual initialized standalone world frame was captured"),IFileManager::Get().FileExists(*SceneScreenshot));
    if(auto* Hero=Cast<ACultUlhuPlayerPawn>(PC->GetPawn())) {
     FHitResult Support; FCollisionQueryParams Query(SCENE_QUERY_STAT(StagedPlayerSupport),false,Hero);
     Test->TestTrue(TEXT("Standalone Free Roam has actual supporting terrain collision"),W->LineTraceSingleByObjectType(Support,Hero->FeetLocation()+FVector(0,0,300),Hero->FeetLocation()-FVector(0,0,3000),FCollisionObjectQueryParams(ECC_WorldStatic),Query));

@@ -37,6 +37,7 @@ print('[CultUlhu] Living landscape materials ready')
 
 # Material usage changes live on copies; imported source materials remain intact.
 usage = next(getattr(unreal.MaterialUsage, n) for n in dir(unreal.MaterialUsage) if 'INSTANCED_STATIC' in n)
+nanite_usage = next(getattr(unreal.MaterialUsage, n) for n in dir(unreal.MaterialUsage) if 'NANITE' in n)
 names = ['cave-rock-tall-a', 'rocks-tall', 'tree-dead-large', 'pine-dead-crooked', 'dark-crystal-cluster', 'cave-wall-rock']
 for name in names:
     mesh = unreal.load_asset('/Game/CultUlhu/World/' + name + '/StaticMeshes/' + name)
@@ -50,12 +51,15 @@ for name in names:
         copy = unreal.load_asset(target) if unreal.EditorAssetLibrary.does_asset_exist(target) else unreal.EditorAssetLibrary.duplicate_asset(source.get_path_name(), target)
         if isinstance(copy, unreal.Material):
             mel.set_base_material_usage(copy, usage, True)
+            mel.set_base_material_usage(copy, nanite_usage, True)
             mel.recompile_material(copy)
         else:
             base_path = target + '_Base'
             base = unreal.load_asset(base_path) if unreal.EditorAssetLibrary.does_asset_exist(base_path) else unreal.EditorAssetLibrary.duplicate_asset(source.get_base_material().get_path_name(), base_path)
             mel.set_base_material_usage(base, usage, True)
+            mel.set_base_material_usage(base, nanite_usage, True)
             mel.set_material_instance_parent(copy, base)
+            mel.set_material_usage_override(copy, nanite_usage, True, True)
             mel.recompile_material(base)
             unreal.EditorAssetLibrary.save_asset(base_path)
         unreal.EditorAssetLibrary.save_asset(target)

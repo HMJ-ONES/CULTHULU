@@ -19,13 +19,27 @@ sacrifice and attack poses on the actual imported rig parts.
 The Development Game target compiled after updating its build settings and
 guarding editor-only debug actor labels. The existing menu camera and three mode
 starts now have persistent runtime tags; PrepareRuntimeAnchors.py saved the
-existing maps without replacing transforms or geometry. The latest small test
-assertion changes have been compiled in the Editor target; standalone needs an
-incremental rebuild followed by cook/stage and actual packaged execution.
+existing maps without replacing transforms or geometry. The final Editor and Game targets compiled, Windows cooking/staging succeeded,
+and both HumanAnimationFiles and StagedHumanPoses passed in the independent
+staged executable with Editor=0 and no adjacent repository asset tree. The
+cooked skylight cubemap and initialized-world screenshot are also checked.
 
-Packaging, multiplayer, final hero art, sustained frame rate and human combat
-balance remain unproven. The broader findings are in
+The first standalone run exposed sixteen Nanite material-usage fallbacks and
+a missing skylight cubemap. Persisted usage flags on the existing world materials
+and explicit sky-asset cooking resolved both in the final runtime: zero material
+fallbacks, zero missing cubemap warnings and zero automation errors. See
+Saved/Reports/StandaloneDeliveryFinal.json and the local rendered baseline
+Saved/Screenshots/StagedFreeRoam_20261021.png. No binary package is retained.
+
+Competitive mode execution in a package, multiplayer, final hero art, sustained
+frame rate and human combat balance remain unproven. The broader findings are in
 `docs/PRODUCTION_AUDIT_2026-10-20.md`. Generated logs, screenshots, executables,
 libraries and caches are excluded from GitHub. A verified obsolete 2.47 GiB
-editor PCH/object pair was removed; the current editor and game caches remain
-needed for ongoing build verification.
+editor PCH/object pair was removed. After verification, another 3.74 GiB of
+temporary standalone staging, cooked metadata, Game-target intermediates and
+Game binaries/debug symbols was removed. The working editor build remains.
+Future standalone verification must rebuild the Game target.
+
+The rendered world still has bright blockout lighting, a placeholder hero vessel,
+flat material treatment and a prototype HUD. The delivery fixes do not establish
+professional visual quality; the full playable/fun/beautiful goal remains active.
