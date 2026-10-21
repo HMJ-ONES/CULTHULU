@@ -328,3 +328,54 @@ freeing another 3.74 GiB. The current editor DLLs and editor build cache remain.
 No package or debug symbols are uploaded to GitHub. This is Free Roam/asset
 runtime evidence; actual packaged competitive matches and all 16 individual
 hero kits are still unverified. The full objective remains active.
+
+
+## Free Roam dusk and cave readability — 2026-10-21
+
+The preceding goal turn made authoritative progress on independent executable
+asset delivery and preserved an initialized standalone image. That image showed
+a bright blue/gray blockout, not a coherent dark Lovecraftian world. The current
+source confirmed that Free Roam retained the old adaptive-exposure/daylight rig,
+while competitive arenas already used fixed exposure. CultWildsPresentation now
+applies a runtime-only Free Roam exposure/moonlight/fog profile, a generated dusk
+background and bounded cave fill. Imported art and authored maps are preserved;
+competitive modes retain their existing path. No ability, AI, movement or
+collision dimensions are changed.
+
+Rendered comparisons rejected the first dark pass: cave creatures and floor
+were too difficult to read, and the background became a black void. A subsequent
+sky material introduced a coverage warning and still rendered black. A focused
+bright-material diagnostic proved the dome itself was visible: its registered
+bounds were centered at the origin with 500000 cm extents, and the diagnostic
+covered the intended background. The generated gradient was rebuilt after an
+8 KB backup, with explicit single-input pin connections, an explicit G-only
+UV mask and assertions for every connection. Traversal verifies all seven nodes
+are connected to emissive. The final ordinary unlit material is 9485 bytes and
+uses no new textures. The temporary magenta diagnostic was removed from the test.
+
+Two nonshadowing fill lights per existing cavern now make the native creatures
+and floor visible; each is limited to a 100 m radius and 250 m draw distance with
+a 50 m fade. Their cost is bounded by those settings but has not been measured.
+The sky is noncolliding and casts no shadow. Native comparison checks an upward
+visibility trace through it so background art cannot become an aiming target.
+
+The final canonical path validation and CultUlhuEditor build succeeded.
+WildsPresentationFinal.log passes WildsPresentation and PopulationPresentation,
+with zero automation errors or material-usage fallback warnings. Six underlying
+NPC movement-timestep warnings appeared during world entry (and were repeated
+in automation event reporting); no movement/performance fix is claimed. The
+comparison pauses one generated world, captures courtyard/cave before and after,
+checks the intended actual camera, the player's physical transform and supporting
+floor collision, then restores test state. The final four frames were inspected:
+the dusk background renders and cave creatures/ground are distinguishable. Their
+hashes are recorded in Saved/Reports/WildsPresentationSummary.json. Frame-rate
+proof, all displays/angles and human playability are outside these checks.
+
+This is a real mood/readability improvement, but the environment still has
+blockout shapes, flat material treatment, large sparse areas and placeholder
+hero art. It remains well below the requested professional presentation; combat
+fun is not established by a lighting test. The new profile has not yet been
+recooked/run in a standalone package. No new standalone package, download or
+large asset archive was created in this pass. The full original goal remains
+active, including mode quality, living-world behavior, visual refinement,
+performance and human combat/match evaluation.

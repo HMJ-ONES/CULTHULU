@@ -43,3 +43,8 @@ Future standalone verification must rebuild the Game target.
 The rendered world still has bright blockout lighting, a placeholder hero vessel,
 flat material treatment and a prototype HUD. The delivery fixes do not establish
 professional visual quality; the full playable/fun/beautiful goal remains active.
+
+A subsequent Free Roam presentation pass adds fixed exposure, moonlight, a
+working dusk gradient and bounded cave fill. Its editor render/collision/camera
+checks passed; see WorldPresentation.md. The earlier standalone results above
+predate that profile and do not certify its packaged rendering.

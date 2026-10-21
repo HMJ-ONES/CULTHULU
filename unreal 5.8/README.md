@@ -35,6 +35,8 @@ without an adjacent source-assets tree. This proves the tested humanoid assets,
 activity poses and mode-start metadata; it does not establish release readiness.
 See `Docs/Checkpoint_2026-10-21.md` and `../docs/PRODUCTION_AUDIT_2026-10-20.md`
 for current results and remaining work.
+`Docs/WorldPresentation.md` records the later Free Roam dusk/readability pass and
+its separate editor render verification; that newer profile needs a fresh standalone check.
 
 Build.cs stages the release character definitions, fonts and all 48 NPC animation
 clips. Do not hand-copy or commit generated CharacterDefinitions/CharacterAnimations

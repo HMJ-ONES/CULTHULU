@@ -1,6 +1,7 @@
 #include "CultUlhuPlayGameMode.h"
 // CULT-ULHU play game mode implementation.
 #include "CultActorLabels.h"
+#include "CultWildsPresentation.h"
 
 #include "EngineUtils.h"
 #include "GameFramework/PlayerStart.h"
@@ -67,6 +68,7 @@ void ACultUlhuPlayGameMode::InitGame(const FString& MapName,const FString& Optio
  }
  if(!HasSky) if(auto* Sky=GetWorld()->SpawnActor<ASkyLight>()) ConfigureSky(Sky->GetLightComponent());
  if(auto* GI=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(GI->SelectedMode!=ECultPlayMode::FreeRoam) { ACultMatchDirector::BuildArena(GetWorld(),GI->SelectedMode); return; }
+ CultWildsPresentation::Apply(GetWorld());
  auto* Land=GetWorld()->SpawnActor<ACultLivingLandscape>(); Land->Generate(FMath::Rand());
 }
 
