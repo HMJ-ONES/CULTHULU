@@ -11,7 +11,10 @@ from pathlib import Path
 from statistics import mean
 
 
-def summarize(path):
+COUNT_STATS = {"PopulationDecisionCalls", "ProfilePopulation"}
+
+
+def summarize(path, counts=False):
     with path.open(encoding="utf-8-sig", newline="") as stream:
         reader = csv.DictReader(stream)
         fields = reader.fieldnames or []
@@ -31,7 +34,10 @@ def summarize(path):
             raise ValueError(f"No positive-duration frames in {path}")
         output = []
         for stat in fields:
-            if not (stat.startswith("CultRuntime/") or stat in {
+            is_count = stat.rsplit("/", 1)[-1] in COUNT_STATS
+            if is_count != counts:
+                continue
+            if not counts and not (stat.startswith("CultRuntime/") or stat in {
                 "FrameTime", "GameThreadTime", "GPUTime",
                 "Exclusive/GameThread/EndOfFrameUpdates",
                 "Exclusive/GameThread/CharacterMovement",
@@ -67,6 +73,14 @@ def main():
         writer.writerow(("capture", "stat", "frame_samples", "mean_ms", "p95_ms"))
         writer.writerows(rows)
     print(f"Summarized {len(captures)} captures into {args.output}")
+    counters = [row for capture in captures for row in summarize(capture, counts=True)]
+    if counters:
+        counter_path = args.output.with_name(args.output.stem + "_Counters.csv")
+        with counter_path.open("w", encoding="utf-8", newline="") as stream:
+            writer = csv.writer(stream)
+            writer.writerow(("capture", "stat", "frame_samples", "mean_count", "p95_count"))
+            writer.writerows(counters)
+        print(f"Wrote count metrics separately to {counter_path}")
 
 
 if __name__ == "__main__":

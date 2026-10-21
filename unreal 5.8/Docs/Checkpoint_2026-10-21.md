@@ -48,3 +48,9 @@ A subsequent Free Roam presentation pass adds fixed exposure, moonlight, a
 working dusk gradient and bounded cave fill. Its editor render/collision/camera
 checks passed; see WorldPresentation.md. The earlier standalone results above
 predate that profile and do not certify its packaged rendering.
+
+A later population pass separates routine decisions from continuous movement,
+preserves immediate accepted orders/control handling, and fixes captive movement
+under stun/root. Its four editor tests and same-world A-B-B-A profile are recorded
+in PopulationScheduling.md. This later code also needs standalone verification;
+the measured frame time remains too high for responsive combat.

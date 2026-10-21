@@ -11,14 +11,21 @@
 #include "ShaderCompiler.h"
 #include "Misc/Paths.h"
 #include "HAL/FileManager.h"
+#include "HAL/IConsoleManager.h"
+CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 
 // Real Free Roam: population, war, building and bot ticks remain enabled.
 // CSV timings measure this editor fixture; they are not a foreground FPS claim.
 class FCultFreeRoamProfile : public IAutomationLatentCommand {
  FAutomationTestBase* Test; int Phase=0,Frames=0; double Began=FPlatformTime::Seconds();
  TSharedFuture<FString> Written;
+ bool Paired=false; int Segment=0; float Before=0,SettleUntil=0;
 public:
- explicit FCultFreeRoamProfile(FAutomationTestBase* T):Test(T) {}
+ explicit FCultFreeRoamProfile(FAutomationTestBase* T,bool Compare=false):Test(T),Paired(Compare) {
+  Before=IConsoleManager::Get().FindConsoleVariable(TEXT("cult.Population.DecisionInterval"))->GetFloat();
+  if(Paired) IConsoleManager::Get().FindConsoleVariable(TEXT("cult.Population.DecisionInterval"))->Set(0.f,ECVF_SetByCode);
+ }
+ ~FCultFreeRoamProfile() { if(Paired) IConsoleManager::Get().FindConsoleVariable(TEXT("cult.Population.DecisionInterval"))->Set(Before,ECVF_SetByCode); }
  bool Update() override {
   if(FPlatformTime::Seconds()-Began>180) { Test->AddError(TEXT("Free Roam profile timed out")); if(FCsvProfiler::Get()->IsCapturing()) FCsvProfiler::Get()->EndCapture(); return true; }
   UWorld* W=nullptr; for(auto& C:GEngine->GetWorldContexts()) if(C.World()&&C.World()->IsGameWorld()) W=C.World(); if(!W) return false;
@@ -26,23 +33,30 @@ public:
    if(!Phase) { auto* G=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); G->SelectedCharacterId=TEXT("mi_go"); G->OpenCharacterSelect(ECultPlayMode::FreeRoam); G->SetInitialBeliefs({5,6,11}); G->StartPlay(); Phase=1; } return false;
   }
   if(Phase==1) {
-   if(W->GetTimeSeconds()<18 || (GShaderCompilingManager&&GShaderCompilingManager->IsCompiling())) return false;
+   if(W->GetTimeSeconds()<FMath::Max(18.f,SettleUntil) || (GShaderCompilingManager&&GShaderCompilingManager->IsCompiling())) return false;
    int Population=0,Heroes=0,Actors=0;
    for(TActorIterator<AActor> It(W);It;++It) ++Actors;
    for(TActorIterator<ACultPopulation> It(W);It;++It) ++Population;
    for(TActorIterator<ACultUlhuPlayerPawn> It(W);It;++It) ++Heroes;
-   Test->AddInfo(FString::Printf(TEXT("Warmed Free Roam profile: actors=%d population=%d heroes=%d worldTime=%.2f"),Actors,Population,Heroes,W->GetTimeSeconds()));
+   Test->AddInfo(FString::Printf(TEXT("Warmed Free Roam profile: actors=%d population=%d heroes=%d worldTime=%.2f segment=%d interval=%.2f"),Actors,Population,Heroes,W->GetTimeSeconds(),Segment,IConsoleManager::Get().FindConsoleVariable(TEXT("cult.Population.DecisionInterval"))->GetFloat()));
    Test->TestTrue(TEXT("Profiling retains a populated live world"),Population>30&&Heroes>=3);
    const FString Dir=FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir()/TEXT("Profiling/CultRuntime")); IFileManager::Get().MakeDirectory(*Dir,true);
-   FCsvProfiler::Get()->BeginCapture(-1,Dir,TEXT("FreeRoam_")+FDateTime::UtcNow().ToString(TEXT("%Y%m%d_%H%M%S"))+TEXT(".csv")); Phase=2; return false;
+   FCsvProfiler::Get()->BeginCapture(-1,Dir,(Paired?FString::Printf(TEXT("PopulationDecision_%d_"),Segment):FString(TEXT("FreeRoam_")))+FDateTime::UtcNow().ToString(TEXT("%Y%m%d_%H%M%S"))+TEXT(".csv")); Phase=2; return false;
   }
   if(Phase==2) {
-   if(++Frames<180) return false;
+   int Count=0; for(TActorIterator<ACultPopulation> It(W);It;++It) ++Count;
+   CSV_CUSTOM_STAT(CultRuntime, ProfilePopulation,Count,ECsvCustomStatOp::Set);
+   if(++Frames<(Paired?120:180)) return false;
    Written=FCsvProfiler::Get()->EndCapture(); Phase=3; return false;
   }
   if(Phase==3) {
    if(!Written.IsReady()) return false;
    const auto File=Written.Get(); Test->TestTrue(TEXT("Warmed gameplay CSV was written"),IFileManager::Get().FileSize(*File)>0); Test->AddInfo(TEXT("Runtime profile: ")+File);
+   if(Paired&&++Segment<4) {
+    const float Interval=Segment==3?0.f:.1f;
+    IConsoleManager::Get().FindConsoleVariable(TEXT("cult.Population.DecisionInterval"))->Set(Interval,ECVF_SetByCode);
+    Frames=0; SettleUntil=W->GetTimeSeconds()+1; Phase=1; return false;
+   }
    // Public delivery paths, real native target, and overlapping caster sources.
    // Run after capture so the fixture cannot distort its measured workload.
    ACultUlhuPlayerPawn* Player=nullptr; for(TActorIterator<ACultUlhuPlayerPawn> It(W);It;++It) if(!It->IsBot()) Player=*It;
@@ -75,5 +89,9 @@ public:
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultFreeRoamPerformanceTest,"CultUlhu.Menu.PerformanceFreeRoam",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultFreeRoamPerformanceTest::RunTest(const FString&) {
  ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FCultFreeRoamProfile(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultPopulationDecisionProfileTest,"CultUlhu.Menu.PopulationDecisionProfile",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultPopulationDecisionProfileTest::RunTest(const FString&) {
+ ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FCultFreeRoamProfile(this,true)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true;
 }
 #endif

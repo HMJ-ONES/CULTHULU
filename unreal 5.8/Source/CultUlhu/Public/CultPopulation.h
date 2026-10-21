@@ -15,9 +15,9 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	void Recruit();
  void DieWithCorpse();
- void SummonTo(int32 Faction) { Faction_=Faction; bSummoned_=true; Health_=120; }
+ void SummonTo(int32 Faction) { Faction_=Faction; DecisionWait_=0; bSummoned_=true; Health_=120; }
  bool IsSummoned() const { return bSummoned_; }
- void Desert() { bCultist_=false; Faction_=-1; Activity_=TEXT("Wander"); OrderTime_=0; bPlayerBattle_=false; }
+ void Desert() { bCultist_=false; DecisionWait_=0; Faction_=-1; Activity_=TEXT("Wander"); OrderTime_=0; bPlayerBattle_=false; }
 	void RecruitTo(int32 Faction);
  void TransferTo(int32 Faction) { if(bCultist_&&Faction_==Faction) return; bCultist_=false; RecruitTo(Faction); }
  void ApplyFaithState(float Hp,float Loyalty,bool Lunatic) { Health_=Hp; Loyalty_=Loyalty; bLunatic_=Lunatic; if(Hp<=0) DieWithCorpse(); }
@@ -33,7 +33,7 @@ public:
 	bool IsCaptive() const { return bCaptive_; }
 	void Capture(AActor* Escort=nullptr,int32 Faction=-1) { bCaptive_=true; Captor_=Escort; CaptiveFaction_=Faction; }
  int32 GetCaptiveFaction() const { return CaptiveFaction_; }
- void ReleaseCaptive() { bCaptive_=false; Captor_.Reset(); CaptiveFaction_=-1; }
+ void ReleaseCaptive() { DecisionWait_=0; bCaptive_=false; Captor_.Reset(); CaptiveFaction_=-1; }
 	void Heal(float Amount) { Health_=FMath::Min(bSummoned_?CreatureMaxHp_:bCultist_?100.f:1.f,Health_+Amount); }
 	void Order(const FString& Action, FVector Point, AActor* Target = nullptr, float Duration = 60.f, bool bDirective = false);
  bool HasDirective() const { return bPlayerBattle_ || (bDirective_ && OrderTime_>0); }
@@ -45,7 +45,7 @@ public:
 	void ReceiveAttack(float Damage,int32 Attacker=-1,bool Accounted=false,bool Feral=false);
 	bool IsCultist() const { return bCultist_; }
 	bool IsAttacking() const { return bAttack_; }
-	void SetAttackOrder(bool bAttack) { bAttack_ = bAttack; }
+	void SetAttackOrder(bool bAttack) { bAttack_ = bAttack; DecisionWait_=0; }
 public:
  void ShowContribution(const FString& Text) { Contribution_=Text; ContributionTime_=6; }
  void SetWorkProgress(float P,bool Working) { WorkProgress_=FMath::Clamp(P,0.f,1.f); bWorking_=Working; }
@@ -96,5 +96,7 @@ private:
 	float OrderTime_ = 0.f;
  bool bDirective_=false;
  bool bPlayerBattle_=false;
+ float DecisionWait_=0,DecisionElapsed_=0; FVector DecisionMove_=FVector::ZeroVector; bool bWasStopped_=false;
+ void UpdateDecision(float Elapsed);
 	float AmbientTime_ = 0.f;
 };

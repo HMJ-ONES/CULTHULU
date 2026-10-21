@@ -8,12 +8,17 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
+#include "HAL/IConsoleManager.h"
 #include "CultFeralBeast.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultWorldDirector.h"
 #include "CultDestructible.h"
 #include "Camera/PlayerCameraManager.h"
 #include "GameFramework/PlayerController.h"
+
+namespace {
+TAutoConsoleVariable<float> DecisionInterval(TEXT("cult.Population.DecisionInterval"),.1f,TEXT("NPC decision refresh interval in seconds; zero retains per-frame decisions for profiling. Physics and control states always tick every frame."));
+}
 
 ACultPopulation::ACultPopulation()
 {
@@ -34,7 +39,7 @@ void ACultPopulation::BeginPlay()
 void ACultPopulation::Recruit() { RecruitTo(0); }
 void ACultPopulation::RecruitTo(int32 Faction)
 {
- if(bCultist_) return; bPlayerBattle_=false; bCultist_=true; bCaptive_=false; Faction_=Faction; Loyalty_=60; Health_=100;
+ if(bCultist_) return; bPlayerBattle_=false; bCultist_=true; DecisionWait_=0; bCaptive_=false; Faction_=Faction; Loyalty_=60; Health_=100;
  if(auto* M=LoadObject<UMaterialInterface>(nullptr,Faction==0?TEXT("/Game/CultUlhu/Materials/M_CultistBody"):TEXT("/Game/CultUlhu/Materials/M_PawnVessel"))) Body_->SetMaterial(0,M);
  if(auto* D=ACultWorldDirector::Find(GetWorld())) D->Register(this);
 }
@@ -53,6 +58,7 @@ void ACultPopulation::PlayerOrder(const FString& Action,FVector Point,AActor* Ta
 void ACultPopulation::Order(const FString& Action,FVector Point,AActor* Target,float Duration,bool bDirective)
 {
  if(bPlayerBattle_) return; // Only an explicit player reassignment releases a battle group.
+ DecisionWait_=0;
  if(Activity_!=Action) { WorkProgress_=0; bWorking_=false; }
  bDirective_=bDirective; Activity_=Action; OrderPoint_=Point; OrderTarget_=Target; OrderTime_=Duration; bAttack_=Action==TEXT("Attack")||Action==TEXT("Raid")||Action==TEXT("WildsHunt");
 }
@@ -63,9 +69,30 @@ void ACultPopulation::Tick(float Dt)
  UpdateHumanAppearance(Dt);
  Control_.Tick(Dt); AttackTime_=FMath::Max(0.f,AttackTime_-Dt); OrderTime_=FMath::Max(0.f,OrderTime_-Dt);
  GetCharacterMovement()->MaxWalkSpeed=250.f*Control_.Speed;
+ if(bWasStopped_!=Control_.Stop) DecisionWait_=0; bWasStopped_=Control_.Stop;
  if(Control_.Stop) GetCharacterMovement()->StopMovementImmediately();
  if(Control_.Fear) for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this) It->Destroy();
- if(Control_.Stun||bCaptive_) { for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this) It->Destroy(); if(bCaptive_&&Captor_.IsValid()&&FVector::Dist2D(GetActorLocation(),Captor_->GetActorLocation())>250) AddMovementInput((Captor_->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(),1,true); else GetCharacterMovement()->StopMovementImmediately(); return; }
+ if(Control_.Stun||bCaptive_) {
+  DecisionWait_=0; DecisionElapsed_=0; DecisionMove_=FVector::ZeroVector;
+  for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this) It->Destroy();
+  const bool CanFollow=!Control_.Stun&&!Control_.Stop&&bCaptive_&&Captor_.IsValid()&&FVector::Dist2D(GetActorLocation(),Captor_->GetActorLocation())>250;
+  if(CanFollow) AddMovementInput((Captor_->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(),1,true);
+  else GetCharacterMovement()->StopMovementImmediately();
+  return;
+ }
+ DecisionElapsed_+=Dt; DecisionWait_-=Dt;
+ if(DecisionWait_<=0||Control_.Fear) {
+  const float Elapsed=DecisionElapsed_; DecisionElapsed_=0;
+  DecisionWait_=FMath::Max(0.f,DecisionInterval.GetValueOnGameThread());
+  DecisionMove_=FVector::ZeroVector; UpdateDecision(Elapsed);
+ }
+ // Feed intent every frame; native collision, acceleration and animation stay smooth.
+ if(!Control_.Stop&&!DecisionMove_.IsNearlyZero()) AddMovementInput(DecisionMove_,1,true);
+}
+void ACultPopulation::UpdateDecision(float Dt)
+{
+ CSV_SCOPED_TIMING_STAT(CultRuntime, PopulationDecision);
+ CSV_CUSTOM_STAT(CultRuntime, PopulationDecisionCalls,1,ECsvCustomStatOp::Accumulate);
  FVector Target=OrderPoint_; float Stop=150;
  auto* Player=Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(GetWorld(),0));
  auto* Director=ACultWorldDirector::Find(GetWorld());
@@ -117,8 +144,9 @@ void ACultPopulation::Tick(float Dt)
    const FVector Trial=Direction.RotateAngleAxis(Turn,FVector::UpVector);
    if(!GetWorld()->SweepSingleByChannel(Obstacle,GetActorLocation(),GetActorLocation()+Trial*220,FQuat::Identity,ECC_Pawn,FCollisionShape::MakeSphere(45),Avoid)) { Direction=Trial; break; }
   }
-  FVector Probe=GetActorLocation()+Direction.GetSafeNormal()*200; FHitResult H; FCollisionQueryParams Q(SCENE_QUERY_STAT(CultNpcGround),false,this);
-  if(GetWorld()->LineTraceSingleByObjectType(H,Probe+FVector(0,0,250),Probe-FVector(0,0,400),FCollisionObjectQueryParams(ECC_WorldStatic),Q)&&H.ImpactNormal.Z>.65) AddMovementInput(Direction.GetSafeNormal(),1,true);
+  const float Lookahead=FMath::Max(200.f,GetCharacterMovement()->MaxWalkSpeed*(FMath::Max(0.f,DecisionInterval.GetValueOnGameThread())+.15f));
+  FVector Probe=GetActorLocation()+Direction.GetSafeNormal()*Lookahead; FHitResult H; FCollisionQueryParams Q(SCENE_QUERY_STAT(CultNpcGround),false,this);
+  if(GetWorld()->LineTraceSingleByObjectType(H,Probe+FVector(0,0,250),Probe-FVector(0,0,400),FCollisionObjectQueryParams(ECC_WorldStatic),Q)&&H.ImpactNormal.Z>.65) DecisionMove_=Direction.GetSafeNormal();
  }
 }
 

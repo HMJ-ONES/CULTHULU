@@ -379,3 +379,54 @@ recooked/run in a standalone package. No new standalone package, download or
 large asset archive was created in this pass. The full original goal remains
 active, including mode quality, living-world behavior, visual refinement,
 performance and human combat/match evaluation.
+
+
+## Population decisions, physical response and CPU cost — 2026-10-21
+
+The preceding goal turn made verified progress on Free Roam lighting, a working
+dusk gradient and visible cave actors, while explicitly leaving frame time and
+movement warnings unresolved. The current warmed 192-person editor baseline
+averaged 90.060 ms/frame, with PopulationTick 17.955 ms, CharacterMovement 14.525 ms
+and EndOfFrameUpdates 19.406 ms. GPU time was 10.113 ms. That is plainly inadequate
+for responsive combat; this fixture is not a foreground FPS measurement.
+
+Population decision work is now separated from continuous movement. Appearance,
+control projection, order/attack timers and native physics keep ticking every
+frame. Routine target/obstacle/ground decisions have a default minimum interval
+of 0.1 seconds, with cached movement input fed every frame. Accepted orders and
+role/control transitions bypass the wait. Fear is still evaluated each frame.
+Enemy/war selection, battle ownership, loyalty/belief rules and native attack
+windups are preserved. The captive-follow branch also now respects both stun and
+root/stop, rather than adding follow input after the movement stop. No control
+snapshot lifetime is extended.
+
+The final canonical Editor builds succeeded. PopulationSchedulingVerification.log
+passes ArmyCommands, PopulationDecisionProfile, PopulationMotion and
+StagedHumanPoses with zero automation errors. The actual movement fixture verifies
+continued walking between two-second diagnostic decisions, reversal within 0.4 s
+of a new order, held stun/root preventing captive following, recovery, a delayed
+physical hit from a zero-loyalty battle order, and braking at the real platform
+edge. The final root X was 2819.2 cm on a floor ending at 3000 cm. Original human
+activity poses remain verified. This is narrower than all NPC navigation cases.
+
+The new profile alternates A-B-B-A in the same evolving Free Roam world, retaining
+all AI/faith/war/construction. Four 120-frame windows have a constant population
+of 182 and three heroes; total actors rise 480→492 as construction continues.
+Per-frame-decision windows average 12.710 ms decision time, 17.534 ms PopulationTick
+and 89.532 ms FrameTime. Scheduled windows average 6.389 ms, 10.585 ms and 79.758 ms,
+respectively. PopulationTick drops 39.6%, with a 10.9% frame-time reduction in this
+fixture. Mean decision calls fall from about 173 to 87 per frame. The final A
+window returns to higher costs; the earlier separate 192-person baseline is not
+used for these percentages. Counts are exported separately from ms so the new
+counter fields cannot be mistaken for durations. Per-window p95s, raw CSV hashes
+and context are in Docs/PopulationSchedulingResults.json.
+
+This is a useful reduction, not a performance solution. CharacterMovement remains
+13.615 ms and EndOfFrameUpdates 18.748 ms in scheduled windows; GPU time is about
+10.68 ms. Decision work still clusters on some frames. Movement-timestep warnings
+and occasional stuck-unit cases are not resolved by this change. Overall editor
+frame time remains far above a responsive-action target. Further investigation
+of movement/collision, component updates and work distribution is required.
+Standalone scheduling behavior/performance, broader navigation and human combat
+quality remain unproven. No package/download was added; the full goal remains
+active.
