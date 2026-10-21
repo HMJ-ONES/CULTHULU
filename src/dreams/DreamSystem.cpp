@@ -66,6 +66,7 @@ float DreamSystem::update(double dt) {
         if (cp > 1.0f) cp = 1.0f;
         if (rng_.chance(cp)) {
             const uint64_t civ = picker_ ? picker_() : 0;
+            if (!picker_ || civ != 0) { // A bound world needs a real, available soul.
             GameEvent w(EventType::DreamWhisper);
             w.sourceId = id;
             w.targetId = civ;
@@ -79,6 +80,7 @@ float DreamSystem::update(double dt) {
             c.amount = 1.0f;
             c.tag = "dream_whisper";
             bus_.publish(c);
+            }
         }
 
         // Nightmares: the cultist wakes up Lunatic.

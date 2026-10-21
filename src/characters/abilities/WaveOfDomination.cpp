@@ -171,6 +171,7 @@ void WaveOfDomination::catchSweep(RmbContext& ctx) {
         if (std::fabs(along - waveDist_) > kWaveThickness * 0.5f) continue;
         if (std::fabs(lateral) > kWaveHalfWidth) continue;
         if (!isSusceptible(e)) continue;
+        if (ctx.waveOverlap && !ctx.waveOverlap(*e, waveOrigin_)) continue;
 
         Victim v;
         v.entity = e;
@@ -209,13 +210,14 @@ void WaveOfDomination::updateHold(RmbContext& ctx, double dt) {
             victims_.erase(victims_.begin() + i);
             continue;
         }
+        const Vec3 previous = v.entity->position();
         v.entity->setPosition(
             Vec3{anchor.x + v.ringOffset.x, anchor.y + v.ringOffset.y,
                  anchor.z + v.ringOffset.z});
         ctx.effects.apply(v.entity->id(), CCType::Root, kRootRefreshSec,
                           ctx.beliefs, ctx.bus);
 
-        Entity* hit = findImpact(ctx, v.entity->position(), v.entity);
+        Entity* hit = ctx.spatialImpact ? ctx.spatialImpact(previous, v.entity->position(), v.entity) : findImpact(ctx, v.entity->position(), v.entity);
         if (hit != nullptr) {
             impactVictim(ctx, v, hit, kSlamDamage, "slam");
             victims_.erase(victims_.begin() + i);
@@ -232,7 +234,8 @@ void WaveOfDomination::updateFlying(RmbContext& ctx, double dt) {
             victims_.erase(victims_.begin() + i);
             continue;
         }
-        Vec3 p = v.entity->position();
+        const Vec3 previous = v.entity->position();
+        Vec3 p = previous;
         p.x += v.velocity.x * static_cast<float>(dt);
         p.z += v.velocity.z * static_cast<float>(dt);
         // Arc slightly downward for drama; the engine renders the rest.
@@ -240,7 +243,7 @@ void WaveOfDomination::updateFlying(RmbContext& ctx, double dt) {
         v.entity->setPosition(p);
         v.flown += step;
 
-        Entity* hit = findImpact(ctx, p, v.entity);
+        Entity* hit = ctx.spatialImpact ? ctx.spatialImpact(previous, p, v.entity) : findImpact(ctx, p, v.entity);
         if (hit != nullptr) {
             impactVictim(ctx, v, hit, kLaunchDamage, "launch");
             victims_.erase(victims_.begin() + i);

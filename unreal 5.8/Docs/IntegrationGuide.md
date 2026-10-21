@@ -12,7 +12,7 @@ Visual Studio; every step that must be confirmed in the editor is also in
   the MSVC v143 toolchain matching your engine build.
 - CMake 3.16+ (to build the core static lib).
 - Radmin VPN installed (for multiplayer tests later).
-- This repo cloned locally; you will open `<repo>/unreal 5.8/CultUlhu.uproject`.
+- This repo cloned locally; you will open `<repo>/unreal/CultUlhu.uproject`.
 
 ## 1. Build the core static lib (MSVC)
 
@@ -34,13 +34,13 @@ Notes:
 - Rebuild the lib whenever `../src` changes; the UE build will not do it
   for you. (A future step: a pre-build script that does this automatically.)
 - Debug editor builds want a Debug lib too (`--config Debug` →
-  `unreal 5.8/lib/Win64/cultulhu_d.lib` + a `Target.Configuration` switch in
+  `unreal/lib/Win64/cultulhu_d.lib` + a `Target.Configuration` switch in
   `CultUlhuCore.Build.cs`).
   // VERIFY IN EDITOR: add the Debug-lib switch before you need it.
 
 ## 2. Generate project files & first compile
 
-1. Right-click `unreal 5.8/CultUlhu.uproject` → **Generate Visual Studio project files**.
+1. Right-click `unreal/CultUlhu.uproject` → **Generate Visual Studio project files**.
 2. Open the `.sln`, build the `CultUlhuEditor` target (Development Editor).
 3. Open the project in the UE editor.
 // VERIFY IN EDITOR: both modules (`CultUlhuCore`, `CultUlhu`) load —

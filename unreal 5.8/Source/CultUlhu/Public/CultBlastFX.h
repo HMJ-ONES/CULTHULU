@@ -1,7 +1,7 @@
 // CULT-ULHU blast FX: short-lived, self-animating impact effects.
 //
 // Two kinds, both built from Engine basic shapes + the FX materials made
-// by unreal 5.8/Tools/BuildDarkWilds.py (M_FX_Dust, M_FX_Flash):
+// by unreal/Tools/BuildDarkWilds.py (M_FX_Dust, M_FX_Flash):
 //   ShockRing — the pawn's smash: 12 dust puffs racing outward in a ring
 //               plus a central flash that pops. Fades by shrinking.
 //   DustBurst — building collapse: dust puffs blooming up and out.

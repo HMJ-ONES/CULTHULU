@@ -2,12 +2,14 @@
 #include "CultBlastFX.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Components/SceneComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInterface.h"
 
 ACultBlastFX::ACultBlastFX()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("EffectOrigin"));
 }
 
 ACultBlastFX* ACultBlastFX::SpawnBlast(UWorld* World, ECultBlastKind Kind,

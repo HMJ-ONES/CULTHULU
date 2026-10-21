@@ -20,11 +20,11 @@ public class CultUlhuCore : ModuleRules
 		PublicIncludePaths.Add(Path.Combine(RepoRoot, "src"));
 
 		// Link the prebuilt core static lib. Build it with the SAME MSVC
-		// toolchain as the engine (see unreal 5.8/README.md), then place it at
-		// unreal 5.8/lib/Win64/cultulhu.lib (and lib/Linux/libcultulhu.a for Linux).
+		// toolchain as the engine (see unreal/README.md), then place it at
+		// unreal/lib/Win64/cultulhu.lib (and lib/Linux/libcultulhu.a for Linux).
 		// VERIFY IN EDITOR: confirm the lib path resolves on your machine;
 		// adjust for your platform/config (Debug vs Release CRT must match).
-		string LibDir = Path.Combine(RepoRoot, "unreal", "lib", Target.Platform.ToString());
+		string LibDir = Path.Combine(RepoRoot, "unreal 5.8", "lib", Target.Platform.ToString());
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
 			PublicAdditionalLibraries.Add(Path.Combine(LibDir, "cultulhu.lib"));

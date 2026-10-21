@@ -1,5 +1,6 @@
-// CULT-ULHU game instance implementation.
 #include "CultUlhuGameInstance.h"
+// CULT-ULHU game instance implementation.
+#include "CultActorLabels.h"
 
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraActor.h"
@@ -8,6 +9,8 @@
 
 #include "UI/CultHomeScreenWidget.h"
 #include "UI/CultCharacterSelectWidget.h"
+#include "CultCanonicalKit.h"
+#include "UI/CultBeliefSelectWidget.h"
 
 const TArray<FCultRosterEntry>& UCultUlhuGameInstance::Roster()
 {
@@ -15,6 +18,7 @@ const TArray<FCultRosterEntry>& UCultUlhuGameInstance::Roster()
 	static const TArray<FCultRosterEntry> R = [] {
 		TArray<FCultRosterEntry> A;
 		auto E = [&A](const TCHAR* Id, const TCHAR* Name, const TCHAR* Flavor, float H) {
+			if(!CultCanonicalKit::IsReleased(Id)) return;
 			FCultRosterEntry E; E.Id = Id; E.DisplayName = Name; E.Flavor = Flavor; E.HeightM = H;
 			A.Add(E);
 		};
@@ -69,6 +73,7 @@ FString UCultUlhuGameInstance::ModeStartLabel(ECultPlayMode Mode)
 void UCultUlhuGameInstance::ShowWidget(UUserWidget* Widget, bool bUIOnly)
 {
 	if (!Widget) return;
+	Widget->SetIsFocusable(true);
 	ClearMenuWidgets();
 	MenuWidgets_.Add(Widget);
 	Widget->AddToViewport(100);
@@ -119,7 +124,7 @@ void UCultUlhuGameInstance::ShowHomeScreen()
 		{
 			for (TActorIterator<ACameraActor> It(W); It; ++It)
 			{
-				if (It->GetActorLabel() == TEXT("MENU_VistaCamera"))
+				if (CultActorLabels::Anchor(*It,TEXT("MENU_VistaCamera")))
 				{
 					PC->SetViewTargetWithBlend(*It, 0.0f);
 					break;
@@ -131,6 +136,8 @@ void UCultUlhuGameInstance::ShowHomeScreen()
 
 void UCultUlhuGameInstance::OpenCharacterSelect(ECultPlayMode Mode)
 {
+ if(!CultCanonicalKit::IsReleased(SelectedCharacterId)) SelectedCharacterId=TEXT("cthulhu_avatar");
+	InitialBeliefs_.Reset();
 	SelectedMode = Mode;
 	if (UCultCharacterSelectWidget* Widget =
 		CreateWidget<UCultCharacterSelectWidget>(this, UCultCharacterSelectWidget::StaticClass()))
@@ -141,20 +148,39 @@ void UCultUlhuGameInstance::OpenCharacterSelect(ECultPlayMode Mode)
 	}
 }
 
+bool UCultUlhuGameInstance::SetInitialBeliefs(const TArray<int32>& Choices)
+{
+ if(SelectedMode!=ECultPlayMode::FreeRoam) { InitialBeliefs_.Reset(); return false; }
+ TSet<int32> Unique; for(int32 B:Choices) { if(B<0||B>=12) return false; Unique.Add(B); }
+ if(Unique.Num()!=3||Choices.Num()!=3) return false;
+ InitialBeliefs_=Choices; return true;
+}
+void UCultUlhuGameInstance::OpenBeliefSelect()
+{
+ if(SelectedMode!=ECultPlayMode::FreeRoam) { StartPlay(); return; }
+ InitialBeliefs_.Reset();
+ if(auto* Widget=CreateWidget<UCultBeliefSelectWidget>(this,UCultBeliefSelectWidget::StaticClass())) ShowWidget(Widget,true);
+}
 void UCultUlhuGameInstance::StartPlay()
 {
+ if(!CultCanonicalKit::IsReleased(SelectedCharacterId)) { OpenCharacterSelect(SelectedMode); return; }
+ if(SelectedMode==ECultPlayMode::FreeRoam&&InitialBeliefs_.Num()!=3) { OpenBeliefSelect(); return; }
+ if(SelectedMode!=ECultPlayMode::FreeRoam) InitialBeliefs_.Reset();
+ cultulhu::CharacterDef Definition; if(!CultCanonicalKit::Load(SelectedCharacterId,Definition)) return;
+	bPlayChosen = true;
 	ClearMenuWidgets();
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
 		PC->SetInputMode(FInputModeGameOnly());
 		PC->bShowMouseCursor = false;
 	}
-	// The Dark Wilds map is built by unreal 5.8/Tools/BuildDarkWilds.py.
+	// The Dark Wilds map is built by unreal/Tools/BuildDarkWilds.py.
 	UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("/Game/Maps/L_DarkWilds")));
 }
 
 void UCultUlhuGameInstance::ReturnToMenu()
 {
+	bPlayChosen = false;
 	ClearMenuWidgets();
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{

@@ -13,6 +13,15 @@
 void ACultUlhuPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	if (IsLocalController() && !GetWorld()->GetName().Contains(TEXT("L_MainMenu")))
+	{
+		FInputModeGameOnly Mode;
+		Mode.SetConsumeCaptureMouseDown(false);
+		SetInputMode(Mode);
+		bShowMouseCursor = false;
+		ResetIgnoreLookInput();
+		ResetIgnoreMoveInput();
+	}
 	if (UEnhancedInputLocalPlayerSubsystem* Subsys =
 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{

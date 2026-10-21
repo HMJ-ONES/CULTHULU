@@ -13,7 +13,7 @@ Checks (all static, no engine):
  6. Every core header #included by the binding exists in ../src
     (catches typos like "beliefs/BeliefSystems.h").
 
-Run: python3 unreal 5.8/Tests/validate_binding.py   (from the repo root)
+Run: python3 unreal/Tests/validate_binding.py   (from the repo root)
 Exit 0 = all green.
 """
 import json
@@ -22,7 +22,7 @@ import re
 import sys
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-UNREAL = os.path.join(REPO, "unreal 5.8")
+UNREAL = os.path.join(REPO, "unreal")
 SRC = os.path.join(REPO, "src")
 failures = []
 

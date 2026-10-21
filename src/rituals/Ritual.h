@@ -12,7 +12,7 @@ class EventBus;
 class Ritual {
 public:
     Ritual(double durationSeconds, EventBus& bus)
-        : duration_(durationSeconds), bus_(bus) {}
+        : bus_(bus), duration_(durationSeconds) {}
     virtual ~Ritual() = default;
 
     void start() {
@@ -21,7 +21,8 @@ public:
         elapsed_ = 0.0;
         onStart(); // wave 18: rite-begin hook (e.g. sacrifice anim poses)
     }
-    void interrupt();
+    // notify=false lets an engine consume an already-published interruption once.
+    void interrupt(bool notify = true);
 
     // Advance the ritual. Returns true if it completed this tick.
     bool update(double dt);

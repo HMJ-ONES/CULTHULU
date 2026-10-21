@@ -1,11 +1,13 @@
-// CULT-ULHU destructible building implementation.
 #include "CultDestructible.h"
+// CULT-ULHU destructible building implementation.
+#include "CultActorLabels.h"
 
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
 
 #include "CultBlastFX.h"
+#include "CultWorldDirector.h"
 
 ACultDestructible::ACultDestructible()
 {
@@ -14,6 +16,7 @@ ACultDestructible::ACultDestructible()
 	MeshComp_ = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BuildingMesh"));
 	RootComponent = MeshComp_;
 	MeshComp_->SetCollisionProfileName(TEXT("BlockAll"));
+ MeshComp_->SetForceDisableNanite(true); // Tiny low-poly props use their ordinary LODs and imported materials.
 
 	// Tick only while debris is flying.
 	SetActorTickEnabled(false);
@@ -48,11 +51,12 @@ void ACultDestructible::BeginPlay()
 	MaxHealth_ = Health_ = (50.0f + RadiusM * 18.0f) * HealthMultiplier_;
 }
 
-void ACultDestructible::ApplyDamage(float Amount, FVector HitLocation)
+void ACultDestructible::ApplyDamage(float Amount, FVector HitLocation,int32 Attacker,AActor* Agent)
 {
 	if (bDestroyed_ || Amount <= 0.0f)
 		return;
 	Health_ -= Amount;
+ if(auto* D=ACultWorldDirector::Find(GetWorld())) D->BuildingHurt(this,Attacker,Health_<=0,Agent);
 	// Hit feedback even when the building survives: a bright pop at the
 	// impact point so every smash reads.
 	ACultBlastFX::SpawnBlast(GetWorld(), ECultBlastKind::HitFlash,
@@ -77,17 +81,22 @@ void ACultDestructible::Collapse(FVector HitLocation)
 			MeshComp_->GetStaticMesh()->GetBounds().SphereRadius * GetActorScale3D().X);
 
 	// A rubble mound stays where the building stood.
-	if (UStaticMesh* Rubble = SharedMesh(TEXT("/Game/CultUlhu/World/SM_rubble-large")))
+	if (UStaticMesh* Rubble = SharedMesh(TEXT("/Game/CultUlhu/World/rubble-large/StaticMeshes/rubble-large")))
 	{
 		FActorSpawnParameters P;
 		P.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		if (AStaticMeshActor* R = GetWorld()->SpawnActor<AStaticMeshActor>(
 				AStaticMeshActor::StaticClass(), Base, FRotator::ZeroRotator, P))
 		{
+			R->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
+			R->GetStaticMeshComponent()->SetForceDisableNanite(true);
 			R->GetStaticMeshComponent()->SetStaticMesh(Rubble);
+			// Rubble is visual debris. Its coarse imported collision can trap
+			// the giant capsule while landing across a destroyed building.
+			R->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			const float S = FMath::Clamp(RadiusCm / 350.0f, 0.7f, 2.2f);
 			R->SetActorScale3D(FVector(S));
-			R->SetActorLabel(FString::Printf(TEXT("WILD_Rubble_%s"), *GetActorLabel()));
+			CultActorLabels::Set(R,FString::Printf(TEXT("WILD_Rubble_%s"), *GetActorNameOrLabel()));
 		}
 	}
 
@@ -108,13 +117,15 @@ void ACultDestructible::Collapse(FVector HitLocation)
 				AStaticMeshActor::StaticClass(),
 				Base + FVector(0.0f, 0.0f, 6.0f), FRotator::ZeroRotator, P))
 		{
+			D->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 			D->GetStaticMeshComponent()->SetStaticMesh(Plane);
+			D->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			if (Scorch)
 				D->GetStaticMeshComponent()->SetMaterial(0, Scorch);
 			const float S = FMath::Clamp(RadiusCm / 100.0f * 1.4f, 3.0f, 14.0f);
 			D->SetActorScale3D(FVector(S, S, 1.0f));
-			D->SetActorLabel(FString::Printf(TEXT("WILD_Scorch_%s"),
-				*GetActorLabel()));
+			CultActorLabels::Set(D,FString::Printf(TEXT("WILD_Scorch_%s"),
+				*GetActorNameOrLabel()));
 		}
 	}
 	(void)HitLocation;

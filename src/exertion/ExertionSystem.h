@@ -25,6 +25,8 @@
 #include "exertion/DerivedStats.h"
 #include "power/PowerSystem.h"
 
+#include <functional>
+
 namespace cultulhu {
 
 class ExertionSystem {
@@ -46,6 +48,8 @@ public:
     ExertionSystem(EventBus& bus, BeliefSystem& beliefs, PowerSystem& power,
                   CultManager& cult, RNG& rng);
 
+    // Observer receives the actual clamped event power change; it cannot change balance.
+    void setPowerObserver(std::function<void(const GameEvent&,float)> observer) { powerObserver_ = std::move(observer); }
     float exertion(Belief b) const;
     const float* levels() const { return exertion_; } // for synergy queries
     const DerivedStats& stats() const { return stats_; }
@@ -68,6 +72,7 @@ private:
     float powerMultiplierFor(const GameEvent& e) const;
     void fireTensions(double dt);
 
+    std::function<void(const GameEvent&,float)> powerObserver_;
     EventBus& bus_;
     BeliefSystem& beliefs_;
     PowerSystem& power_;

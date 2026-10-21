@@ -8,6 +8,7 @@
 #include "entities/Units.h"
 
 #include <cstdint>
+#include <functional>
 
 namespace cultulhu {
 
@@ -62,7 +63,10 @@ public:
 
     void update(double dt);
 
+    void setCivilianPicker(std::function<uint64_t()> picker) { civilianPicker_ = std::move(picker); }
     void setHourOfDay(double h) { hourOfDay_ = h; }
+    // Optional engine-world constraint; the original abstract simulation is unchanged.
+    void setTargetFilter(std::function<bool(const Cultist&, const Cultist&)> filter) { targetFilter_ = std::move(filter); }
 
     // Wave 9c: optional hooks. The exertion system feeds the Dreams bonus
     // for omen-reading and the Reconstruction boost for tending the
@@ -82,7 +86,9 @@ public:
 
 private:
     static bool eligible(const Cultist& c);
+    std::function<bool(const Cultist&, const Cultist&)> targetFilter_;
 
+    std::function<uint64_t()> civilianPicker_;
     void applyAction(Cultist& c, AmbientAction a);
 
     EventBus& bus_;

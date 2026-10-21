@@ -3,7 +3,7 @@
 How the `assets/world/` art gets into the Unreal project, and how to
 keep the host's PC happy. Written for the owner to follow in-editor;
 nothing here is compile-verified in this repo (UE5 is not installed
-here — see the `// VERIFY IN EDITOR:` markers in `unreal 5.8/Source/`).
+here — see the `// VERIFY IN EDITOR:` markers in `unreal/Source/`).
 
 ## Before you import: decode the binaries
 
