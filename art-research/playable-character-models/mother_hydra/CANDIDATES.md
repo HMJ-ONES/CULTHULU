@@ -2,7 +2,9 @@
 
 **Roster ID:** `mother_hydra`
 
-**Visual target:** Giant abyssal amphibian deity; deep-one phenotype, elongated arms, gills, inhuman proportions.
+**Updated visual target (user-approved direction):** a **beautiful adult female** abyssal goddess who is also profoundly monstrous. Attractive, regal face with wet hair, a sea-goddess silhouette, gills, scales, claws, inhuman eyes, tentacles, and a terrifying lower body. **Prioritize beauty + eldritch horror together**, not generic aquatic monsters.
+
+**[OPEN THE 12 NEW BEAUTIFUL / MONSTROUS MOTHER HYDRA OPTIONS](./BEAUTIFUL_MONSTROUS.md)** — includes free female rigged bases, gothic concept sculpts, and separate paid/restricted references. The three options below remain the original aquatic-only research set and should not be treated as the preferred new direction.
 
 This file contains **review leads**, NOT 3D model binaries or a completed three-model commercial-ready selection. Any direct model link needs a fresh creator/license/download/rights check before use. Generic searches below are open research tasks, NOT identified models.
 
