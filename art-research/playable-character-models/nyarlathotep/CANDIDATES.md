@@ -18,10 +18,10 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - **Rig / animation:** Rig/animation unverified; shortened Sketchfab link.
 
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Nyarlathotep%2C%20the%20Crawling%20Chaos%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 3. [Dark Hooded Joker Warrior](https://sketchfab.com/3d-models/hooded-joker-warrior-playing-card-568f7ba86ba3400bbeb5ef5538d29f42)
+- **Visual fit:** Deceptive trickster/demonic messenger silhouette for Crawling Chaos; needs Egyptian pharaonic aspect.
+- **Licensing / technical:** CC BY indicated; high-poly; rig/animation unverified.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
