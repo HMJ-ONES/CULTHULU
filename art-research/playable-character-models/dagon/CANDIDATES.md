@@ -22,10 +22,10 @@ This is a **source-link review file**, not downloaded asset data. Check each sou
 - **Rig/animation:** Do not assume included unless assessment explicitly states it; validate downloaded files.
 
 ## Decision
-- [ ] Preferred model selected
+- [x] Preferred model selected
 - [ ] Commercial permissions confirmed
 - [ ] File formats/textures checked
 - [ ] Rig/animations inspected
 - [ ] Blender cleanup / Unreal test approved
 
-**Chosen model:** _None_
+**Chosen model:** **[Dagon — Lovecraft Lore (Brian Trepanier)](https://sketchfab.com/3d-models/dagon-lovecraft-lore-2d96cd1308de4e2e8f0b1413e26a5448)** — selected by user 2026-10-22; **pending legal acquisition / formats / animation and UE import**. For recent option numbers, this selection overrides older numbered candidate slots. See [approved selections](../APPROVED_SELECTIONS_CODEX.md).
