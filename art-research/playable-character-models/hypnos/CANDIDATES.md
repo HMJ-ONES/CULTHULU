@@ -11,15 +11,17 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - **Rights / fit:** CC BY-NC / NoAI; reference ONLY, not usable in commercial game without extra permission; static 682k triangles.
 - **Rig / animation:** unverified; don't assume animation or production readiness.
 
-### 2. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Hypnos%2C%20Lord%20of%20Sleep%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 2. [Faceless Shadow Assassin](https://sketchfab.com/3d-models/faceless-shadow-assassin-c3fe097c89d0427e84152c0ad0f636cf)
+- **License / status:** CC BY indicated on source. Verify on the live source before production use.
+- **Visual fit:** Eerie spectral faceless humanoid, attractive dark dream/death deity concept; **adaptation**.
+- **Rig / animation:** High-poly; animations unverified.
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Hypnos%2C%20Lord%20of%20Sleep%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+
+### 3. [Dark Hooded Assassin Warrior](https://sketchfab.com/3d-models/dark-hooded-assassin-warrior-6158a963fa294c85a7080cd12abd11bc)
+- **License / status:** CC BY indicated on source. Verify on the live source before production use.
+- **Visual fit:** Unsettling robed figure; would need transformation into recognizable Hypnos rather than an assassin.
+- **Rig / animation:** ~2M tris; static/rig status unverified.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
