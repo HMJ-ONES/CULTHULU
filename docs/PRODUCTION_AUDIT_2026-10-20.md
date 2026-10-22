@@ -626,3 +626,21 @@ quality and sustained performance remain unproven. Runtime.HUDTextRendering can
 verify a later independent build, but these edits have not been recooked/run
 there in this pass. No content download, model duplicate or standalone package
 is added. The full goal remains active.
+
+## Match spawn camera follow-up (2026-10-21)
+
+Native baseline camera checks reproduced an allied hero under Mi-Go's initial
+crosshair in Domination and MOBA; Cthulhu did not reproduce that specific hit.
+Mirroring the spawn row cleared the ally hit, but visual review found a temple
+column blocking the new view. The row is now also shifted inward, and the
+camera fixture rejects solid obstructions behind the player's body plane.
+Scale, capsule height, forward spawn distance, first/third-person switching and
+real wall retraction are preserved. No camera collision was disabled.
+
+Docs/MatchCameraFraming.md and CameraFramingResults.json record baseline,
+intermediate and final evidence. The reviewed final competitive entry frames
+move that column off the crosshair, but nearby placeholder bodies still occupy
+the lower-left view. This is a bounded spawn-view correction, not a complete
+camera/presentation solution or all-roster test. Only C++ and small text records
+are added; the earlier temporary standalone/cooked outputs remain absent.
+Independent verification of these newer edits and the broader goal remain work.

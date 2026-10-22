@@ -69,3 +69,7 @@ Overwatch-level presentation or Paladins-level match quality.
 `Docs/HUDReadability.md` records measured header contrast, responsive ability-card
 rows, movement-cue separation, exact-size capture correction and input checks.
 These newer HUD edits still need a fresh independent executable verification.
+
+`Docs/MatchCameraFraming.md` records the mirrored spawn-row change and native
+camera/input checks. It clears the reproduced Mi-Go ally obstruction at match
+entry while preserving body height and real camera wall collision.
