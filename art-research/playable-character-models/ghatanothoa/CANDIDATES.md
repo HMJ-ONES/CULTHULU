@@ -16,10 +16,11 @@ This is a **source-link review file**, not downloaded asset data. Check each sou
 - **Assessment:** Grotesque anatomy reference from a different deity; NOT iconographically exact, extensive rework.
 - **Rig/animation:** Do not assume included unless assessment explicitly states it; validate downloaded files.
 
-### 3. OPEN — second exact Ghatanothoa
-- **License/status:** NOT FOUND
-- **Assessment:** Seek independently sculpted downloadable depiction; don't present unlike monsters as exact matches.
-- **Rig/animation:** Do not assume included unless assessment explicitly states it; validate downloaded files.
+### 3. [Cronenberg Monster Creature](https://sketchfab.com/3d-models/cronenberg-monster-creature-joppe-monnens-b469c9fe16f84845941bffaae9a06b00)
+- **License / status:** CC BY indicated on source. Verify on the live source before production use.
+- **Visual fit:** Grotesque fleshy multi-growth horror; **adaptation**, not a precise Ghatanothoa.
+- **Rig / animation:** ~15k triangles; rig/animation unverified.
+
 
 ## Decision
 - [ ] Preferred model selected
