@@ -13,4 +13,8 @@ These are models the user explicitly bookmarked for later visual review. They ar
    - Visual reference for **Mother Hydra**: beautiful female sea-priestess with disturbing marine-monster features; review for the regal, feminine-but-eldritch art direction.
    - This is a miniature product page, **not a verified downloadable 3D file**. Mesh availability, commercial/game rights, rigging, and animations: **not verified**.
 
+4. **Mermaid — Low Poly 3D Model (TurboSquid)** — https://www.turbosquid.com/3d-models/mermaid-3d-model-low-poly-3d-model-2234124
+   - User-selected **Mother Hydra** candidate/reference: feminine aquatic form for potential monstrous goddess adaptation.
+   - Pricing, source license, ability to use commercially, downloadable formats, rigging, and animations: **not yet verified**. Do not assume this is a free model or ready to import into Unreal.
+
 Do not import, modify, or redistribute these until the user selects them and license/download checks are complete.
