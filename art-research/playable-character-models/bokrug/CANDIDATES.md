@@ -23,10 +23,12 @@ This is a **source-link review file**, not downloaded asset data. Check each sou
 
 
 ## Decision
-- [ ] Preferred model selected
+- [x] Preferred model selected
 - [ ] Commercial permissions confirmed
 - [ ] File formats/textures checked
 - [ ] Rig/animations inspected
 - [ ] Blender cleanup / Unreal test approved
 
-**Chosen model:** _None_
+**Chosen model:** **[Lizard (3DRT.com, recent comparison option 2)](https://sketchfab.com/3d-models/lizard-fe08fb17e7104a339433c689b1e91af5)** — selected by user 2026-10-22; **pending legal acquisition / formats / animation and UE import**. For recent option numbers, this selection overrides older numbered candidate slots. See [approved selections](../APPROVED_SELECTIONS_CODEX.md).
+
+**Access warning:** Selected recent-list model does not show a public download on its listing. User/creator acquisition may be required; no unauthorized viewer scraping.
