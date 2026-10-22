@@ -27,6 +27,6 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - [ ] Third-party franchise/IP concerns cleared
 - [ ] Mesh and textures inspected
 - [ ] Rig, skeleton and animation status inspected
-- [ ] Preferred model selected
+- [x] Preferred model selected
 
-**Chosen model:** _None_
+**Chosen model:** **Option 2 — [Yog-Sothoth — Lovecraft Lore (Brian Trepanier)](https://skfb.ly/pCABB)** (user selection; pending download, licensing, mesh, and rig/animation verification).
