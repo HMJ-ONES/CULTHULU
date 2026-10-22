@@ -65,3 +65,7 @@ name tags can overlap and placeholder vessels can heavily obscure the camera.
 Those visible problems remain work. Runtime.HUDTextRendering is available for a
 later independent executable, but these newer edits have not been recooked/run
 there. No content download, model duplicate or standalone package was added.
+
+Subsequent evidence in MatchEvents.md addresses competitive message wrapping,
+elimination/objective separation and projected-label bounds in its tested matrix.
+That follow-up does not resolve general crowd visibility or establish final art.

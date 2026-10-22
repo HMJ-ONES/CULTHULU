@@ -1,0 +1,243 @@
+{
+  "date": "2026-10-21",
+  "scope": "Native UE 5.8 Editor. Physical match and input tests precede final HUD-only refinements; final focused UI captures verify the current layout. No new standalone executable.",
+  "builds": {
+    "initial_editor_seconds": 299.29,
+    "final_editor_seconds": 16.63,
+    "final_result": "Succeeded",
+    "canonical_validator": "Passed"
+  },
+  "runs": {
+    "initial": {
+      "log": "unreal 5.8/Saved/Logs/MatchEventsVerification.log",
+      "sha256": "6b29a81ee2c055d81383db82f38704b419042f11d6f7e0a864b44ad82c30c363",
+      "results": [
+        {
+          "result": "Fail",
+          "path": "CultUlhu.Menu.DominationEventReadability"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.DominationMatch"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.EditorInputSafety"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MatchTextRendering"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaEventReadability"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaLiftTextRendering"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaMatch"
+        }
+      ],
+      "errors": [
+        "[2026.10.22-02.30.46:950][656]LogAutomationController: Error: Test Completed. Result={Fail} Name={DominationEventReadability} Path={CultUlhu.Menu.DominationEventReadability}",
+        "[2026.10.22-02.30.46:951][656]LogAutomationController: Error: Expected 'The requested Cthulhu body exposes its actual minion-RMB instruction' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultHUDTextTest.cpp(117)]",
+        "[2026.10.22-02.30.46:952][656]LogAutomationController: Error: Expected 'The requested Cthulhu body exposes its actual minion-RMB instruction' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultHUDTextTest.cpp(117)]",
+        "[2026.10.22-02.30.46:952][656]LogAutomationController: Error: Expected 'The requested Cthulhu body exposes its actual minion-RMB instruction' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultHUDTextTest.cpp(117)]"
+      ],
+      "observations": [
+        "Match events Domination_Cthulhu 640x360: 1 actual feed rows; objective lines=1",
+        "Match events Domination_Cthulhu 1280x720: 3 actual feed rows; objective lines=1",
+        "Match events Domination_Cthulhu 1920x720: 3 actual feed rows; objective lines=1",
+        "Objective bots: 4 allied and 5 enemy seal participants; 1948.6 real damage",
+        "Match events Moba_Cthulhu 640x360: 1 actual feed rows; objective lines=2",
+        "Match events Moba_Cthulhu 1280x720: 3 actual feed rows; objective lines=2",
+        "Match events Moba_Cthulhu 1920x720: 3 actual feed rows; objective lines=2",
+        "Assigned-lane entries observed: 9 / 9 bots",
+        "Live MOBA: 30 advanced minions, 6 combined hero kills/deaths after 70.0s"
+      ]
+    },
+    "corrected_ui": {
+      "log": "unreal 5.8/Saved/Logs/MatchEventsFinalUI.log",
+      "sha256": "339186e381ab6cc83283537f033c5e31d6a4b8686b9ee92f082972c51d5268de",
+      "results": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.DominationEventReadability"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MatchTextRendering"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaEventReadability"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaLiftTextRendering"
+        }
+      ],
+      "errors": [],
+      "observations": [
+        "Match events Domination_Cthulhu 640x360: 1 actual feed rows; objective lines=1",
+        "Match events Domination_Cthulhu 1280x720: 3 actual feed rows; objective lines=1",
+        "Match events Domination_Cthulhu 1920x720: 3 actual feed rows; objective lines=1",
+        "Match events Moba_Cthulhu 640x360: 1 actual feed rows; objective lines=2",
+        "Match events Moba_Cthulhu 1280x720: 3 actual feed rows; objective lines=2",
+        "Match events Moba_Cthulhu 1920x720: 3 actual feed rows; objective lines=2"
+      ]
+    },
+    "final_spacing_ui": {
+      "log": "unreal 5.8/Saved/Logs/MatchEventsFinalSpacing.log",
+      "sha256": "9a1708fd61237a2d0502e3d5c4f63a24fc0af7ab4e23184555a4276a3e8c13f0",
+      "results": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.DominationEventReadability"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MatchTextRendering"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaEventReadability"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaLiftTextRendering"
+        }
+      ],
+      "errors": [],
+      "observations": [
+        "Match events Domination_Cthulhu 640x360: 1 actual feed rows; objective lines=1",
+        "Match events Domination_Cthulhu 1280x720: 3 actual feed rows; objective lines=1",
+        "Match events Domination_Cthulhu 1920x720: 3 actual feed rows; objective lines=1",
+        "Match events Moba_Cthulhu 640x360: 1 actual feed rows; objective lines=2",
+        "Match events Moba_Cthulhu 1280x720: 3 actual feed rows; objective lines=2",
+        "Match events Moba_Cthulhu 1920x720: 3 actual feed rows; objective lines=2"
+      ]
+    }
+  },
+  "captures": [
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Domination_Cthulhu_Events_640x360.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "71f25ffb6a5109ff77d793e7c41a7ac65578c32e5e15816ced0d31f47916ef4b",
+      "bytes": 161860,
+      "reviewed": false
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Domination_Cthulhu_Events_1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "732a85ffccd9d0eed55a6afc88ede79be7de487c009576a8ba630dc5fc28e486",
+      "bytes": 645929,
+      "reviewed": true
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Domination_Cthulhu_Events_1920x720.png",
+      "width": 1920,
+      "height": 720,
+      "sha256": "e2f876884c72cf6c0fbe5c6f69f5c2d8c3e809ffa008ac63328b7604e9d4f028",
+      "bytes": 1026860,
+      "reviewed": false
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Moba_Cthulhu_Events_640x360.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "c251bd3c613021d3df92c9145aa00faa4aa2a64e6aa00ffabffd50d8fc2a2a7e",
+      "bytes": 205205,
+      "reviewed": true
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Moba_Cthulhu_Events_1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "5c8680c7598947f64e8c1af5a8025560b3ea60ae89697d1f5e2d755347807af7",
+      "bytes": 814747,
+      "reviewed": false
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Moba_Cthulhu_Events_1920x720.png",
+      "width": 1920,
+      "height": 720,
+      "sha256": "db63923ae14decdccb76de1be56aeea331e45feed909b96b130107f7b8131b83",
+      "bytes": 1288988,
+      "reviewed": true
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Domination_640x360.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "b919043c913f48198a0d234547f8963c96737038a67f38ecbb138d99b002ce25",
+      "bytes": 157537,
+      "reviewed": false
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Domination_1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4018cc9063ec55e600103f3e3aff4cfda65d1df70f26a1d3e0599a68bdadf704",
+      "bytes": 614989,
+      "reviewed": false
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Domination_1920x720.png",
+      "width": 1920,
+      "height": 720,
+      "sha256": "5aaf8072ea934c89439b7131ce11e9502a601d41678df39f98c3d5382a4ac559",
+      "bytes": 966362,
+      "reviewed": false
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Moba_Cthulhu_640x360.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "32cf72b81eaeab1daaa4234c18aec4cf83546ff889774404302c90e3e2158019",
+      "bytes": 204454,
+      "reviewed": false
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Moba_Cthulhu_1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "55637fb80520cbdd2e9599a966d372554ca0a8c4aa772d537e4a74120ffd8b40",
+      "bytes": 805044,
+      "reviewed": false
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HUDText_Moba_Cthulhu_1920x720.png",
+      "width": 1920,
+      "height": 720,
+      "sha256": "4591977a3a4a400c15f7d62b9584b8221a11174a830d52e07ac12408b7191616",
+      "bytes": 1262947,
+      "reviewed": false
+    }
+  ],
+  "failure_explanation": "Initial Domination event rendering inherited a Cthulhu minion-RMB assertion without a MOBA mode guard. Corrected guard; game ability unchanged.",
+  "visual_findings": [
+    "Projected objective text clipped at the right edge in an initial 640px MOBA frame; now bounded inside the play area",
+    "Wide guidance and announcement panels nearly touched; final bounds move guidance clear",
+    "Metadata and long names may abbreviate on compact displays",
+    "Placeholder bodies and blockout geometry remain visually crude"
+  ],
+  "storage": {
+    "new_downloads_or_packages": false,
+    "small_review_png_bytes": 205205
+  },
+  "source_sha256": {
+    "unreal 5.8/Source/CultUlhu/Public/CultMatchDirector.h": "bb277e638e087ba5d69fd9d8c4008fdef4f101f4e939f630a416179579924943",
+    "unreal 5.8/Source/CultUlhu/Public/CultPlayHUD.h": "afab3c81d045a35720f6dabd6415bef476f8fa1c514ef916586eb4493a27dd50",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchState.h": "13c994a0774a5740eeed3d7a228aef2222bdba7d3e060318134dc80997add4e4",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchDirector.cpp": "56dcb79493368a71cfb651d731e51c066c0da224e7261a210a63f398f2c96023",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchHUD.cpp": "3c5d573c752692d7969b20c5da0bbbb38ba8f83e6f6c3e4398a6b70de39185c9",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchTest.cpp": "a7936e0a007eabe4118f51a0f45675c1f01b738632f0bb7a2a5495b24a398c30",
+    "unreal 5.8/Source/CultUlhu/Private/CultHUDTextTest.cpp": "df7383398a7e578dcb286f47f76fa9e50b18bdcbce9e9bc22326e262e5645224"
+  }
+}

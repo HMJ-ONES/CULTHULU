@@ -29,6 +29,7 @@ public:
  void CommandRelease();
  void DrawSelection();
  const TArray<FCultInspectionCard>& InspectionCards() const { return InspectionCards_; }
+ float CombatContentTop() const { return CombatBottomTop_; }
 private:
  friend void DrawCultCombat(ACultPlayHUD*,ACultUlhuPlayerPawn*,UCanvas*);
  friend struct FCultHUDCoordinateTestAccess;

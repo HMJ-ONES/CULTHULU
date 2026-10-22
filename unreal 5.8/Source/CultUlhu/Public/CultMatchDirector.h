@@ -5,6 +5,12 @@
 #include "CultMatchDirector.generated.h"
 class ACultUlhuPlayerPawn;
 class ACultMatchUnit;
+struct FCultMatchElimination {
+ FString Attacker,Victim;
+ int AttackerTeam=-1,VictimTeam=-1;
+ float Remaining=6.f;
+ bool Local=false;
+};
 struct FCultMatchFighter {
  TWeakObjectPtr<ACultUlhuPlayerPawn> Pawn;
  FString Kit,Name; int Team=0,Lane=1,XP=0,Level=1,Kills=0,Deaths=0,Assists=0,Invokes=0,FirstPick=-1,RouteStep=1;
@@ -67,6 +73,7 @@ public:
  bool UnitProtected(const ACultMatchUnit* Unit) const;
  void GrantXP(int Slot,int Amount);
  FString Announcement() const;
+ const TArray<FCultMatchElimination>& Eliminations() const;
  FString Hint(const ACultUlhuPlayerPawn* P) const;
  FString RelicStatus() const;
  void Draw(class ACultPlayHUD* HUD,class UCanvas* Canvas,ACultUlhuPlayerPawn* Player);

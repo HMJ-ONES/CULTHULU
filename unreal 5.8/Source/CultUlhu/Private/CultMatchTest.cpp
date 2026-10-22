@@ -204,7 +204,10 @@ public:
     Test->TestTrue(TEXT("An enemy standing on the seal contests it"),M->Contested());
     Before=M->Score(0); M->Tick(.05f); Test->TestEqual(TEXT("Contested points stop scoring"),M->Score(0),Before);
     FCultMatchTestAccess::Unshield(M); int Deaths=M->Fighters()[5].Deaths;
+    const FString ObjectiveNotice=M->Announcement();
     ACultSkillAttack::Hurt(Enemy,1000,P,Enemy->GetActorLocation());
+    Test->TestEqual(TEXT("A physical hero elimination preserves the current objective announcement"),M->Announcement(),ObjectiveNotice);
+    Test->TestTrue(TEXT("A physical hero elimination instead enters the separate event feed"),!M->Eliminations().IsEmpty()&&M->Eliminations().Last().Victim==M->Fighters()[5].Name&&M->Eliminations().Last().Local);
     Test->TestTrue(TEXT("A real hero kill scores exactly five points"),FMath::IsNearlyEqual(M->Score(0)-Before,5.f));
     Test->TestEqual(TEXT("Death is recorded once"),M->Fighters()[5].Deaths,Deaths+1);
     Test->TestTrue(TEXT("Defeated hero enters a timed respawn rather than reforming immediately"),M->RespawnFor(Enemy)>0&&Enemy->MatchDead());

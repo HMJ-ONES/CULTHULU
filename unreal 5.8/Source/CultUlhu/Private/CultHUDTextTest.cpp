@@ -6,6 +6,7 @@
 #include "CultHUDTextProbe.h"
 #include "CultUlhuGameInstance.h"
 #include "CultUlhuPlayerPawn.h"
+#include "CultMatchDirector.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/PlayerController.h"
@@ -19,16 +20,17 @@
 
 class FCultHUDTextObservation : public IAutomationLatentCommand {
  FAutomationTestBase* Test; ECultPlayMode Mode; FString Character; double Began=FPlatformTime::Seconds(),At=0;
- int32 Phase=0,Shape=0; bool ResetRequested=false; FString Shot;
+ int32 Phase=0,Shape=0; bool ResetRequested=false,Events=false,Seeded=false,PreviouslyPaused=false; FString Shot,SavedAnnouncement;
  TWeakObjectPtr<UGameViewportClient> Client;
  FHighResScreenshotConfig PreviousCapture; uint32 PreviousX=0,PreviousY=0;
  const TArray<FIntPoint> Sizes={FIntPoint(640,360),FIntPoint(1280,720),FIntPoint(1920,720)};
  FString ModeName() const { return FString(Mode==ECultPlayMode::FreeRoam?TEXT("FreeRoam"):Mode==ECultPlayMode::Domination?TEXT("Domination"):TEXT("Moba"))+(Character==TEXT("mi_go")?TEXT(""):TEXT("_Cthulhu")); }
 public:
- explicit FCultHUDTextObservation(FAutomationTestBase* In,ECultPlayMode Choice,FString Hero=TEXT("mi_go")):Test(In),Mode(Choice),Character(MoveTemp(Hero)) { PreviousCapture=GetHighResScreenshotConfig(); PreviousX=GScreenshotResolutionX; PreviousY=GScreenshotResolutionY; CultHUDTextProbe::Enabled=true; }
+ explicit FCultHUDTextObservation(FAutomationTestBase* In,ECultPlayMode Choice,FString Hero=TEXT("mi_go"),bool EventChecks=false):Test(In),Mode(Choice),Character(MoveTemp(Hero)),Events(EventChecks) { PreviousCapture=GetHighResScreenshotConfig(); PreviousX=GScreenshotResolutionX; PreviousY=GScreenshotResolutionY; CultHUDTextProbe::Enabled=true; }
  ~FCultHUDTextObservation() {
   GetHighResScreenshotConfig()=PreviousCapture; GScreenshotResolutionX=PreviousX; GScreenshotResolutionY=PreviousY;
   CultHUDTextProbe::Enabled=false; CultHUDTextProbe::Samples.Reset(); CultHUDTextProbe::Captured.Reset();
+  if(Events&&Seeded&&Client.IsValid()) UGameplayStatics::SetGamePaused(Client->GetWorld(),PreviouslyPaused);
  }
  bool Update() override {
   if(FPlatformTime::Seconds()-Began>150) { Test->AddError(TEXT("Live HUD text-render check timed out")); return true; }
@@ -42,7 +44,22 @@ public:
   if(World->GetTimeSeconds()<3||!World->GetFirstPlayerController()) return false;
   if(Phase==1) {
    Client=World->GetGameViewport(); if(!Client.IsValid()||!Client->GetGameViewport()) return false;
-   Shot=FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir()/FString::Printf(TEXT("Screenshots/HUDText_%s_%dx%d.png"),*ModeName(),Sizes[Shape].X,Sizes[Shape].Y));
+   if(Events&&!Seeded) {
+    auto* Match=ACultMatchDirector::Find(World); if(!Match) return false;
+    auto* Player=Cast<ACultUlhuPlayerPawn>(World->GetFirstPlayerController()->GetPawn());
+    SavedAnnouncement=Match->Announcement();
+    for(int I=5;I<10;++I) Match->HeroDied(Match->Fighters()[I].Pawn.Get(),I==8?nullptr:Player);
+    Test->TestEqual(TEXT("Burst eliminations retain only four recent events"),Match->Eliminations().Num(),4);
+    Test->TestTrue(TEXT("Uncredited deaths have an explicit environment source"),Match->Eliminations().ContainsByPredicate([](const auto& E){return E.Attacker==TEXT("ENVIRONMENT")&&E.AttackerTeam==-1;}));
+    Test->TestEqual(TEXT("Five deaths do not replace the original objective announcement"),Match->Announcement(),SavedAnnouncement);
+    const int Kills=Match->Fighters()[0].Kills; Match->HeroDied(Match->Fighters()[9].Pawn.Get(),Player);
+    Test->TestEqual(TEXT("A repeated dead-vessel event cannot award another kill"),Match->Fighters()[0].Kills,Kills);
+    Match->TogglePause(); Match->Tick(7.f);
+    Test->TestEqual(TEXT("Pause preserves objective copy"),Match->Announcement(),SavedAnnouncement);
+    Test->TestEqual(TEXT("Pause preserves elimination lifetime"),Match->Eliminations().Num(),4);
+    Match->TogglePause(); PreviouslyPaused=UGameplayStatics::IsGamePaused(World); UGameplayStatics::SetGamePaused(World,true); Seeded=true;
+   }
+   Shot=FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir()/FString::Printf(TEXT("Screenshots/HUDText_%s%s_%dx%d.png"),*ModeName(),Events?TEXT("_Events"):TEXT(""),Sizes[Shape].X,Sizes[Shape].Y));
    IFileManager::Get().MakeDirectory(*FPaths::GetPath(Shot),true); IFileManager::Get().Delete(*Shot);
    CultHUDTextProbe::Captured.Reset(); CultHUDTextProbe::CaptureFrame=MAX_uint64;
    auto& Capture=GetHighResScreenshotConfig(); Capture.SetHDRCapture(false); Capture.SetMaskEnabled(false); Capture.SetForce128BitRendering(false);
@@ -76,10 +93,31 @@ public:
     Test->TestFalse(TEXT("The backed control hints remain clear of the competitive score panel"),HintBox.ExpandBy(FMath::Max(6.f,8*Scale)*Hint->DPI).Intersect(Score));
    }
    const auto Box=[](const auto& Text) { return FBox2D(Text.Position*Text.DPI,Text.Position*Text.DPI+Text.Drawn); };
+   if(Events) {
+    const CultHUDTextProbe::Sample* Alert=nullptr; TArray<const CultHUDTextProbe::Sample*> Feed,Goals;
+    for(const auto& T:CultHUDTextProbe::Captured) {
+     if(T.Text.Replace(TEXT("\n"),TEXT(" "))==SavedAnnouncement) Alert=&T;
+     if(T.Text.Contains(TEXT(" > "))&&T.Position.X>Hint->Canvas.X*.65) Feed.Add(&T);
+     if(T.Text==TEXT("CONTROL SEAL")||T.Text==TEXT("PUSH ALL THREE LANES")||T.Text==TEXT("RALLY")||T.Text==TEXT("DESTROY NEXUS WARD")||T.Text==TEXT("ENEMY GOD - EXPOSED")) {
+      Goals.Add(&T); Test->TestTrue(TEXT("Projected objective-label glyphs remain inside the viewport"),Box(T).Min.X>=0&&Box(T).Max.X<=Hint->Canvas.X&&Box(T).Min.Y>=0&&Box(T).Max.Y<Hint->Canvas.Y);
+     }
+    }
+    Test->TestNotNull(TEXT("Objective announcement is actually rendered during elimination bursts"),Alert);
+    if(Alert) Test->TestTrue(TEXT("Wrapped objective glyphs fit the actual viewport"),Box(*Alert).Min.X>=0&&Box(*Alert).Max.X<=Hint->Canvas.X&&Box(*Alert).Min.Y>=0&&Box(*Alert).Max.Y<Hint->Canvas.Y);
+    if(Alert) for(const auto* Goal:Goals) Test->TestFalse(TEXT("Projected guidance stays separate from the objective announcement"),Box(*Goal).ExpandBy(3).Intersect(Box(*Alert)));
+    Test->TestEqual(TEXT("Responsive elimination feed renders three normal rows or one compact row"),Feed.Num(),Sizes[Shape].X==640?1:3);
+    for(const auto* E:Feed) {
+     Test->TestTrue(TEXT("Feed glyphs fit the viewport"),Box(*E).Min.X>=0&&Box(*E).Max.X<=Hint->Canvas.X&&Box(*E).Max.Y<Hint->Canvas.Y);
+     for(const auto& Other:CultHUDTextProbe::Captured) if(Other.Position.Y>Hint->Canvas.Y*.5&&Other.Text!=E->Text) Test->TestFalse(TEXT("Feed does not collide with ability or movement glyphs"),Box(*E).Intersect(Box(Other)));
+     if(Alert) Test->TestFalse(TEXT("Eliminations and objective glyphs remain separate"),Box(*E).Intersect(Box(*Alert)));
+    }
+    TArray<FString> AlertLines; if(Alert) Alert->Text.ParseIntoArrayLines(AlertLines);
+    Test->AddInfo(FString::Printf(TEXT("Match events %s %dx%d: %d actual feed rows; objective lines=%d"),*ModeName(),Sizes[Shape].X,Sizes[Shape].Y,Feed.Num(),AlertLines.Num()));
+   }
    auto* Hero=Cast<ACultUlhuPlayerPawn>(World->GetFirstPlayerController()->GetPawn());
    if(Hero) {
     const auto Data=Hero->CombatHUD(); TArray<FBox2D> AbilityText;
-    if(Character==TEXT("cthulhu_avatar")) Test->TestTrue(TEXT("The requested Cthulhu body exposes its actual minion-RMB instruction"),Data.RmbHint.Contains(TEXT("minion"),ESearchCase::IgnoreCase));
+    if(Character==TEXT("cthulhu_avatar")&&Mode==ECultPlayMode::Dotgoo) Test->TestTrue(TEXT("The requested Cthulhu body exposes its actual minion-RMB instruction"),Data.RmbHint.Contains(TEXT("minion"),ESearchCase::IgnoreCase));
     for(int I=0;I<3;++I) {
      const auto* Name=CultHUDTextProbe::Captured.FindByPredicate([&](const auto& Text){return Text.Position.Y>Hint->Canvas.Y*.5&&Text.Text.Replace(TEXT("\n"),TEXT(" "))==Data.AbilityNames[I];});
      Test->TestNotNull(TEXT("Actual canonical ability label is present"),Name); if(!Name) continue;
@@ -103,6 +141,7 @@ public:
   if(FScreenshotRequest::IsScreenshotRequested()) return false;
   Test->TestTrue(TEXT("Actual viewport HUD render is retained for visual inspection"),IFileManager::Get().FileExists(*Shot));
   if(++Shape<Sizes.Num()) { Phase=1; return false; }
+  if(Events) { UGameplayStatics::SetGamePaused(World,PreviouslyPaused); auto* Match=ACultMatchDirector::Find(World); Match->Tick(6.1f); Test->TestEqual(TEXT("Old elimination events expire after six active seconds"),Match->Eliminations().Num(),0); }
   return true;
  }
 };
@@ -117,5 +156,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultHUDMobaTextTest,"CultUlhu.Menu.MobaTextRen
 bool FCultHUDMobaTextTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultHUDTextObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultHUDMobaLiftTextTest,"CultUlhu.Menu.MobaLiftTextRendering",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultHUDMobaLiftTextTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultHUDTextObservation(this,ECultPlayMode::Dotgoo,TEXT("cthulhu_avatar"))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDominationEventsTest,"CultUlhu.Menu.DominationEventReadability",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultDominationEventsTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultHUDTextObservation(this,ECultPlayMode::Domination,TEXT("cthulhu_avatar"),true)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaEventsTest,"CultUlhu.Menu.MobaEventReadability",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultMobaEventsTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultHUDTextObservation(this,ECultPlayMode::Dotgoo,TEXT("cthulhu_avatar"),true)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 #endif
 #endif

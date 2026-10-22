@@ -92,9 +92,12 @@ void ACultMatchDirector::SpawnFighter(int I) {
 }
 void ACultMatchDirector::Announce(const FString& Text) { State_->Notice=Text; State_->NoticeTime=6; UE_LOG(LogTemp,Log,TEXT("[CultMatch] %s"),*Text); }
 FString ACultMatchDirector::Announcement() const { return State_&&State_->NoticeTime>0?State_->Notice:FString(); }
+const TArray<FCultMatchElimination>& ACultMatchDirector::Eliminations() const { static const TArray<FCultMatchElimination> Empty; return State_?State_->Eliminations:Empty; }
 void ACultMatchDirector::Tick(float Dt) {
- Super::Tick(Dt); if(!State_) return; State_->NoticeTime=FMath::Max(0.f,State_->NoticeTime-Dt);
- if(State_->Over||State_->Paused) return;
+ Super::Tick(Dt); if(!State_||State_->Paused) return; State_->NoticeTime=FMath::Max(0.f,State_->NoticeTime-Dt);
+ if(State_->Over) return;
+ for(auto& Entry:State_->Eliminations) Entry.Remaining-=Dt;
+ State_->Eliminations.RemoveAll([](const auto& Entry){return Entry.Remaining<=0;});
  if(State_->Warmup>0) { State_->Warmup=FMath::Max(0.f,State_->Warmup-Dt); if(State_->Warmup<=0) Announce(TEXT("The battle begins. Follow your objective marker.")); return; }
  State_->Time+=Dt; State_->Clock.advance(Dt); State_->PingTime=FMath::Max(0.f,State_->PingTime-Dt);
  UpdateFighters(Dt);
@@ -153,8 +156,13 @@ void ACultMatchDirector::HeroDied(ACultUlhuPlayerPawn* P,AActor* Source) {
   auto& K=State_->Fighters[Killer]; ++K.Kills;
   if(State_->Capture) State_->Capture->notePlayerKill(K.Team);
   GrantXP(Killer,50+25*Victim.Level);
-  Announce(K.Name+TEXT(" eliminated ")+Victim.Name+(State_->Capture?TEXT("  +5"):TEXT("")));
  }
+ // Eliminations must not replace capture, overtime, rally or defense messages.
+ FCultMatchElimination Entry; Entry.Attacker=Killer>=0?State_->Fighters[Killer].Name:TEXT("ENVIRONMENT");
+ Entry.Victim=Victim.Name; Entry.AttackerTeam=Killer>=0?State_->Fighters[Killer].Team:-1; Entry.VictimTeam=Victim.Team; Entry.Local=I==0||Killer==0;
+ if(State_->Eliminations.Num()>=4) State_->Eliminations.RemoveAt(0);
+ State_->Eliminations.Add(MoveTemp(Entry));
+ UE_LOG(LogTemp,Log,TEXT("[CultMatch] %s eliminated %s"),*State_->Eliminations.Last().Attacker,*Victim.Name);
  for(auto& Hit:Victim.RecentAttackers) if(Hit.Key!=Killer&&State_->Time-Hit.Value<8) { ++State_->Fighters[Hit.Key].Assists; GrantXP(Hit.Key,35); }
  Victim.RecentAttackers.Reset(); Victim.Respawn=Mode()==ECultPlayMode::Domination?5:FMath::Min(20.f,5.f+State_->Time/60); Victim.Recall=Victim.Invoke=0;
  P->SetMatchDead();

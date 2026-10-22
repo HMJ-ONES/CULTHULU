@@ -644,3 +644,24 @@ the lower-left view. This is a bounded spawn-view correction, not a complete
 camera/presentation solution or all-roster test. Only C++ and small text records
 are added; the earlier temporary standalone/cooked outputs remain absent.
 Independent verification of these newer edits and the broader goal remain work.
+
+## Objective information during combat (2026-10-21)
+
+Source inspection found that every credited hero kill replaced the same notice
+used for captures, overtime and defense announcements. Eliminations now use a
+bounded, timed feed while retaining scoring/XP/assist/respawn behavior. Pause
+preserves objective copy and feed lifetime. Measured competitive copy wraps
+clear of the tactical map, progress/relic rows retain contrast, and projected
+objective guidance stays within the play area and clear of the announcement.
+Backplates fit their copy instead of occupying unnecessary full-width space.
+
+Docs/MatchEvents.md and MatchEventsResults.json distinguish normal death-handler
+render fixtures from the physical Domination damage/death check, and preserve
+the initial failed test assumption and later evidence. An existing Cthulhu
+render assertion incorrectly required the MOBA-only minion instruction in
+Domination; its mode guard is corrected. The actual game ability is unchanged.
+Small screens show one recent elimination; larger samples show three. Long
+names and optional compact metadata may abbreviate, with match statistics still
+available on the scoreboard. This is a match-readability improvement, not new
+proof of human fun, final art, complete navigation or professional game quality.
+Only source and small evidence records are added; no new package or download.
