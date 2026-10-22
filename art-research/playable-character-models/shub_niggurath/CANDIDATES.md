@@ -27,6 +27,8 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - [ ] Third-party franchise/IP concerns cleared
 - [ ] Mesh and textures inspected
 - [ ] Rig, skeleton and animation status inspected
-- [ ] Preferred model selected
+- [x] Preferred model selected
 
-**Chosen model:** _None_
+**Chosen model:** **[Dark Young — Overlord (rights review required)](https://sketchfab.com/3d-models/dark-young-overlord-rigged-animated-3c4975d1bf604c0f9fe91623634a4f5c)** — selected by user 2026-10-22; **pending legal acquisition / formats / animation and UE import**. For recent option numbers, this selection overrides older numbered candidate slots. See [approved selections](../APPROVED_SELECTIONS_CODEX.md).
+
+**Rights hold:** Although Sketchfab lists CC BY, the creator explicitly describes this as a model inspired by the *Overlord* anime. Do not assume commercial game rights; hold import until ownership/licensing is cleared.
