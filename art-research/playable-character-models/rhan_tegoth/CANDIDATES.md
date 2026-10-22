@@ -16,10 +16,10 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - **Rights / rig:** CC BY indicated; rigged with idle/walk, ~12k tris. Verify commercial rights and files before use.
 
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Rhan-Tegoth%2C%20Terror%20of%20the%20Museum%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 3. [Powerful Demonic Creature — FBX](https://sketchfab.com/3d-models/powerfull-demonic-creature-f5011b6fd3e04d78966632ee7fb014dd)
+- **Visual fit:** Fearsome demon with twisted monster silhouette for prototype; Rhan-Tegoth should ultimately be an ancient alien arthropod, so major changes required.
+- **Licensing / technical:** CC BY source; free FBX, ~32k tris; rigging/animations unverified.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
