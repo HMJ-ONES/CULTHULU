@@ -6,20 +6,20 @@
 
 This file contains **review leads**, NOT 3D model binaries or a completed three-model commercial-ready selection. Any direct model link needs a fresh creator/license/download/rights check before use. Generic searches below are open research tasks, NOT identified models.
 
-### 1. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Yig%2C%20Father%20of%20Serpents%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 1. [Serpent Sage](https://sketchfab.com/3d-models/serpent-sage-58c2f89881ef46ba9b52c88331391611)
+- **Visual fit:** Menacing snake humanoid; adaptable to Yig, not canonical.
+- **Rights / rig:** CC BY indicated; AI-generated high-poly ~502k. Verify commercial rights and files before use.
 
-### 2. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Yig%2C%20Father%20of%20Serpents%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Yig%2C%20Father%20of%20Serpents%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 2. [Snake Attack Animations — Multiple](https://sketchfab.com/3d-models/snake-attack-animations-multiple-83c4290cd4b648fd942d4bbc2280a3f6)
+- **Visual fit:** Useful serpent body skeleton and biting animations for Yig prototypes.
+- **Rights / rig:** CC BY and NoAI indicated; rigged multiple attack clips. Verify commercial rights and files before use.
+
+
+### 3. [Snake Cobra Head Up — Animated](https://sketchfab.com/3d-models/snake-cobra-head-up-animated-c5076a2421b04ad8a76b17a8a6a03c35)
+- **Visual fit:** Cobra motion base with sinister silhouette, needs gigantic deity treatment.
+- **Rights / rig:** CC BY indicated; 3.8k tris, animated. Verify commercial rights and files before use.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
