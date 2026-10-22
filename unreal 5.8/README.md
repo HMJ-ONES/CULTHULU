@@ -94,3 +94,7 @@ responsive placement, actual-view projection and paired render/occlusion evidenc
 
 `Docs/ObjectiveSolidity.md` records physical MOBA objective bodies, minion routing
 past allied structures and full-size hero/minion detour verification.
+
+`Docs/WardArchitecture.md` records the compact stone lane/nexus meshes, preserved
+combat/collision, grounded remains, paired renders and six native Editor checks.
+The two new assets total 193 KB; no standalone package was generated for this pass.

@@ -4,6 +4,7 @@
 #include "CultUlhuPlayerPawn.h"
 #include "CultCorpse.h"
 #include "CultBlastFX.h"
+#include "CultWardArchitecture.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
@@ -25,6 +26,7 @@ void ACultMatchUnit::BeginPlay() {
   Capsule->SetCollisionObjectType(ECC_WorldStatic);
   Capsule->SetCollisionResponseToChannel(ECC_Pawn,ECR_Block);
  }
+ if(auto* Architecture=CultWardArchitecture::Create(this)) { Parts.Add(Architecture); return; }
  auto* Mat=UMaterialInstanceDynamic::Create(LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_ArenaSurface")),this);
  Mat->SetVectorParameterValue(TEXT("Color"),Team==0?FLinearColor(.045f,.32f,.5f):FLinearColor(.65f,.16f,.055f));
  auto Part=[&](const TCHAR* Mesh,FVector Pos,FVector Scale) {
@@ -61,6 +63,7 @@ void ACultMatchUnit::Hurt(float Amount,AActor* Source) {
  if(Health<=0) Die();
 }
 void ACultMatchUnit::Die() {
+ CultWardArchitecture::Extinguish(this);
  for(auto* C:Parts) C->SetCollisionEnabled(ECollisionEnabled::NoCollision);
  ACultCorpse::Leave(this); ACultBlastFX::SpawnBlast(GetWorld(),ECultBlastKind::ShockRing,GetActorLocation(),IsStructure()?8:1); Destroy();
 }

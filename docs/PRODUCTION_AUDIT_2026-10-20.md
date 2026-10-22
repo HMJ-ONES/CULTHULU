@@ -844,3 +844,35 @@ a prerequisite for credible physical objectives, not a professional-art pass.
 All-kit movement, long-session congestion, human pacing/fun and the complete
 goal remain unproven. No new art assets, downloads or standalone package are
 added.
+
+## Stone ward architecture (2026-10-21)
+
+Lane and nexus wards now assemble the existing CC0 castle kit into crenellated
+stone shafts, tines and faction sigils. The original attack origin sits inside
+the visible emitter. Two merged meshes total 192,664 bytes and use three existing
+materials. Fourteen production body components replace ninety-eight blockout
+components; triangle count is not reduced. Existing solid capsules, transforms,
+combat values and protection rules are preserved. Normal death leaves grounded,
+noncolliding assembled remains and switches off only that ward's glow.
+
+The canonical Editor build succeeds. All six final native tests pass with zero
+automation errors, including actual projectile origin, material/emitter geometry,
+fresh production construction/corpse, objective movement/detours, mechanics and
+full MOBA match. Six exact 1280x720 frozen-scene captures provide matched views;
+four review images and WardArchitectureResults.json preserve scoped evidence.
+Four 120-frame frozen A-B-B-A windows alternate 98/14/14/98 visible components.
+GPU means of 3.344 versus 3.332 ms do not show a meaningful speed improvement;
+live FPS, low-spec performance and memory savings are unmeasured.
+
+Commandlet subsystem, automatic naming, socket property and rotator/bounds errors
+were corrected; an old-binary launch matching zero tests is explicitly excluded.
+Ownership guards and byte backups protect prior assets. Only the small crown
+source is decoded when needed, with no downloads or duplicate material imports.
+Asset dependencies contain no transient crown package. All 423 existing Content
+files remain byte-identical and character inputs have no substantive changes.
+
+These meshes remain modest modular art. Sparse terrain, crude large structures,
+placeholder entities/animation and coarse capsule collision still limit the game.
+There is no new standalone verification, progressive fracture or collapse art.
+Human fun/balance and reference-level professional polish remain unproven; the
+complete production goal stays open. No build/cache/archive is included in GitHub.
