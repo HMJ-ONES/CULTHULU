@@ -5,6 +5,7 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 #include "CultCanonicalKit.h"
 #include "CultMatchDirector.h"
 #include "CultCombatAudio.h"
+#include "CultCombatCredit.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "core/EventBus.h"
 
@@ -359,10 +360,10 @@ void ACultUlhuPlayerPawn::ReceiveDamage(float Amount,AActor* Source)
  const float Actual=FMath::Clamp(Before-Health_,0.f,Before);
  if(auto* M=ACultMatchDirector::Find(GetWorld())) M->NoteDamage(this,Source,Actual);
  if(Actual>0) {
-  if(auto* Attacker=Cast<ACultUlhuPlayerPawn>(Source)) Attacker->MarkCombat();
+  if(auto* Attacker=CultCombatCredit::Hero(Source)) Attacker->MarkCombat();
   const bool PlayHurtCue=HurtFeedbackTime_<=.23f;
   HurtFeedbackTime_=.32f; bIncomingDirection_=IsValid(Source); if(bIncomingDirection_) IncomingOrigin_=Source->GetActorLocation();
-  if(auto* Attacker=Cast<ACultUlhuPlayerPawn>(Source)) Attacker->RecordCombatHit(this,GetActorLocation(),Actual,Health_<=0);
+  if(auto* Attacker=CultCombatCredit::Hero(Source)) Attacker->RecordCombatHit(this,GetActorLocation(),Actual,Health_<=0);
   AddCameraKick(.2f);
   if(!IsBot()&&PlayHurtCue) PlayCultCombatCue(GetWorld(),ECultCombatCue::Hurt,.32f);
  }

@@ -1,4 +1,5 @@
 #include "CultSkillAttack.h"
+#include "CultCombatCredit.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultPopulation.h"
 #include "CultFeralBeast.h"
@@ -52,8 +53,8 @@ void ACultSkillAttack::Hurt(AActor* A,float D,AActor* S,FVector P) {
  else if(auto* Beast=Cast<ACultFeralBeast>(A)) Beast->ReceiveCombatDamage(D,S);
  else if(auto* Avatar=Cast<ACultUlhuPlayerPawn>(A)) Avatar->ReceiveDamage(D,S);
  else if(auto* Building=Cast<ACultDestructible>(A)) Building->ApplyDamage(D,P,F,S);
- if(auto* Summon=Cast<ACultPopulation>(S)) if(Summon->IsSummoned()) if(auto* Summoner=Cast<ACultUlhuPlayerPawn>(Summon->GetOwner())) Summoner->SummonLandedDamage(FMath::Clamp(Before-HealthOf(A),0.f,Before));
- if(!Cast<ACultUlhuPlayerPawn>(A)) if(auto* Player=Cast<ACultUlhuPlayerPawn>(S)) {
+ if(auto* Summon=Cast<ACultPopulation>(S)) if(Summon->IsSummoned()) if(auto* Summoner=CultCombatCredit::Hero(S)) Summoner->SummonLandedDamage(FMath::Clamp(Before-HealthOf(A),0.f,Before));
+ if(!Cast<ACultUlhuPlayerPawn>(A)) if(auto* Player=CultCombatCredit::Hero(S)) {
   const float After=HealthOf(A); Player->RecordCombatHit(A,P,FMath::Clamp(Before-After,0.f,Before),After<=0);
  }
 }

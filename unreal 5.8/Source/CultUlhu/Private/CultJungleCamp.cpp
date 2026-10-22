@@ -1,4 +1,5 @@
 #include "CultJungleCamp.h"
+#include "CultCombatCredit.h"
 #include "CultActorLabels.h"
 #include "CultFeralBeast.h"
 #include "CultMobaJungle.h"
@@ -12,9 +13,7 @@
 
 namespace {
 ACultUlhuPlayerPawn* CreditHero(AActor* Source) {
- if(auto* Hero=Cast<ACultUlhuPlayerPawn>(Source)) return Hero;
- if(auto* Summon=Cast<ACultPopulation>(Source)) if(Summon->IsSummoned()) return Cast<ACultUlhuPlayerPawn>(Summon->GetOwner());
- return nullptr;
+ return CultCombatCredit::Hero(Source);
 }
 }
 ACultJungleCamp::ACultJungleCamp() { PrimaryActorTick.bCanEverTick=true; RootComponent=CreateDefaultSubobject<USceneComponent>(TEXT("CampOrigin")); }

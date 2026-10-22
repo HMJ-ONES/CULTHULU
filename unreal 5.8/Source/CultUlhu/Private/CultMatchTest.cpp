@@ -34,6 +34,63 @@
 
 struct FCultMatchTestAccess {
  static void Unshield(ACultMatchDirector* M) { for(auto& F:M->State_->Fighters) { F.Shield=0; if(F.Pawn.IsValid()) F.Pawn->EvadeTime_=0; } }
+ static void VerifySummonCredit(FAutomationTestBase* T,ACultMatchDirector* M,ACultUlhuPlayerPawn* P) {
+  M->State_->Warmup=0; Unshield(M);
+  auto* Enemy=M->Fighters()[5].Pawn.Get(); auto* Support=M->Fighters()[3].Pawn.Get();
+  FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+  auto* Summon=M->GetWorld()->SpawnActor<ACultPopulation>(P->FeetLocation()+FVector(0,1500,100),FRotator::ZeroRotator,Params);
+  Summon->SetOwner(P); Summon->SummonTo(0); Summon->SetActorTickEnabled(false);
+  P->Kit_->Damage(30); const float Hp=P->GetHealth(),Done=M->Fighters()[0].DamageDone; const int Texts=P->ImpactTexts().Num();
+  ACultSkillAttack::Hurt(Enemy,10,Summon,Enemy->GetActorLocation());
+  T->TestEqual(TEXT("Summoned hero damage is recorded for its actual summoner"),M->Fighters()[0].DamageDone-Done,10.f);
+  T->TestTrue(TEXT("Summoned damage registers the summoner as a recent attacker"),M->State_->Fighters[5].RecentAttackers.Contains(0));
+  T->TestEqual(TEXT("Original Thousand Young returns ten percent of actual damage"),P->GetHealth()-Hp,1.f);
+  T->TestEqual(TEXT("Summoned contact gives the local summoner one impact entry"),P->ImpactTexts().Num(),Texts+1);
+  T->TestTrue(TEXT("Incoming direction remains the physical creature, not its distant summoner"),Enemy->IncomingOrigin().Equals(Summon->GetActorLocation(),1));
+  const float FriendlyHp=Support->GetHealth(); ACultSkillAttack::Hurt(Support,10,Summon,Support->GetActorLocation());
+  T->TestEqual(TEXT("Friendly summoned attacks cannot damage allied heroes"),Support->GetHealth(),FriendlyHp);
+  ACultSkillAttack::Hurt(Enemy,5,Support,Enemy->GetActorLocation());
+  const int XP=M->Fighters()[0].XP,AssistXP=M->Fighters()[3].XP,Assists=M->Fighters()[3].Assists; const float Score=M->Score(0);
+  const float BeforeKillHp=P->GetHealth(); ACultSkillAttack::Hurt(Enemy,1000,Summon,Enemy->GetActorLocation());
+  T->TestEqual(TEXT("The summoner receives the hero elimination"),M->Fighters()[0].Kills,1);
+  T->TestEqual(TEXT("A distinct contributing hero retains its assist"),M->Fighters()[3].Assists,Assists+1);
+  T->TestEqual(TEXT("Only actual remaining health contributes to summoned damage statistics"),M->Fighters()[0].DamageDone-Done,95.f);
+  T->TestTrue(TEXT("Overkill does not inflate the original summon healing passive"),FMath::IsNearlyEqual(P->GetHealth()-BeforeKillHp,8.5f,.01f));
+  T->TestTrue(TEXT("Elimination feedback identifies the owner and local involvement"),!M->Eliminations().IsEmpty()&&M->Eliminations().Last().Attacker==M->Fighters()[0].Name&&M->Eliminations().Last().Local);
+  if(M->Mode()==ECultPlayMode::Dotgoo) { T->TestEqual(TEXT("Summoned hero last-hit grants the existing hero kill XP"),M->Fighters()[0].XP-XP,75); T->TestEqual(TEXT("Assist retains its existing XP"),M->Fighters()[3].XP-AssistXP,35); }
+  else T->TestEqual(TEXT("A summoned hero kill retains Domination's five points"),M->Score(0)-Score,5.f);
+  const float AfterKill=P->GetHealth(); ACultSkillAttack::Hurt(Enemy,1000,Summon,Enemy->GetActorLocation());
+  T->TestEqual(TEXT("Dead targets pay no repeated kills"),M->Fighters()[0].Kills,1); T->TestEqual(TEXT("Prevented repeated damage supplies no passive healing"),P->GetHealth(),AfterKill);
+  M->SpawnFighter(5); Unshield(M);
+  if(M->Mode()==ECultPlayMode::Dotgoo) {
+   auto* Minion=M->AddUnit(1,1,0,-1,P->FeetLocation()+FVector(3000,0,0),80,0,0,0); const int Before=M->Fighters()[0].XP;
+   ACultSkillAttack::Hurt(Minion,1000,Summon,Minion->GetActorLocation());
+   T->TestEqual(TEXT("Summoned lane last-hit grants 60 XP rather than only nearby shared XP"),M->Fighters()[0].XP-Before,60);
+   for(auto& Weak:M->State_->Units) if(auto* Tower=Weak.Get()) if(Tower->Team==1&&Tower->Kind==3&&!M->UnitProtected(Tower)) {
+    const int TowerXP=M->Fighters()[0].XP; ACultSkillAttack::Hurt(Tower,10000,Summon,Tower->GetActorLocation());
+    T->TestEqual(TEXT("Summoned tower last-hit grants its owner's 800 XP reward"),M->Fighters()[0].XP-TowerXP,800); break;
+   }
+  }
+  Summon->SetOwner(Support); const int BotKills=M->Fighters()[3].Kills,PlayerKills=M->Fighters()[0].Kills;
+  ACultSkillAttack::Hurt(Enemy,1000,Summon,Enemy->GetActorLocation());
+  T->TestEqual(TEXT("A bot summoner receives its own summoned kill"),M->Fighters()[3].Kills,BotKills+1);
+  T->TestEqual(TEXT("A bot's summon cannot award the human its kill"),M->Fighters()[0].Kills,PlayerKills);
+  M->SpawnFighter(5); Unshield(M); Summon->SetOwner(P); Summon->SummonTo(1); P->Kit_->Damage(10);
+  const float InvalidHp=P->GetHealth(),InvalidDone=M->Fighters()[0].DamageDone;
+  ACultSkillAttack::Hurt(Support,10,Summon,Support->GetActorLocation());
+  T->TestEqual(TEXT("A stale owner from a different faction receives no damage credit"),M->Fighters()[0].DamageDone,InvalidDone);
+  T->TestEqual(TEXT("A converted or mismatched summon cannot heal its previous owner"),P->GetHealth(),InvalidHp);
+  auto* Civilian=M->GetWorld()->SpawnActor<ACultPopulation>(P->FeetLocation()+FVector(0,2200,100),FRotator::ZeroRotator,Params); Civilian->SetOwner(P);
+  const float OrdinaryDone=M->Fighters()[0].DamageDone; ACultSkillAttack::Hurt(Enemy,10,Civilian,Enemy->GetActorLocation());
+  T->TestEqual(TEXT("Merely owning an ordinary civilian does not grant its damage credit"),M->Fighters()[0].DamageDone,OrdinaryDone); Civilian->Destroy();
+  M->SpawnFighter(5); Unshield(M); Summon->SetOwner(P); Summon->SummonTo(0);
+  ACultSkillAttack::Hurt(P,1000,Enemy,P->GetActorLocation()); const int Posthumous=M->Fighters()[0].Kills;
+  ACultSkillAttack::Hurt(Enemy,1000,Summon,Enemy->GetActorLocation());
+  T->TestEqual(TEXT("A surviving summon still credits its defeated summoner"),M->Fighters()[0].Kills,Posthumous+1);
+  T->TestTrue(TEXT("Summon healing cannot resurrect a defeated vessel"),P->MatchDead()&&P->GetHealth()<=0);
+  T->AddInfo(FString::Printf(TEXT("Summon credit mode=%d local kills=%d bot kills=%d damage=%.1f XP=%d"),int(M->Mode()),M->Fighters()[0].Kills,M->Fighters()[3].Kills,M->Fighters()[0].DamageDone,M->Fighters()[0].XP));
+  Summon->Destroy();
+ }
  static void Park(ACultMatchDirector* M) { int I=0; for(auto& F:M->State_->Fighters) if(F.Pawn.IsValid()) F.Pawn->RelocateMatch(M->Base(F.Team)+FVector(F.Team?-2600:2600,(I++%5-2)*1500,0)); }
  static TArray<ACultMatchUnit*> Units(ACultMatchDirector* M,int Team,int Kind,int Lane=-1) { TArray<ACultMatchUnit*> Out; for(auto& W:M->State_->Units) if(W.IsValid()&&W->Team==Team&&W->Kind==Kind&&(Lane<0||W->Lane==Lane)) Out.Add(W.Get()); return Out; }
  static void HoldBots(ACultMatchDirector* M,bool Hold) {
@@ -458,6 +515,22 @@ public:
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaJungleReturnsTest,"CultUlhu.Menu.MobaJungleReturns",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultMobaJungleReturnsTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultMobaJungleReturnsObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+class FCultSummonCreditObservation:public IAutomationLatentCommand {
+ FAutomationTestBase* Test; ECultPlayMode Mode; bool Entered=false; double Started=FPlatformTime::Seconds();
+public:
+ FCultSummonCreditObservation(FAutomationTestBase* In,ECultPlayMode Choice):Test(In),Mode(Choice) {}
+ bool Update() override {
+  if(FPlatformTime::Seconds()-Started>90) { Test->AddError(TEXT("Summon credit verification timed out")); return true; }
+  auto* W=GEditor->PlayWorld.Get(); if(!W||W->bIsTearingDown) return false;
+  if(W->GetName().Contains(TEXT("L_MainMenu"))) { if(!Entered) { auto* GI=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); GI->SelectedCharacterId=TEXT("shub_niggurath"); GI->OpenCharacterSelect(Mode); GI->OpenBeliefSelect(); Entered=true; } return false; }
+  auto* M=ACultMatchDirector::Find(W); auto* P=Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(W,0)); if(!M||!P||W->GetTimeSeconds()<.5f) return false;
+  UGameplayStatics::SetGamePaused(W,true); FCultMatchTestAccess::VerifySummonCredit(Test,M,P); UGameplayStatics::SetGamePaused(W,false); return true;
+ }
+};
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaSummonCreditTest,"CultUlhu.Menu.SummonCombatCredit.Moba",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultMobaSummonCreditTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultSummonCreditObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDomSummonCreditTest,"CultUlhu.Menu.SummonCombatCredit.Domination",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultDomSummonCreditTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultSummonCreditObservation(this,ECultPlayMode::Domination)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDominationMatchTest,"CultUlhu.Menu.DominationMatch",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultDominationMatchTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(.5f)); ADD_LATENT_AUTOMATION_COMMAND(FCultMatchObservation(this,false)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaMatchTest,"CultUlhu.Menu.MobaMatch",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

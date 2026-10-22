@@ -8,6 +8,7 @@
 #include "CultMatchUnit.h"
 #include "CultWorldDirector.h"
 #include "CultSkillAttack.h"
+#include "CultCombatCredit.h"
 #include "CultKitRuntime.h"
 #include "CultCorpse.h"
 #include "CultBlastFX.h"
@@ -39,7 +40,7 @@ bool ACultMatchDirector::Overtime() const { return State_&&State_->Capture&&Stat
 int ACultMatchDirector::Holder() const { return State_&&State_->Capture?State_->Capture->holder():-1; }
 FVector ACultMatchDirector::Base(int T) const { return FVector((T==0?-1:1)*(Mode()==ECultPlayMode::Dotgoo?30000.f:23000.f),0,0); }
 const TArray<FCultMatchFighter>& ACultMatchDirector::Fighters() const { static const TArray<FCultMatchFighter> Empty; return State_?State_->Fighters:Empty; }
-int ACultMatchDirector::Slot(const AActor* P) const { if(State_) for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Pawn==P) return I; return -1; }
+int ACultMatchDirector::Slot(const AActor* P) const { if(P&&State_) for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Pawn==P) return I; return -1; }
 const FCultMatchFighter* ACultMatchDirector::Fighter(const ACultUlhuPlayerPawn* P) const { int I=Slot(P); return I>=0?&State_->Fighters[I]:nullptr; }
 float ACultMatchDirector::RespawnFor(const ACultUlhuPlayerPawn* P) const { auto* F=Fighter(P); return F?F->Respawn:0; }
 bool ACultMatchDirector::CanAct(const ACultUlhuPlayerPawn* P) const { auto* F=Fighter(P); return F&&F->Respawn<=0&&P->GetHealth()>0&&!State_->Over&&!State_->Paused&&State_->Warmup<=0; }
@@ -142,15 +143,16 @@ void ACultMatchDirector::OnAction(ACultUlhuPlayerPawn* P) { int I=Slot(P); if(I>
 bool ACultMatchDirector::DamageAllowed(ACultUlhuPlayerPawn* P,AActor* Source) {
  if(!CanAct(P)) return false; int I=Slot(P); if(State_->Fighters[I].Shield>0) return false;
  if(Source) { if(auto* Hero=Cast<ACultUlhuPlayerPawn>(Source)) if(Hero->GetFaction()==P->GetFaction()) return false; if(auto* Unit=Cast<ACultMatchUnit>(Source)) if(Unit->Team==P->GetFaction()) return false; }
+ if(auto* Person=Cast<ACultPopulation>(Source)) if(Person->GetFaction()==P->GetFaction()) return false;
  return true;
 }
 void ACultMatchDirector::NoteDamage(ACultUlhuPlayerPawn* P,AActor* Source,float Actual) {
  if(Actual<=0) return; int I=Slot(P); if(I<0) return; auto& F=State_->Fighters[I]; F.LastHurt=State_->Time; F.Recall=F.Invoke=0;
- F.DamageTaken+=Actual; int From=Slot(Source); if(From>=0&&From!=I) { F.RecentAttackers.Add(From,State_->Time); State_->Fighters[From].DamageDone+=Actual; }
+ F.DamageTaken+=Actual; int From=Slot(CultCombatCredit::Hero(Source)); if(From>=0&&From!=I) { F.RecentAttackers.Add(From,State_->Time); State_->Fighters[From].DamageDone+=Actual; }
 }
 void ACultMatchDirector::HeroDied(ACultUlhuPlayerPawn* P,AActor* Source) {
  int I=Slot(P); if(I<0||State_->Fighters[I].Respawn>0||State_->Over) return;
- auto& Victim=State_->Fighters[I]; ++Victim.Deaths; int Killer=Slot(Source);
+ auto& Victim=State_->Fighters[I]; ++Victim.Deaths; int Killer=Slot(CultCombatCredit::Hero(Source));
  if(Killer<0) { float Latest=-100; for(auto& Hit:Victim.RecentAttackers) if(State_->Time-Hit.Value<8&&Hit.Value>Latest) { Latest=Hit.Value; Killer=Hit.Key; } }
  if(Killer>=0&&State_->Fighters[Killer].Team!=Victim.Team) {
   auto& K=State_->Fighters[Killer]; ++K.Kills;

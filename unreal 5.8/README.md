@@ -76,3 +76,6 @@ entry while preserving body height and real camera wall collision.
 
 `Docs/MatchEvents.md` records separate elimination feedback, preserved objective
 announcements, measured competitive message layout and bounded objective labels.
+
+`Docs/SummonCombatCredit.md` records consistent summoner damage/kill/XP credit,
+local hit feedback, same-faction validation and the original healing passive.

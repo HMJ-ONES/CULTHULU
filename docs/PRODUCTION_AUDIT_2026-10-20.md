@@ -665,3 +665,23 @@ names and optional compact metadata may abbreviate, with match statistics still
 available on the scoreboard. This is a match-readability improvement, not new
 proof of human fun, final art, complete navigation or professional game quality.
 Only source and small evidence records are added; no new package or download.
+
+## Summon reward consistency (2026-10-21)
+
+Native baseline fixtures reproduced zero owner damage statistics for summoned
+hero damage, missing local feedback, a prior direct attacker taking a summon's
+kill, shared rather than last-hit MOBA rewards, friendly summoned hero damage,
+and stale-owner healing. A common explicit-summon attribution helper now routes
+credit and feedback to a valid same-faction hero owner, while preserving the
+creature as the physical damage source. Jungle attribution uses the same rule.
+Direct hero behavior, reward values, kit definitions and projectile geometry
+are retained. A defeated owner may receive a surviving summon's kill; the
+healing passive cannot resurrect that owner. Ordinary owned civilians and
+arbitrary actor ownership chains do not become hero damage sources.
+
+Docs/SummonCombatCredit.md and SummonCombatCreditResults.json distinguish the
+isolated damage/reward fixtures from actual projectile and full-match coverage.
+The baseline is preserved rather than inferred solely from source. This makes
+summoned combat rewards and feedback more dependable, without establishing
+complete summon AI, all-kit balance, multiplayer credit or human combat fun.
+No new assets, download or independent game package are added.

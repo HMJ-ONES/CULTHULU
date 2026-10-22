@@ -1,4 +1,5 @@
 #include "CultMatchDirector.h"
+#include "CultCombatCredit.h"
 #include "CultMatchState.h"
 #include "CultMobaJungle.h"
 #include "CultDominationRoute.h"
@@ -46,7 +47,7 @@ float ACultMatchDirector::HurtUnit(ACultMatchUnit* U,float Damage,AActor* Source
  if(U->Kind==3) Hp=State_->Moba->HitTower(U->Index,Damage,Attacker);
  if(U->Kind==4) Hp=State_->Moba->HitCore(U->Team,Damage,Attacker);
  if(Hp<=0&&U->Health>0) {
-  const int Killer=Slot(Source);
+  const int Killer=Slot(CultCombatCredit::Hero(Source));
   if(U->Kind==3) { Announce(FString::Printf(TEXT("%s %s tower destroyed%s"),U->Team==0?TEXT("Allied"):TEXT("Enemy"),U->Lane==0?TEXT("top"):U->Lane==1?TEXT("mid"):TEXT("bottom"),LaneWardsCleared(U->Team)?TEXT(" | Nexus ward exposed!"):TEXT(""))); for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Team!=U->Team) GrantXP(I,I==Killer?800:200); }
   else if(U->Kind==5) { State_->NexusDestroyed[U->Team]=true; Announce(U->Team==0?TEXT("Our nexus ward has fallen. Protect our god!"):TEXT("Enemy nexus ward destroyed. Their god is exposed!")); for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Team!=U->Team) GrantXP(I,I==Killer?800:200); }
   else if(U->Kind==4) { U->Health=0; Finish(1-U->Team); }
