@@ -28,6 +28,8 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - [ ] Third-party franchise/IP concerns cleared
 - [ ] Mesh and textures inspected
 - [ ] Rig, skeleton and animation status inspected
-- [ ] Preferred model selected
+- [x] Preferred model selected
 
-**Chosen model:** _None_
+**Chosen model:** **[The King in Yellow (Hastur) — M.O.T.H., recent option 2](https://sketchfab.com/3d-models/the-king-in-yellow-hastur-0d568df99cc64396877641b303e2c882)** — user selected on 2026-10-22; **acquisition/download permission unverified**. This refers to recent follow-up options, not older list numbers. See [approved selections](../APPROVED_SELECTIONS_CODEX.md).
+
+**Access warning:** Selected recent-comparison model has no publicly confirmed download button; do not scrape site previews or circumvent restrictions. Confirm creator permission and game license before acquisition.
