@@ -6,20 +6,20 @@
 
 This file contains **review leads**, NOT 3D model binaries or a completed three-model commercial-ready selection. Any direct model link needs a fresh creator/license/download/rights check before use. Generic searches below are open research tasks, NOT identified models.
 
-### 1. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=The%20Shoggoths%2C%20the%20Shapeless%20Ones%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 1. [Shoggoth — Lovecraft Lore (Brian Trepanier)](https://sketchfab.com/3d-models/shoggoth-lovecraft-lore-5915d0b971ab4fc3b7653c322061dec8)
+- **Visual fit:** Exact, grotesque formless Lovecraft creature, much more faithful than generic beasts.
+- **Rights / rig:** CC BY indicated; ~1.4M tris, static sculpt. Verify commercial rights and files before use.
 
-### 2. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=The%20Shoggoths%2C%20the%20Shapeless%20Ones%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=The%20Shoggoths%2C%20the%20Shapeless%20Ones%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 2. [Flesh Blob](https://sketchfab.com/3d-models/flesh-blob-b3f5bb51f8144a30b6fa6b22f5d44bf7)
+- **Visual fit:** Morphable flesh blob suitable for Shoggoth shape language; add eye growths.
+- **Rights / rig:** CC BY indicated; ~22k triangles, rigging unverified. Verify commercial rights and files before use.
+
+
+### 3. [Living Flesh Blob — Animated](https://sketchfab.com/3d-models/living-flesh-blob-free-organic-horror-asset-6357bbc094d54cf5ba150ef2951b3750)
+- **Visual fit:** Pulsating visceral organism, a good real-time Shoggoth prototype.
+- **Rights / rig:** CC BY indicated; rigged with animation, ~10k triangles. Verify commercial rights and files before use.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
