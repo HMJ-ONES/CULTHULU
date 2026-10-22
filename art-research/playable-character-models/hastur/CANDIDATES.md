@@ -17,10 +17,10 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - **Rig / animation:** ~14k triangles; animation unverified.
 
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Hastur%2C%20the%20King%20in%20Yellow%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 3. [Horror Man — Dark-Clothes AI Character](https://sketchfab.com/3d-models/horror-man-d56b2c361392477b8347d08ef9339fe3)
+- **Visual fit:** An ominous humanoid full-body base; requires hooded yellow robes, mask and major art redesign to become Hastur.
+- **Licensing / technical:** CC BY per Sketchfab; AI-generated ~10k triangles; rig and animation unverified.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
