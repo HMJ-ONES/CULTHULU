@@ -876,3 +876,30 @@ placeholder entities/animation and coarse capsule collision still limit the game
 There is no new standalone verification, progressive fracture or collapse art.
 Human fun/balance and reference-level professional polish remain unproven; the
 complete production goal stays open. No build/cache/archive is included in GitHub.
+
+## Competitive exterior rock ranges (2026-10-22)
+
+Both arenas' twenty-four repeated cones are replaced by a single source-generated
+exterior rock range: five sections, 960 triangles, irregular peaks and offset
+strata using existing natural-stone material. All vertices lie beyond an ellipse
+enclosing the playable rectangle's corners. The range has no collision or shadows
+and does not enter the tactical minimap. Production creates no legacy cones;
+editor comparison fixtures create hidden alternate representations only for review.
+
+The canonical Editor build and all six final native checks pass with zero
+automation errors. Two backdrop fixtures verify exterior geometry/front normals,
+one-mesh production, exact 1280x720 matched captures and unchanged transforms,
+collision and visibility for every real arena, hero and objective mesh. Separate
+Domination/MOBA match, full-size lane-clearance and twelve jungle-return checks
+exercise the gameplay spaces. The initial reversed inner faces were corrected;
+two rejected fixture runs were diagnosed as deliberately moving the comparison's
+own camera proxy. Only that test-owned camera is excluded from final snapshots.
+
+All 425 backed-up Content files remain byte-identical. Sixty-four generated loose
+runtime copies match their original animations/definitions byte-for-byte and are
+excluded from the manifest. Source, records and four review images are backed up;
+no new Content asset, download, archive or standalone game is produced. There is
+no measured FPS or memory improvement claim. These remain coarse distant facets;
+temple structures, placeholder entities/animation, sparse dressing, combat feel,
+human pacing/fun and overall professional production quality need substantial
+work. This pass does not establish reference-game refinement or goal completion.

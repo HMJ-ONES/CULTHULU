@@ -98,3 +98,6 @@ past allied structures and full-size hero/minion detour verification.
 `Docs/WardArchitecture.md` records the compact stone lane/nexus meshes, preserved
 combat/collision, grounded remains, paired renders and six native Editor checks.
 The two new assets total 193 KB; no standalone package was generated for this pass.
+
+`Docs/MatchBackdrop.md` records the source-generated exterior rock range in both
+competitive modes, matched views and six scoped native checks. No assets are downloaded.

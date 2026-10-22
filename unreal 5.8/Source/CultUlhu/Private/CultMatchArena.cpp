@@ -1,5 +1,6 @@
 #include "CultMatchDirector.h"
 #include "CultMatchSurfaces.h"
+#include "CultMatchBackdrop.h"
 #include "CultJungleCliffs.h"
 #include "CultMobaRoute.h"
 #include "CultMobaJungle.h"
@@ -213,7 +214,7 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   for(int Side:{-1,1}) { Art(TEXT("tower-square-mid"),FVector(X,Side*6500,0),FVector(2300,2300,10000),0); Art(TEXT("crypt-ruined"),FVector(X,Side*10000,0),FVector(5000,5000,6000),Team?180:0); }
  }
  for(float X:{-14000.f,14000.f}) for(int Side:{-1,1}) Art(TEXT("ruined-column-b"),FVector(X,Side*19500,0),FVector(900,900,6500),0);
- for(int I=0;I<24;++I) { float A=I*2*PI/24; Mesh(TEXT("/Engine/BasicShapes/Cone"),FVector(FMath::Cos(A)*(Moba?42000:34500),FMath::Sin(A)*(Moba?25000:32500),3500),FVector(35,35,100),FLinearColor(.08f,.11f,.14f),false); }
+ CultMatchBackdrop::Build(W,Moba);
  CultMatchSurfaces::Apply(W,CultMatchSurfaces::Enabled());
 }
 
