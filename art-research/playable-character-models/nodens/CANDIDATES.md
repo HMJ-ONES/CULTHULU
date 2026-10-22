@@ -18,9 +18,9 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - **Rig / animation:** ~1.9M tris; rig/animation unverified.
 
 
-### 3. [Hooded Joker Warrior — Playing Card](https://sketchfab.com/3d-models/hooded-joker-warrior-playing-card-568f7ba86ba3400bbeb5ef5538d29f42)
-- **Visual fit:** Mysterious clothed occultist with imposing pose; **very loose adaptation** rather than sea-god Nodens; requires oceanic king redesign.
-- **Licensing / technical:** CC BY indicated; high-poly sculpt; rig/animation unverified.
+### 3. [Goblin Shaman with Goat Skull Staff — Pigcraft](https://sketchfab.com/3d-models/goblin-shaman-with-goat-skull-staff-7de07dc1463647f3b06833fe9170d64a)
+- **Visual fit:** Gaunt, frightening archaic shaman base with ritual clothing and staff. **Very loose adaptation**: Nodens must be rebuilt as an ancient sea/abyss deity rather than a goblin; candidate useful chiefly for garment and staff kitbashing.
+- **Licensing / technical:** CC BY and downloadable on source; AI-assisted ~1.9M triangles, retopology essential; rigging not verified.
 
 
 ## Selection checklist
