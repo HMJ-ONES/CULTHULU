@@ -110,3 +110,7 @@ reach/approach decisions and corrected-baseline/native match evidence.
 
 `Docs/BotAbilityOpportunity.md` records actual-shape bot aura/cone opportunities,
 resource preservation, alternate victims/cover and scoped native evidence.
+
+`Docs/CharacterSelection.md` records the fitted sixteen-entity roster, distinct
+original ability rows, fixed mode guidance, paired renders and native layout
+checks across three modes and four viewport sizes.

@@ -1008,3 +1008,28 @@ coordination, heavy/summon/ground-impact decisions, human match pacing and final
 art/animation remain open. This fixes specific waste without proving competitive
 fun, sustained performance or reference-game production refinement. The complete
 development goal remains active.
+
+## Character selection readability — 2026-10-22
+
+The roster now separates short entity names from epithets, preserves complete
+original names/flavor in tooltips, and shows the selected original kit in four
+distinct Q/F/R/RMB rows with source cooldowns and stamina. A fitted reference
+canvas keeps roster and detail proportions under the actual engine DPI curve.
+Free Roam's three-belief/B-change instruction and mode-specific competitive
+guidance remain above the action row. Existing hero-only heals, Domination
+invocations, normalized health and MOBA Minion Sling are described accurately.
+
+Canonical validation and the actual Editor target succeed; the final native
+batch is three successes with no automation errors. Twelve mode/size cases
+exercise 192 real card delegates and check visible roster/name glyphs, all four
+ability rows, original names/costs, mode rules and footer position. Earlier
+green-but-visually-inadequate iterations and a two-clip failed layout run are
+retained in CharacterSelectionResults.json. Five raw images total 617 KB.
+Controlled readbacks establish matched layout, with a separate actual editor
+view for the dark palette. All 425 backed-up Content files and the normalized
+sixteen original definitions are unchanged. No download or standalone package
+is added.
+
+This is a clearer text-based menu. Authored hero imagery/previews, motion design,
+controller and accessibility verification, arbitrary resolution/localization,
+human match testing and the broader production refinement remain unfinished.

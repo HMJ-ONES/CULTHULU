@@ -1,0 +1,282 @@
+{
+  "date": "2026-10-22",
+  "base": "d59b415e81a289b4abc43832b63a98b4a317e296",
+  "build": {
+    "engine": "5.8.3",
+    "target": "CultUlhuEditor Win64 Development",
+    "canonical_validation": true,
+    "success": true,
+    "seconds": 19.45
+  },
+  "baseline": {
+    "log": "CharacterSelectionBefore.log",
+    "sha256": "6982d8e5d7db091293f79c82d58712bedcf9c399bb760b48779dd7acde237aad",
+    "tests": [
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.CharacterSelectionCapture"
+      }
+    ],
+    "errors": []
+  },
+  "rejected_iterations": [
+    {
+      "reason": "Green capture/flow tests did not check all names: visual review found long-name overlap and a hidden fourth row.",
+      "log": "CharacterSelectionReviewAfter.log",
+      "sha256": "f80706c8f7625fd3b6b5b1cde51482f26f475a78d333d3b48a36fb633ea4ef44",
+      "tests": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CharacterSelectionCapture"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.Select"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "reason": "All existing tests passed, but visual review found the belief-change note partly below the detail scroll viewport.",
+      "log": "CharacterSelectionFinal.log",
+      "sha256": "ecd0fe66bb81f64f051eea705c90cb37889a77603a7467764339ae78b27e2aa4",
+      "tests": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CharacterSelectionCapture"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CharacterSelectionLayout"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.Select"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "reason": "Moving guidance to a fixed footer exposed two 720p ability metadata clips. Retained the visibility assertions and reduced detail spacing.",
+      "log": "CharacterSelectionAccepted.log",
+      "sha256": "9e084a57443dea353823b475f8fb5e2a663ed90d58331c060e379c69bf887c35",
+      "tests": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CharacterSelectionCapture"
+        },
+        {
+          "result": "Fail",
+          "path": "CultUlhu.Menu.CharacterSelectionLayout"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.Select"
+        }
+      ],
+      "errors": [
+        "[2026.10.22-20.35.44:425][627]LogAutomationController: Error: Test Completed. Result={Fail} Name={CharacterSelectionLayout} Path={CultUlhu.Menu.CharacterSelectionLayout}",
+        "[2026.10.22-20.35.44:426][627]LogAutomationController: Error: Expected 'Ability metadata remains visible in its detail viewport' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultCharacterSelectionLayoutTest.cpp(81)]",
+        "[2026.10.22-20.35.44:426][627]LogAutomationController: Error: Expected 'Ability metadata remains visible in its detail viewport' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultCharacterSelectionLayoutTest.cpp(81)]"
+      ]
+    }
+  ],
+  "final": {
+    "log": "CharacterSelectionVerified.log",
+    "sha256": "34a5a7ec297fc72b09a238db7382218f4b7c876f6d92b8e83f1b539612090a8f",
+    "tests": [
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.CharacterSelectionCapture"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.CharacterSelectionLayout"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.Select"
+      }
+    ],
+    "errors": []
+  },
+  "layout_cases": [
+    {
+      "mode": "Free Roam",
+      "width": 960,
+      "height": 540,
+      "engine_dpi": 0.4995,
+      "card_callbacks": 16,
+      "minimum_font_units": 11.427,
+      "minimum_glyph_height_pixels": 18.0
+    },
+    {
+      "mode": "Free Roam",
+      "width": 1280,
+      "height": 720,
+      "engine_dpi": 0.666,
+      "card_callbacks": 16,
+      "minimum_font_units": 15.32,
+      "minimum_glyph_height_pixels": 23.0
+    },
+    {
+      "mode": "Free Roam",
+      "width": 1920,
+      "height": 1080,
+      "engine_dpi": 1.0,
+      "card_callbacks": 16,
+      "minimum_font_units": 22.853,
+      "minimum_glyph_height_pixels": 35.0
+    },
+    {
+      "mode": "Free Roam",
+      "width": 1280,
+      "height": 540,
+      "engine_dpi": 0.4995,
+      "card_callbacks": 16,
+      "minimum_font_units": 11.427,
+      "minimum_glyph_height_pixels": 18.0
+    },
+    {
+      "mode": "Domination \u2014 5v5 capture",
+      "width": 960,
+      "height": 540,
+      "engine_dpi": 0.4995,
+      "card_callbacks": 16,
+      "minimum_font_units": 11.427,
+      "minimum_glyph_height_pixels": 18.0
+    },
+    {
+      "mode": "Domination \u2014 5v5 capture",
+      "width": 1280,
+      "height": 720,
+      "engine_dpi": 0.666,
+      "card_callbacks": 16,
+      "minimum_font_units": 15.32,
+      "minimum_glyph_height_pixels": 23.0
+    },
+    {
+      "mode": "Domination \u2014 5v5 capture",
+      "width": 1920,
+      "height": 1080,
+      "engine_dpi": 1.0,
+      "card_callbacks": 16,
+      "minimum_font_units": 22.853,
+      "minimum_glyph_height_pixels": 35.0
+    },
+    {
+      "mode": "Domination \u2014 5v5 capture",
+      "width": 1280,
+      "height": 540,
+      "engine_dpi": 0.4995,
+      "card_callbacks": 16,
+      "minimum_font_units": 11.427,
+      "minimum_glyph_height_pixels": 18.0
+    },
+    {
+      "mode": "Defense of the Great Old Ones \u2014 5v5",
+      "width": 960,
+      "height": 540,
+      "engine_dpi": 0.4995,
+      "card_callbacks": 16,
+      "minimum_font_units": 11.427,
+      "minimum_glyph_height_pixels": 18.0
+    },
+    {
+      "mode": "Defense of the Great Old Ones \u2014 5v5",
+      "width": 1280,
+      "height": 720,
+      "engine_dpi": 0.666,
+      "card_callbacks": 16,
+      "minimum_font_units": 15.32,
+      "minimum_glyph_height_pixels": 23.0
+    },
+    {
+      "mode": "Defense of the Great Old Ones \u2014 5v5",
+      "width": 1920,
+      "height": 1080,
+      "engine_dpi": 1.0,
+      "card_callbacks": 16,
+      "minimum_font_units": 22.853,
+      "minimum_glyph_height_pixels": 35.0
+    },
+    {
+      "mode": "Defense of the Great Old Ones \u2014 5v5",
+      "width": 1280,
+      "height": 540,
+      "engine_dpi": 0.4995,
+      "card_callbacks": 16,
+      "minimum_font_units": 11.427,
+      "minimum_glyph_height_pixels": 18.0
+    }
+  ],
+  "selection_callbacks": 192,
+  "source_ability_rows_checked": 576,
+  "alternate_rows_checked": 192,
+  "input_preservation": {
+    "backed_up_content_files_byte_identical": 425,
+    "released_definitions_line_ending_normalized_identical": [
+      "bokrug",
+      "cthulhu_avatar",
+      "dagon",
+      "ghatanothoa",
+      "hastur",
+      "mi_go",
+      "mother_hydra",
+      "nodens",
+      "nug_and_yeb",
+      "nyarlathotep",
+      "rhan_tegoth",
+      "sghllor",
+      "shoggoths",
+      "shub_niggurath",
+      "yig",
+      "yog_sothoth"
+    ]
+  },
+  "images": [
+    {
+      "path": "unreal 5.8/Docs/Images/CharacterSelectionBefore1280.png",
+      "sha256": "37b46c459906a8ffe5f98f4c71ec3c6c150cd2a2b257e9234165f8b0060e6e36",
+      "bytes": 149109,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "unreal 5.8/Docs/Images/CharacterSelectionAfter1280.png",
+      "sha256": "ec4ee9cccba8062e1fc34ad5ab07ee57bc6e6a172c4910c26912b4efc1fb26f9",
+      "bytes": 142691,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "unreal 5.8/Docs/Images/CharacterSelectionBefore960.png",
+      "sha256": "948bc7672bd629eb31e8c6e542ed8213c00aef61e6481cb814ebb11bafbc63ce",
+      "bytes": 101528,
+      "width": 960,
+      "height": 540
+    },
+    {
+      "path": "unreal 5.8/Docs/Images/CharacterSelectionAfter960.png",
+      "sha256": "f5ef87462caa46d846f0d858e15ab30574cc4f9e79427ea0f70e719498399ec4",
+      "bytes": 97573,
+      "width": 960,
+      "height": 540
+    },
+    {
+      "path": "unreal 5.8/Docs/Images/CharacterSelectionEditor.png",
+      "sha256": "4859eba5732aaf5e3518c616ca5cb970688a2ebfc317ae9f981df03b4202c5ea",
+      "bytes": 125907,
+      "width": 1288,
+      "height": 680
+    }
+  ],
+  "capture_scope": "Four controlled FWidgetRenderer sizes use the real engine DPI curve. Matching before/after captures establish layout only; offscreen readback is lighter than the real editor viewport. The separate editor image is the actual palette reference.",
+  "limits": [
+    "Card delegate broadcasts, not physical mouse/controller navigation.",
+    "No portrait, localization, accessibility or every-resolution certification.",
+    "No new character portraits/models/rigs, gameplay balance, frame-rate claim or fresh standalone package.",
+    "Native isolated tests disable the MCP transport by command line only; normal project MCP configuration is unchanged.",
+    "The complete production-quality and human-fun goal remains open."
+  ]
+}
