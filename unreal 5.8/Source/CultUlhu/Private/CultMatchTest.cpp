@@ -33,7 +33,62 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 struct FCultMatchTestAccess {
+ static ACultUlhuPlayerPawn* PreparePhysicalDodge(ACultMatchDirector* M,bool Defend,TSharedRef<bool> Contact) {
+  M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false;
+  for(TActorIterator<ACultSkillAttack> It(M->GetWorld());It;++It) It->Destroy();
+  M->SpawnFighter(1); HoldBots(M,true); Unshield(M);
+  auto* Bot=M->Fighters()[1].Pawn.Get(); auto* Caster=M->Fighters()[5].Pawn.Get();
+  Bot->RelocateMatch(FVector(0,0,60050)); Caster->RelocateMatch(FVector(-5000,0,60050));
+  Bot->bBotControlled_=Defend; Bot->DashCooldown_=Bot->EvadeTime_=0;
+  if(Defend) Bot->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+  const FTransform Transform(Bot->GetActorLocation()+FVector(-5000,0,0));
+  auto* A=M->GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),Transform,Caster,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+  A->Shape=ACultSkillAttack::EShape::Bolt; A->Direction=FVector::ForwardVector; A->Reach=10000; A->Radius=40; A->Speed=4000; A->Windup=.4f; A->Duration=4;
+  A->Hit=[Bot,Caster,Contact](AActor* Target,FVector Point) { if(Target==Bot) { *Contact=true; ACultSkillAttack::Hurt(Target,20,Caster,Point); } };
+  A->FinishSpawning(Transform); return Bot;
+ }
+ static bool ObservePhysicalDodge(ACultMatchDirector* M,float Now) { return CultBotThreat::Respond(M->Fighters()[1].Pawn.Get(),M->State_->BotThreats[1],Now,1); }
+ static void VerifyDashSafety(FAutomationTestBase* T,ACultUlhuPlayerPawn* Bot) {
+  T->TestTrue(TEXT("Open supported ground permits a defensive dash"),CultBotThreat::SafeDash(Bot,FVector::YAxisVector));
+  auto* Wall=Bot->GetWorld()->SpawnActor<AStaticMeshActor>(Bot->GetActorLocation()+FVector(0,Bot->DashTravelDistance()*.65f,0),FRotator::ZeroRotator);
+  Wall->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable); Wall->GetStaticMeshComponent()->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube"))); Wall->SetActorScale3D(FVector(100,1,100));
+  T->TestFalse(TEXT("A solid wall rejects the dash path"),CultBotThreat::SafeDash(Bot,FVector::YAxisVector)); Wall->Destroy();
+  Bot->RelocateMatch(FVector(19000,0,60050));
+  T->TestFalse(TEXT("An unsupported landing beyond the platform rejects a dash"),CultBotThreat::SafeDash(Bot,FVector::ForwardVector));
+  Bot->RelocateMatch(FVector(0,0,60050));
+ }
  static void Unshield(ACultMatchDirector* M) { for(auto& F:M->State_->Fighters) { F.Shield=0; if(F.Pawn.IsValid()) F.Pawn->EvadeTime_=0; } }
+ static void VerifyBotThreatDecisions(FAutomationTestBase* T,ACultMatchDirector* M) {
+  M->State_->Warmup=0; M->State_->NextWave=1000; M->State_->Time=10; HoldBots(M,true); Unshield(M);
+  auto* Bot=M->Fighters()[1].Pawn.Get(); auto* Caster=M->Fighters()[5].Pawn.Get(); Bot->bBotControlled_=true;
+  auto Reset=[&]() {
+   for(TActorIterator<ACultSkillAttack> It(M->GetWorld());It;++It) It->Destroy();
+   M->SpawnFighter(1); Unshield(M); Bot->RelocateMatch(FVector::ZeroVector); Caster->RelocateMatch(FVector(-2500,0,0));
+   Bot->GetCharacterMovement()->SetMovementMode(MOVE_Walking); Bot->DashTime_=Bot->DashCooldown_=Bot->EvadeTime_=0;
+   Bot->GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); Bot->SmashCooldown_=10;
+   for(int I=0;I<3;++I) Bot->Kit_->SetCooldown(I,999);
+   M->State_->Fighters[1].Think=0; M->State_->Fighters[1].RouteStep=2; M->State_->Time+=1;
+  };
+  auto Attack=[&](ACultSkillAttack::EShape Shape,FVector Origin,FVector Direction,float Windup) {
+   FTransform Transform(Origin); auto* A=M->GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),Transform,Caster,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+   A->Shape=Shape; A->Direction=Direction; A->Reach=4000; A->Radius=40; A->Speed=5000; A->Windup=Windup; A->Duration=2;
+   A->Hit=[](AActor*,FVector){}; A->FinishSpawning(Transform); return A;
+  };
+  auto ObserveTwice=[&]() { M->BotThink(1,.001f); M->State_->Time+=.25f; M->BotThink(1,.001f); };
+  Reset(); Attack(ACultSkillAttack::EShape::Beam,Bot->GetActorLocation()+FVector(-2500,0,0),FVector::YAxisVector,.45f); ObserveTwice();
+  T->TestEqual(TEXT("An aimed-away beam does not waste a defensive dash"),Bot->DashTime_,0.f);
+  Reset(); auto* Wall=M->GetWorld()->SpawnActor<AStaticMeshActor>(Bot->GetActorLocation()+FVector(-1250,0,0),FRotator::ZeroRotator);
+  Wall->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable); Wall->GetStaticMeshComponent()->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube"))); Wall->SetActorScale3D(FVector(5,100,100));
+  Attack(ACultSkillAttack::EShape::Beam,Bot->GetActorLocation()+FVector(-2500,0,0),FVector::ForwardVector,.45f); ObserveTwice();
+  T->TestEqual(TEXT("A windup blocked by solid cover does not waste a dash"),Bot->DashTime_,0.f); Wall->Destroy();
+  Reset(); auto* Above=Attack(ACultSkillAttack::EShape::Sphere,Bot->GetActorLocation()+FVector(0,0,7000),FVector::ForwardVector,.45f); Above->Reach=2000; ObserveTwice();
+  T->TestEqual(TEXT("An aura outside the actual vertical volume does not waste a dash"),Bot->DashTime_,0.f);
+  Reset(); Attack(ACultSkillAttack::EShape::Bolt,Bot->GetActorLocation()+FVector(-2500,0,0),FVector::ForwardVector,0); M->BotThink(1,.001f);
+  T->TestEqual(TEXT("A newly observed flying projectile cannot cause an instant reaction"),Bot->DashTime_,0.f);
+  M->State_->Time+=.25f; M->State_->Fighters[1].Think=0; M->BotThink(1,.001f);
+  T->TestTrue(TEXT("An actual incoming flying projectile can trigger a delayed defensive dash"),Bot->DashTime_>0);
+  T->AddInfo(FString::Printf(TEXT("Bot threat decisions mode=%d final dash=%.3f"),int(M->Mode()),Bot->DashTime_));
+ }
  static void VerifySummonCredit(FAutomationTestBase* T,ACultMatchDirector* M,ACultUlhuPlayerPawn* P) {
   M->State_->Warmup=0; Unshield(M);
   auto* Enemy=M->Fighters()[5].Pawn.Get(); auto* Support=M->Fighters()[3].Pawn.Get();
@@ -531,6 +586,44 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaSummonCreditTest,"CultUlhu.Menu.Summon
 bool FCultMobaSummonCreditTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultSummonCreditObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDomSummonCreditTest,"CultUlhu.Menu.SummonCombatCredit.Domination",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultDomSummonCreditTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultSummonCreditObservation(this,ECultPlayMode::Domination)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+class FCultBotThreatObservation:public IAutomationLatentCommand {
+ FAutomationTestBase* Test; ECultPlayMode Mode; bool Entered=false; double Started=FPlatformTime::Seconds();
+ int Phase=0; float At=0,Hp=0; bool Dashed=false; TSharedRef<bool> Contact=MakeShared<bool>(false);
+public:
+ FCultBotThreatObservation(FAutomationTestBase* T,ECultPlayMode M):Test(T),Mode(M) {}
+ bool Update() override {
+  if(FPlatformTime::Seconds()-Started>90) { Test->AddError(TEXT("Bot threat decision check timed out")); return true; }
+  auto* W=GEditor->PlayWorld.Get(); if(!W||W->bIsTearingDown) return false;
+  if(W->GetName().Contains(TEXT("L_MainMenu"))) { if(!Entered) { auto* G=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); G->SelectedCharacterId=TEXT("cthulhu_avatar"); G->OpenCharacterSelect(Mode); G->OpenBeliefSelect(); Entered=true; } return false; }
+  auto* M=ACultMatchDirector::Find(W); if(!M||W->GetTimeSeconds()<.5f) return false;
+  if(Phase==0) {
+   UGameplayStatics::SetGamePaused(W,true); FCultMatchTestAccess::VerifyBotThreatDecisions(Test,M);
+   // Isolated supported platform: actual movement and projectile sweeps tick freely;
+   // objective navigation and other heroes cannot accidentally avoid the control shot.
+   auto* Floor=W->SpawnActor<AStaticMeshActor>(FVector(0,0,60000),FRotator::ZeroRotator);
+   Floor->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable); Floor->GetStaticMeshComponent()->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube"))); Floor->SetActorScale3D(FVector(400,400,1));
+   auto* Bot=FCultMatchTestAccess::PreparePhysicalDodge(M,true,Contact); FCultMatchTestAccess::VerifyDashSafety(Test,Bot);
+   Hp=Bot->GetHealth(); At=W->GetTimeSeconds(); Phase=1; UGameplayStatics::SetGamePaused(W,false); return false;
+  }
+  auto* Bot=M->Fighters()[1].Pawn.Get();
+  if(Phase==1) Dashed|=FCultMatchTestAccess::ObservePhysicalDodge(M,W->GetTimeSeconds());
+  if(W->GetTimeSeconds()-At<2.5f) return false;
+  if(Phase==1) {
+   Test->TestTrue(TEXT("A delayed reaction starts an actual physical dash"),Dashed);
+   Test->TestTrue(TEXT("Physical dash moves the capsule outside the bolt corridor"),FMath::Abs(Bot->GetActorLocation().Y)>Bot->GetCapsuleComponent()->GetScaledCapsuleRadius()+40);
+   Test->TestFalse(TEXT("The swept projectile never contacts the dodging capsule"),*Contact); Test->TestEqual(TEXT("A physically avoided projectile preserves health"),Bot->GetHealth(),Hp);
+   Test->AddInfo(FString::Printf(TEXT("Physical dodge mode=%d lateral=%.1f contact=%d hp=%.1f"),int(Mode),Bot->GetActorLocation().Y,int(*Contact),Bot->GetHealth()));
+   *Contact=false; Bot=FCultMatchTestAccess::PreparePhysicalDodge(M,false,Contact); Hp=Bot->GetHealth(); At=W->GetTimeSeconds(); Phase=2; return false;
+  }
+  Test->TestTrue(TEXT("The identical control projectile contacts a stationary capsule"),*Contact);
+  Test->TestEqual(TEXT("The control projectile deals its real twenty damage"),Hp-Bot->GetHealth(),20.f);
+  Test->AddInfo(FString::Printf(TEXT("Physical control mode=%d contact=%d lost=%.1f"),int(Mode),int(*Contact),Hp-Bot->GetHealth())); return true;
+ }
+};
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDomBotThreatTest,"CultUlhu.Menu.BotThreatDecisions.Domination",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultDomBotThreatTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotThreatObservation(this,ECultPlayMode::Domination)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaBotThreatTest,"CultUlhu.Menu.BotThreatDecisions.Moba",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultMobaBotThreatTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotThreatObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDominationMatchTest,"CultUlhu.Menu.DominationMatch",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultDominationMatchTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(.5f)); ADD_LATENT_AUTOMATION_COMMAND(FCultMatchObservation(this,false)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaMatchTest,"CultUlhu.Menu.MobaMatch",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

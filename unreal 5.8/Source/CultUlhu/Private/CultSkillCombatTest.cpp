@@ -45,12 +45,14 @@ public:
   else if(Phase==5&&Clock>.35f) { Player->ReceiveDamage(10); Test->TestTrue(TEXT("Dash protection expires"),Player->GetHealth()<Before); Before=Player->GetHealth(); const FVector Feet=Player->FeetLocation();
    // Measure this particular attack's physical contacts. Ambient creatures remain
    // active in Free Roam and may land unrelated hits during the observation.
-   AActor* Enemy=nullptr; for(TActorIterator<ACultUlhuPlayerPawn> Rival(W);Rival;++Rival) if(Rival->IsBot()) { Enemy=*Rival; break; }
-   Test->TestNotNull(TEXT("Ground fixture has a living hostile caster"),Enemy);
-   auto GroundAttack=[&]() { auto* A=Area(W,Feet,ACultSkillAttack::EShape::GroundDisk); A->SetOwner(Enemy); A->Radius=120; A->Reach=Player->GetSimpleCollisionRadius()+300;
-    A->Hit=[this,Enemy](AActor* Actor,FVector Point) { if(Actor==Player) ++GroundContacts; ACultSkillAttack::Hurt(Actor,40,Enemy,Point); }; return A; };
-   auto* Standing=GroundAttack(); Standing->Tick(.31f); Test->TestEqual(TEXT("The same low attack actually contacts a standing hero"),GroundContacts,1); Standing->Destroy();
-   GroundContacts=0; Before=Player->GetHealth(); Player->TryJump(); GroundAttack(); Phase=6; Clock=0; }
+   GroundCaster=nullptr; for(TActorIterator<ACultUlhuPlayerPawn> Rival(W);Rival;++Rival) if(Rival->IsBot()&&ACultSkillAttack::Alive(*Rival)) { GroundCaster=*Rival; break; }
+   Test->TestNotNull(TEXT("Ground fixture has a living hostile caster"),GroundCaster);
+   GroundAttack(W,Feet); Phase=9; Clock=0; }
+  else if(Phase==9&&Clock>.45f) {
+   // A real world tick must advance the standing control. Manually ticking a
+   // just-born attack is intentionally clamped by its first-frame safeguard.
+   Test->TestEqual(TEXT("The same low attack actually contacts a standing hero"),GroundContacts,1);
+   GroundContacts=0; Before=Player->GetHealth(); Player->TryJump(); GroundAttack(W,Player->FeetLocation()); Phase=6; Clock=0; }
   else if(Phase==6&&Clock>3.5f) { int N=0; for(TActorIterator<ACultCorpse> It(W);It;++It) ++N; Test->TestTrue(TEXT("Corpses remain after the old three-second cleanup window"),N>=InitialCorpses); Test->TestEqual(TEXT("Jumping clears the delayed low attack collider"),GroundContacts,0); Test->AddInfo(FString::Printf(TEXT("Jump fixture: %d contacts from its ground attack; total health change %.1f"),GroundContacts,Before-Player->GetHealth()));
    FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
    Target=W->SpawnActor<ACultPopulation>(Origin+FVector(1200,0,0),FRotator::ZeroRotator,Params); Target->RecruitTo(2); Target->GetCharacterMovement()->DisableMovement();
@@ -61,9 +63,11 @@ public:
   if(Clock>10) { Test->AddError(TEXT("Skill combat observation timed out")); return true; } return false;
  }
  ACultSkillAttack* Area(UWorld* W,FVector At,ACultSkillAttack::EShape Kind) { FTransform T(At); auto* A=W->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Player,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); A->Shape=Kind; A->Reach=300; A->Radius=120; A->Windup=.3f; A->Duration=.05f; A->Hit=[this](AActor* Actor,FVector Point) { ACultSkillAttack::Hurt(Actor,40,Player,Point); }; A->FinishSpawning(T); return A; }
+ void GroundAttack(UWorld* W,FVector Feet) { auto* A=Area(W,Feet,ACultSkillAttack::EShape::GroundDisk); A->SetOwner(GroundCaster); A->Radius=120; A->Reach=Player->GetSimpleCollisionRadius()+300;
+  A->Hit=[this](AActor* Actor,FVector Point) { if(Actor==Player) ++GroundContacts; ACultSkillAttack::Hurt(Actor,40,GroundCaster,Point); }; }
  void Bolt(UWorld* W) { FTransform T(Origin); auto* A=W->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Player,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); A->Shape=ACultSkillAttack::EShape::Bolt; A->Direction=FVector::ForwardVector; A->Speed=3000; A->Reach=1800; A->Radius=20; A->Windup=.1f; A->Duration=.7f; TWeakObjectPtr<ACultUlhuPlayerPawn> P(Player); A->Hit=[P](AActor* Actor,FVector Point) { if(P.IsValid()) ACultSkillAttack::Hurt(Actor,1,P.Get(),Point); }; A->FinishSpawning(T); }
 private:
- FAutomationTestBase* Test; double Started; bool Entered=false; int Phase=0,InitialCorpses=0,MeleeContacts=0,GroundContacts=0; float Clock=0,Before=0; FVector Origin; ACultUlhuPlayerPawn* Player=nullptr; TWeakObjectPtr<ACultSkillAttack> Pending; TWeakObjectPtr<ACultPopulation> Target; AStaticMeshActor* Wall=nullptr;
+ FAutomationTestBase* Test; double Started; bool Entered=false; int Phase=0,InitialCorpses=0,MeleeContacts=0,GroundContacts=0; float Clock=0,Before=0; FVector Origin; ACultUlhuPlayerPawn* Player=nullptr; AActor* GroundCaster=nullptr; TWeakObjectPtr<ACultSkillAttack> Pending; TWeakObjectPtr<ACultPopulation> Target; AStaticMeshActor* Wall=nullptr;
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultSkillCombatTest,"CultUlhu.SkillCombat",EAutomationTestFlags::ClientContext|EAutomationTestFlags::EngineFilter)
 bool FCultSkillCombatTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FSkillCombatObservation(this)); return true; }

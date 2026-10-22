@@ -76,6 +76,7 @@ void ACultMatchDirector::BeginPlay() {
 }
 void ACultMatchDirector::EndPlay(const EEndPlayReason::Type R) { delete State_; State_=nullptr; Super::EndPlay(R); }
 void ACultMatchDirector::SpawnFighter(int I) {
+ State_->BotThreats[I]=FCultBotThreatMemory();
  auto& F=State_->Fighters[I];
  // The lead vessel's right-shoulder camera looks outside the formation.
  // Mirror both axes for the opposing team; the same layout applies on respawn.

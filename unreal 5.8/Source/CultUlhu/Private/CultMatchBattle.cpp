@@ -187,6 +187,8 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
 
  }
  float Stop=Cast<ACultFeralBeast>(Enemy)?1100:Enemy&&State_->Moba&&F.RouteStep>=2?1800:400;
+ CultBotThreat::Respond(P,State_->BotThreats[I],State_->Time,I);
+ if(CultBotThreat::Avoiding(State_->BotThreats[I],State_->Time)) { Goal=P->FeetLocation()+State_->BotThreats[I].Escape*1600; Stop=0; }
  if(FVector::Dist2D(Goal,P->FeetLocation())>Stop) P->MoveMatchToward(Goal,Dt);
  F.Think-=Dt; if(F.Think>0) return; F.Think=.28f+(I%3)*.04f;
  const int HealSlot=P->HealingAbilitySlot();
@@ -204,7 +206,6 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
   if(Best<3000) P->Smash();
   if(Best<2700&&I%2) { P->HeavyAttack(); P->ReleaseHeavy(); }
  }
- for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->IsWindingUp()&&ACultSkillAttack::Enemy(It->GetOwner(),P)&&FVector::Dist2D(It->GetActorLocation(),P->FeetLocation())<It->Reach+900) { P->TryDash(FVector::CrossProduct(It->Direction,FVector::UpVector)*(I%2?1:-1)); break; }
 }
 void ACultMatchDirector::UpdateRelics(float Dt) {
  for(auto& R:State_->Relics) {

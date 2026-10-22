@@ -85,3 +85,6 @@ measurements for world-aligned stone and distinct natural MOBA ground.
 
 `Docs/JungleCliffs.md` records procedural cliff silhouettes, matching collision,
 preserved access routes, paired renders and scoped render-cost measurements.
+
+`Docs/BotThreatResponse.md` records delayed, directional bot defensive reactions,
+cover and landing checks, and physical dodge versus stationary-projectile controls.

@@ -28,3 +28,10 @@ It does not change the working checkout or remove upstream files.
 To append a verified follow-up to that same branch, pass `--update-existing`
 and set `--base` to the identical branch name. The script fetches its live HEAD
 and uses a normal fast-forward push; it never force-pushes over concurrent work.
+
+The current reviewable backup is draft PR #2:
+https://github.com/HMJ-ONES/CULTHULU/pull/2
+on `codex/playable-checkpoint-2026-10-21`. Append validated source and essential
+authored inputs there. A remote backup does not replace the local files Unreal
+needs to run; avoid additional local archives and unneeded downloads. Cleanup
+must preserve user-created art and backups.

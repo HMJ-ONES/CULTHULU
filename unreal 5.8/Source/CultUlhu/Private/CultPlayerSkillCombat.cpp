@@ -13,17 +13,22 @@
 #include "GameFramework/RootMotionSource.h"
 
 namespace {
+constexpr float StandardDashTime=.22f,StandardDashSpeed=3.5f;
 void DriveDash(ACultUlhuPlayerPawn* Pawn,FVector Direction,float Speed,float Duration,float ExitSpeed) {
  auto* Movement=Pawn->GetCharacterMovement(); Movement->RemoveRootMotionSource(TEXT("CultDash"));
  auto Motion=MakeShared<FRootMotionSource_ConstantForce>(); Motion->InstanceName=TEXT("CultDash"); Motion->Priority=500; Motion->AccumulateMode=ERootMotionAccumulateMode::Override; Motion->Force=Direction*Speed; Motion->Duration=Duration; Motion->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate); Motion->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::ClampVelocity; Motion->FinishVelocityParams.ClampVelocity=ExitSpeed; Movement->ApplyRootMotionSource(Motion);
 }
 }
+bool ACultUlhuPlayerPawn::CanDash() const {
+ if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->CanAct(this)) return false;
+ return !Control_.Stop&&!Control_.Fear&&DashCooldown_<=0&&Kit_&&Kit_->StaminaValue()>=18;
+}
+float ACultUlhuPlayerPawn::DashTravelDistance() const { return WalkSpeed_*StandardDashSpeed*StandardDashTime; }
 bool ACultUlhuPlayerPawn::TryDash(FVector Direction) {
- if(auto* M=ACultMatchDirector::Find(GetWorld())) { if(!M->CanAct(this)) return false; }
- if(Control_.Stop||Control_.Fear||DashCooldown_>0||Direction.IsNearlyZero()||!Kit_||!Kit_->SpendStamina(18)) return false;
+ if(!CanDash()||Direction.IsNearlyZero()||!Kit_->SpendStamina(18)) return false;
  if(IsBot()) GetCharacterMovement()->bRunPhysicsWithNoController=true;
  if(auto* M=ACultMatchDirector::Find(GetWorld())) M->OnAction(this);
- DashDirection_=Direction.GetSafeNormal2D(); DashSpeed_=WalkSpeed_*3.5f; DashTime_=.22f; EvadeTime_=.18f; DashCooldown_=1.15f;
+ DashDirection_=Direction.GetSafeNormal2D(); DashSpeed_=WalkSpeed_*StandardDashSpeed; DashTime_=StandardDashTime; EvadeTime_=.18f; DashCooldown_=1.15f;
  // Dashing cancels the arm instead of carrying an active swing across the whole dash.
  for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this&&It->Shape==ACultSkillAttack::EShape::Sweep) It->Destroy();
  SwingTime_=0; MeleeBuffer_=0;

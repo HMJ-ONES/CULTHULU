@@ -56,6 +56,8 @@ public:
 	void ToggleStats();
  void TryJump();
  bool TryDash(FVector Direction);
+ bool CanDash() const;
+ float DashTravelDistance() const;
  void AbilityDash(FVector Direction,float Distance);
  void ResolveSkillHit(const cultulhu::SpellDef& Spell,AActor* Target,FVector Point,int Slot);
  bool IsEvading() const { return EvadeTime_>0; }

@@ -738,3 +738,39 @@ new static asset or standalone package is added. Stylized crowns, regular ramps,
 sparse dressing, crude props and placeholder entities still prevent a claim of
 professional final art; all-kit traversal, human balance and the full goal
 remain unproven.
+
+## Competitive bot defensive reactions (2026-10-21)
+
+The old proximity-only windup rule reproduced four failed assertions per mode:
+aimed-away, blocked and vertically separated attacks wasted dashes, while a
+flying bolt was ignored. Bots now forecast existing skill geometry against
+their scaled capsule, require clear observation/attack paths and react after
+0.16–0.21 seconds. Stamina, cooldown, control state and swept support/obstruction
+checks gate escape choices. Short escape commitment prevents immediately
+walking back into the same danger. Respawn clears the defensive memory.
+
+Both focused Editor tests pass: delayed negative/positive decisions through
+real BotThink, wall and ledge rejection, and freely ticking physical projectile
+controls on an isolated platform. Dagon moved laterally about 19.6/20.8 metres
+without projectile contact in Domination/MOBA; each stationary control received
+the same real 20-damage projectile. Objective navigation and other fighters
+were held for that isolated physical comparison. Original dash parameters,
+player Shift handling, damage volumes and authored ability definitions remain.
+
+This is neither a human perception model nor proof of general evasion. There
+is no field-of-view restriction, swept-arm forecasts use spokes, and special
+thrown-minion transit is outside this skill-attack observer. All-kit/terrain
+behavior, tactical depth, sustained battle cost, balance and human fun remain
+open. BotThreatResponse.md and BotThreatResults.json record the scoped evidence.
+No new art assets, downloaded models or standalone package are added.
+
+Eight distinct Editor checks ultimately pass. The initial six-test regression
+batch passed five and exposed a standing-hit control that manually ticked an
+attack in its birth frame; the existing first-frame safeguard discarded that
+artificial delta. SkillCombat now waits for real world ticks, preserving its
+standing-hit and jumping-clearance assertions. Its focused rerun passes with
+no gameplay edits. Domination independently observed four allied and five
+enemy seal participants; MOBA observed all nine bot lane entries. The final
+canonical build succeeds. All 423 Content files remain byte-identical to
+checkpoint 8888706; character inputs have only checkout line-ending differences.
+This verifies bounded behavior, not human match quality or final art.
