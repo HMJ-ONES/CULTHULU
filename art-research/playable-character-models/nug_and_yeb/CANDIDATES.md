@@ -18,10 +18,10 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - **Rig / animation:** ~46k tris; rig/animation unverified.
 
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Nug%20and%20Yeb%2C%20the%20Twin%20Blasphemies%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 3. [Crimson Eyehand Abomination](https://sketchfab.com/3d-models/crimson-eyehand-abomination-c27de05f75094cd681525a048613ba78)
+- **Visual fit:** Excellent dark bloody multi-eyed multi-limb horror; could inspire one of the two blasphemous twins. Not literal source design.
+- **Licensing / technical:** CC BY, downloadable per Sketchfab; ~40k tris; rig/animations unverified.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
