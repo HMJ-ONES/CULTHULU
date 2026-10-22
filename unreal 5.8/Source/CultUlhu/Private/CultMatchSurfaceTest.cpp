@@ -10,6 +10,8 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/MeshComponent.h"
+#include "ProceduralMeshComponent.h"
 #include "Materials/Material.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "MaterialShared.h"
@@ -31,8 +33,14 @@ class FCultMatchSurfaceObservation:public IAutomationLatentCommand {
  FString Shot; TSharedFuture<FString> Written;
  TWeakObjectPtr<APlayerController> Controller; TWeakObjectPtr<ACameraActor> Overview; TWeakObjectPtr<AActor> Original;
  FHighResScreenshotConfig Previous; uint32 PreviousX=0,PreviousY=0; FTransform HeroTransform;
- struct FGeometry { TWeakObjectPtr<UStaticMeshComponent> Mesh; FTransform Transform; ECollisionEnabled::Type Collision; bool Visible; UStaticMesh* Asset; };
+ struct FGeometry { TWeakObjectPtr<UMeshComponent> Mesh; FTransform Transform; ECollisionEnabled::Type Collision; bool Visible; UStaticMesh* Asset; uint32 Shape; };
  TArray<FGeometry> Geometry;
+ uint32 Shape(UMeshComponent* Mesh) const {
+  uint32 Hash=0; if(auto* Proc=Cast<UProceduralMeshComponent>(Mesh)) for(int I=0;I<Proc->GetNumSections();++I) if(auto* Section=Proc->GetProcMeshSection(I)) {
+   for(const auto& V:Section->ProcVertexBuffer) Hash=HashCombineFast(Hash,GetTypeHash(V.Position));
+   for(auto Index:Section->ProcIndexBuffer) Hash=HashCombineFast(Hash,GetTypeHash(Index));
+  } return Hash;
+ }
  FString ModeName() const { return Mode==ECultPlayMode::Domination?TEXT("Domination"):TEXT("Moba"); }
  void View(int Which) {
   if(auto* PC=Controller.Get()) { PC->SetViewTarget(Which?Overview.Get():Original.Get()); PC->PlayerCameraManager->UpdateCamera(0); }
@@ -45,7 +53,8 @@ class FCultMatchSurfaceObservation:public IAutomationLatentCommand {
    Test->TestTrue(TEXT("Surface treatment preserves mesh placement"),G.Transform.Equals(Mesh->GetComponentTransform(),.01f));
    Test->TestEqual(TEXT("Surface treatment preserves collision"),Mesh->GetCollisionEnabled(),G.Collision);
    Test->TestEqual(TEXT("Surface treatment preserves visibility"),Mesh->IsVisible(),G.Visible);
-   Test->TestTrue(TEXT("Surface treatment preserves the original mesh"),Mesh->GetStaticMesh()==G.Asset);
+   if(auto* Static=Cast<UStaticMeshComponent>(Mesh)) Test->TestTrue(TEXT("Surface treatment preserves the original mesh"),Static->GetStaticMesh()==G.Asset);
+   Test->TestEqual(TEXT("Surface treatment preserves procedural collision geometry"),Shape(Mesh),G.Shape);
   } else Test->AddError(TEXT("An arena component disappeared during the frozen comparison"));
  }
 public:
@@ -73,7 +82,9 @@ public:
    Overview=W->SpawnActor<ACameraActor>(Site,FRotator::ZeroRotator); Overview->SetActorRotation((FVector(0,0,1800)-Site).Rotation());
    PC->SetPause(true);
    for(TActorIterator<AActor> It(W);It;++It) ++Actors;
-   for(TActorIterator<AStaticMeshActor> It(W);It;++It) if(It->ActorHasTag(TEXT("MatchArena"))) { auto* C=It->GetStaticMeshComponent(); Geometry.Add({C,C->GetComponentTransform(),C->GetCollisionEnabled(),C->IsVisible(),C->GetStaticMesh()}); }
+   for(TActorIterator<AActor> It(W);It;++It) if(It->ActorHasTag(TEXT("MatchArena"))) {
+    TArray<UMeshComponent*> Meshes; It->GetComponents(Meshes); for(auto* C:Meshes) { auto* Static=Cast<UStaticMeshComponent>(C); Geometry.Add({C,C->GetComponentTransform(),C->GetCollisionEnabled(),C->IsVisible(),Static?Static->GetStaticMesh():nullptr,Shape(C)}); }
+   }
    Tagged=CultMatchSurfaces::Apply(W,false); Test->TestTrue(TEXT("Real arena surfaces participate in the material comparison"),Tagged>50); View(0); Settle=30; Phase=2; return false;
   }
   if(Settle>0) { --Settle; return false; }

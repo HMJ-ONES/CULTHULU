@@ -712,3 +712,29 @@ sparse dressing, placeholder entities and crude art transitions visible.
 Professional game presentation, human combat quality and the full goal remain
 unproven. Only a small material/source/evidence change and two paired images
 are added; no texture download or standalone package is created.
+
+## Jungle cliff silhouettes (2026-10-21)
+
+Smooth cylindrical jungle platforms now use closed procedural cliff meshes.
+An initial conservative contour passed checks but was rejected visually as too
+similar to the cylinder. Stronger side erosion, layered faces and protected
+rock/ramp pockets improve the silhouette while preserving camp heights and
+access routes. Rendering and collision use the same triangles. The old cylinder
+exists only in the Editor comparison fixture, with only one representation's
+collision active at a time. Materials and the tactical map now support the
+procedural components; map footprints remain bounds rather than exact contours.
+
+All seven final Editor checks pass: triangle/surface correspondence (1,440),
+30-metre capsule support (20 samples), mirrored contour rays (24), encounters,
+all 12 minion returns, lane clearance, a full-size high-ramp climb, physical
+MOBA play, material invariants and HUD rendering. Four exact-size captures and
+paired west-face review images make the shape change reviewable. Frozen-view
+A-B-B-A windows measure GPU means of 3.217 versus 3.228 ms; those numbers are
+not live-battle or low-spec performance proof. Docs/JungleCliffs.md and
+JungleCliffResults.json preserve scope, the rejected initial shape and hashes.
+
+Existing models/materials and encounter balance are reused. No model download,
+new static asset or standalone package is added. Stylized crowns, regular ramps,
+sparse dressing, crude props and placeholder entities still prevent a claim of
+professional final art; all-kit traversal, human balance and the full goal
+remain unproven.

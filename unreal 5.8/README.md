@@ -82,3 +82,6 @@ local hit feedback, same-faction validation and the original healing passive.
 
 `Docs/MatchSurfaces.md` contains paired arena renders and scoped render-cost
 measurements for world-aligned stone and distinct natural MOBA ground.
+
+`Docs/JungleCliffs.md` records procedural cliff silhouettes, matching collision,
+preserved access routes, paired renders and scoped render-cost measurements.

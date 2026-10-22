@@ -1,5 +1,6 @@
 #include "CultMatchDirector.h"
 #include "CultMatchSurfaces.h"
+#include "CultJungleCliffs.h"
 #include "CultMobaRoute.h"
 #include "CultMobaJungle.h"
 #include "CultDominationRoute.h"
@@ -90,8 +91,7 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   // Enter by broad ramps from mid or the outer lane instead of walking through scenery.
   for(int Camp=0;Camp<FCultMobaJungle::Camps;++Camp) {
    const auto Ground=FCultMobaJungle::Ground(Camp);
-   auto* Mesa=Mesh(TEXT("/Engine/BasicShapes/Cylinder"),FVector(Ground.X,Ground.Y,Ground.Z*.5f),FVector(70,50,Ground.Z/100),FLinearColor(.075f,.12f,.105f),true);
-   Mesa->Tags.Add(TEXT("CultMatchWalkSurface")); Mesa->Tags.Add(TEXT("CultMobaJungleMesa")); Mesa->Tags.Add(TEXT("CultMatchRockSurface"));
+   CultJungleCliffs::Build(W,Camp);
    for(bool Outer:{false,true}) {
     const auto Start=FCultMobaJungle::Entry(Camp,Outer),End=FCultMobaJungle::Crest(Camp,Outer),D=End-Start;
     auto* Ramp=Mesh(TEXT("/Engine/BasicShapes/Cube"),(Start+End)*.5f-FVector(0,0,150),FVector(D.Size()/100,28,3),FLinearColor(.12f,.17f,.14f),true);
@@ -214,6 +214,6 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
  }
  for(float X:{-14000.f,14000.f}) for(int Side:{-1,1}) Art(TEXT("ruined-column-b"),FVector(X,Side*19500,0),FVector(900,900,6500),0);
  for(int I=0;I<24;++I) { float A=I*2*PI/24; Mesh(TEXT("/Engine/BasicShapes/Cone"),FVector(FMath::Cos(A)*(Moba?42000:34500),FMath::Sin(A)*(Moba?25000:32500),3500),FVector(35,35,100),FLinearColor(.08f,.11f,.14f),false); }
- if(CultMatchSurfaces::Enabled()) CultMatchSurfaces::Apply(W,true);
+ CultMatchSurfaces::Apply(W,CultMatchSurfaces::Enabled());
 }
 

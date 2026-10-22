@@ -14,6 +14,7 @@
 #include "EngineUtils.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Rendering/SlateRenderer.h"
 #include "Fonts/FontMeasure.h"
@@ -81,13 +82,15 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
  auto Point=[&](FVector V) { return FVector2D(MX+(V.X/(State_->Moba?80000.f:64000.f)+.5f)*Map,MY+(.5f-V.Y/(State_->Moba?46000.f:60000.f))*Map); };
  // Draw the physical layout, not a separate painted approximation. Raised decks
  // and solid cover remain legible behind objective and team markers.
- for(TActorIterator<AStaticMeshActor> It(GetWorld());It;++It) {
+ for(TActorIterator<AActor> It(GetWorld());It;++It) {
   if(!It->ActorHasTag(TEXT("MatchArena"))||It->ActorHasTag(TEXT("CultMatchFloor"))) continue;
-  auto* Mesh=It->GetStaticMeshComponent(); if(Mesh->GetCollisionEnabled()==ECollisionEnabled::NoCollision) continue;
+  TInlineComponentArray<UPrimitiveComponent*,1> Pieces(*It);
+  for(auto* Mesh:Pieces) { if(Mesh->GetCollisionEnabled()==ECollisionEnabled::NoCollision) continue;
   const auto Bounds=Mesh->Bounds.GetBox(); if(Bounds.Max.Z<0) continue; auto A=Point(Bounds.Min),B=Point(Bounds.Max);
   const float X=FMath::Clamp(float(A.X),MX,MX+Map),Y=FMath::Clamp(float(B.Y),MY,MY+Map);
   const float MapRight=FMath::Clamp(float(B.X),MX,MX+Map),MapBottom=FMath::Clamp(float(A.Y),MY,MY+Map);
   HUD->DrawRect(It->ActorHasTag(TEXT("CultMatchWalkSurface"))?FLinearColor(.19f,.29f,.31f):FLinearColor(.10f,.16f,.18f),X,Y,MapRight-X,MapBottom-Y);
+  }
  }
  if(State_->Moba) for(int Lane=0;Lane<3;++Lane) {
   for(int I=0;I<FCultMobaRoute::Segments;++I) {
