@@ -18,10 +18,10 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - **Rig / animation:** ~1.9M tris; rig/animation unverified.
 
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Nodens%2C%20Lord%20of%20the%20Great%20Abyss%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 3. [Hooded Joker Warrior — Playing Card](https://sketchfab.com/3d-models/hooded-joker-warrior-playing-card-568f7ba86ba3400bbeb5ef5538d29f42)
+- **Visual fit:** Mysterious clothed occultist with imposing pose; **very loose adaptation** rather than sea-god Nodens; requires oceanic king redesign.
+- **Licensing / technical:** CC BY indicated; high-poly sculpt; rig/animation unverified.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
