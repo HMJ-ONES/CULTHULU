@@ -774,3 +774,39 @@ enemy seal participants; MOBA observed all nine bot lane entries. The final
 canonical build succeeds. All 423 Content files remain byte-identical to
 checkpoint 8888706; character inputs have only checkout line-ending differences.
 This verifies bounded behavior, not human match quality or final art.
+
+## Competitive hero readability (2026-10-21)
+
+The reviewed combat image exposed another fundamental gap: similar placeholder
+vessels had little nearby identity or health information except for one central
+target panel. Competitive heroes now receive bounded contextual name/health
+plates, prioritizing combat focus and injury. Team marks differ in shape and
+color. Real camera-to-body/head rays gate visibility; remembered focus cannot
+bypass cover. Names use measured glyph widths, layout avoids reserved HUD
+regions, and only four cards (two on short views) appear. This does not supply
+the missing character silhouettes or animations.
+
+Initial renders exposed controller-versus-Canvas projection mismatch and an
+invalid wide-capture fixture wait. Actual Canvas projection now also positions
+objective guidance, damage numbers and small windup labels. Subsequent tests
+caught compact target-priority failures, especially beside MOBA's contextual
+minion-throw instruction. Head-centred side placement corrected those cases;
+floating damage labels yield to that lower instruction. Visual review after
+five passing tests still found leaders crossing earlier names, so all leaders
+now draw beneath all cards. Rejected evidence remains recorded.
+
+The final canonical build and all five final native tests pass with zero
+automation errors. Twelve plate captures cover real health, actual glyph
+advances, focus styling/priority, compact/wide/constrained layouts, bounds,
+overlap and real-wall occlusion in both modes. Combat feedback and competitive
+event glyph regressions also pass. Two frozen-scene review images provide the
+comparison; HeroReadability.md and HeroReadabilityResults.json record scope.
+All 423 Content files remain byte-identical to ab3ee27, with no substantive
+character-input changes. This adds source, reports and two review PNGs, with
+no asset download or standalone package.
+
+The control scene is prepared and paused, rather than a human firefight. Text
+comfort on tiny displays, crowded-fight stability, sustained performance,
+all-camera coverage and human decision quality remain unmeasured. Placeholder
+bodies and crude scenery are still far below the requested Overwatch benchmark;
+fun comparable to Onslaught and the full objective remain unproven.

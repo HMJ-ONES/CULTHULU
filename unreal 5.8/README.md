@@ -88,3 +88,6 @@ preserved access routes, paired renders and scoped render-cost measurements.
 
 `Docs/BotThreatResponse.md` records delayed, directional bot defensive reactions,
 cover and landing checks, and physical dodge versus stationary-projectile controls.
+
+`Docs/HeroReadability.md` records visible competitive hero identity/health plates,
+responsive placement, actual-view projection and paired render/occlusion evidence.

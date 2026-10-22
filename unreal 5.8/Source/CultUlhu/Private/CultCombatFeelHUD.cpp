@@ -2,6 +2,7 @@
 #include "CultUlhuPlayerPawn.h"
 #include "CultSkillAttack.h"
 #include "CultCanvasLabel.h"
+#include "CultHUDProjection.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
@@ -25,10 +26,12 @@ void DrawCultCombatFeel(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C)
   }
  }
  for(const auto& R:P->ImpactTexts()) {
-  FVector2D V; if(!PC->ProjectWorldLocationToScreen(R.Point,V,true)||V.X<20||V.X>C->SizeX-90||V.Y<30||V.Y>C->SizeY-100) continue;
+  FVector2D V; if(!CultHUDProjection::Project(C,R.Point,V)||V.X<20||V.X>C->SizeX-90||V.Y<30||V.Y>C->SizeY-100) continue;
   const float Fade=FMath::Clamp((.85f-R.Age)/.25f,0.f,1.f);
   auto Color=R.Killed?Gold:FLinearColor::White; Color.A=Fade;
-  CultCanvasLabel(C,R.Amount>=1?FString::Printf(TEXT("%.0f"),R.Amount):TEXT("<1"),Color,V.X+12*S,V.Y-28*S-R.Age*48*S,(R.Killed?20.f:16.f)*S);
+  const float TextY=V.Y-28*S-R.Age*48*S;
+  if(TextY+24*S>HUD->CombatContentTop()-8*S) continue;
+  CultCanvasLabel(C,R.Amount>=1?FString::Printf(TEXT("%.0f"),R.Amount):TEXT("<1"),Color,V.X+12*S,TextY,(R.Killed?20.f:16.f)*S);
  }
  if(P->KillConfirmTime()>0) CultCanvasLabel(C,TEXT("ELIMINATED"),Gold,X-55*S,Y+32*S,14*S);
  if(P->EvadeConfirmTime()>0) CultCanvasLabel(C,TEXT("DODGED"),Blue,X-34*S,Y+56*S,14*S);
@@ -54,7 +57,8 @@ void DrawCultCombatFeel(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C)
  int Drawn=0;
  for(auto* A:Threats) {
   FVector2D Label;
-  if(!PC->ProjectWorldLocationToScreen(A->GetActorLocation()+FVector(0,0,120),Label,true)||Label.X<70*S||Label.X>C->SizeX-120*S||Label.Y<100*S||Label.Y>C->SizeY-180*S) continue;
+  if(!CultHUDProjection::Project(C,A->GetActorLocation()+FVector(0,0,120),Label)||Label.X<70*S||Label.X>C->SizeX-120*S||Label.Y<100*S||Label.Y>C->SizeY-180*S) continue;
+  if(Label.Y+4*S>HUD->CombatContentTop()-8*S) continue;
   if(++Drawn>2) break;
   const bool Enemy=ACultSkillAttack::Enemy(P,A->GetOwner());
   const float Progress=A->WindupProgress(); auto Color=Enemy?Coral:Blue; Color.A=.55f+Progress*.45f;

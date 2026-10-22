@@ -6,6 +6,8 @@
 #include "CultFeralBeast.h"
 #include "CultPlayHUD.h"
 #include "CultCanvasLabel.h"
+#include "CultHeroPlates.h"
+#include "CultHUDProjection.h"
 #include "UI/CultUIStyle.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultMatchUnit.h"
@@ -133,16 +135,22 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
    HUD->DrawRect(E.VictimTeam==P->GetFaction()?Blue:Orange,MX+Map+6*S,Y,2*S,FeedRow-2*S);
   }
  }
+ FBox2D GoalBounds(ForceInit);
  if(auto* PC=HUD->GetOwningPlayerController()) {
   FVector2D Screen; FVector Goal=State_->PingTime>0?State_->PingPoint:State_->Capture?Objective():Base(1);
-  if(PC->ProjectWorldLocationToScreen(Goal+FVector(0,0,500),Screen,true)&&Screen.Y>210*S&&Screen.Y< H-240*S) {
+  if(CultHUDProjection::Project(C,Goal+FVector(0,0,500),Screen)&&Screen.Y>210*S&&Screen.Y< H-240*S) {
    const FString Label=State_->PingTime>0?TEXT("RALLY"):State_->Capture?TEXT("CONTROL SEAL"):CoreOpen(1)?TEXT("ENEMY GOD - EXPOSED"):LaneWardsCleared(1)?TEXT("DESTROY NEXUS WARD"):TEXT("PUSH ALL THREE LANES");
    const auto Size=Measure->Measure(Label,CultUI::Font(13*S)); const float LabelX=FMath::Clamp(float(Screen.X)-float(Size.X)*.5f,24*S,MX-24*S-float(Size.X));
    float LabelY=Screen.Y;
    if(ObjectiveAlert.bIsValid&&FBox2D(FVector2D(LabelX-6*S,LabelY-4*S),FVector2D(LabelX+Size.X+6*S,LabelY+Size.Y+4*S)).Intersect(ObjectiveAlert.ExpandBy(4*S))) LabelY=ObjectiveAlert.Max.Y+8*S;
+   GoalBounds=FBox2D(FVector2D(LabelX-6*S,LabelY-4*S),FVector2D(LabelX+Size.X+6*S,LabelY+Size.Y+4*S));
    Panel(LabelX-6*S,LabelY-4*S,Size.X+12*S,Size.Y+8*S); Text(Label,LabelX,LabelY,13,Gold);
   }
  }
+ const FBox2D PlateSafe(FVector2D(24*S,FMath::Max(210*S,CopyBottom+2*Pad)),FVector2D(MX-24*S,HUD->CombatContentTop()-16*S));
+ const float CombatScale=FMath::Clamp(FMath::Min(W/1600.f,H/900.f),.55f,2.f);
+ const TArray<FBox2D> PlateReserved={ObjectiveAlert,GoalBounds,FBox2D(FVector2D(M-125*CombatScale,H*.5f-72*CombatScale),FVector2D(M+125*CombatScale,H*.5f-39*CombatScale)),FBox2D(FVector2D(M-35*S,H*.5f-25*S),FVector2D(M+35*S,H*.5f+25*S))};
+ CultHeroPlates::Draw(HUD,C,P,this,PlateSafe,PlateReserved);
  if(P->StatsVisible()||IsOver()||IsPaused()) {
   const float PW=760*S,PH=440*S,X=M-PW*.5f,Y=H*.5f-PH*.5f;
   if(IsOver()||IsPaused()) HUD->DrawRect(FLinearColor(.008f,.015f,.025f,.8f),0,0,W,H);
