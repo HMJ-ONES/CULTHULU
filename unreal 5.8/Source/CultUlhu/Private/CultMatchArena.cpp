@@ -1,4 +1,5 @@
 #include "CultMatchDirector.h"
+#include "CultMatchSurfaces.h"
 #include "CultMobaRoute.h"
 #include "CultMobaJungle.h"
 #include "CultDominationRoute.h"
@@ -50,7 +51,7 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_ArenaSurface"));
   if(!Base) Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Engine/BasicShapes/BasicShapeMaterial"));
   auto* Material=UMaterialInstanceDynamic::Create(Base,A); Material->SetVectorParameterValue(TEXT("Color"),Color); C->SetMaterial(0,Material);
-  C->SetCollisionEnabled(Collision?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::NoCollision); if(Collision) C->SetCollisionProfileName(TEXT("BlockAll")); A->Tags.Add(TEXT("MatchArena")); return A;
+  C->SetCollisionEnabled(Collision?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::NoCollision); if(Collision) { C->SetCollisionProfileName(TEXT("BlockAll")); A->Tags.Add(TEXT("CultMatchStoneSurface")); } A->Tags.Add(TEXT("MatchArena")); return A;
  };
  // Domination's two entrances are actual holes, rather than ramps buried
  // beneath a single collision plane. Shared tile edges avoid cracks.
@@ -58,7 +59,7 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   auto* A=Mesh(TEXT("/Engine/BasicShapes/Cube"),Center,Size/100,FLinearColor(.055f,.085f,.10f),true);
   A->Tags.Add(TEXT("CultMatchFloor")); A->Tags.Add(TEXT("CultTerrain")); return A;
  };
- if(Moba) FloorTile(FVector(0,0,-150),FVector(80000,46000,300));
+ if(Moba) FloorTile(FVector(0,0,-150),FVector(80000,46000,300))->Tags.Add(TEXT("CultMatchRockSurface"));
  else {
   const float Xs[]={-32000,-14000,-3500,3500,14000,32000},Ys[]={-30000,-24000,-15500,-14000,-9500,9500,14000,15500,24000,30000};
   for(int X=0;X<UE_ARRAY_COUNT(Xs)-1;++X) for(int Y=0;Y<UE_ARRAY_COUNT(Ys)-1;++Y) {
@@ -81,16 +82,16 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   for(int Lane=0;Lane<3;++Lane) for(int I=0;I<FCultMobaRoute::Segments;++I) {
    const FVector A=FCultMobaRoute::Knot(Lane,I),B=FCultMobaRoute::Knot(Lane,I+1),D=B-A;
    auto* Road=Mesh(TEXT("/Engine/BasicShapes/Cube"),(A+B)*.5f+FVector(0,0,4),FVector((D.Size()+80)/100,32,.08f),FLinearColor(.11f,.17f,.18f),false);
-   Road->SetActorRotation(D.Rotation()); Road->Tags.Add(TEXT("CultMobaRoad"));
+   Road->SetActorRotation(D.Rotation()); Road->Tags.Add(TEXT("CultMobaRoad")); Road->Tags.Add(TEXT("CultMatchStoneSurface"));
    // Overlapping round shoulders hide segment seams without affecting collision.
-   Mesh(TEXT("/Engine/BasicShapes/Cylinder"),A+FVector(0,0,4),FVector(32,32,.08f),FLinearColor(.11f,.17f,.18f),false);
+   Mesh(TEXT("/Engine/BasicShapes/Cylinder"),A+FVector(0,0,4),FVector(32,32,.08f),FLinearColor(.11f,.17f,.18f),false)->Tags.Add(TEXT("CultMatchStoneSurface"));
   }
   // Lane roads stay flat; their intervening jungle is a set of true cliffs.
   // Enter by broad ramps from mid or the outer lane instead of walking through scenery.
   for(int Camp=0;Camp<FCultMobaJungle::Camps;++Camp) {
    const auto Ground=FCultMobaJungle::Ground(Camp);
    auto* Mesa=Mesh(TEXT("/Engine/BasicShapes/Cylinder"),FVector(Ground.X,Ground.Y,Ground.Z*.5f),FVector(70,50,Ground.Z/100),FLinearColor(.075f,.12f,.105f),true);
-   Mesa->Tags.Add(TEXT("CultMatchWalkSurface")); Mesa->Tags.Add(TEXT("CultMobaJungleMesa"));
+   Mesa->Tags.Add(TEXT("CultMatchWalkSurface")); Mesa->Tags.Add(TEXT("CultMobaJungleMesa")); Mesa->Tags.Add(TEXT("CultMatchRockSurface"));
    for(bool Outer:{false,true}) {
     const auto Start=FCultMobaJungle::Entry(Camp,Outer),End=FCultMobaJungle::Crest(Camp,Outer),D=End-Start;
     auto* Ramp=Mesh(TEXT("/Engine/BasicShapes/Cube"),(Start+End)*.5f-FVector(0,0,150),FVector(D.Size()/100,28,3),FLinearColor(.12f,.17f,.14f),true);
@@ -107,7 +108,7 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   auto WalkSurface=[&](FVector Center,FVector Size) { auto* A=Box(Center,Size,Stone); A->Tags.Add(TEXT("CultMatchWalkSurface")); return A; };
   // Objective paint is exactly the scoring rectangle, including its corners.
   const auto E=CaptureHalfExtent();
-  Box(FVector(0,0,4),FVector(E.X*2,E.Y*2,8),FLinearColor(.14f,.20f,.22f),false);
+  Box(FVector(0,0,4),FVector(E.X*2,E.Y*2,8),FLinearColor(.14f,.20f,.22f),false)->Tags.Add(TEXT("CultMatchStoneSurface"));
   for(int Side:{-1,1}) {
    Box(FVector(Side*E.X,0,16),FVector(65,E.Y*2,24),Seal,false);
    Box(FVector(0,Side*E.Y,16),FVector(E.X*2,65,24),Seal,false);
@@ -213,5 +214,6 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
  }
  for(float X:{-14000.f,14000.f}) for(int Side:{-1,1}) Art(TEXT("ruined-column-b"),FVector(X,Side*19500,0),FVector(900,900,6500),0);
  for(int I=0;I<24;++I) { float A=I*2*PI/24; Mesh(TEXT("/Engine/BasicShapes/Cone"),FVector(FMath::Cos(A)*(Moba?42000:34500),FMath::Sin(A)*(Moba?25000:32500),3500),FVector(35,35,100),FLinearColor(.08f,.11f,.14f),false); }
+ if(CultMatchSurfaces::Enabled()) CultMatchSurfaces::Apply(W,true);
 }
 

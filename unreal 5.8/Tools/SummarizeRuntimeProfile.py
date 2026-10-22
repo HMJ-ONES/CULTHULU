@@ -11,7 +11,7 @@ from pathlib import Path
 from statistics import mean
 
 
-COUNT_STATS = {"PopulationDecisionCalls", "ProfilePopulation", "ProfileSkinnedComponentsAtStart"}
+COUNT_STATS = {"PopulationDecisionCalls", "ProfilePopulation", "ProfileSkinnedComponentsAtStart", "ArenaStoneEnabled", "ArenaTaggedSurfaces"}
 
 
 def summarize(path, counts=False):

@@ -10,7 +10,7 @@ public class CultUlhu : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		// UI translation units contain file-local helpers with shared names.
 		bUseUnity = false;
- if (Target.bBuildEditor) PrivateDependencyModuleNames.Add("UnrealEd");
+ if (Target.bBuildEditor) PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd", "RHI" });
  PrivateDependencyModuleNames.Add("Slate");
 
 		PublicDependencyModuleNames.AddRange(new string[]

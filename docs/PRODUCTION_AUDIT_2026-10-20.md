@@ -685,3 +685,30 @@ The baseline is preserved rather than inferred solely from source. This makes
 summoned combat rewards and feedback more dependable, without establishing
 complete summon AI, all-kit balance, multiplayer credit or human combat fun.
 No new assets, download or independent game package are added.
+
+## Competitive surface treatment (2026-10-21)
+
+The arena still exposed untextured collision blocks and broad flat floors. A
+small original world-aligned material now gives tagged walls/floors/ramps
+masonry scale, joints, roughness and subtle normal/weather variation. MOBA
+roads remain paved while surrounding ground and mesas use a non-masonry
+profile. The initial all-paved MOBA ground was rejected in visual review.
+No imported art or gameplay geometry was replaced. 145 existing World/material
+assets compare byte-for-byte with the previous checkpoint.
+
+Native paired scenes validate unchanged actors, player transform, meshes,
+visibility and collision, and an actual compiled material shader. All nine
+final camera/surface/physical-mode/lane-clearance tests pass. Eight dedicated
+1280x720 captures and selected reviewed gameplay/overview frames make the
+material improvement concrete. Frozen spawn-camera A-B-B-A windows measure
+GPU differences of +0.026 ms in Domination and +0.013 ms in MOBA on this host;
+they do not establish live-battle or low-spec FPS. A first link failure exposed
+and resolved the Editor verification's missing RHI dependency.
+
+Docs/MatchSurfaces.md and MatchSurfaceResults.json retain the scope, rejected
+initial presentation, hashes, timings and limitations. This improves surface
+detail while leaving primitive silhouettes, repeated masonry, smooth mesas,
+sparse dressing, placeholder entities and crude art transitions visible.
+Professional game presentation, human combat quality and the full goal remain
+unproven. Only a small material/source/evidence change and two paired images
+are added; no texture download or standalone package is created.

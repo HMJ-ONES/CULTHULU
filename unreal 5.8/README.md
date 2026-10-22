@@ -79,3 +79,6 @@ announcements, measured competitive message layout and bounded objective labels.
 
 `Docs/SummonCombatCredit.md` records consistent summoner damage/kill/XP credit,
 local hit feedback, same-faction validation and the original healing passive.
+
+`Docs/MatchSurfaces.md` contains paired arena renders and scoped render-cost
+measurements for world-aligned stone and distinct natural MOBA ground.
