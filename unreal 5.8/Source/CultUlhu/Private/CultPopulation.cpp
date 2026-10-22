@@ -140,10 +140,21 @@ void ACultPopulation::UpdateDecision(float Dt)
  if(!Control_.Stop && Direction.Size2D()>Stop) { // Reject movement toward holes and cliffs.
   Direction=Direction.GetSafeNormal();
   FCollisionQueryParams Avoid(SCENE_QUERY_STAT(CultNpcAvoid),false,this); FHitResult Obstacle;
+  const auto* Capsule=GetCapsuleComponent();
+  const float Radius=FMath::Max(1.f,Capsule->GetScaledCapsuleRadius()-1.f);
+  const float HalfHeight=FMath::Max(Radius,Capsule->GetScaledCapsuleHalfHeight()-2.f);
+  const auto Body=FCollisionShape::MakeCapsule(Radius,HalfHeight);
+  const float Feet=GetActorLocation().Z-Capsule->GetScaledCapsuleHalfHeight();
+  bool ClearDirection=false;
   for(float Turn:{0.f,45.f,-45.f,90.f,-90.f,135.f,-135.f}) {
    const FVector Trial=Direction.RotateAngleAxis(Turn,FVector::UpVector);
-   if(!GetWorld()->SweepSingleByChannel(Obstacle,GetActorLocation(),GetActorLocation()+Trial*220,FQuat::Identity,ECC_Pawn,FCollisionShape::MakeSphere(45),Avoid)) { Direction=Trial; break; }
+   const bool Hit=GetWorld()->SweepSingleByChannel(Obstacle,GetActorLocation(),GetActorLocation()+Trial*220,FQuat::Identity,ECC_Pawn,Body,Avoid);
+   // Uphill ground touches the bottom of a body sweep. Native movement can
+   // traverse that contact; a wall, low ceiling or initial penetration cannot.
+   const bool WalkableContact=Hit&&!Obstacle.bStartPenetrating&&GetCharacterMovement()->IsWalkable(Obstacle)&&Obstacle.ImpactPoint.Z<=Feet+GetCharacterMovement()->MaxStepHeight+2.f;
+   if(!Hit||WalkableContact) { Direction=Trial; ClearDirection=true; break; }
   }
+  if(!ClearDirection) return;
   const float Lookahead=FMath::Max(200.f,GetCharacterMovement()->MaxWalkSpeed*(FMath::Max(0.f,DecisionInterval.GetValueOnGameThread())+.15f));
   FVector Probe=GetActorLocation()+Direction.GetSafeNormal()*Lookahead; FHitResult H; FCollisionQueryParams Q(SCENE_QUERY_STAT(CultNpcGround),false,this);
   if(GetWorld()->LineTraceSingleByObjectType(H,Probe+FVector(0,0,250),Probe-FVector(0,0,400),FCollisionObjectQueryParams(ECC_WorldStatic),Q)&&H.ImpactNormal.Z>.65) DecisionMove_=Direction.GetSafeNormal();

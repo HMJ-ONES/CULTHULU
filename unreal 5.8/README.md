@@ -1,4 +1,4 @@
-# CULT-ULHU — Unreal 5.8 project
+# CULT-ULHU â€” Unreal 5.8 project
 
 `CultUlhu.uproject` in this directory is the active project. The gameplay core
 lives in `../src`; original character definitions and animation clips live in
@@ -36,12 +36,14 @@ activity poses and mode-start metadata; it does not establish release readiness.
 See `Docs/Checkpoint_2026-10-21.md` and `../docs/PRODUCTION_AUDIT_2026-10-20.md`
 for current results and remaining work.
 `Docs/WorldPresentation.md` records the later Free Roam dusk/readability pass and
-its separate editor render verification; that newer profile needs a fresh standalone check.
+its editor render verification. The newer dusk spawn-area image and shared human
+meshes now also pass the scoped independent executable checks below.
 `Docs/PopulationScheduling.md` records the later NPC decision optimization, native
 movement/combat checks and measured CPU limits; overall performance remains inadequate.
 `Docs/HumanMeshRendering.md` describes the shared humanoid body meshes, original-art
-verification and measured component/frame-time reduction. Packaged verification
-of that newer path is separate from the earlier standalone checks above.
+verification and measured component/frame-time reduction. The fresh independent
+Game run passes mesh integrity, a live comparison and original activity poses;
+Docs/HumanMeshStandaloneResults.json records scope, timings and remaining warnings.
 
 Build.cs stages the release character definitions, fonts and all 48 NPC animation
 clips. Do not hand-copy or commit generated CharacterDefinitions/CharacterAnimations

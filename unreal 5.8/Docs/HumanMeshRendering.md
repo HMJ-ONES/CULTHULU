@@ -55,3 +55,36 @@ one-component bodies on the observed lane minions. Real tower shots and minion
 throws still pass. The inspection render was viewed; it remains visibly prototype
 art. Log scopes and SHA-256s, including the failed intermediate runs, are retained
 in HumanMeshEditorResults.json. No standalone success is implied by these checks.
+
+## Independent executable verification
+
+The Development Game target compiled, and Windows cook/stage completed. Running
+`Tools/VerifyHumanMeshRuntime.ps1` starts the staged executable in its own stage
+directory, hidden/offscreen, without a source-project argument. It requires one
+explicit Success result for each requested test and no automation errors; exit
+code zero alone is insufficient. Its report records the executable and log hashes.
+
+HumanMeshMerge, HumanMeshProfile and MergedHumanPoses all pass in that independent
+executable (`Editor=0`) for checkpoint 6ae14bef5dc79011aa76afa9676b65243afe460f.
+This establishes cooked CPU-data availability and complete real native bodies
+using the six original activity clips on all three skins. The initialized world
+frame was inspected: the dusk background and spawn-area terrain render, but the
+player body and environment remain obvious prototypes. Packaged cave readability
+and competitive modes are not covered by this run.
+
+The four 120-frame live windows retain 190 people and three heroes. Skinned body
+components alternate 1,140 / 190 / 190 / 1,140. Paired mean frame time falls from
+32.260 to 24.697 ms (23.4%), game-thread time from 32.030 to 24.607 ms, character
+movement from 8.123 to 6.838 ms, and end-of-frame updates from 2.408 to 1.395 ms.
+GPU time is about 10.87 ms in merged windows. Actor count grows 496 to 499 as
+construction continues. This is a CPU-limited offscreen fixture, still above a
+16.7 ms frame budget; it does not prove foreground FPS or enjoyable combat.
+The log contains 36 stuck-navigation warnings. Those remain failures to address,
+not harmless evidence to suppress. Full windows and hashes are recorded in
+HumanMeshStandaloneResults.json.
+
+The temporary stage was 638.93 MiB, included 48 byte-identical original animation
+clips, and contained no PDB files. After preserving measurements, logs and the
+world image, 3.749 GiB of task-owned package/cook/Game compiler output was removed.
+The working Editor, authored assets and source remain. Subsequent navigation
+changes are separate from this executable's verified scope.

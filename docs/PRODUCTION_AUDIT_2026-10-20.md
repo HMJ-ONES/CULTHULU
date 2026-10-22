@@ -482,3 +482,62 @@ one certified complete skinned component on each observed spawned lane minion,
 physical tower shots and the actual held/launched-minion impacts. Failed logs
 are retained; final verification scopes and SHA-256s are in the results JSON.
 The canonical Editor rebuild succeeds. Standalone verification is next.
+
+## Independent shared-mesh executable check — 2026-10-21
+
+The preceding turn made verified progress on shared human rendering and backed
+its explicit source/asset manifest to GitHub (6ae14be). This turn resumes the
+same confirmed-live build rather than restarting it. The Development Game target
+compiles in 708.4 seconds and Windows cook/stage succeeds (842.4 seconds total).
+VerifyHumanMeshRuntime.ps1 runs the staged executable without a source-project
+argument and checks native test results rather than trusting exit code alone.
+HumanMeshMerge, HumanMeshProfile and MergedHumanPoses all pass with Editor=0 and
+zero automation errors. Cooked source CPU buffers, original mesh data and the six
+activity poses on complete one-component native bodies are verified.
+
+Four 120-frame modular/merged/merged/modular windows retain 190 people and three
+heroes. Skinned-component snapshots are 1,140 / 190 / 190 / 1,140. Mean frame time
+is 32.260 ms modular versus 24.697 ms merged (23.4% reduction). Game-thread means
+are 32.030 / 24.607 ms; GPU means 11.160 / 10.871 ms. Movement remains 6.838 ms in
+merged windows. The live actor count grows 496 to 499 as construction continues.
+This is still CPU-limited and above a 16.7 ms frame budget; it is not foreground
+FPS or human match-quality evidence. Per-window p95s, count data and executable,
+CSV, build/runtime-log and image hashes are in HumanMeshStandaloneResults.json.
+
+The actual initialized standalone image was inspected. The dusk background,
+terrain and temple render; broad empty ground, simple temple shapes, plain
+materials and the placeholder player remain far below the requested visual
+benchmark. This run does not prove packaged cave visibility or competitive-mode
+quality. The runtime log contains 36 stuck-under-building warnings, which justify
+physical NPC-clearance investigation rather than suppressing the warnings.
+
+The temporary stage is 638.93 MiB, with 48 original animation clips byte-compared
+against source and zero PDBs. Measurements, logs and the image are retained; all
+checked task-owned standalone/cook/Game build output is removed (3.749 GiB).
+The working Editor and authored/user assets remain. Later NPC navigation edits
+are outside this executable checkpoint's scope. The full goal remains active.
+
+## Reproduced and corrected NPC-clearance failures — 2026-10-21
+
+A physical fixture reproduces four failures before editing steering: the native
+person cannot pass a low head obstruction, a surrounded person keeps sending
+movement input and pushes against its wall, and a ramp approach ends below the
+ramp rather than climbing. The code used a center-height sphere rather than the
+body capsule, retained its original direction when every trial was blocked, and
+could reject walkable floor contact as an obstacle.
+
+The corrected steering probes the scaled body capsule, accepts nonpenetrating
+walkable contact near step height, rejects walls/ceilings/initial penetration and
+leaves intent zero if all directions are blocked. The canonical Editor build
+succeeds. ArmyCommands, PopulationClearance and PopulationMotion all pass. The
+beam subject reaches the far side; the boxed subject remains at its origin with
+zero input; the ramp subject climbs about 294 cm while grounded. Existing native
+order/control/recovery/physical-combat and real cliff-braking checks remain green.
+Docs/PopulationClearance.md and PopulationClearanceResults.json record the exact
+positions, before failures, final successes and log hashes.
+
+These are bounded local-steering cases, not full navigation or universal overlap
+recovery. City civilians are also spawned during the building-placement loop;
+later placements can invalidate an earlier clearance check. That separate risk
+needs investigation. No independent executable or frame-time claim is made for
+this later NPC change; the shared-mesh standalone measurements precede it.
