@@ -12,6 +12,49 @@
 
 namespace {
  cultulhu::Vec3 P(FVector V) { return {float(V.X/100),float(V.Z/100),float(V.Y/100)}; }
+ bool BotHeavyOpportunity(ACultUlhuPlayerPawn* Owner,FVector Origin,FVector Direction,float Reach,float Radius,float HalfAngle,float Duration) {
+  FCollisionQueryParams Query(SCENE_QUERY_STAT(BotHeavyOpportunity),false,Owner);
+  bool NearbyEnemy=false;
+  for(TActorIterator<AActor> It(Owner->GetWorld());It;++It) {
+   if(ACultSkillAttack::Enemy(Owner,*It)) {
+    FVector Closest;
+    if(auto* Capsule=It->FindComponentByClass<UCapsuleComponent>()) {
+     const float Distance=Capsule->GetClosestPointOnCollision(Origin,Closest);
+     NearbyEnemy|=Distance>=0&&Distance<=Reach+Radius;
+    } else {
+     const FBox Bounds=It->GetComponentsBoundingBox(true);
+     NearbyEnemy|=Bounds.IsValid&&FVector::DistSquared(Origin,Bounds.GetClosestPointTo(Origin))<=FMath::Square(Reach+Radius);
+    }
+   } else if(ACultSkillAttack::Alive(*It)) {
+    // Match physical Sweep: allied living heroes/acolytes do not block the
+    // attack; structures, terrain and other solid bodies still do.
+    const auto* Unit=::Cast<ACultMatchUnit>(*It);
+    if(::Cast<ACultUlhuPlayerPawn>(*It)||::Cast<ACultPopulation>(*It)||(Unit&&!Unit->IsStructure())) Query.AddIgnoredActor(*It);
+   }
+  }
+  if(!NearbyEnemy) return false;
+  auto Contact=[&](FVector From,FVector To) {
+   TArray<FHitResult> Hits;
+   Owner->GetWorld()->SweepMultiByChannel(Hits,From,To,FQuat::Identity,ECC_Visibility,FCollisionShape::MakeSphere(Radius),Query);
+   for(const auto& Hit:Hits) {
+    if(ACultSkillAttack::Enemy(Owner,Hit.GetActor())&&ACultSkillAttack::Clear(Owner->GetWorld(),Origin,Hit.ImpactPoint,Owner,Hit.GetActor())) return true;
+    if(Hit.bBlockingHit) break;
+   }
+   return false;
+  };
+  // Sample the committed radial swing and the chords swept by its tip at
+  // the attack's .012-second angular resolution. This only observes current
+  // bodies/cover: movement during the original windup can still make it miss.
+  const int Steps=FMath::Max(1,FMath::CeilToInt(Duration/.012f));
+  FVector Previous=Origin;
+  for(int I=0;I<=Steps;++I) {
+   const FVector D=Direction.RotateAngleAxis(FMath::Lerp(-HalfAngle,HalfAngle,I/float(Steps)),FVector::UpVector);
+   const FVector Tip=Origin+D*Reach;
+   if((I>0&&Contact(Previous,Tip))||Contact(Origin+D*Radius,Tip)) return true;
+   Previous=Tip;
+  }
+  return false;
+ }
  FVector BotCommittedAim(ACultUlhuPlayerPawn* Owner,FVector Origin,FVector Aim,float Speed,float Delay,float Reach) {
   if(!Owner->IsBot()||Speed<=0) return Aim;
   auto* Target=Owner->GetBotAim(); if(!ACultSkillAttack::Enemy(Owner,Target)) return Aim;
@@ -58,6 +101,10 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
  if(S.effectKind=="stun"||S.effectKind=="debuff") { Radius=40; Speed=2200; Delay=.25f; }
  if(Id=="claw_of_the_sphinx"||Id=="crushing_maw"||Id=="crusher_claw") { Kind=Shape::Cone; Origin=Muzzle; Delay=.30f; Life=.06f; Angle=Id=="crusher_claw"?28:45; }
  if(Id=="doomfall_stomp"||Id=="protoplasm_slam") { Origin=Owner->FeetLocation()+FVector(0,0,12); Delay=.55f; }
+ if(Owner->IsBot()&&Kind==Shape::Sweep) {
+  FVector Committed=(Aim-Origin).GetSafeNormal(); if(Committed.IsNearlyZero()) Committed=Owner->AimRotation().Vector();
+  if(!BotHeavyOpportunity(Owner,Origin,Committed,Reach,Radius,Angle,Life)) return false;
+ }
  if(Owner->IsBot()&&(Kind==Shape::Sphere||Kind==Shape::Cone)) {
   FVector Committed=(Aim-Origin).GetSafeNormal(); if(Committed.IsNearlyZero()) Committed=Owner->AimRotation().Vector();
   bool Useful=false;

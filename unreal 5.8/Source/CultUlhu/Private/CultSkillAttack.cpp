@@ -68,7 +68,9 @@ void ACultSkillAttack::Sweep(FVector A,FVector B,float R) {
  FCollisionQueryParams Q(SCENE_QUERY_STAT(SkillSweep),false,GetOwner()); Q.AddIgnoredActor(this);
  for(TActorIterator<AActor> It(GetWorld());It;++It) if(FriendlyBody(GetOwner(),*It)||(TargetFilter&&Alive(*It)&&!TargetFilter(*It))) Q.AddIgnoredActor(*It);
  TArray<FHitResult> Hits; GetWorld()->SweepMultiByChannel(Hits,A,B,FQuat::Identity,ECC_Visibility,FCollisionShape::MakeSphere(R),Q);
- for(const auto& H:Hits) { auto* Other=H.GetActor(); if(Enemy(GetOwner(),Other)&&!Struck.Contains(Other)) { Struck.Add(Other); if(Hit) Hit(Other,H.ImpactPoint); } if(H.bBlockingHit) { if(Shape==EShape::Bolt) { if(Finished) Finished(H.ImpactPoint); Destroy(); } break; } }
+ // Tip chords can lie beyond a wall even when every radial trace is blocked.
+ // A melee contact must also remain connected to the actual arm origin.
+ for(const auto& H:Hits) { auto* Other=H.GetActor(); if(Enemy(GetOwner(),Other)&&!Struck.Contains(Other)&&(Shape!=EShape::Sweep||Clear(GetWorld(),Origin,H.ImpactPoint,GetOwner(),Other))) { Struck.Add(Other); if(Hit) Hit(Other,H.ImpactPoint); } if(H.bBlockingHit) { if(Shape==EShape::Bolt) { if(Finished) Finished(H.ImpactPoint); Destroy(); } break; } }
 }
 bool ACultSkillAttack::AreaContact(EShape Shape,FVector Origin,FVector Direction,float Reach,float Radius,float HalfAngle,AActor* Target,FVector& Point) {
   Point=Target->GetActorLocation(); float Body=0; if(auto* C=Target->FindComponentByClass<UCapsuleComponent>()) {

@@ -1033,3 +1033,40 @@ is added.
 This is a clearer text-based menu. Authored hero imagery/previews, motion design,
 controller and accessibility verification, arbitrary resolution/localization,
 human match testing and the broader production refinement remain unfinished.
+
+## Heavy decisions and physical melee cover — 2026-10-22
+
+The generic alternate-attack trigger allowed bots to commit melee heavies
+against unreachable targets. A bot-only preflight now checks current bodies
+against the real heavy origin, radius, reach and committed arc, including
+radial sweeps, tip chords and cover. A failed opportunity preserves the heavy
+cooldown; successful casts retain the source attack and existing cooldown.
+Other vulnerable enemies in the actual arc still count, while allies and
+outside-arc bodies do not. Deliberate human misses remain possible.
+
+The investigation reproduced a separate physical defect: an outer-tip chord
+could deal 33.6 damage through an unbroken wall in either competitive mode.
+Actual melee sweep hits now require a clear origin-to-contact connection, and
+the bot preflight uses that same cover rule. The corrected native wall target
+stays at 100 HP, while removing cover permits a real hit. Shape math, source
+power/range, windup, duration and projectile/beam contacts are retained.
+
+BotHeavyOpportunityResults.json records exact terminal outcomes, initial mixed
+batches, corrected fixture assumptions, the inadequate inner-only cover pass
+and the valid outer-tip baseline. The canonical Editor build succeeds in
+29.42 seconds. Source identity checks confine production edits to the bot
+preflight and physical melee cover guard. All 425 backed-up Content files and
+sixteen normalized original definitions remain unchanged. No assets, downloads
+or standalone package are added.
+
+The final native batch completes twelve successes without automation errors:
+heavy/area/primary-reach decisions in both modes, both defensive-reaction
+fixtures, physical skill combat, combat feel and both mode integration checks.
+
+The additional query cost is unbenchmarked. These fixtures do not establish
+human fun, long-session balance, full per-kit tactics or role coordination,
+multiplayer or low-spec performance. The latest actual play view still shows
+heroes as dark placeholder forms and repetitive, sparsely dressed architecture;
+silhouette, authored hero art/rigs, animation and environmental identity remain
+large production gaps. This collision/decision correction does not establish
+the requested reference-game refinement. The full development goal stays open.

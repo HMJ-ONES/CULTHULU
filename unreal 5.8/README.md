@@ -114,3 +114,6 @@ resource preservation, alternate victims/cover and scoped native evidence.
 `Docs/CharacterSelection.md` records the fitted sixteen-entity roster, distinct
 original ability rows, fixed mode guidance, paired renders and native layout
 checks across three modes and four viewport sizes.
+
+`Docs/BotHeavyOpportunity.md` records actual-arc bot heavy decisions, a reproduced
+moving-tip melee cover bypass, the physical contact correction and native checks.

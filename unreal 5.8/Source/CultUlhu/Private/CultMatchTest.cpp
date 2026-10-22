@@ -33,6 +33,68 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 struct FCultMatchTestAccess {
+ static void VerifyBotHeavyOpportunity(FAutomationTestBase* T,ACultMatchDirector* M) {
+  auto* W=M->GetWorld(); M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false;
+  auto& F=M->State_->Fighters[5]; if(F.Pawn.IsValid()) F.Pawn->Destroy(); F.Pawn=nullptr; F.Kit=TEXT("dagon"); M->SpawnFighter(5);
+  HoldBots(M,true); Park(M); Unshield(M); F.Level=30; F.Lane=1; auto* Bot=F.Pawn.Get(); Bot->bBotControlled_=true;
+  auto* Enemy=M->Fighters()[0].Pawn.Get();
+  auto Clear=[&]() { for(TActorIterator<ACultSkillAttack> It(W);It;++It) It->Destroy(); };
+  auto Place=[&](float Distance) {
+   Clear(); Bot->RelocateMatch(FVector(0,0,60000)); Enemy->RespawnMatch(FVector(Distance,0,60000));
+   Bot->SmashCooldown_=999; Bot->SwingTime_=Bot->DashTime_=Bot->DashCooldown_=0;
+   for(int Slot=0;Slot<3;++Slot) Bot->Kit_->SetCooldown(Slot,999);
+   F.RouteStep=2; F.Think=0; F.DomPath.Reset(); F.Retreating=false; M->State_->BotThreats[5]=FCultBotThreatMemory();
+  };
+  auto Swings=[&]() { TArray<ACultSkillAttack*> Out; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Bot&&It->Shape==ACultSkillAttack::EShape::Sweep) Out.Add(*It); return Out; };
+  Place(2300); Bot->Kit_->AdvanceCooldowns(10); const float FarHp=Enemy->GetHealth(); M->BotThink(5,.016f); auto Far=Swings();
+  T->TestEqual(TEXT("An unreachable melee-heavy target does not consume a committed delivery"),Far.Num(),0);
+  for(auto* A:Far) { A->Tick(0); A->Tick(.5f); }
+  T->TestEqual(TEXT("Far baseline heavy cannot contact the target"),Enemy->GetHealth(),FarHp);
+  Place(600); const float NearHp=Enemy->GetHealth(); M->BotThink(5,.016f); auto Near=Swings();
+  T->TestEqual(TEXT("Preserved heavy cooldown is immediately available against a reachable target"),Near.Num(),1);
+  for(auto* A:Near) { A->Tick(0); A->Tick(.5f); }
+  T->TestTrue(TEXT("Reachable heavy control causes real physical damage"),Enemy->GetHealth()<NearHp);
+  T->AddInfo(FString::Printf(TEXT("Heavy opportunity: far deliveries %d; immediate near deliveries %d; real near damage %.1f"),Far.Num(),Near.Num(),NearHp-Enemy->GetHealth()));
+  Clear(); Bot->HeavyAttack(); Bot->ReleaseHeavy(); T->TestEqual(TEXT("A successful heavy still enforces its original cooldown"),Swings().Num(),0);
+  Place(2300); Bot->Kit_->AdvanceCooldowns(10); Bot->SetBotAim(Enemy);
+  const float HeavyReach=Bot->Kit_->Def.rightClick.range*100.f+Bot->GetCapsuleComponent()->GetScaledCapsuleRadius();
+  const FVector HeavyOrigin=Bot->FeetLocation()+FVector(0,0,FMath::Min(Bot->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*.96f,HeavyReach*.55f));
+  auto* Covered=M->AddUnit(0,1,0,-1,HeavyOrigin+FVector(HeavyReach,0,-153),100,0,0,0); Covered->SetActorTickEnabled(false);
+  auto* Wall=W->SpawnActor<AStaticMeshActor>(FVector(250,0,61500),FRotator::ZeroRotator); auto* Cover=Wall->GetStaticMeshComponent(); Cover->SetMobility(EComponentMobility::Movable); Cover->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube"))); Cover->SetWorldScale3D(FVector(.2f,100,40)); Cover->SetCollisionProfileName(TEXT("BlockAll"));
+  Bot->HeavyAttack(); Bot->ReleaseHeavy(); T->TestEqual(TEXT("Solid cover prevents committing a blocked melee-heavy swing"),Swings().Num(),0);
+  // Independently launch a physical sweep, bypassing bot choice. Tip chords
+  // must not hit a target on the far side of an unbroken wall.
+  Clear();
+  cultulhu::SpellDef Physical; Physical.id="cover_probe"; Physical.effectKind="heavy"; Physical.effectPower=135.f*Bot->Kit_->Def.rightClick.damageMult; Physical.range=Bot->Kit_->Def.rightClick.range;
+  Bot->Kit_->LaunchSpatial(Physical,-1,Covered->GetActorLocation());
+  T->TestEqual(TEXT("A committed arc aimed beyond cover is not a useful bot heavy"),Swings().Num(),0);
+  Clear(); Bot->bBotControlled_=false;
+  Bot->Kit_->LaunchSpatial(Physical,-1,Covered->GetActorLocation()); auto CoveredSwings=Swings();
+  T->TestEqual(TEXT("Physical cover control launches independently of bot decisions"),CoveredSwings.Num(),1);
+  for(auto* A:CoveredSwings) { A->Tick(0); A->Tick(.5f); }
+  T->TestEqual(TEXT("A physical arm sweep cannot damage a target through solid cover"),Covered->Health,100.f);
+  T->AddInfo(FString::Printf(TEXT("Heavy solid-cover control: target health %.1f; independent deliveries %d"),Covered->Health,CoveredSwings.Num()));
+  Bot->bBotControlled_=true; Wall->Destroy(); Clear(); Bot->SetBotAim(Covered);
+  Bot->HeavyAttack(); Bot->ReleaseHeavy(); auto OpenSwings=Swings();
+  T->TestEqual(TEXT("Removing cover leaves heavy immediately available"),OpenSwings.Num(),1);
+  const float OpenHp=Covered->Health; for(auto* A:OpenSwings) { A->Tick(0); A->Tick(.5f); }
+  T->TestTrue(TEXT("The same outer-arc target receives real damage after cover is removed"),Covered->Health<OpenHp);
+  Covered->Destroy();
+  Place(2300); Bot->Kit_->AdvanceCooldowns(10); Bot->SetBotAim(Enemy);
+  auto* Nearby=M->AddUnit(0,1,0,-1,FVector(550,0,60300),100,0,0,0); Nearby->SetActorTickEnabled(false);
+  Bot->HeavyAttack(); Bot->ReleaseHeavy(); auto Other=Swings();
+  T->TestEqual(TEXT("A different enemy inside the committed arc remains a useful heavy opportunity"),Other.Num(),1);
+  for(auto* A:Other) { A->Tick(0); A->Tick(.5f); }
+  T->TestTrue(TEXT("Heavy opportunity against a different body produces a real hit"),Nearby->Health<100);
+  Nearby->Destroy(); Place(2300); Bot->Kit_->AdvanceCooldowns(10); Bot->SetBotAim(Enemy);
+  auto* Side=M->AddUnit(0,1,0,-1,FVector(0,550,60300),100,0,0,0); Side->SetActorTickEnabled(false);
+  Bot->HeavyAttack(); Bot->ReleaseHeavy(); T->TestEqual(TEXT("A close enemy outside the committed arc does not justify a swing"),Swings().Num(),0);
+  Side->Destroy(); Place(2300); Bot->Kit_->AdvanceCooldowns(10); Bot->SetBotAim(Enemy);
+  auto* Friendly=M->AddUnit(1,1,0,-1,FVector(550,0,60000),100,0,0,0); Friendly->SetActorTickEnabled(false);
+  Bot->HeavyAttack(); Bot->ReleaseHeavy(); T->TestEqual(TEXT("An allied body alone does not justify a heavy swing"),Swings().Num(),0);
+  Friendly->Destroy(); Place(2300); Bot->Kit_->AdvanceCooldowns(10); Bot->bBotControlled_=false; Bot->SetBotAim(nullptr);
+  Bot->HeavyAttack(); Bot->ReleaseHeavy(); T->TestEqual(TEXT("Human melee-heavy input may still commit a deliberate miss"),Swings().Num(),1);
+ }
  static void VerifyBotAbilityOpportunity(FAutomationTestBase* T,ACultMatchDirector* M) {
   auto* W=M->GetWorld(); M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false;
   auto Recreate=[&](const FString& Kit) {
@@ -750,6 +812,22 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDomBotThreatTest,"CultUlhu.Menu.BotThreatD
 bool FCultDomBotThreatTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotThreatObservation(this,ECultPlayMode::Domination)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaBotThreatTest,"CultUlhu.Menu.BotThreatDecisions.Moba",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultMobaBotThreatTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotThreatObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+class FCultBotHeavyOpportunityObservation:public IAutomationLatentCommand {
+ FAutomationTestBase* Test; ECultPlayMode Mode; bool Entered=false; double Began=FPlatformTime::Seconds();
+public:
+ FCultBotHeavyOpportunityObservation(FAutomationTestBase* T,ECultPlayMode M):Test(T),Mode(M) {}
+ bool Update() override {
+  if(FPlatformTime::Seconds()-Began>90) { Test->AddError(TEXT("Bot heavy opportunity test timed out")); return true; }
+  auto* W=GEditor->PlayWorld.Get(); if(!W||W->bIsTearingDown) return false;
+  if(W->GetName().Contains(TEXT("L_MainMenu"))) { if(!Entered) { auto* G=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); G->SelectedCharacterId=TEXT("cthulhu_avatar"); G->OpenCharacterSelect(Mode); G->OpenBeliefSelect(); Entered=true; } return false; }
+  auto* M=ACultMatchDirector::Find(W); if(!M||W->GetTimeSeconds()<1) return false;
+  UGameplayStatics::SetGamePaused(W,true); FCultMatchTestAccess::VerifyBotHeavyOpportunity(Test,M); UGameplayStatics::SetGamePaused(W,false); return true;
+ }
+};
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDomBotHeavyOpportunityTest,"CultUlhu.Menu.BotHeavyOpportunity.Domination",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultDomBotHeavyOpportunityTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotHeavyOpportunityObservation(this,ECultPlayMode::Domination)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaBotHeavyOpportunityTest,"CultUlhu.Menu.BotHeavyOpportunity.Moba",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultMobaBotHeavyOpportunityTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotHeavyOpportunityObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 class FCultBotAbilityOpportunityObservation:public IAutomationLatentCommand {
  FAutomationTestBase* Test; ECultPlayMode Mode; bool Entered=false; double Began=FPlatformTime::Seconds();
 public:
