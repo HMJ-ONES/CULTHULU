@@ -810,3 +810,37 @@ comfort on tiny displays, crowded-fight stability, sustained performance,
 all-camera coverage and human decision quality remain unmeasured. Placeholder
 bodies and crude scenery are still far below the requested Overwatch benchmark;
 fun comparable to Onslaught and the full objective remain unproven.
+
+## MOBA objective solidity and routing (2026-10-21)
+
+An architecture review found a gameplay defect that preceded an art upgrade:
+all three objective types blocked attack traces but ignored character movement.
+The original physical baseline failed nine assertions: walking/dashing crossed
+each body and minions crossed its centre with zero detour. Objectives now join
+solid-world movement queries and block pawns, retaining their capsule sizes,
+health, firing behavior, visuals and protection rules.
+
+The first integrated run passed the body fixtures and mechanics but exposed a
+real regression: both middle waves stalled at 0.058 route progress. A focused
+real-director test reproduced all six minion/team cases targeting waypoint 2
+inside their allied nexus. Native routing now chooses a clear knot beyond an
+allied objective while preserving actual swept movement around it. All six
+probes subsequently passed the nexus. Enemy targets and protection gates remain.
+
+The terrain verifier retains all 387 full-size samples. It now checks an actual
+supported side passage where an intentional solid objective occupies the
+centre; towers are not ignored in queries. There are 68 such sampled passages.
+Seven integrated Editor tests pass with zero automation errors, including all
+nine bot lane entries and waves on all six routes (observed progress 0.487–0.551).
+The subsequently expanded physical fixture also passes all three actual hero
+detours, along with blocked walking/dashing, minion detours and cleared routes
+after removal. The retained Cthulhu capsule is 2,933.3 cm tall. Removal in that
+fixture is direct actor destruction; normal protection/damage rules are checked
+by MobaMechanics. Reports preserve failed baseline/intermediate evidence.
+
+ObjectiveSolidity.md and ObjectiveCollisionResults.json describe scope. Artwork
+is unchanged: simple tower models and coarse gameplay capsules remain. This is
+a prerequisite for credible physical objectives, not a professional-art pass.
+All-kit movement, long-session congestion, human pacing/fun and the complete
+goal remain unproven. No new art assets, downloads or standalone package are
+added.

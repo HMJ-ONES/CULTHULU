@@ -33,6 +33,16 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 struct FCultMatchTestAccess {
+ static TArray<TWeakObjectPtr<ACultMatchUnit>> AlliedObjectiveRouteProbes(ACultMatchDirector* M) {
+  M->State_->Warmup=0; M->State_->NextWave=1000; HoldBots(M,true); Park(M);
+  for(auto& F:M->State_->Fighters) if(auto* P=F.Pawn.Get()) P->GetCharacterMovement()->DisableMovement();
+  for(auto& U:M->State_->Units) if(U.IsValid()) { U->Range=0; U->Dps=0; if(!U->IsStructure()) U->Destroy(); }
+  TArray<TWeakObjectPtr<ACultMatchUnit>> Probes;
+  for(int Team=0;Team<2;++Team) for(int Kind=0;Kind<3;++Kind) {
+   auto* U=M->AddUnit(Team,1,Kind,-1,FVector(Team?27700:-27700,0,0),120,0,0,600); U->Waypoint=2; Probes.Add(U);
+  }
+  return Probes;
+ }
  static ACultUlhuPlayerPawn* PreparePhysicalDodge(ACultMatchDirector* M,bool Defend,TSharedRef<bool> Contact) {
   M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false;
   for(TActorIterator<ACultSkillAttack> It(M->GetWorld());It;++It) It->Destroy();
@@ -228,15 +238,28 @@ struct FCultMatchTestAccess {
    const bool Found=M->GetWorld()->LineTraceSingleByObjectType(Hit,Ground+FVector(0,0,5000),Ground-FVector(0,0,5000),FCollisionObjectQueryParams(ECC_WorldStatic),Q);
    T->TestTrue(TEXT("Jungle ground collision matches the intended elevation"),Found&&FMath::Abs(Hit.ImpactPoint.Z-Ground.Z)<5);
   }
-  auto* Cap=M->Fighters()[0].Pawn->GetCapsuleComponent();
+  auto* Cap=M->Fighters()[0].Pawn->GetCapsuleComponent(); int ObjectivePassages=0;
   for(int Lane=0;Lane<3;++Lane) for(int I=0;I<=FCultMobaRoute::Segments*4;++I) {
    const FVector Center=FCultMobaRoute::Point(0,Lane,I/float(FCultMobaRoute::Segments*4))+FVector(0,0,Cap->GetScaledCapsuleHalfHeight());
    const auto Shape=FCollisionShape::MakeCapsule(Cap->GetScaledCapsuleRadius(),Cap->GetScaledCapsuleHalfHeight());
    const bool Supported=M->GetWorld()->SweepSingleByObjectType(Hit,Center+FVector(0,0,1000),Center-FVector(0,0,1000),FQuat::Identity,FCollisionObjectQueryParams(ECC_WorldStatic),Shape,Q);
-   const bool Clear=Supported&&!Hit.bStartPenetrating&&Hit.ImpactNormal.Z>.7f&&Hit.ImpactPoint.Z<750;
-   T->TestTrue(TEXT("Every lane supports the actual full-size capsule without a cliff blocking its road"),Clear);
+   bool Clear=Supported&&!Hit.bStartPenetrating&&Hit.ImpactNormal.Z>.7f&&Hit.ImpactPoint.Z<750;
+   // Solid objectives intentionally occupy some lane centres. Keep every
+   // terrain sample, and require a supported full-size side passage there.
+   if(!Clear) if(auto* Blocker=Cast<ACultMatchUnit>(Hit.GetActor())) if(Blocker->IsStructure()) {
+    const auto* Obstacle=Blocker->FindComponentByClass<UCapsuleComponent>();
+    const auto Tangent=FCultMobaRoute::Project(0,Lane,Center).Tangent; const FVector Side(-Tangent.Y,Tangent.X,0);
+    const float Offset=Cap->GetScaledCapsuleRadius()+Obstacle->GetScaledCapsuleRadius()+150;
+    for(int Sign:{-1,1}) {
+     const FVector Around=Center+Side*Offset*Sign; FHitResult Passage;
+     if(M->GetWorld()->SweepSingleByObjectType(Passage,Around+FVector(0,0,1000),Around-FVector(0,0,1000),FQuat::Identity,FCollisionObjectQueryParams(ECC_WorldStatic),Shape,Q)&&!Passage.bStartPenetrating&&Passage.ImpactNormal.Z>.7f&&Passage.ImpactPoint.Z<750) { Clear=true; break; }
+    }
+    if(Clear) ++ObjectivePassages;
+   }
+   T->TestTrue(TEXT("Every lane sample supports the full-size capsule or a real side passage at its solid objective"),Clear);
    if(!Clear) T->AddInfo(FString::Printf(TEXT("Lane %d sample %d found %d penetrating %d actor %s normal %s impact %s location %s"),Lane,I,Supported,Hit.bStartPenetrating,*GetNameSafe(Hit.GetActor()),*Hit.ImpactNormal.ToCompactString(),*Hit.ImpactPoint.ToCompactString(),*Hit.Location.ToCompactString()));
   }
+  T->AddInfo(FString::Printf(TEXT("Lane terrain: %d full-size samples; %d solid-objective samples have supported side passages"),3*(FCultMobaRoute::Segments*4+1),ObjectivePassages));
  }
  static void VerifyRelicHeight(FAutomationTestBase* T,ACultMatchDirector* M,ACultUlhuPlayerPawn* P) {
   auto& F=M->State_->Fighters[0]; const int OriginalLevel=F.Level; F.Level=20;
@@ -586,6 +609,27 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaSummonCreditTest,"CultUlhu.Menu.Summon
 bool FCultMobaSummonCreditTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultSummonCreditObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDomSummonCreditTest,"CultUlhu.Menu.SummonCombatCredit.Domination",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultDomSummonCreditTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultSummonCreditObservation(this,ECultPlayMode::Domination)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+class FCultAlliedObjectiveRoutingObservation:public IAutomationLatentCommand {
+ FAutomationTestBase* Test; int Phase=0; double Began=FPlatformTime::Seconds(); float At=0; TArray<TWeakObjectPtr<ACultMatchUnit>> Probes;
+public:
+ explicit FCultAlliedObjectiveRoutingObservation(FAutomationTestBase* In):Test(In) {}
+ bool Update() override {
+  if(FPlatformTime::Seconds()-Began>90) { Test->AddError(TEXT("Allied objective routing timed out")); return true; }
+  auto* W=GEditor->PlayWorld.Get(); if(!W||W->bIsTearingDown) return false;
+  if(W->GetName().Contains(TEXT("L_MainMenu"))) { if(!Phase) { auto* G=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); G->SelectedCharacterId=TEXT("cthulhu_avatar"); G->OpenCharacterSelect(ECultPlayMode::Dotgoo); G->OpenBeliefSelect(); Phase=1; } return false; }
+  auto* M=ACultMatchDirector::Find(W); if(!M||W->GetTimeSeconds()<1) return false;
+  if(Phase==1) { Probes=FCultMatchTestAccess::AlliedObjectiveRouteProbes(M); At=W->GetTimeSeconds(); Phase=2; return false; }
+  if(W->GetTimeSeconds()-At<15) return false;
+  for(auto& Weak:Probes) {
+   auto* U=Weak.Get(); Test->TestNotNull(TEXT("Allied routing probe survives its own structures"),U); if(!U) continue;
+   Test->TestTrue(TEXT("Every minion class on both teams passes its own nexus using real director routing"),FMath::Abs(U->GetActorLocation().X)<24000);
+   Test->AddInfo(FString::Printf(TEXT("Allied route team=%d kind=%d waypoint=%d position=%s goal=%s"),U->Team,U->Kind,U->Waypoint,*U->GetActorLocation().ToCompactString(),*M->LaneWaypoint(U->Team,1,U->Waypoint).ToCompactString()));
+  }
+  return true;
+ }
+};
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultAlliedObjectiveRoutingTest,"CultUlhu.Menu.AlliedObjectiveRouting",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultAlliedObjectiveRoutingTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultAlliedObjectiveRoutingObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 class FCultBotThreatObservation:public IAutomationLatentCommand {
  FAutomationTestBase* Test; ECultPlayMode Mode; bool Entered=false; double Started=FPlatformTime::Seconds();
  int Phase=0; float At=0,Hp=0; bool Dashed=false; TSharedRef<bool> Contact=MakeShared<bool>(false);

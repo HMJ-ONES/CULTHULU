@@ -19,6 +19,12 @@ void ACultMatchUnit::BeginPlay() {
  Super::BeginPlay(); MaxHealth=Health; Previous=GetActorLocation(); Phase=GetUniqueID()*.31f;
  const float Half=Kind==4?1600:Kind>=3?1250:Kind==2?240:150;
  Capsule->SetCapsuleSize(Kind>=3?450:Kind==2?150:65,Half);
+ if(IsStructure()) {
+  // Stationary objectives participate in the same solid-world queries used by
+  // character movement and native minion steering, as well as attack traces.
+  Capsule->SetCollisionObjectType(ECC_WorldStatic);
+  Capsule->SetCollisionResponseToChannel(ECC_Pawn,ECR_Block);
+ }
  auto* Mat=UMaterialInstanceDynamic::Create(LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_ArenaSurface")),this);
  Mat->SetVectorParameterValue(TEXT("Color"),Team==0?FLinearColor(.045f,.32f,.5f):FLinearColor(.65f,.16f,.055f));
  auto Part=[&](const TCHAR* Mesh,FVector Pos,FVector Scale) {

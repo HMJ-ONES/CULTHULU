@@ -91,3 +91,6 @@ cover and landing checks, and physical dodge versus stationary-projectile contro
 
 `Docs/HeroReadability.md` records visible competitive hero identity/health plates,
 responsive placement, actual-view projection and paired render/occlusion evidence.
+
+`Docs/ObjectiveSolidity.md` records physical MOBA objective bodies, minion routing
+past allied structures and full-size hero/minion detour verification.

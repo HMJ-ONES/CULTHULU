@@ -16,6 +16,22 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "discovery/RelicNames.h"
 
+namespace {
+bool OwnObjectiveBlocksWaypoint(const ACultMatchUnit* Unit,FVector Ground,const TArray<TWeakObjectPtr<ACultMatchUnit>>& Units) {
+ const auto* Body=Unit->FindComponentByClass<UCapsuleComponent>(); if(!Body) return false;
+ const float Radius=Body->GetScaledCapsuleRadius(),Spine=Body->GetScaledCapsuleHalfHeight()-Radius;
+ const FVector Centre=Ground+FVector(0,0,Body->GetScaledCapsuleHalfHeight()+3);
+ for(const auto& Weak:Units) if(auto* Other=Weak.Get()) {
+  if(!Other->IsStructure()||Other->Health<=0||Other->Team!=Unit->Team) continue;
+  const auto* Cap=Other->FindComponentByClass<UCapsuleComponent>(); if(!Cap) continue;
+  const float Gap=FMath::Max(0.f,float(FMath::Abs(Centre.Z-Other->GetActorLocation().Z))-Spine-(Cap->GetScaledCapsuleHalfHeight()-Cap->GetScaledCapsuleRadius()));
+  const float Clearance=Radius+Cap->GetScaledCapsuleRadius()+100;
+  if(FVector::DistSquared2D(Centre,Other->GetActorLocation())+Gap*Gap<FMath::Square(Clearance)) return true;
+ }
+ return false;
+}
+}
+
 ACultMatchUnit* ACultMatchDirector::AddUnit(int Team,int Lane,int Kind,int Index,FVector Position,float Hp,float Dps,float Range,float Speed) {
  float Half=Kind==4?1600:Kind>=3?1250:Kind==2?240:150; FTransform T(Position+FVector(0,0,Half+3));
  auto* U=GetWorld()->SpawnActorDeferred<ACultMatchUnit>(ACultMatchUnit::StaticClass(),T,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
@@ -82,6 +98,9 @@ void ACultMatchDirector::UpdateUnits(float Dt) {
    }
    FVector Target=State_->Moba->Waypoint(U->Team,U->Lane,U->Waypoint);
    if(FVector::Dist2D(U->GetActorLocation(),Target)<200) { U->Waypoint=FMath::Min(FCultMobaRoute::Segments,U->Waypoint+1); Target=State_->Moba->Waypoint(U->Team,U->Lane,U->Waypoint); }
+   // A route knot can lie inside the allied nexus/ward. Aim beyond that
+   // unreachable knot, then let swept movement physically steer around it.
+   while(U->Waypoint<FCultMobaRoute::Segments&&OwnObjectiveBlocksWaypoint(U,Target,State_->Units)) { ++U->Waypoint; Target=State_->Moba->Waypoint(U->Team,U->Lane,U->Waypoint); }
    if(U->Waypoint==FCultMobaRoute::Segments&&LaneWardsCleared(1-U->Team)&&NexusAlive(1-U->Team)) Target=Base(1-U->Team)+FVector(U->Team?4000:-4000,0,0);
    U->MoveTo(Target,Dt);
   }
