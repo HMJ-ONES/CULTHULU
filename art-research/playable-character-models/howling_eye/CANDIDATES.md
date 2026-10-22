@@ -6,20 +6,23 @@
 
 This file contains **review leads**, NOT 3D model binaries or a completed three-model commercial-ready selection. Any direct model link needs a fresh creator/license/download/rights check before use. Generic searches below are open research tasks, NOT identified models.
 
-### 1. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=The%20Howling%20Eye%2C%20Heart%20of%20the%20Polyp%20Scourge%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 1. [The Evil Eye](https://sketchfab.com/3d-models/the-evil-eye-4d48838b14f144e9b0983dd64192404d)
+- **License / status:** CC BY indicated on source. Verify on the live source before production use.
+- **Visual fit:** Cyclopean eye-creature and eerie hovering design. Mechanical details need conversion to organic storm-polyp look.
+- **Rig / animation:** Rigged model indicated; animation clips unverified.
 
-### 2. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=The%20Howling%20Eye%2C%20Heart%20of%20the%20Polyp%20Scourge%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=The%20Howling%20Eye%2C%20Heart%20of%20the%20Polyp%20Scourge%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 2. [Monster Eye — Lowpoly Animated](https://sketchfab.com/3d-models/monster-eye-lowpoly-animated-87d47423e27143d2bb3d5f3ac677d0ed)
+- **License / status:** CC BY indicated on source. Verify on the live source before production use.
+- **Visual fit:** A practical creepy floating eye prototype; would need high-fidelity sculpt and storm tendrils.
+- **Rig / animation:** Animated; ~8k triangles.
+
+
+### 3. [Dark Alien Tentacle Monster — Game Ready](https://sketchfab.com/3d-models/dark-alien-tentacle-monster-demon-game-ready-3471281d3bf744dbbb49646781fec663)
+- **License / status:** CC BY indicated on source. Verify on the live source before production use.
+- **Visual fit:** Dark tentacle silhouette useful for Howling Eye's storm-polyp body; must add central eye.
+- **Rig / animation:** ~20k triangles; rig/animation not confirmed.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
