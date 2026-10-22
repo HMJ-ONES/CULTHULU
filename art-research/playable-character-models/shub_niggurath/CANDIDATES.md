@@ -16,10 +16,10 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - **Rights / rig:** CC BY reported via secondary credits; verify live source + downloads. Verify commercial rights and files before use.
 
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Shub-Niggurath%2C%20the%20Black%20Goat%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 3. [Dark Young — Overlord (Rigged and Animated)](https://sketchfab.com/3d-models/dark-young-overlord-rigged-animated-3c4975d1bf604c0f9fe91623634a4f5c)
+- **Visual fit:** Extremely fitting Lovecraftian Dark Young look, rig and walk animation, BUT directly inspired by Overlord anime depiction.
+- **Licensing / technical:** CC BY on upload; **third-party Overlord IP concern — reference-only until proper rights cleared**; ~30k tris.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
