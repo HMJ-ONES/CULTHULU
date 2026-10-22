@@ -18,7 +18,7 @@ void ACultUlhuPlayerPawn::RecordCombatHit(AActor* Target,FVector Point,float Dam
  const float Now=GetWorld()->GetTimeSeconds();
  if(Now>=NextImpactSound_) { PlayCultCombatCue(GetWorld(),Killed?ECultCombatCue::Kill:ECultCombatCue::Hit); NextImpactSound_=Now+.065f; }
  AddCameraKick(Killed?.15f:.08f);
- ACultBlastFX::SpawnBlast(GetWorld(),ECultBlastKind::HitFlash,Point,Killed?.6f:.3f);
+ ACultBlastFX::SpawnBlast(GetWorld(),ECultBlastKind::HitFlash,Point,Killed?.6f:.3f,Point-GetActorLocation());
 }
 void ACultUlhuPlayerPawn::ConfirmEvade()
 {

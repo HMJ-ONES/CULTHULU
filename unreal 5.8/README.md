@@ -101,3 +101,6 @@ The two new assets total 193 KB; no standalone package was generated for this pa
 
 `Docs/MatchBackdrop.md` records the source-generated exterior rock range in both
 competitive modes, matched views and six scoped native checks. No assets are downloaded.
+
+`Docs/ImpactPresentation.md` records open hit/shock effects, the corrected hit-size
+clamp, bounded directional sparks and native feedback/physical-combat checks.

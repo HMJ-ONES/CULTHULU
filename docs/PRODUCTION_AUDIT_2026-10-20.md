@@ -903,3 +903,34 @@ no measured FPS or memory improvement claim. These remain coarse distant facets;
 temple structures, placeholder entities/animation, sparse dressing, combat feel,
 human pacing/fun and overall professional production quality need substantial
 work. This pass does not establish reference-game refinement or goal completion.
+
+## Open impact feedback (2026-10-22)
+
+Code inspection reproduced a two-metre radius-parameter clamp promoting the
+local player's 0.3m hit and 0.6m kill requests to the same value. Those impacts
+now retain their requested scale in six open pointed streaks, aligned across
+the incoming hit direction and fading in 180ms. Shock effects replace twelve
+round puffs plus central flash with one narrow rim/eight rune strokes over
+550ms. Collapse dust keeps its nine original puffs. Shared source-generated
+geometry uses an existing material; hits/shocks have 48/576 triangles and one
+noncolliding, shadowless mesh each. No FPS or memory improvement is claimed.
+
+The initial canonical build took 154.17s and three native checks passed, but
+actual render review still found larger sparks buried inside overhanging armor.
+Bounded cosmetic ejection toward the incoming side now has a 45cm maximum;
+recorded contacts and damage/collision volumes remain unchanged and depth
+testing stays enabled. The final canonical build took 13.83s; all three native
+checks pass again with zero automation errors. ImpactPresentationResults.json
+records the initial green-but-insufficient review, final real feedback payload,
+actual geometry/scale/fade/expiry, unchanged fixture health and separate physical
+combat/feedback checks. Four exact 1280x720 matched native images are preserved.
+
+All 425 backed-up Content files remain byte-identical; no new asset, download,
+archive or standalone package is produced. Existing hit audio, numbers, camera
+impulse, focus, windups, cooldowns, hitboxes and damage rules are retained.
+The reviewed right-hand kill sample remains partly arm-occluded despite the
+bounded relief: geometric 2:1 scale is not proof of perceptual size from every
+view. Depth testing is retained. These shared effects fall short of character-specific
+VFX and animation. Distant-hit visibility, human satisfaction/balance, all-camera
+coverage, sustained performance and overall professional quality remain unproven.
+The full production goal remains open.

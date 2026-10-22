@@ -5,6 +5,11 @@
 #include "Components/SceneComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInterface.h"
+#include "HAL/IConsoleManager.h"
+
+namespace {
+TAutoConsoleVariable<int32> ImpactSignals(TEXT("cult.FX.ImpactSignals"),1,TEXT("Open hit/shock effects; zero uses legacy sphere puffs at spawn."));
+}
 
 ACultBlastFX::ACultBlastFX()
 {
@@ -13,7 +18,7 @@ ACultBlastFX::ACultBlastFX()
 }
 
 ACultBlastFX* ACultBlastFX::SpawnBlast(UWorld* World, ECultBlastKind Kind,
-	FVector Location, float RadiusM)
+	FVector Location, float RadiusM, FVector ImpactDirection)
 {
 	if (!World)
 		return nullptr;
@@ -24,7 +29,10 @@ ACultBlastFX* ACultBlastFX::SpawnBlast(UWorld* World, ECultBlastKind Kind,
 	if (!FX)
 		return nullptr;
 	FX->Kind_ = Kind;
-	FX->RadiusM_ = FMath::Max(2.0f, RadiusM);
+	FX->RadiusM_ = FMath::Max(.05f, RadiusM);
+	FX->LegacyRadiusM_ = FMath::Max(2.0f, RadiusM);
+	FX->ImpactDirection_=ImpactDirection.GetSafeNormal();
+	if(FX->ImpactDirection_.IsNearlyZero()) FX->ImpactDirection_=FVector::UpVector;
 	FX->FinishSpawning(FTransform(Location));
 	return FX;
 }
@@ -32,7 +40,9 @@ ACultBlastFX* ACultBlastFX::SpawnBlast(UWorld* World, ECultBlastKind Kind,
 void ACultBlastFX::BeginPlay()
 {
 	Super::BeginPlay();
-	BuildPuffs();
+	LegacyRadiusM_=FMath::Max(2.f,RadiusM_);
+	Refined_=ImpactSignals.GetValueOnGameThread()!=0&&Kind_!=ECultBlastKind::DustBurst;
+	if(Refined_) BuildSignal(); else BuildPuffs();
 }
 
 void ACultBlastFX::BuildPuffs()
@@ -69,12 +79,12 @@ void ACultBlastFX::BuildPuffs()
 	if (Kind_ == ECultBlastKind::ShockRing)
 	{
 		// 12 puffs racing outward in a flat ring.
-		const float Speed = RadiusM_ * 100.0f * 2.4f; // cross R in ~0.4 s
+		const float Speed = LegacyRadiusM_ * 100.0f * 2.4f; // cross R in ~0.4 s
 		for (int32 i = 0; i < 12; ++i)
 		{
 			const float A = (float)i / 12.0f * PI * 2.0f;
 			const FVector Dir(FMath::Cos(A), FMath::Sin(A), 0.0f);
-			MakePuff(Dir * RadiusM_ * 30.0f,
+			MakePuff(Dir * LegacyRadiusM_ * 30.0f,
 				Dir * Speed + FVector(0.0f, 0.0f, 160.0f),
 				0.7f, FMath::FRandRange(1.6f, 2.6f));
 		}
@@ -99,7 +109,7 @@ void ACultBlastFX::BuildPuffs()
 		Flash_->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Flash_->RegisterComponent();
 		Flash_->SetWorldLocation(GetActorLocation());
-		Flash_->SetWorldScale3D(FVector(FMath::Max(RadiusM_ * 0.9f, 0.8f)));
+		Flash_->SetWorldScale3D(FVector(FMath::Max(LegacyRadiusM_ * 0.9f, 0.8f)));
 		FlashMaxLife_ = FlashLife_ = 0.22f;
 	}
 	else // DustBurst
@@ -109,7 +119,7 @@ void ACultBlastFX::BuildPuffs()
 			FVector Dir = FMath::VRand();
 			Dir.Z = FMath::Abs(Dir.Z);
 			Dir.Normalize();
-			MakePuff(Dir * RadiusM_ * 40.0f,
+			MakePuff(Dir * LegacyRadiusM_ * 40.0f,
 				Dir * FMath::FRandRange(250.0f, 480.0f) + FVector(0.0f, 0.0f, 320.0f),
 				FMath::FRandRange(0.9f, 1.2f), FMath::FRandRange(1.4f, 2.8f));
 		}
@@ -119,6 +129,11 @@ void ACultBlastFX::BuildPuffs()
 void ACultBlastFX::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	if(Refined_) {
+		SignalAge_+=FMath::Max(0.f,DeltaSeconds);
+		if(SignalAge_>=SignalDuration_) { Destroy(); return; }
+		UpdateSignal(); return;
+	}
 
 	for (int32 i = Puffs_.Num() - 1; i >= 0; --i)
 	{
@@ -151,8 +166,8 @@ void ACultBlastFX::Tick(float DeltaSeconds)
 		{
 			const float T = 1.0f - FlashLife_ / FlashMaxLife_;
 			const float S = (T < 0.4f)
-				? FMath::Lerp(0.5f, RadiusM_ * 0.85f, T / 0.4f)
-				: FMath::Lerp(RadiusM_ * 0.85f, 0.01f, (T - 0.4f) / 0.6f);
+				? FMath::Lerp(0.5f, LegacyRadiusM_ * 0.85f, T / 0.4f)
+				: FMath::Lerp(LegacyRadiusM_ * 0.85f, 0.01f, (T - 0.4f) / 0.6f);
 			Flash_->SetWorldScale3D(FVector(FMath::Max(0.01f, S)));
 		}
 	}
