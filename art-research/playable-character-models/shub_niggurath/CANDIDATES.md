@@ -11,10 +11,10 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - **Rights / fit:** CC BY claimed on model page, but derivative of Quake game IP and uses third-party texture. REFERENCE ONLY pending rights verification; very low-poly.
 - **Rig / animation:** unverified; don't assume animation or production readiness.
 
-### 2. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Shub-Niggurath%2C%20the%20Black%20Goat%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 2. [Shub-Niggurath — Lovecraft Lore (Brian Trepanier)](https://skfb.ly/pCzzG)
+- **Visual fit:** Lore-faithful dark fertility deity; strong source relative to franchise-derived Quake model.
+- **Rights / rig:** CC BY reported via secondary credits; verify live source + downloads. Verify commercial rights and files before use.
+
 
 ### 3. OPEN — additional distinct model required
 - **Discovery link:** https://sketchfab.com/search?q=Shub-Niggurath%2C%20the%20Black%20Goat%20dark%20horror&type=models&features=downloadable
