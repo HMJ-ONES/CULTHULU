@@ -16,10 +16,11 @@ This is a **source-link review file**, not downloaded asset data. Check each sou
 - **Assessment:** Serpent anatomy and monster head useful for kitbash; stylized humanoid body differs from Bokrug.
 - **Rig/animation:** Do not assume included unless assessment explicitly states it; validate downloaded files.
 
-### 3. OPEN — distinct Bokrug-like sculpt
-- **License/status:** NOT FOUND
-- **Assessment:** Need downloadable sinister quadrupedal giant water-lizard, not licensed Godzilla/MonsterVerse fan mesh.
-- **Rig/animation:** Do not assume included unless assessment explicitly states it; validate downloaded files.
+### 3. [Sea Monster Turtle](https://sketchfab.com/3d-models/sea-monster-turtle-64b99d7609924a1a89b0def84b723456)
+- **License / status:** CC BY indicated on source. Verify on the live source before production use.
+- **Visual fit:** Armored aquatic reptile, visually compatible as a Bokrug base; not the canonical idol.
+- **Rig / animation:** Static-looking mesh; rig/animation unverified.
+
 
 ## Decision
 - [ ] Preferred model selected
