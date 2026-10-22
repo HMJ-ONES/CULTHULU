@@ -33,7 +33,7 @@ recovery, a real delayed battle hit and braking at the actual platform edge
 PopulationClearanceResults.json preserves before/after log hashes, failures and
 observations. This verifies those cases; it does not establish complete path
 planning, recovery from every initial overlap, all stair/doorway combinations or
-absence of stuck units in procedural cities. City population is currently created
-during the building loop, before the last building placements; that ordering is
-an additional overlap risk to investigate. This later steering change is outside
+absence of stuck units in procedural cities. City population was created during the building loop before the last building
+placements; the subsequent settlement pass reproduces and corrects that risk.
+See SettlementPopulation.md for its separate evidence and remaining limits. This later steering change is outside
 the preceding independent executable's shared-mesh performance verification.

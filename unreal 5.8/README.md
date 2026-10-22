@@ -44,6 +44,8 @@ movement/combat checks and measured CPU limits; overall performance remains inad
 verification and measured component/frame-time reduction. The fresh independent
 Game run passes mesh integrity, a live comparison and original activity poses;
 Docs/HumanMeshStandaloneResults.json records scope, timings and remaining warnings.
+`Docs/SettlementPopulation.md` records the later correction for civilians buried by
+city generation, occupied-footprint protection and its scoped Editor verification.
 
 Build.cs stages the release character definitions, fonts and all 48 NPC animation
 clips. Do not hand-copy or commit generated CharacterDefinitions/CharacterAnimations

@@ -541,3 +541,38 @@ recovery. City civilians are also spawned during the building-placement loop;
 later placements can invalidate an earlier clearance check. That separate risk
 needs investigation. No independent executable or frame-time claim is made for
 this later NPC change; the shared-mesh standalone measurements precede it.
+
+## Settlement birth and occupied footprints — 2026-10-21
+
+The preceding turn made verified progress on standalone shared-mesh rendering,
+physical NPC clearance and temporary-output cleanup. This pass tests the separate
+city population-before-final-building risk. In four actual initialized worlds,
+the baseline input 29 has two civilians intersecting completed LivingCity meshes;
+inputs 11, 73 and 151 have no intersections. The failed result is retained.
+
+Cities now place all their geometry before creating residents, using bounded
+terrain/capsule-clear attempts across the settlement's 60 m ellipse. The target
+resident count is retained. Imported mesh pivot, dimensions and yaw are factored
+into one shared placement transform. A conservative oriented volume rejects
+building candidates occupied by existing pawn or live non-pawn creature bodies,
+then the generator searches another candidate. Existing characters are not
+teleported or removed by that rejection. Temple and construction callers retain
+their existing placement workflow through the extracted shared spawn helper.
+
+The canonical Editor builds succeed. CityPopulationClearance passes all four
+sampled RNG inputs with zero embedded people, retaining 146/169/164/174 city
+buildings and 180/192/189/193 people. Snapshot times are about 0.04–0.40 seconds;
+this is initial placement evidence, not a long-session simulation claim. Layouts
+change with random draw consumption, so these are not identical before/after
+geometry pairs. SettlementFootprints passes actual civilian and ghoul protection,
+clear nearby placement and the civilian's unblocked capsule. The final rerun also
+checks actual spawned mesh dimensions, yaw and a base on the requested ground.
+ArmyCommands and PopulationClearance remain green after the refactor.
+
+Docs/SettlementPopulation.md and SettlementPopulationResults.json record the
+scope, failure, counts and final log hashes. Conservative bounds can reject an
+otherwise empty archway. Full navigation, every procedural arrangement, later
+construction completion around non-workers, sustained population performance,
+final art and human match quality remain unresolved. These later edits have
+scoped Editor evidence, not a new independent executable. No content asset,
+download, duplicate model or standalone package is added. The full goal is active.

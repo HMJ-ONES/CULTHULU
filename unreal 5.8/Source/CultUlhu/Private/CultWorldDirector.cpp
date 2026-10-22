@@ -1,4 +1,5 @@
 #include "CultWorldDirector.h"
+#include "CultStructurePlacement.h"
 #include "CultActorLabels.h"
 #include "ProfilingDebugging/CsvProfiler.h"
 CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
@@ -74,23 +75,11 @@ void ACultWorldDirector::SpawnRivals()
   FactionOrder(I+1,TEXT("Convert"),P,nullptr);
  }
 }
-namespace {
-ACultDestructible* Structure(UWorld* W,const FString& Name,FVector Ground,FVector Dimensions,float Yaw,int Faction=-1)
-{
- FString Path=TEXT("/Game/CultUlhu/World/")+Name+TEXT("/StaticMeshes/")+Name;
- auto* Mesh=LoadObject<UStaticMesh>(nullptr,*Path); if(!Mesh) return nullptr;
- FVector Size=Mesh->GetBoundingBox().GetSize(); FVector Scale(Dimensions.X/FMath::Max(1.,Size.X),Dimensions.Y/FMath::Max(1.,Size.Y),Dimensions.Z/FMath::Max(1.,Size.Z));
- Ground.Z-=Mesh->GetBoundingBox().Min.Z*Scale.Z;
- FTransform T(FRotator(0,Yaw,0),Ground,Scale);
- auto* B=W->SpawnActorDeferred<ACultDestructible>(ACultDestructible::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
- B->SetMesh(Mesh); B->Tags.Add(FName(*FString::Printf(TEXT("Faction%d"),Faction))); B->FinishSpawning(T); return B;
-}
-}
 void ACultWorldDirector::BuildTemples()
 {
  for(int F=0;F<3;++F) {
   FVector C; if(!Ground(State_->Temples[F],C)) continue;
-  auto Add=[&](FString Name,FVector Offset,FVector Size,float Yaw=0.f) { FVector P; if(!Ground(C+Offset,P)) return (ACultDestructible*)nullptr; auto* B=Structure(GetWorld(),Name,P,Size,Yaw,F); if(B) { B->Tags.Add(TEXT("CultTemple")); CultActorLabels::Set(B,FString::Printf(TEXT("Temple %d: %s"),F,*Name)); } return B; };
+  auto Add=[&](FString Name,FVector Offset,FVector Size,float Yaw=0.f) { FVector P; if(!Ground(C+Offset,P)) return (ACultDestructible*)nullptr; auto* B=CultStructurePlacement::Spawn(GetWorld(),Name,P,Size,Yaw,F); if(B) { B->Tags.Add(TEXT("CultTemple")); CultActorLabels::Set(B,FString::Printf(TEXT("Temple %d: %s"),F,*Name)); } return B; };
   Add(TEXT("crypt-ruined"),FVector(0,2500,0),FVector(6500,5000,6500));
   Add(TEXT("arch-dungeon"),FVector(0,-4000,0),FVector(6500,1800,5200));
   for(int Side:{-1,1}) {
@@ -122,19 +111,33 @@ void ACultWorldDirector::NewCity()
  const int Count=State_->Random.RandRange(18,30);
  const float Heading=State_->Random.FRandRange(0.f,360.f);
  for(int I=0;I<Count;++I) {
+  const bool Landmark=I==0;
+  const FString Name=Types[Landmark?0:State_->Random.RandRange(0,3)];
+  const FVector Size=Landmark?FVector(3000,3000,10000):FVector(State_->Random.FRandRange(900.f,1700.f),State_->Random.FRandRange(1000.f,2200.f),State_->Random.FRandRange(1200.f,4500.f));
+  const float Yaw=Heading+State_->Random.FRandRange(-30.f,30.f);
+  auto* Mesh=CultStructurePlacement::LoadMesh(Name); if(!Mesh) continue;
   FVector P; bool Placed=false;
   for(int Try=0;Try<30;++Try) {
    const float A=State_->Random.FRandRange(0.f,2*PI),Radius=State_->Random.FRandRange(2400.f,7500.f);
    if(!Ground(Center+FVector(FMath::Cos(A)*Radius,FMath::Sin(A)*Radius*.7f,0),P)) continue;
    bool Clear=true; for(auto& Q:Used) if(FVector::Dist2D(P,Q)<1400) Clear=false;
-   if(Clear) { Placed=true; break; }
+   if(Clear&&!CultStructurePlacement::CharactersOccupy(GetWorld(),Mesh,CultStructurePlacement::MakeTransform(Mesh,P,Size,Yaw))) { Placed=true; break; }
   }
-  if(!Placed) continue; Used.Add(P);
-  const bool Landmark=I==0; FVector Size=Landmark?FVector(3000,3000,10000):FVector(State_->Random.FRandRange(900.f,1700.f),State_->Random.FRandRange(1000.f,2200.f),State_->Random.FRandRange(1200.f,4500.f));
-  if(auto* B=Structure(GetWorld(),Types[Landmark?0:State_->Random.RandRange(0,3)],P,Size,Heading+State_->Random.FRandRange(-30.f,30.f))) { City.Buildings.Add(B); B->Tags.Add(TEXT("LivingCity")); }
-  if(I%2==0) { FVector Street; if(Ground(Center+FVector(State_->Random.FRandRange(-700.f,700.f),State_->Random.FRandRange(-700.f,700.f),0),Street)) PersonAt(GetWorld(),Street); }
+  if(!Placed) continue;
+  if(auto* B=CultStructurePlacement::Spawn(GetWorld(),Name,P,Size,Yaw,-1,true)) { Used.Add(P); City.Buildings.Add(B); B->Tags.Add(TEXT("LivingCity")); }
  }
- if(City.Buildings.Num()) { State_->Cities.push_back(std::move(City)); UE_LOG(LogTemp,Log,TEXT("[CultUlhu] Clustered settlement: %d buildings near %s"),Used.Num(),*Center.ToString()); }
+ if(City.Buildings.Num()) {
+  State_->Cities.push_back(std::move(City));
+  // Populate only the final geometry. Later house placements must never bury
+  // someone who passed an earlier capsule check; distribute residents through
+  // the settlement instead of concentrating everyone in its central seven metres.
+  int Residents=0;
+  for(int I=0;I<(Count+1)/2;++I) for(int Attempt=0;Attempt<18;++Attempt) {
+   const float Angle=State_->Random.FRandRange(0.f,2*PI),Radius=6000*FMath::Sqrt(State_->Random.FRand()); FVector Street;
+   if(Ground(Center+FVector(FMath::Cos(Angle)*Radius,FMath::Sin(Angle)*Radius*.7f,0),Street)&&PersonAt(GetWorld(),Street)) { ++Residents; break; }
+  }
+  UE_LOG(LogTemp,Log,TEXT("[CultUlhu] Clustered settlement: %d buildings, %d residents near %s"),Used.Num(),Residents,*Center.ToString());
+ }
 }
 int32 ACultWorldDirector::CityCount() const { int N=0; if(State_) for(auto& C:State_->Cities) { for(auto& B:C.Buildings) if(B.IsValid()&&!B->IsDestroyed()) { ++N; break; } } return N; }
 void ACultWorldDirector::AdvancePopulation()
@@ -225,7 +228,7 @@ void ACultWorldDirector::Tick(float Dt)
      N->SetActorLocation(Position,false,nullptr,ETeleportType::TeleportPhysics); N->GetCharacterMovement()->StopMovementImmediately(); N->GetCharacterMovement()->SetMovementMode(MOVE_Walking); break;
     }
    }
- Build.Site->complete(); FVector P; if(Ground(Build.Point,P)) if(auto* B=Structure(GetWorld(),TEXT("crypt-ruined"),P,FVector(2200,1800,2200),State_->Random.FRandRange(0.f,360.f),Build.Faction)) { if(Build.Site->targetType()==cultulhu::BuildingType::Altar) { B->Tags.Add(TEXT("CultTemple")); B->Tags.Add(TEXT("FaithAltar")); } B->Tags.Add(TEXT("CultBuilt")); cultulhu::GameEvent Done(cultulhu::EventType::BuildCompleted); Done.tag=cultulhu::buildingTypeName(Build.Site->targetType()); for(auto& W:Build.Workers) if(W.IsValid()) { Done.sourceId=(1ull<<63)|W->GetUniqueID(); break; } Done.pos=CP(P); State_->Faiths[Build.Faction]->Bus.publish(Done); if(Build.Site->targetType()==cultulhu::BuildingType::Trap) { auto Id=State_->Faiths[Build.Faction]->Traps.placeTrap(CP(P)); State_->Faiths[Build.Faction]->Snares.push_back({Id,P,B}); } for(auto& Worker:Build.Workers) if(Worker.IsValid()&&Worker->GetActivity()==TEXT("Build")&&Worker->GetCommandPoint().Equals(Build.Point,1.f) ) Worker->Order(TEXT("Patrol"),Worker->GetActorLocation(),nullptr,1); UE_LOG(LogTemp,Log,TEXT("[CultUlhu] Faction %d completed a structure"),Build.Faction); } } }
+ Build.Site->complete(); FVector P; if(Ground(Build.Point,P)) if(auto* B=CultStructurePlacement::Spawn(GetWorld(),TEXT("crypt-ruined"),P,FVector(2200,1800,2200),State_->Random.FRandRange(0.f,360.f),Build.Faction)) { if(Build.Site->targetType()==cultulhu::BuildingType::Altar) { B->Tags.Add(TEXT("CultTemple")); B->Tags.Add(TEXT("FaithAltar")); } B->Tags.Add(TEXT("CultBuilt")); cultulhu::GameEvent Done(cultulhu::EventType::BuildCompleted); Done.tag=cultulhu::buildingTypeName(Build.Site->targetType()); for(auto& W:Build.Workers) if(W.IsValid()) { Done.sourceId=(1ull<<63)|W->GetUniqueID(); break; } Done.pos=CP(P); State_->Faiths[Build.Faction]->Bus.publish(Done); if(Build.Site->targetType()==cultulhu::BuildingType::Trap) { auto Id=State_->Faiths[Build.Faction]->Traps.placeTrap(CP(P)); State_->Faiths[Build.Faction]->Snares.push_back({Id,P,B}); } for(auto& Worker:Build.Workers) if(Worker.IsValid()&&Worker->GetActivity()==TEXT("Build")&&Worker->GetCommandPoint().Equals(Build.Point,1.f) ) Worker->Order(TEXT("Patrol"),Worker->GetActorLocation(),nullptr,1); UE_LOG(LogTemp,Log,TEXT("[CultUlhu] Faction %d completed a structure"),Build.Faction); } } }
 
  for(auto& B:State_->Bots) if(B.IsValid()) {
   AActor* Target=B->GetBotAim(); if(!Target||FVector::Dist2D(Target->GetActorLocation(),B->GetActorLocation())<=1800) continue;
