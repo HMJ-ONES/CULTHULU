@@ -27,6 +27,6 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - [ ] Third-party franchise/IP concerns cleared
 - [ ] Mesh and textures inspected
 - [ ] Rig, skeleton and animation status inspected
-- [ ] Preferred model selected
+- [x] Preferred model selected
 
-**Chosen model:** _None_
+**Chosen model:** **[LOVECRAFTIAN HORROR (alexalbinyana)](https://sketchfab.com/3d-models/lovecraftian-horror-6093cbb205444e9aa7b36d7be4ed9b58)** — selected by user 2026-10-22; **pending legal acquisition / formats / animation and UE import**. For recent option numbers, this selection overrides older numbered candidate slots. See [approved selections](../APPROVED_SELECTIONS_CODEX.md).
