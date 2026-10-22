@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS && WITH_EDITOR
 #include "Misc/AutomationTest.h"
 #include "Tests/AutomationEditorCommon.h"
+#include "CultAutomationPIE.h"
 #include "CultPopulation.h"
 #include "CultUlhuGameInstance.h"
 #include "Engine/Engine.h"
@@ -28,6 +29,9 @@ public:
   if(World->GetName().Contains(TEXT("L_MainMenu"))) {
    if(Phase==0) { auto* Game=Cast<UCultUlhuGameInstance>(World->GetGameInstance()); Game->SelectedCharacterId=TEXT("mi_go"); Game->OpenCharacterSelect(ECultPlayMode::FreeRoam); Game->SetInitialBeliefs({5,6,11}); Game->StartPlay(); Phase=1; } return false;
   }
+  // A preceding test may still be ending PIE while FStartPIECommand starts the
+  // menu world. Never inspect a subject before this fixture requested gameplay.
+  if(Phase==0) return false;
   auto* PC=World->GetFirstPlayerController(); if(!PC||!PC->GetPawn()||World->GetTimeSeconds()<4) return false;
   if(Phase==1) {
    Floor=World->SpawnActor<AStaticMeshActor>(FVector(0,0,45000),FRotator::ZeroRotator);
@@ -72,6 +76,6 @@ public:
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultPopulationMotionTest,"CultUlhu.Menu.PopulationMotion",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultPopulationMotionTest::RunTest(const FString&) {
- ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FCultPopulationMotionObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true;
+ ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultPopulationMotionObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true;
 }
 #endif

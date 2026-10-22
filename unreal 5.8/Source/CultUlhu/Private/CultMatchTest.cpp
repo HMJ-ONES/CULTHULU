@@ -2,6 +2,7 @@
 #include "Misc/AutomationTest.h"
 #include "Tests/AutomationCommon.h"
 #include "Tests/AutomationEditorCommon.h"
+#include "CultAutomationPIE.h"
 #include "CultMatchState.h"
 #include "CultMobaJungle.h"
 #include "CultDominationRoute.h"
@@ -422,7 +423,7 @@ public:
  }
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaClearanceTest,"CultUlhu.Menu.MobaLaneClearance",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FCultMobaClearanceTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FCultMobaClearanceObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+bool FCultMobaClearanceTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultMobaClearanceObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 class FCultMobaJungleReturnsObservation:public IAutomationLatentCommand {
  FAutomationTestBase* T; int Phase=0,Completed=0; double Start=FPlatformTime::Seconds(); float At=0;
  TArray<TWeakObjectPtr<ACultMatchUnit>> Returning;
@@ -453,9 +454,9 @@ public:
  }
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaJungleReturnsTest,"CultUlhu.Menu.MobaJungleReturns",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FCultMobaJungleReturnsTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FCultMobaJungleReturnsObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+bool FCultMobaJungleReturnsTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultMobaJungleReturnsObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDominationMatchTest,"CultUlhu.Menu.DominationMatch",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FCultDominationMatchTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(.5f)); ADD_LATENT_AUTOMATION_COMMAND(FCultMatchObservation(this,false)); return true; }
+bool FCultDominationMatchTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(.5f)); ADD_LATENT_AUTOMATION_COMMAND(FCultMatchObservation(this,false)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaMatchTest,"CultUlhu.Menu.MobaMatch",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FCultMobaMatchTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(.5f)); ADD_LATENT_AUTOMATION_COMMAND(FCultMatchObservation(this,true)); return true; }
+bool FCultMobaMatchTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(.5f)); ADD_LATENT_AUTOMATION_COMMAND(FCultMatchObservation(this,true)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 #endif

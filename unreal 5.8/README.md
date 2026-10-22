@@ -39,6 +39,9 @@ for current results and remaining work.
 its separate editor render verification; that newer profile needs a fresh standalone check.
 `Docs/PopulationScheduling.md` records the later NPC decision optimization, native
 movement/combat checks and measured CPU limits; overall performance remains inadequate.
+`Docs/HumanMeshRendering.md` describes the shared humanoid body meshes, original-art
+verification and measured component/frame-time reduction. Packaged verification
+of that newer path is separate from the earlier standalone checks above.
 
 Build.cs stages the release character definitions, fonts and all 48 NPC animation
 clips. Do not hand-copy or commit generated CharacterDefinitions/CharacterAnimations

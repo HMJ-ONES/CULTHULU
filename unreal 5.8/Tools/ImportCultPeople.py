@@ -43,3 +43,7 @@ for role in ("cultist_hooded", "cultist_magus", "civilian_villager"):
         raise RuntimeError("No original NPC skeletal mesh imported for " + role)
 (staging / "manifest.json").write_text(json.dumps(manifest, indent=2))
 unreal.EditorAssetLibrary.save_directory("/Game/CultUlhu/People", only_if_is_dirty=True, recursive=True)
+
+# Preserve merge-ready source buffers after a future art reimport.
+import runpy
+runpy.run_path(str(Path(__file__).with_name('PrepareHumanMeshCpuData.py')))

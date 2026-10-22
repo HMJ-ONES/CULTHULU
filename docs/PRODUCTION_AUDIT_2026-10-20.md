@@ -430,3 +430,55 @@ of movement/collision, component updates and work distribution is required.
 Standalone scheduling behavior/performance, broader navigation and human combat
 quality remain unproven. No package/download was added; the full goal remains
 active.
+
+## Shared humanoid rendering — 2026-10-21
+
+The previous goal turn recorded the standing storage policy. Current work targets
+measured component-update cost rather than adding visual assets. Civilian,
+hooded cultist and magus bodies now share one runtime merge per skin, retaining
+all six original source meshes and the modular fallback. The same path supplies
+MOBA minion bodies. No baked mesh duplicates or external downloads are added.
+Only the CPU-access setting changes on the 18 source mesh assets; their previous
+bytes were verified recoverable from the existing GitHub checkpoint.
+
+The original rest positions, primary UVs, materials, reference bones, bounds and
+vertex/triangle totals pass native geometry checks for all three skins. Original
+activity clips also pass on real combined population actors. Engine merge code
+handles skin weights; this is not an exhaustive pixel-identity proof.
+
+In one evolving Free Roam Editor world, four 120-frame modular/merged/merged/
+modular windows retain a constant 191 people. Actual skinned components fall
+from 1,146 to 191. Paired whole-frame means fall from 74.239 to 53.193 ms (28.3%),
+and end-of-frame updates from about 17.43 to 8.98 ms (48.5%). These are warmed,
+offscreen Editor measurements with native simulation active. Per-window timing,
+counts and raw CSV hashes are in Docs/HumanMeshEditorResults.json. This is still
+poor action-game performance. It does not establish enjoyable combat, balanced
+modes or a production-quality visual result.
+
+The first combined regression batch passes army commands, editor-input safety,
+merged original activity poses, MOBA match and MOBA mechanics. PopulationMotion
+fails before creating its subject, followed by a PopulationPresentation timeout.
+The log and Engine source identify asynchronous test startup: FStartPIECommand
+queues Play and completes immediately, so the next observation can issue travel
+into the preceding test's closing world. The affected native fixtures now wait
+for a fresh initialized PIE world, and match tests request cleanup. These failed
+results remain part of the record; a rerun must pass before calling those checks
+verified. A stricter minion check additionally requires actual spawned lane
+bodies to contain one certified, complete skinned component.
+
+Cooked CPU-buffer availability and standalone performance on this newer shared
+mesh path remain unproven pending an independent executable check. Movement
+warnings, stuck-navigation cases, remaining frame time, final art and human match
+quality remain unresolved. The full development goal is active.
+
+Final Editor reruns: HumanMeshFinalEditorRerun.log passes MergedHumanPoses,
+PopulationMotion and PopulationPresentation. Native order/control/combat/cliff
+checks finish at X=2808.1 on the same real floor edge. The rendered inspection
+fixture was inspected: complete bodies, original materials and activity poses
+remain visible. It is an isolated presentation fixture, not normal world density.
+The new minion check initially ran before the first wave had deployed; it now
+waits for real lane units. HumanMeshMinionFinal.log passes MobaMechanics, including
+one certified complete skinned component on each observed spawned lane minion,
+physical tower shots and the actual held/launched-minion impacts. Failed logs
+are retained; final verification scopes and SHA-256s are in the results JSON.
+The canonical Editor rebuild succeeds. Standalone verification is next.

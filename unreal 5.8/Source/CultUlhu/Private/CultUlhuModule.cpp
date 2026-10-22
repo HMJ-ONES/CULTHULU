@@ -1,4 +1,5 @@
 #include "Modules/ModuleManager.h"
+#include "CultHumanMesh.h"
 #if WITH_EDITOR
 #include "Editor.h"
 #include "Kismet2/DebuggerCommands.h"
@@ -9,6 +10,7 @@ class FCultUlhuModule:public FDefaultGameModuleImpl {
 #if WITH_EDITOR
  FDelegateHandle BeginHandle,SwitchHandle,EndHandle;
  static FName FilterOwner() { return TEXT("CultUlhuGameplayInput"); }
+ void BeginSession(bool Simulating) { CultHumanMesh::Reset(); GameplaySession(Simulating); }
  void GameplaySession(bool Simulating) {
   auto& Bindings=FInputBindingManager::Get(); Bindings.UnregisterCommandFilterOwner(FilterOwner());
   if(!Simulating&&FPlayWorldCommands::IsRegistered()) {
@@ -25,7 +27,7 @@ public:
   // ALT belongs to cult commands during PIE. Unreal's ALT+S shortcut otherwise
   // bubbles out of GameAndUI input and switches the player into editor simulation.
   // Filter command lookup only: no user key bindings or saved preferences change.
-  BeginHandle=FEditorDelegates::BeginPIE.AddRaw(this,&FCultUlhuModule::GameplaySession);
+  BeginHandle=FEditorDelegates::BeginPIE.AddRaw(this,&FCultUlhuModule::BeginSession);
   SwitchHandle=FEditorDelegates::OnSwitchBeginPIEAndSIE.AddRaw(this,&FCultUlhuModule::GameplaySession);
   EndHandle=FEditorDelegates::EndPIE.AddRaw(this,&FCultUlhuModule::EndSession);
 #endif
@@ -35,7 +37,7 @@ public:
   FEditorDelegates::BeginPIE.Remove(BeginHandle); FEditorDelegates::OnSwitchBeginPIEAndSIE.Remove(SwitchHandle); FEditorDelegates::EndPIE.Remove(EndHandle);
   EndSession(false);
 #endif
-  FDefaultGameModuleImpl::ShutdownModule();
+  CultHumanMesh::Reset(); FDefaultGameModuleImpl::ShutdownModule();
  }
 };
 IMPLEMENT_PRIMARY_GAME_MODULE(FCultUlhuModule,CultUlhu,"CultUlhu");

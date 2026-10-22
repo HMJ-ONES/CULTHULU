@@ -1,5 +1,9 @@
 # Storage and backup
 
+Standing user preference: avoid heavy local downloads, duplicate assets and
+packages unless required for the current build or verification. Use GitHub for
+important project inputs; it is not storage for generated build artifacts.
+
 The playable Unreal project is `unreal 5.8/CultUlhu.uproject`. GitHub preserves
 its source, configuration, tools, tests, documentation and authored Content,
 alongside the canonical `src`, `tests` and original `assets` trees. Authored

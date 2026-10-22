@@ -50,7 +50,8 @@ public:
  void ShowContribution(const FString& Text) { Contribution_=Text; ContributionTime_=6; }
  void SetWorkProgress(float P,bool Working) { WorkProgress_=FMath::Clamp(P,0.f,1.f); bWorking_=Working; }
  float WorkProgress() const { return WorkProgress_; }
- int32 HumanPartCount() const { return HumanPoseParts_.IsEmpty()?HumanParts_.Num():HumanPoseParts_.Num(); }
+ // Logical original body pieces; a certified combined mesh still contains all six.
+ int32 HumanPartCount() const;
  bool HasAuthoredHumanModel() const { return HumanPose_!=nullptr; }
  float GetMaxHealth() const { return bSummoned_?CreatureMaxHp_:bCultist_?100.f:1.f; }
  FString InspectionActivity() const;

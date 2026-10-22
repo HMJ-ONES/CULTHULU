@@ -4,12 +4,16 @@
 #include "Engine/SkeletalMesh.h"
 #include "Misc/Paths.h"
 #include "CultHumanAnimation.h"
+#include "CultHumanMesh.h"
 #include <map>
 void ACultMatchUnit::CreateArtBody() {
  Skin=Kind==1?TEXT("cultist_magus"):TEXT("cultist_hooded"); const bool Mage=Kind==1;
  FString Folder=TEXT("/Game/CultUlhu/People/")+Skin+TEXT("/")+Skin;
  FString Prefix=Mage?TEXT("Mage_"):TEXT("Rogue_"); FBox Bounds(ForceInit);
- for(const TCHAR* Part:{TEXT("Body"),Mage?TEXT("Head"):TEXT("Head_Hooded"),TEXT("ArmLeft"),TEXT("ArmRight"),TEXT("LegLeft"),TEXT("LegRight")}) {
+ if(auto* Combined=CultHumanMesh::Enabled()?CultHumanMesh::Find(Skin):nullptr) {
+  auto* C=NewObject<UPoseableMeshComponent>(this); C->SetupAttachment(RootComponent); C->SetSkinnedAssetAndUpdate(Combined); C->SetCollisionEnabled(ECollisionEnabled::NoCollision); C->RegisterComponent(); ArtParts.Add(C); Bounds=Combined->GetBounds().GetBox(); ArtBody=C;
+ }
+ else for(const TCHAR* Part:{TEXT("Body"),Mage?TEXT("Head"):TEXT("Head_Hooded"),TEXT("ArmLeft"),TEXT("ArmRight"),TEXT("LegLeft"),TEXT("LegRight")}) {
   FString Name=Prefix+Part; auto* Asset=LoadObject<USkeletalMesh>(nullptr,*(Folder+TEXT("/SkeletalMeshes/")+Name+TEXT(".")+Name)); if(!Asset) continue;
   auto* C=NewObject<UPoseableMeshComponent>(this); C->SetupAttachment(RootComponent); C->SetSkinnedAssetAndUpdate(Asset); C->SetCollisionEnabled(ECollisionEnabled::NoCollision); C->RegisterComponent(); ArtParts.Add(C); Bounds+=Asset->GetBounds().GetBox(); if(!ArtBody) ArtBody=C;
  }

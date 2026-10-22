@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS && WITH_EDITOR
 #include "Misc/AutomationTest.h"
 #include "Tests/AutomationEditorCommon.h"
+#include "CultAutomationPIE.h"
 #include "CultUlhuGameInstance.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultPopulation.h"
@@ -82,7 +83,7 @@ public:
    if(Now-At<.3f||FScreenshotRequest::IsScreenshotRequested()) return false;
    Test->TestTrue(TEXT("Rendered NPC inspection fixture is saved"),IFileManager::Get().FileSize(*Screenshot)>0);
    auto* Source=People[2].Get(); auto* Corpse=ACultCorpse::Leave(Source); Test->TestNotNull(TEXT("Authored animated NPC leaves a body"),Corpse);
-   if(Corpse) { TArray<UPoseableMeshComponent*> Parts; Corpse->GetComponents(Parts); Test->TestEqual(TEXT("Corpse preserves all six authored body parts"),Parts.Num(),Source->HumanPartCount()); for(auto* Part:Parts) Test->TestTrue(TEXT("Corpse pose is persistent and nonblocking"),Part->IsVisible()&&!Part->IsComponentTickEnabled()&&Part->GetCollisionEnabled()==ECollisionEnabled::NoCollision); Corpse->Destroy(); }
+   if(Corpse) { TArray<UPoseableMeshComponent*> Parts; Corpse->GetComponents(Parts); TArray<UPoseableMeshComponent*> SourceParts; Source->GetComponents(SourceParts); Test->TestEqual(TEXT("Corpse preserves every rendered authored component"),Parts.Num(),SourceParts.Num()); for(auto* Part:Parts) Test->TestTrue(TEXT("Corpse pose is persistent and nonblocking"),Part->IsVisible()&&!Part->IsComponentTickEnabled()&&Part->GetCollisionEnabled()==ECollisionEnabled::NoCollision); Corpse->Destroy(); }
    // Add a dense group, an actor behind the camera and a wall hiding one unit.
    for(int I=0;I<12;++I) { auto* P=W->SpawnActor<ACultPopulation>(FVector((I%3-1)*30,40+(I/3)*25,45100),FRotator::ZeroRotator); P->RecruitTo(0); P->GetCharacterMovement()->DisableMovement(); P->SetActorTickEnabled(false); P->Tick(.01f); People.Add(P); }
    const FVector Back=Camera->GetActorLocation()-Camera->GetActorForwardVector()*1000;
@@ -117,5 +118,5 @@ public:
  }
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultPopulationPresentationTest,"CultUlhu.Menu.PopulationPresentation",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FCultPopulationPresentationTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FCultPopulationPresentation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+bool FCultPopulationPresentationTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultPopulationPresentation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 #endif

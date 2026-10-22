@@ -8,18 +8,24 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
 #include "CultHumanAnimation.h"
+#include "CultHumanMesh.h"
 
 void ACultPopulation::RefreshAuthoredHuman()
 {
  const FString Skin=bSummoned_?TEXT(""):bSorcerer_?TEXT("cultist_magus"):bCultist_?TEXT("cultist_hooded"):TEXT("civilian_villager");
- if(Skin==HumanSkin_) return; HumanSkin_=Skin;
+ auto* Combined=Skin.IsEmpty()||!CultHumanMesh::Enabled()?nullptr:CultHumanMesh::Find(Skin);
+ const bool AlreadyCombined=HumanPose_&&CultHumanMesh::SourceParts(Cast<USkeletalMesh>(HumanPose_->GetSkinnedAsset()))>0;
+ if(Skin==HumanSkin_&&(Combined!=nullptr)==AlreadyCombined) return; HumanSkin_=Skin; HumanPoseTime_=-1000;
  for(auto* Part:HumanPoseParts_) Part->DestroyComponent(); for(auto* Part:HumanAccessories_) Part->DestroyComponent();
  HumanPoseParts_.Reset(); HumanAccessories_.Reset(); HumanRestPose_.Reset(); HumanPose_=nullptr; if(Skin.IsEmpty()) return;
  const bool Mage=Skin==TEXT("cultist_magus"); const FString Prefix=Mage?TEXT("Mage_"):TEXT("Rogue_");
  const FString Folder=TEXT("/Game/CultUlhu/People/")+Skin+TEXT("/")+Skin;
  const TArray<FString> Pieces={TEXT("Body"),Skin==TEXT("cultist_hooded")?TEXT("Head_Hooded"):TEXT("Head"),TEXT("ArmLeft"),TEXT("ArmRight"),TEXT("LegLeft"),TEXT("LegRight")};
  FBox Bounds(ForceInit);
- for(const auto& Part:Pieces) {
+ if(Combined) {
+  auto* SkinPart=NewObject<UPoseableMeshComponent>(this); SkinPart->SetupAttachment(Appearance_); SkinPart->SetSkinnedAssetAndUpdate(Combined); SkinPart->SetCollisionEnabled(ECollisionEnabled::NoCollision); SkinPart->RegisterComponent(); HumanPoseParts_.Add(SkinPart); Bounds=Combined->GetBounds().GetBox(); HumanPose_=SkinPart;
+ }
+ else for(const auto& Part:Pieces) {
   const FString Name=Prefix+Part; auto* Asset=LoadObject<USkeletalMesh>(nullptr,*(Folder+TEXT("/SkeletalMeshes/")+Name+TEXT(".")+Name)); if(!Asset) continue;
   auto* SkinPart=NewObject<UPoseableMeshComponent>(this); SkinPart->SetupAttachment(Appearance_); SkinPart->SetSkinnedAssetAndUpdate(Asset); SkinPart->SetCollisionEnabled(ECollisionEnabled::NoCollision); SkinPart->RegisterComponent(); HumanPoseParts_.Add(SkinPart); Bounds+=Asset->GetBounds().GetBox(); if(!HumanPose_) HumanPose_=SkinPart;
  }
@@ -59,4 +65,10 @@ void ACultPopulation::AnimateAuthoredHuman(float Dt)
   Transform.SetRotation((Transform.GetRotation()*FQuat::MakeFromEuler(FVector(Rot.x,Rot.y,Rot.z))).GetNormalized()); Transform.AddToTranslation(FVector(P.x,P.z,P.y)*100); HumanPose_->BoneSpaceTransforms[Index]=Transform;
  }
  HumanPose_->MarkRefreshTransformDirty(); HumanPose_->RefreshBoneTransforms();
+}
+
+int32 ACultPopulation::HumanPartCount() const
+{
+ if(HumanPose_) if(const int32 Count=CultHumanMesh::SourceParts(Cast<USkeletalMesh>(HumanPose_->GetSkinnedAsset()))) return Count;
+ return HumanPoseParts_.IsEmpty()?HumanParts_.Num():HumanPoseParts_.Num();
 }

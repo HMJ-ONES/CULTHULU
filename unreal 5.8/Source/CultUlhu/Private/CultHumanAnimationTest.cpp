@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "CultHumanAnimation.h"
+#include "CultHumanMesh.h"
 #include "CultPopulation.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultUlhuGameInstance.h"
@@ -24,6 +25,7 @@
 #include "UnrealClient.h"
 #if WITH_EDITOR
 #include "Tests/AutomationEditorCommon.h"
+#include "CultAutomationPIE.h"
 #endif
 
 namespace {
@@ -110,12 +112,15 @@ class FCultStagedHumanPoseObservation:public IAutomationLatentCommand {
  FAutomationTestBase* Test; bool Entered=false; int Action=-1; double Began=FPlatformTime::Seconds(); float At=0;
  TArray<TWeakObjectPtr<ACultPopulation>> People; TWeakObjectPtr<ACameraActor> Camera; TWeakObjectPtr<AStaticMeshActor> Floor;
  int OldStaged=0;
- bool SceneRequested=false; FString SceneScreenshot;
+ bool SceneRequested=false; FString SceneScreenshot; bool RequireMerged=false; int BeforeMerged=0;
  TArray<float> SampleTimes;
  const TArray<FString> Actions={TEXT("Pray"),TEXT("Build"),TEXT("Convert"),TEXT("SacrificePerformer"),TEXT("SacrificeVictim"),TEXT("Attack")};
  const TArray<FString> Clips={TEXT("channel"),TEXT("work"),TEXT("cast"),TEXT("sacrifice_performer"),TEXT("sacrifice_victim"),TEXT("attack")};
 public:
- explicit FCultStagedHumanPoseObservation(FAutomationTestBase* T):Test(T) {}
+ explicit FCultStagedHumanPoseObservation(FAutomationTestBase* T,bool Merge=false):Test(T),RequireMerged(Merge) {
+  if(RequireMerged) { auto* Var=IConsoleManager::Get().FindConsoleVariable(TEXT("cult.Population.MergeHumanMeshes")); BeforeMerged=Var->GetInt(); Var->Set(1,ECVF_SetByCode); }
+ }
+ ~FCultStagedHumanPoseObservation() { if(RequireMerged) IConsoleManager::Get().FindConsoleVariable(TEXT("cult.Population.MergeHumanMeshes"))->Set(BeforeMerged,ECVF_SetByCode); }
  bool Update() override {
   if(FPlatformTime::Seconds()-Began>100) { Test->AddError(TEXT("Staged native human pose verification timed out")); return true; }
   UWorld* W=nullptr; for(auto& C:GEngine->GetWorldContexts()) if(C.World()&&C.World()->IsGameWorld()) W=C.World(); if(!W) return false;
@@ -155,6 +160,7 @@ public:
   for(int I=0;I<People.Num();++I) {
    auto* P=People[I].Get(); Test->TestTrue(TEXT("Native actor retains every authored body part from staged art"),P&&P->HasAuthoredHumanModel()&&P->HumanPartCount()==6); if(!P) continue;
    UPoseableMeshComponent* Leader=nullptr; TArray<UPoseableMeshComponent*> Parts; P->GetComponents(Parts); for(auto* Part:Parts) if(!Part->LeaderPoseComponent.IsValid()) Leader=Part;
+   if(RequireMerged) { Test->TestEqual(TEXT("Certified complete human art uses one rendered skeletal component"),Parts.Num(),1); Test->TestTrue(TEXT("The actor actually uses the verified combined mesh"),Leader&&CultHumanMesh::SourceParts(Cast<USkeletalMesh>(Leader->GetSkinnedAsset()))==6); }
    bool Posed=false; if(Leader) { auto* Rig=Cast<USkeletalMesh>(Leader->GetSkinnedAsset()); const auto& Rest=Rig->GetRefSkeleton().GetRefBonePose(); for(int B=0;B<FMath::Min(Rest.Num(),Leader->BoneSpaceTransforms.Num());++B) Posed|=!Rest[B].Equals(Leader->BoneSpaceTransforms[B],.001f); }
    Test->TestTrue(FString::Printf(TEXT("%s/%s applies original keys to the real native body"),*HumanSkins()[I],*Actions[Action]),Posed);
    Test->TestTrue(TEXT("The selected activity matches its original clip, not just any animated pose"),PoseMatchesOriginal(Leader,CultHumanAnimation::Find(HumanSkins()[I],Clips[Action]),SampleTimes,P->GetUniqueID()));
@@ -165,10 +171,14 @@ public:
   Test->AddInfo(FString::Printf(TEXT("Verified staged native civilian, cultist and sorcerer poses for six activities. Editor=%d"),int(WITH_EDITOR))); return true;
  }
 };
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMergedHumanRuntimeTest,"CultUlhu.Runtime.MergedHumanPoses",EAutomationTestFlags::ClientContext|EAutomationTestFlags::EngineFilter)
+bool FCultMergedHumanRuntimeTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStagedHumanPoseObservation(this,true)); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultStagedHumanRuntimeTest,"CultUlhu.Runtime.StagedHumanPoses",EAutomationTestFlags::ClientContext|EAutomationTestFlags::EngineFilter)
 bool FCultStagedHumanRuntimeTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStagedHumanPoseObservation(this)); return true; }
 #if WITH_EDITOR
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMergedHumanEditorTest,"CultUlhu.Menu.MergedHumanPoses",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultMergedHumanEditorTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultStagedHumanPoseObservation(this,true)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultStagedHumanEditorTest,"CultUlhu.Menu.StagedHumanPoses",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FCultStagedHumanEditorTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FCultStagedHumanPoseObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+bool FCultStagedHumanEditorTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultStagedHumanPoseObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 #endif
 #endif

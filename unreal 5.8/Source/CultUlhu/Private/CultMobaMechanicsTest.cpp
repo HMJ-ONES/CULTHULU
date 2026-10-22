@@ -1,9 +1,13 @@
 #if WITH_DEV_AUTOMATION_TESTS && WITH_EDITOR
 #include "Misc/AutomationTest.h"
 #include "Tests/AutomationEditorCommon.h"
+#include "CultAutomationPIE.h"
 #include "CultMatchState.h"
 #include "CultKitRuntime.h"
 #include "CultSkillAttack.h"
+#include "CultHumanMesh.h"
+#include "Engine/SkeletalMesh.h"
+#include "Components/PoseableMeshComponent.h"
 #include "CultUlhuGameInstance.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -60,11 +64,23 @@ public:
   if(W->GetName().Contains(TEXT("L_MainMenu"))) { if(Phase==0) { auto* GI=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); GI->SelectedCharacterId=TEXT("cthulhu_avatar"); GI->OpenCharacterSelect(ECultPlayMode::Dotgoo); GI->OpenBeliefSelect(); Phase=1; } return false; }
   auto* M=ACultMatchDirector::Find(W); auto* P=Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(W,0)); if(!M||!P||M->Warmup()>0) return false;
   if(Phase==1) {
+   // Warmup reaches zero before the next director tick deploys its first wave.
+   // Observe real spawned lane units rather than passing an empty-art check.
+   bool WaveReady=false; for(TActorIterator<ACultMatchUnit> It(W);It;++It) WaveReady|=!It->IsStructure();
+   if(!WaveReady) return false;
+   int32 AuthoredMinions=0;
    for(TActorIterator<ACultMatchUnit> It(W);It;++It) {
+    if(!It->IsStructure()) {
+     TArray<UPoseableMeshComponent*> Body; It->GetComponents(Body);
+     T->TestEqual(TEXT("Lane minion retains its complete art in one skinned component"),Body.Num(),1);
+     if(Body.Num()==1) T->TestEqual(TEXT("Lane minion uses all six certified original source pieces"),CultHumanMesh::SourceParts(Cast<USkeletalMesh>(Body[0]->GetSkinnedAsset())),6);
+     ++AuthoredMinions;
+    }
     if(It->Kind==3) T->TestEqual(TEXT("Lane wards have 3000 HP"),It->MaxHealth,3000.f);
     if(It->Kind==5) T->TestEqual(TEXT("Nexus wards have 4000 HP"),It->MaxHealth,4000.f);
     if(It->Team==1&&It->Kind==3&&!M->UnitProtected(*It)) Tower=*It;
    }
+   T->TestTrue(TEXT("Merged-body check covers actual spawned lane minions"),AuthoredMinions>0);
    FCultMobaMechanicsTestAccess::Isolate(M,P); FCultMobaMechanicsTestAccess::Shift(T,P);
    T->TestTrue(TEXT("Cthulhu MOBA uses the explicitly requested RMB variant"),P->CombatHUD().RmbHint.Contains(TEXT("minion")));
    if(!Tower.IsValid()) { T->AddError(TEXT("No exposed outer tower")); return true; }
@@ -148,5 +164,5 @@ public:
  }
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaMechanicsTest,"CultUlhu.Menu.MobaMechanics",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FCultMobaMechanicsTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FCultMobaMechanicsObservation(this)); return true; }
+bool FCultMobaMechanicsTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultMobaMechanicsObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 #endif
