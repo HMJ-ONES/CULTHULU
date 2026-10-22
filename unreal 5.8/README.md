@@ -65,3 +65,7 @@ The game remains a prototype. Final hero models/animations, broader visual polis
 sustained frame rate, multiplayer and human fun/balance evaluation are outstanding.
 Successful automation is evidence for its specific checks, not a claim of
 Overwatch-level presentation or Paladins-level match quality.
+
+`Docs/HUDReadability.md` records measured header contrast, responsive ability-card
+rows, movement-cue separation, exact-size capture correction and input checks.
+These newer HUD edits still need a fresh independent executable verification.

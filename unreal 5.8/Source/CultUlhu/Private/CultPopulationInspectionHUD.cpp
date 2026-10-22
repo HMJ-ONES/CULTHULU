@@ -32,7 +32,7 @@ void ACultPlayHUD::DrawPopulationInspection()
  CSV_SCOPED_TIMING_STAT(CultRuntime, InspectionHUD);
  const float S=FMath::Clamp(FMath::Min(Canvas->SizeX/1280.f,Canvas->SizeY/720.f),.8f,1.5f);
  const float Main=FMath::Max(14.f,15*S),Small=FMath::Max(12.f,12*S),Pad=8*S;
- const FBox2D Safe(FVector2D(Pad,FMath::Max(100.f,112*S)),FVector2D(Canvas->SizeX-Pad,Canvas->SizeY-125*S));
+ const FBox2D Safe(FVector2D(Pad,FMath::Max(100.f,112*S)),FVector2D(Canvas->SizeX-Pad,FMath::Min(Canvas->SizeY-125*S,CombatBottomTop_-Pad)));
  if(!Safe.bIsValid||Safe.GetSize().Y<60) return;
  const FVector Camera=PC->PlayerCameraManager->GetCameraLocation();
  FVector2D Mouse; if(!CultHUDSpace::Pointer(PC,Mouse)) Mouse=FVector2D(-100000,-100000);

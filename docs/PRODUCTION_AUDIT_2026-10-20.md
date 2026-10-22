@@ -576,3 +576,53 @@ construction completion around non-workers, sustained population performance,
 final art and human match quality remain unresolved. These later edits have
 scoped Editor evidence, not a new independent executable. No content asset,
 download, duplicate model or standalone package is added. The full goal is active.
+
+## HUD contrast, measured rows and capture fidelity — 2026-10-21
+
+The preceding turn made verified settlement-safety progress and backed it to
+GitHub. This pass investigates suspected right-edge control-hint clipping.
+Actual Editor Canvas evidence does not reproduce misalignment: measured/drawn
+widths both equal 291 px, with the intended margin, runtime font caching and
+recorded DPI 1. The observed bright-column frame instead loses contrast. No
+arbitrary font offset is introduced as a fictitious correction.
+
+Compact dark backing and a stronger mode title improve header contrast. Narrow
+competitive controls wrap clear of the score panel. The first passing header
+matrix nevertheless reveals bottom collisions visually at 640x360: wrapped
+ability names enter their state rows and movement instructions enter the first
+card. Measured key/name/state heights replace fixed shrinking coordinates;
+dash/sprint cues fit the gap between vitals and abilities; RMB/notice rows stack
+above the cards. ALT inspection respects the current combat exclusion. Footer
+bindings and movement cues receive backing against bright effects as well.
+
+A PNG-header audit then rejects an insufficient capture method: logical canvases
+could be larger than the captured editor backbuffer after input/eject tests.
+Earlier successful geometry checks do not prove those larger screenshots.
+Dimensions/hashes of the cropped files remain in the record. The corrected
+fixture uses engine dedicated render targets, samples those exact HUD draws,
+requires actual PNG width/height inside the native test, and restores capture
+settings. This is exact-size offscreen rendering, not universal physical-window,
+DPI, projection or frame-rate proof.
+
+The final canonical Editor builds succeed. HUDContrastFinal.log passes all eight
+requested tests with zero automation errors: ArmyHUDCoordinates,
+EditorInputSafety, HUDTextRendering, MatchHUDCoordinates, MatchTextRendering,
+MobaLiftTextRendering, MobaTextRendering and PopulationPresentation. Twelve final
+PNGs are independently checked at 640x360, 1280x720 and 1920x720 for Mi-Go across
+all modes plus Cthulhu in MOBA. Actual glyphs retain margins, mode/score clearance,
+wrapped ability/state separation, movement cues and the explicit native minion
+instruction. Normal-view cursor, ALT selection/inspection and persistent corpse
+checks also pass. Selected final small, normal, wide, Cthulhu and inspection
+renders were viewed; the targeted collisions and bright-background readability
+are improved. Two small separate-live-capture images make the card change
+reviewable; they are not an identical-world pixel comparison.
+
+Docs/HUDReadability.md and HUDReadabilityResults.json preserve the bounded scope,
+intermediate insufficient capture evidence, observations and final hashes.
+Long competitive messages still overflow at small width, allied name tags can
+overlap, and placeholder vessels obscure the camera near grouped spawns. Overall
+professional presentation, full roster/display coverage, final art, human combat
+quality and sustained performance remain unproven. Runtime.HUDTextRendering can
+verify a later independent build, but these edits have not been recooked/run
+there in this pass. No content download, model duplicate or standalone package
+is added. The full goal remains active.

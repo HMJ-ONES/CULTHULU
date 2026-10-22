@@ -4,6 +4,7 @@
 #include "CultPlayHUD.generated.h"
 
 class ACultPopulation;
+class ACultUlhuPlayerPawn;
 struct FCultInspectionCard {
  TWeakObjectPtr<ACultPopulation> Person;
  FBox2D Bounds;
@@ -29,7 +30,9 @@ public:
  void DrawSelection();
  const TArray<FCultInspectionCard>& InspectionCards() const { return InspectionCards_; }
 private:
+ friend void DrawCultCombat(ACultPlayHUD*,ACultUlhuPlayerPawn*,UCanvas*);
  friend struct FCultHUDCoordinateTestAccess;
+ float CombatBottomTop_=MAX_flt;
  TArray<FCultInspectionCard> InspectionCards_;
  void DrawPopulationInspection();
 	bool bCommands_=false;

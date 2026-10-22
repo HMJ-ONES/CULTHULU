@@ -7,6 +7,12 @@
 #include "Engine/Font.h"
 #include "CanvasItem.h"
 #include "UObject/StrongObjectPtr.h"
+#include "CultHUDTextProbe.h"
+#if WITH_DEV_AUTOMATION_TESTS
+#include "Framework/Application/SlateApplication.h"
+#include "Rendering/SlateRenderer.h"
+#include "Fonts/FontMeasure.h"
+#endif
 namespace CultUI {
 FSlateFontInfo Font(float Size,bool Heading,bool Medium) {
  static const TSharedPtr<const FCompositeFont> Family=[] {
@@ -32,5 +38,17 @@ void Button(UButton* B,bool Primary,bool Selected) {
 void DrawText(UCanvas* C,const FString& Value,FLinearColor Color,float X,float Y,float Size,bool Heading) {
  static TStrongObjectPtr<UFont> Cache(LoadObject<UFont>(nullptr,TEXT("/Engine/EngineFonts/Roboto.Roboto")));
  FCanvasTextItem T(FVector2D(X,Y),FText::FromString(Value),Font(Size,Heading),Color); T.Font=Cache.Get(); C->DrawItem(T);
+#if WITH_DEV_AUTOMATION_TESTS
+ if(CultHUDTextProbe::Enabled) {
+  auto& Frame=GIsHighResScreenshot?CultHUDTextProbe::CaptureFrame:CultHUDTextProbe::Frame;
+  auto& Samples=GIsHighResScreenshot?CultHUDTextProbe::Captured:CultHUDTextProbe::Samples;
+  if(Frame!=GFrameCounter) { Frame=GFrameCounter; Samples.Reset(); }
+  if(Samples.Num()<128) {
+   const float DPI=C->Canvas->GetDPIScale();
+   const auto Measure=FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
+   Samples.Add({Value,FVector2D(X,Y),T.DrawnSize,Measure->Measure(Value,Font(Size,Heading)),Measure->Measure(Value,Font(Size,Heading),DPI),FVector2D(C->SizeX,C->SizeY),Size,DPI,int32(Cache->FontCacheType)});
+  }
+ }
+#endif
 }
 }

@@ -1,0 +1,541 @@
+{
+  "scope": "Editor dedicated render-target HUD draws at exact PNG dimensions in three sizes/four mode-character contexts, plus normal-view input/inspection regressions. Recorded DPI is 1. Not standalone, all-display, all-roster or human usability proof.",
+  "baseline_finding": "The suspected hint alignment error was not reproduced: measured/drawn width both 291 px. Contrast and separate low-resolution bottom collisions were addressed.",
+  "capture_correction": {
+    "finding": "Ordinary screenshots after the combined editor/input run cropped larger requested canvases to the editor backbuffer. Earlier successful Canvas tests did not establish correct larger PNG captures.",
+    "images": [
+      {
+        "file": "HUDText_Domination_1280x720.png",
+        "png_size": [
+          1280,
+          680
+        ],
+        "sha256": "44278a27abef5ed860768618ffa0df396c2d51dae2cbabb16da4c7635407a745"
+      },
+      {
+        "file": "HUDText_Domination_1920x720.png",
+        "png_size": [
+          1288,
+          680
+        ],
+        "sha256": "77165c4aeea506c9e01478c6cd6367e90f8761abef6c341476a92d8bf48c9769"
+      },
+      {
+        "file": "HUDText_Domination_640x360.png",
+        "png_size": [
+          640,
+          360
+        ],
+        "sha256": "a2c1b3640541363ed568c41ddda0edee22ff2e80eeea90205f86f1f687854194"
+      },
+      {
+        "file": "HUDText_Domination_640x360_HeaderOnly.png",
+        "png_size": [
+          640,
+          360
+        ],
+        "sha256": "998ea1df1d8320cce03cc35ff454c4e8af6b1516472a73cb716c0f0dde0ae507"
+      },
+      {
+        "file": "HUDText_FreeRoam_1280x720.png",
+        "png_size": [
+          1280,
+          680
+        ],
+        "sha256": "5b44b287474a901ba95d71040c527c56284db069718aa95782ccb8da979f3019"
+      },
+      {
+        "file": "HUDText_FreeRoam_1920x720.png",
+        "png_size": [
+          1288,
+          680
+        ],
+        "sha256": "7aea2aade75665357a1c698709a1b9e40c7b8b3216900178938ad361179301ec"
+      },
+      {
+        "file": "HUDText_FreeRoam_640x360.png",
+        "png_size": [
+          640,
+          360
+        ],
+        "sha256": "161157c92f4332d9c352df35bccd3e7e7bd77fcef61a9b3d69d3ce64fc6aa9ca"
+      },
+      {
+        "file": "HUDText_Moba_1280x720.png",
+        "png_size": [
+          1280,
+          680
+        ],
+        "sha256": "b46afcebe48368181e2eb7c0489cda88c62245c35097980e3744e64355a27a88"
+      },
+      {
+        "file": "HUDText_Moba_1920x720.png",
+        "png_size": [
+          1288,
+          680
+        ],
+        "sha256": "07258a38ca109d71025041ea45caa94df4d526d0b558446d5aa8a4991279b788"
+      },
+      {
+        "file": "HUDText_Moba_640x360.png",
+        "png_size": [
+          640,
+          360
+        ],
+        "sha256": "f399f4357a529e7d18136ce22890379acc88d88af8c3b106b7ab89a08980443d"
+      },
+      {
+        "file": "HUDText_Moba_Cthulhu_1280x720.png",
+        "png_size": [
+          1280,
+          680
+        ],
+        "sha256": "54b427124ac1acdca4448b66e9aa241438d6cc134a8a6540fe6a53aac11b3480"
+      },
+      {
+        "file": "HUDText_Moba_Cthulhu_1920x720.png",
+        "png_size": [
+          1288,
+          680
+        ],
+        "sha256": "6263d9c8403c518d1cf90aa16a29ce6399d4600358c4088bd3ecdb8b65363718"
+      },
+      {
+        "file": "HUDText_Moba_Cthulhu_640x360.png",
+        "png_size": [
+          640,
+          360
+        ],
+        "sha256": "376dbdc20daff35b7671242aaf63a6e45ecdcfa97368e835f8b0ccd83558a8da"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "log": "HUDTextBefore.log",
+      "sha256": "893f19ff2a6e1ec8b35a7479794b6ac0069083f350f6d9fe72d80c2cba19fa95",
+      "results": [
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.HUDTextRendering"
+        }
+      ],
+      "automation_error_count": 0,
+      "renderer_observations": [
+        "Actual HUD font: points=5.488 DPI=1.000 cache=1 position=X=946.480 Y=17.920 canvas=X=1261.000 Y=504.000 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000"
+      ]
+    },
+    {
+      "log": "HUDTextAfter.log",
+      "sha256": "ad1e821d6b37214e8b251eb86185c4cacb708dbcf0d3fd459724e1ed8cdb942a",
+      "results": [
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.HUDTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MatchTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MobaTextRendering"
+        }
+      ],
+      "automation_error_count": 0,
+      "renderer_observations": [
+        "HUD FreeRoam 640x360: points=5.390 DPI=1.000 cache=1 position=X=325.900 Y=17.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD FreeRoam 1280x720: points=7.840 DPI=1.000 cache=1 position=X=955.400 Y=25.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD FreeRoam 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1595.400 Y=25.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD Domination 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD Domination 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD Domination 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD Moba 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD Moba 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD Moba 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1"
+      ]
+    },
+    {
+      "log": "HUDMeasuredLayoutFinal.log",
+      "sha256": "8e4e1fab8a5ea29712d960b132a5e0995bbbc5763f0704d019c6631a0aeb5ca8",
+      "results": [
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.HUDTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MatchTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MobaLiftTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MobaTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.PopulationPresentation"
+        }
+      ],
+      "automation_error_count": 0,
+      "renderer_observations": [
+        "HUD FreeRoam 640x360: points=5.390 DPI=1.000 cache=1 position=X=325.900 Y=17.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD FreeRoam 1280x720: points=7.840 DPI=1.000 cache=1 position=X=955.400 Y=25.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD FreeRoam 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1595.400 Y=25.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD Domination 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD Domination 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD Domination 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD Moba_Cthulhu 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD Moba_Cthulhu 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD Moba_Cthulhu 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD Moba 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD Moba 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD Moba 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1"
+      ]
+    },
+    {
+      "log": "HUDMeasuredInputVerification.log",
+      "sha256": "1e0eed943bbf621e0a54017834cf39d69c51c95c32a0614846e1bc46290d48c2",
+      "results": [
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.ArmyHUDCoordinates"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.EditorInputSafety"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.HUDTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MatchHUDCoordinates"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MatchTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MobaLiftTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MobaTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.PopulationPresentation"
+        }
+      ],
+      "automation_error_count": 0,
+      "renderer_observations": [
+        "HUD FreeRoam 640x360: points=5.390 DPI=1.000 cache=1 position=X=325.900 Y=17.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD ability FreeRoam 640x360 slot=0 name=X=369.900 Y=280.800 extent=X=40.000 Y=30.000 state=X=369.900 Y=314.100 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 640x360 slot=1 name=X=455.700 Y=280.800 extent=X=47.000 Y=30.000 state=X=455.700 Y=314.100 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 640x360 slot=2 name=X=541.500 Y=280.800 extent=X=47.000 Y=30.000 state=X=541.500 Y=314.100 extent=X=40.000 Y=15.000",
+        "HUD FreeRoam 1280x720: points=7.840 DPI=1.000 cache=1 position=X=955.400 Y=25.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD ability FreeRoam 1280x720 slot=0 name=X=884.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=884.800 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1280x720 slot=1 name=X=1009.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1009.600 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1280x720 slot=2 name=X=1134.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1134.400 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD FreeRoam 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1595.400 Y=25.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD ability FreeRoam 1920x720 slot=0 name=X=1524.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=1524.800 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1920x720 slot=1 name=X=1649.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1649.600 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1920x720 slot=2 name=X=1774.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1774.400 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD Domination 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD ability Domination 640x360 slot=0 name=X=369.900 Y=280.800 extent=X=40.000 Y=30.000 state=X=369.900 Y=314.100 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 640x360 slot=1 name=X=455.700 Y=280.800 extent=X=47.000 Y=30.000 state=X=455.700 Y=314.100 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 640x360 slot=2 name=X=541.500 Y=280.800 extent=X=47.000 Y=30.000 state=X=541.500 Y=314.100 extent=X=85.000 Y=15.000",
+        "HUD Domination 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Domination 1280x720 slot=0 name=X=884.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=884.800 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1280x720 slot=1 name=X=1009.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1009.600 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1280x720 slot=2 name=X=1134.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1134.400 Y=658.600 extent=X=85.000 Y=15.000",
+        "HUD Domination 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Domination 1920x720 slot=0 name=X=1524.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=1524.800 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1920x720 slot=1 name=X=1649.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1649.600 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1920x720 slot=2 name=X=1774.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1774.400 Y=658.600 extent=X=85.000 Y=15.000",
+        "HUD Moba_Cthulhu 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD ability Moba_Cthulhu 640x360 slot=0 name=X=369.900 Y=280.800 extent=X=50.000 Y=30.000 state=X=369.900 Y=314.100 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 640x360 slot=1 name=X=455.700 Y=280.800 extent=X=60.000 Y=30.000 state=X=455.700 Y=314.100 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 640x360 slot=2 name=X=541.500 Y=280.800 extent=X=56.000 Y=30.000 state=X=541.500 Y=314.100 extent=X=46.000 Y=15.000",
+        "HUD Moba_Cthulhu 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba_Cthulhu 1280x720 slot=0 name=X=884.800 Y=638.800 extent=X=82.000 Y=15.000 state=X=884.800 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1280x720 slot=1 name=X=1009.600 Y=638.800 extent=X=84.000 Y=15.000 state=X=1009.600 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1280x720 slot=2 name=X=1134.400 Y=638.800 extent=X=89.000 Y=15.000 state=X=1134.400 Y=658.600 extent=X=46.000 Y=15.000",
+        "HUD Moba_Cthulhu 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba_Cthulhu 1920x720 slot=0 name=X=1524.800 Y=638.800 extent=X=82.000 Y=15.000 state=X=1524.800 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1920x720 slot=1 name=X=1649.600 Y=638.800 extent=X=84.000 Y=15.000 state=X=1649.600 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1920x720 slot=2 name=X=1774.400 Y=638.800 extent=X=89.000 Y=15.000 state=X=1774.400 Y=658.600 extent=X=46.000 Y=15.000",
+        "HUD Moba 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD ability Moba 640x360 slot=0 name=X=369.900 Y=280.800 extent=X=40.000 Y=30.000 state=X=369.900 Y=314.100 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 640x360 slot=1 name=X=455.700 Y=280.800 extent=X=47.000 Y=30.000 state=X=455.700 Y=314.100 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 640x360 slot=2 name=X=541.500 Y=280.800 extent=X=47.000 Y=30.000 state=X=541.500 Y=314.100 extent=X=46.000 Y=15.000",
+        "HUD Moba 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba 1280x720 slot=0 name=X=884.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=884.800 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1280x720 slot=1 name=X=1009.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1009.600 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1280x720 slot=2 name=X=1134.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1134.400 Y=658.600 extent=X=46.000 Y=15.000",
+        "HUD Moba 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba 1920x720 slot=0 name=X=1524.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=1524.800 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1920x720 slot=1 name=X=1649.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1649.600 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1920x720 slot=2 name=X=1774.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1774.400 Y=658.600 extent=X=46.000 Y=15.000"
+      ]
+    },
+    {
+      "log": "HUDDedicatedCaptureVerification.log",
+      "sha256": "0c11cfa28ba82225fbc7c4e37990634c00adb22148dd5c6daa944bc7c6fe953b",
+      "results": [
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.ArmyHUDCoordinates"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.EditorInputSafety"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.HUDTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MatchHUDCoordinates"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MatchTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MobaLiftTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MobaTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.PopulationPresentation"
+        }
+      ],
+      "automation_error_count": 0,
+      "renderer_observations": [
+        "HUD FreeRoam 640x360: points=5.390 DPI=1.000 cache=1 position=X=325.900 Y=17.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD ability FreeRoam 640x360 slot=0 name=X=369.900 Y=280.800 extent=X=40.000 Y=30.000 state=X=369.900 Y=314.100 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 640x360 slot=1 name=X=455.700 Y=280.800 extent=X=47.000 Y=30.000 state=X=455.700 Y=314.100 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 640x360 slot=2 name=X=541.500 Y=280.800 extent=X=47.000 Y=30.000 state=X=541.500 Y=314.100 extent=X=40.000 Y=15.000",
+        "HUD FreeRoam 1280x720: points=7.840 DPI=1.000 cache=1 position=X=955.400 Y=25.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD ability FreeRoam 1280x720 slot=0 name=X=884.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=884.800 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1280x720 slot=1 name=X=1009.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1009.600 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1280x720 slot=2 name=X=1134.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1134.400 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD FreeRoam 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1595.400 Y=25.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD ability FreeRoam 1920x720 slot=0 name=X=1524.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=1524.800 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1920x720 slot=1 name=X=1649.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1649.600 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1920x720 slot=2 name=X=1774.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1774.400 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD Domination 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD ability Domination 640x360 slot=0 name=X=369.900 Y=280.800 extent=X=40.000 Y=30.000 state=X=369.900 Y=314.100 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 640x360 slot=1 name=X=455.700 Y=280.800 extent=X=47.000 Y=30.000 state=X=455.700 Y=314.100 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 640x360 slot=2 name=X=541.500 Y=280.800 extent=X=47.000 Y=30.000 state=X=541.500 Y=314.100 extent=X=85.000 Y=15.000",
+        "HUD Domination 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Domination 1280x720 slot=0 name=X=884.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=884.800 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1280x720 slot=1 name=X=1009.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1009.600 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1280x720 slot=2 name=X=1134.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1134.400 Y=658.600 extent=X=85.000 Y=15.000",
+        "HUD Domination 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Domination 1920x720 slot=0 name=X=1524.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=1524.800 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1920x720 slot=1 name=X=1649.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1649.600 Y=658.600 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1920x720 slot=2 name=X=1774.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1774.400 Y=658.600 extent=X=85.000 Y=15.000",
+        "HUD Moba_Cthulhu 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD ability Moba_Cthulhu 640x360 slot=0 name=X=369.900 Y=280.800 extent=X=50.000 Y=30.000 state=X=369.900 Y=314.100 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 640x360 slot=1 name=X=455.700 Y=280.800 extent=X=60.000 Y=30.000 state=X=455.700 Y=314.100 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 640x360 slot=2 name=X=541.500 Y=280.800 extent=X=56.000 Y=30.000 state=X=541.500 Y=314.100 extent=X=46.000 Y=15.000",
+        "HUD Moba_Cthulhu 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba_Cthulhu 1280x720 slot=0 name=X=884.800 Y=638.800 extent=X=82.000 Y=15.000 state=X=884.800 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1280x720 slot=1 name=X=1009.600 Y=638.800 extent=X=84.000 Y=15.000 state=X=1009.600 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1280x720 slot=2 name=X=1134.400 Y=638.800 extent=X=89.000 Y=15.000 state=X=1134.400 Y=658.600 extent=X=46.000 Y=15.000",
+        "HUD Moba_Cthulhu 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba_Cthulhu 1920x720 slot=0 name=X=1524.800 Y=638.800 extent=X=82.000 Y=15.000 state=X=1524.800 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1920x720 slot=1 name=X=1649.600 Y=638.800 extent=X=84.000 Y=15.000 state=X=1649.600 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1920x720 slot=2 name=X=1774.400 Y=638.800 extent=X=89.000 Y=15.000 state=X=1774.400 Y=658.600 extent=X=46.000 Y=15.000",
+        "HUD Moba 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD ability Moba 640x360 slot=0 name=X=369.900 Y=280.800 extent=X=40.000 Y=30.000 state=X=369.900 Y=314.100 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 640x360 slot=1 name=X=455.700 Y=280.800 extent=X=47.000 Y=30.000 state=X=455.700 Y=314.100 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 640x360 slot=2 name=X=541.500 Y=280.800 extent=X=47.000 Y=30.000 state=X=541.500 Y=314.100 extent=X=46.000 Y=15.000",
+        "HUD Moba 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba 1280x720 slot=0 name=X=884.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=884.800 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1280x720 slot=1 name=X=1009.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1009.600 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1280x720 slot=2 name=X=1134.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1134.400 Y=658.600 extent=X=46.000 Y=15.000",
+        "HUD Moba 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba 1920x720 slot=0 name=X=1524.800 Y=638.800 extent=X=78.000 Y=15.000 state=X=1524.800 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1920x720 slot=1 name=X=1649.600 Y=638.800 extent=X=86.000 Y=15.000 state=X=1649.600 Y=658.600 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1920x720 slot=2 name=X=1774.400 Y=638.800 extent=X=96.000 Y=15.000 state=X=1774.400 Y=658.600 extent=X=46.000 Y=15.000"
+      ]
+    },
+    {
+      "log": "HUDContrastFinal.log",
+      "sha256": "ff7f824c8d4b5a0b6b0ffc64e4393a35e8ca6a0ab417dee256633ce6cdaa20de",
+      "results": [
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.ArmyHUDCoordinates"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.EditorInputSafety"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.HUDTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MatchHUDCoordinates"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MatchTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MobaLiftTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MobaTextRendering"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.PopulationPresentation"
+        }
+      ],
+      "automation_error_count": 0,
+      "renderer_observations": [
+        "HUD FreeRoam 640x360: points=5.390 DPI=1.000 cache=1 position=X=325.900 Y=17.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD ability FreeRoam 640x360 slot=0 name=X=369.900 Y=277.000 extent=X=40.000 Y=30.000 state=X=369.900 Y=310.300 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 640x360 slot=1 name=X=455.700 Y=277.000 extent=X=47.000 Y=30.000 state=X=455.700 Y=310.300 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 640x360 slot=2 name=X=541.500 Y=277.000 extent=X=47.000 Y=30.000 state=X=541.500 Y=310.300 extent=X=40.000 Y=15.000",
+        "HUD FreeRoam 1280x720: points=7.840 DPI=1.000 cache=1 position=X=955.400 Y=25.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD ability FreeRoam 1280x720 slot=0 name=X=884.800 Y=635.600 extent=X=78.000 Y=15.000 state=X=884.800 Y=655.400 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1280x720 slot=1 name=X=1009.600 Y=635.600 extent=X=86.000 Y=15.000 state=X=1009.600 Y=655.400 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1280x720 slot=2 name=X=1134.400 Y=635.600 extent=X=96.000 Y=15.000 state=X=1134.400 Y=655.400 extent=X=40.000 Y=15.000",
+        "HUD FreeRoam 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1595.400 Y=25.600 measured=X=291.000 Y=15.000 measuredAtDPI=X=291.000 Y=15.000 drawn=X=291.000 Y=15.000 lines=1",
+        "HUD ability FreeRoam 1920x720 slot=0 name=X=1524.800 Y=635.600 extent=X=78.000 Y=15.000 state=X=1524.800 Y=655.400 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1920x720 slot=1 name=X=1649.600 Y=635.600 extent=X=86.000 Y=15.000 state=X=1649.600 Y=655.400 extent=X=40.000 Y=15.000",
+        "HUD ability FreeRoam 1920x720 slot=2 name=X=1774.400 Y=635.600 extent=X=96.000 Y=15.000 state=X=1774.400 Y=655.400 extent=X=40.000 Y=15.000",
+        "HUD Domination 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD ability Domination 640x360 slot=0 name=X=369.900 Y=277.000 extent=X=40.000 Y=30.000 state=X=369.900 Y=310.300 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 640x360 slot=1 name=X=455.700 Y=277.000 extent=X=47.000 Y=30.000 state=X=455.700 Y=310.300 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 640x360 slot=2 name=X=541.500 Y=277.000 extent=X=47.000 Y=30.000 state=X=541.500 Y=310.300 extent=X=85.000 Y=15.000",
+        "HUD Domination 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Domination 1280x720 slot=0 name=X=884.800 Y=635.600 extent=X=78.000 Y=15.000 state=X=884.800 Y=655.400 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1280x720 slot=1 name=X=1009.600 Y=635.600 extent=X=86.000 Y=15.000 state=X=1009.600 Y=655.400 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1280x720 slot=2 name=X=1134.400 Y=635.600 extent=X=96.000 Y=15.000 state=X=1134.400 Y=655.400 extent=X=85.000 Y=15.000",
+        "HUD Domination 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Domination 1920x720 slot=0 name=X=1524.800 Y=635.600 extent=X=78.000 Y=15.000 state=X=1524.800 Y=655.400 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1920x720 slot=1 name=X=1649.600 Y=635.600 extent=X=86.000 Y=15.000 state=X=1649.600 Y=655.400 extent=X=40.000 Y=15.000",
+        "HUD ability Domination 1920x720 slot=2 name=X=1774.400 Y=635.600 extent=X=96.000 Y=15.000 state=X=1774.400 Y=655.400 extent=X=85.000 Y=15.000",
+        "HUD Moba_Cthulhu 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD ability Moba_Cthulhu 640x360 slot=0 name=X=369.900 Y=277.000 extent=X=50.000 Y=30.000 state=X=369.900 Y=310.300 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 640x360 slot=1 name=X=455.700 Y=277.000 extent=X=60.000 Y=30.000 state=X=455.700 Y=310.300 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 640x360 slot=2 name=X=541.500 Y=277.000 extent=X=56.000 Y=30.000 state=X=541.500 Y=310.300 extent=X=46.000 Y=15.000",
+        "HUD Moba_Cthulhu 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba_Cthulhu 1280x720 slot=0 name=X=884.800 Y=635.600 extent=X=82.000 Y=15.000 state=X=884.800 Y=655.400 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1280x720 slot=1 name=X=1009.600 Y=635.600 extent=X=84.000 Y=15.000 state=X=1009.600 Y=655.400 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1280x720 slot=2 name=X=1134.400 Y=635.600 extent=X=89.000 Y=15.000 state=X=1134.400 Y=655.400 extent=X=46.000 Y=15.000",
+        "HUD Moba_Cthulhu 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba_Cthulhu 1920x720 slot=0 name=X=1524.800 Y=635.600 extent=X=82.000 Y=15.000 state=X=1524.800 Y=655.400 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1920x720 slot=1 name=X=1649.600 Y=635.600 extent=X=84.000 Y=15.000 state=X=1649.600 Y=655.400 extent=X=60.000 Y=15.000",
+        "HUD ability Moba_Cthulhu 1920x720 slot=2 name=X=1774.400 Y=635.600 extent=X=89.000 Y=15.000 state=X=1774.400 Y=655.400 extent=X=46.000 Y=15.000",
+        "HUD Moba 640x360: points=5.390 DPI=1.000 cache=1 position=X=483.900 Y=6.600 measured=X=133.000 Y=30.000 measuredAtDPI=X=133.000 Y=30.000 drawn=X=133.000 Y=30.000 lines=2",
+        "HUD ability Moba 640x360 slot=0 name=X=369.900 Y=277.000 extent=X=40.000 Y=30.000 state=X=369.900 Y=310.300 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 640x360 slot=1 name=X=455.700 Y=277.000 extent=X=47.000 Y=30.000 state=X=455.700 Y=310.300 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 640x360 slot=2 name=X=541.500 Y=277.000 extent=X=47.000 Y=30.000 state=X=541.500 Y=310.300 extent=X=46.000 Y=15.000",
+        "HUD Moba 1280x720: points=7.840 DPI=1.000 cache=1 position=X=992.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba 1280x720 slot=0 name=X=884.800 Y=635.600 extent=X=78.000 Y=15.000 state=X=884.800 Y=655.400 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1280x720 slot=1 name=X=1009.600 Y=635.600 extent=X=86.000 Y=15.000 state=X=1009.600 Y=655.400 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1280x720 slot=2 name=X=1134.400 Y=635.600 extent=X=96.000 Y=15.000 state=X=1134.400 Y=655.400 extent=X=46.000 Y=15.000",
+        "HUD Moba 1920x720: points=7.840 DPI=1.000 cache=1 position=X=1632.400 Y=25.600 measured=X=254.000 Y=15.000 measuredAtDPI=X=254.000 Y=15.000 drawn=X=254.000 Y=15.000 lines=1",
+        "HUD ability Moba 1920x720 slot=0 name=X=1524.800 Y=635.600 extent=X=78.000 Y=15.000 state=X=1524.800 Y=655.400 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1920x720 slot=1 name=X=1649.600 Y=635.600 extent=X=86.000 Y=15.000 state=X=1649.600 Y=655.400 extent=X=60.000 Y=15.000",
+        "HUD ability Moba 1920x720 slot=2 name=X=1774.400 Y=635.600 extent=X=96.000 Y=15.000 state=X=1774.400 Y=655.400 extent=X=46.000 Y=15.000"
+      ]
+    }
+  ],
+  "final_images": [
+    {
+      "image": "HUDText_FreeRoam_640x360.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "0f99abf4b2a96b388fe805fa3cfd4eed2f15963b17f4538a2a6dd33d29e11478"
+    },
+    {
+      "image": "HUDText_FreeRoam_1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "138a3a65b5f13e11f5b82130fdee41a1f4bdbd5ffe8b177c8ba6b2baea3f5fc2"
+    },
+    {
+      "image": "HUDText_FreeRoam_1920x720.png",
+      "width": 1920,
+      "height": 720,
+      "sha256": "7a13e65259d35b45189d50bd2874d686cc072eda7118a13a7df492f577d99b38"
+    },
+    {
+      "image": "HUDText_Domination_640x360.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "8e7d00e20aa1782f48e0da11a29c02e9dbb18419e23ae88506004edb85448993"
+    },
+    {
+      "image": "HUDText_Domination_1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "e41d8bc162458ac82bc1086c3be5f33df3be2acf15c5e2c1c51dedc5f6d1a500"
+    },
+    {
+      "image": "HUDText_Domination_1920x720.png",
+      "width": 1920,
+      "height": 720,
+      "sha256": "8fed8813882b3631c67c5249ca27bc9de171bbff7217f4d5f2a037a03ad8e1b9"
+    },
+    {
+      "image": "HUDText_Moba_640x360.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "1cd8281149fe3ac0a3d7231376993a70a9e592884b64cc006bbed1199cabad5d"
+    },
+    {
+      "image": "HUDText_Moba_1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4f21890adcf5c12cf142c3762e023c6c36e7751d41395e140f3a686dc11a9586"
+    },
+    {
+      "image": "HUDText_Moba_1920x720.png",
+      "width": 1920,
+      "height": 720,
+      "sha256": "e44d2b2fec7ca777ca47c1f85e62ce261edcdf4e688e201b4328ae6a98d88af4"
+    },
+    {
+      "image": "HUDText_Moba_Cthulhu_640x360.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "70891e1726ad206de327258372d00bcd89aa318ef9512dfb4c11a6fabdef27dc"
+    },
+    {
+      "image": "HUDText_Moba_Cthulhu_1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "98b37fae76ece77c2ee2060eadde09c1cd75db12f1a8d95ee23f47e3f469898e"
+    },
+    {
+      "image": "HUDText_Moba_Cthulhu_1920x720.png",
+      "width": 1920,
+      "height": 720,
+      "sha256": "fea2626c67db1e90f539022ed8ca7b494e9044e945bb5edb6adda20e251f0080"
+    }
+  ]
+}
