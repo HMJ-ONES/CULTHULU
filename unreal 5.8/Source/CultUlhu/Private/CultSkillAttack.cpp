@@ -70,14 +70,13 @@ void ACultSkillAttack::Sweep(FVector A,FVector B,float R) {
  TArray<FHitResult> Hits; GetWorld()->SweepMultiByChannel(Hits,A,B,FQuat::Identity,ECC_Visibility,FCollisionShape::MakeSphere(R),Q);
  for(const auto& H:Hits) { auto* Other=H.GetActor(); if(Enemy(GetOwner(),Other)&&!Struck.Contains(Other)) { Struck.Add(Other); if(Hit) Hit(Other,H.ImpactPoint); } if(H.bBlockingHit) { if(Shape==EShape::Bolt) { if(Finished) Finished(H.ImpactPoint); Destroy(); } break; } }
 }
-void ACultSkillAttack::Area() {
- for(TActorIterator<AActor> It(GetWorld());It;++It) if(Enemy(GetOwner(),*It)) {
-  FVector Point=It->GetActorLocation(); float Body=0; if(auto* C=It->FindComponentByClass<UCapsuleComponent>()) {
+bool ACultSkillAttack::AreaContact(EShape Shape,FVector Origin,FVector Direction,float Reach,float Radius,float HalfAngle,AActor* Target,FVector& Point) {
+  Point=Target->GetActorLocation(); float Body=0; if(auto* C=Target->FindComponentByClass<UCapsuleComponent>()) {
    Body=C->GetScaledCapsuleRadius();
    if(Shape==EShape::GroundDisk) Point.Z=FMath::Clamp(Origin.Z,Point.Z-C->GetScaledCapsuleHalfHeight(),Point.Z+C->GetScaledCapsuleHalfHeight());
    else { FVector Closest; if(C->GetClosestPointOnCollision(Origin,Closest)>=0) Point=Closest; Body=0; }
   }
-  if(auto* B=Cast<ACultDestructible>(*It)) Point=B->GetComponentsBoundingBox(true).GetClosestPointTo(Origin);
+  if(auto* B=Cast<ACultDestructible>(Target)) Point=B->GetComponentsBoundingBox(true).GetClosestPointTo(Origin);
   const FVector Offset=Point-Origin;
   bool In=Shape==EShape::GroundDisk?Offset.Size2D()<=Reach+Body&&FMath::Abs(Offset.Z)<=Radius:Offset.Size()<=Reach+Body;
   if(Shape==EShape::Cone) {
@@ -85,13 +84,18 @@ void ACultSkillAttack::Area() {
    In=In&&(Offset.IsNearlyZero()||FVector::DotProduct(Offset.GetSafeNormal(),Direction)>=Cos);
    // A giant capsule can intersect a cone even when its nearest point to the
    // caster lies outside the cone. Test actual collider points near the committed axis.
-   if(!In) if(auto* Capsule=It->FindComponentByClass<UCapsuleComponent>()) for(int I=0;I<=8;++I) {
+   if(!In) if(auto* Capsule=Target->FindComponentByClass<UCapsuleComponent>()) for(int I=0;I<=8;++I) {
     FVector Candidate; if(Capsule->GetClosestPointOnCollision(Origin+Direction*Reach*(I/8.f),Candidate)<0) continue;
     const FVector Delta=Candidate-Origin;
     if(Delta.SizeSquared()<=FMath::Square(Reach+1)&&(Delta.IsNearlyZero()||FVector::DotProduct(Delta.GetSafeNormal(),Direction)>=Cos)) { In=true; Point=Candidate; break; }
    }
   }
-  if(In&&Clear(GetWorld(),Origin+FVector(0,0,40),Point,GetOwner(),*It)&&!Struck.Contains(*It)) { Struck.Add(*It); if(Hit) Hit(*It,Point); }
+  return In;
+}
+void ACultSkillAttack::Area() {
+ for(TActorIterator<AActor> It(GetWorld());It;++It) if(Enemy(GetOwner(),*It)) {
+  FVector Point;
+  if(AreaContact(Shape,Origin,Direction,Reach,Radius,HalfAngle,*It,Point)&&Clear(GetWorld(),Origin+FVector(0,0,40),Point,GetOwner(),*It)&&!Struck.Contains(*It)) { Struck.Add(*It); if(Hit) Hit(*It,Point); }
  }
 }
 void ACultSkillAttack::Tick(float Dt) {

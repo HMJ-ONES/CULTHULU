@@ -33,6 +33,61 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 struct FCultMatchTestAccess {
+ static void VerifyBotAbilityOpportunity(FAutomationTestBase* T,ACultMatchDirector* M) {
+  auto* W=M->GetWorld(); M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false;
+  auto Recreate=[&](const FString& Kit) {
+   auto& F=M->State_->Fighters[6]; if(F.Pawn.IsValid()) F.Pawn->Destroy(); F.Pawn=nullptr; F.Kit=Kit; M->SpawnFighter(6);
+   HoldBots(M,true); Park(M); Unshield(M); F.Pawn->bBotControlled_=true; F.Level=30; F.Lane=1;
+  };
+  auto* Enemy=M->Fighters()[0].Pawn.Get();
+  auto Reset=[&](int Slot,float Separation) {
+   for(TActorIterator<ACultSkillAttack> It(W);It;++It) It->Destroy();
+   auto& F=M->State_->Fighters[6]; auto* Bot=F.Pawn.Get(); Bot->RespawnMatch(FVector(0,0,60000)); Enemy->RespawnMatch(FVector(Separation,0,60000));
+   Bot->SmashCooldown_=Bot->SwingTime_=Bot->DashTime_=Bot->DashCooldown_=0;
+   for(int I=0;I<3;++I) Bot->Kit_->SetCooldown(I,I==Slot?0:999);
+   F.RouteStep=2; F.Think=0; F.DomPath.Reset(); F.Retreating=false; M->State_->BotThreats[6]=FCultBotThreatMemory();
+  };
+  for(int Case=0;Case<2;++Case) {
+   const int Slot=Case?0:1; const auto Kind=Case?ACultSkillAttack::EShape::Cone:ACultSkillAttack::EShape::Sphere;
+   Recreate(Case?TEXT("dagon"):TEXT("cthulhu_avatar")); Reset(Slot,2300); auto* Bot=M->Fighters()[6].Pawn.Get();
+   const float Stamina=Bot->Kit_->StaminaValue(),Hp=Enemy->GetHealth(); M->BotThink(6,.016f);
+   TArray<ACultSkillAttack*> Far; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Bot&&It->Shape==Kind) Far.Add(*It);
+   const float FarCooldown=Bot->Kit_->Cooldown(Slot);
+   T->TestEqual(FString::Printf(TEXT("%s preserves cooldown when actual delivery cannot reach"),Case?TEXT("Crushing Maw"):TEXT("Nightmare Veil")),Bot->Kit_->Cooldown(Slot),0.f);
+   T->TestEqual(TEXT("An unreachable spell preserves stamina"),Bot->Kit_->StaminaValue(),Stamina);
+   T->TestEqual(TEXT("An unreachable spell does not emit a misleading warning"),Far.Num(),0);
+   for(auto* A:Far) { A->Tick(0); A->Tick(Case?.35f:.5f); }
+   Enemy->Control_.Tick(0);
+   T->TestEqual(TEXT("Unreachable baseline delivery cannot damage the control target"),Enemy->GetHealth(),Hp);
+   T->TestFalse(TEXT("Unreachable baseline aura cannot fear the control target"),Enemy->Control_.Fear);
+   Reset(Slot,1300); const float NearHp=Enemy->GetHealth(); M->BotThink(6,.016f);
+   TArray<ACultSkillAttack*> Near; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Bot&&It->Shape==Kind) Near.Add(*It);
+   T->TestEqual(TEXT("The same source ability emits a real delivery when reachable"),Near.Num(),1);
+   T->TestTrue(TEXT("A reachable source ability uses its real cooldown"),Bot->Kit_->Cooldown(Slot)>0);
+   for(auto* A:Near) { A->Tick(0); A->Tick(Case?.35f:.5f); }
+   Enemy->Control_.Tick(0);
+   T->TestTrue(TEXT("Reachable control produces actual damage or original fear control"),Case?Enemy->GetHealth()<NearHp:Enemy->Control_.Fear);
+   T->AddInfo(FString::Printf(TEXT("Opportunity %s: far deliveries %d cooldown %.1f; near deliveries %d, damage %.1f, fear %d"),Case?TEXT("crushing_maw"):TEXT("nightmare_veil"),Far.Num(),FarCooldown,Near.Num(),NearHp-Enemy->GetHealth(),Enemy->Control_.Fear));
+  }
+  Recreate(TEXT("cthulhu_avatar")); Reset(1,2300); auto* Bot=M->Fighters()[6].Pawn.Get();
+  auto* Nearby=M->AddUnit(0,1,0,-1,FVector(800,0,60000),120,0,0,0); Nearby->SetActorTickEnabled(false);
+  M->BotThink(6,.016f); int AreaCount=0;
+  for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Bot&&It->Shape==ACultSkillAttack::EShape::Sphere) { ++AreaCount; It->Tick(0); It->Tick(.5f); }
+  Nearby->Tick(0);
+  T->TestEqual(TEXT("A nearby vulnerable minion still makes an aura useful despite a distant selected hero"),AreaCount,1);
+  T->TestTrue(TEXT("The useful aura actually controls that different nearby victim"),Nearby->Stopped());
+  Reset(1,2300);
+  auto* Wall=W->SpawnActor<AStaticMeshActor>(FVector(400,0,61000),FRotator::ZeroRotator); auto* Cover=Wall->GetStaticMeshComponent(); Cover->SetMobility(EComponentMobility::Movable); Cover->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube"))); Cover->SetWorldScale3D(FVector(1,50,20)); Cover->SetCollisionProfileName(TEXT("BlockAll"));
+  M->BotThink(6,.016f);
+  T->TestEqual(TEXT("Solid cover prevents a false area opportunity"),Bot->Kit_->Cooldown(1),0.f);
+  T->TestEqual(TEXT("A covered area opportunity preserves stamina"),Bot->Kit_->StaminaValue(),100.f);
+  Wall->Destroy(); Nearby->Destroy(); Reset(1,2300);
+  auto* Structure=M->AddUnit(0,1,3,0,FVector(800,0,60000),3000,0,0,0); Bot->SetBotAim(Structure);
+  const float Stamina=Bot->Kit_->StaminaValue();
+  T->TestFalse(TEXT("A bot does not spend a control-only aura on an immune structure"),Bot->Kit_->Cast(1));
+  T->TestEqual(TEXT("Immune structure preserves control cooldown"),Bot->Kit_->Cooldown(1),0.f);
+  T->TestEqual(TEXT("Immune structure preserves control stamina"),Bot->Kit_->StaminaValue(),Stamina);
+ }
  static void VerifyBotMeleeReach(FAutomationTestBase* T,ACultMatchDirector* M) {
   auto* W=M->GetWorld(); M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false; HoldBots(M,true); Park(M); Unshield(M);
   auto* Bot=M->Fighters()[5].Pawn.Get(); auto* Enemy=M->Fighters()[0].Pawn.Get(); Bot->bBotControlled_=true;
@@ -695,6 +750,22 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDomBotThreatTest,"CultUlhu.Menu.BotThreatD
 bool FCultDomBotThreatTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotThreatObservation(this,ECultPlayMode::Domination)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaBotThreatTest,"CultUlhu.Menu.BotThreatDecisions.Moba",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultMobaBotThreatTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotThreatObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+class FCultBotAbilityOpportunityObservation:public IAutomationLatentCommand {
+ FAutomationTestBase* Test; ECultPlayMode Mode; bool Entered=false; double Began=FPlatformTime::Seconds();
+public:
+ FCultBotAbilityOpportunityObservation(FAutomationTestBase* T,ECultPlayMode M):Test(T),Mode(M) {}
+ bool Update() override {
+  if(FPlatformTime::Seconds()-Began>90) { Test->AddError(TEXT("Bot ability opportunity test timed out")); return true; }
+  auto* W=GEditor->PlayWorld.Get(); if(!W||W->bIsTearingDown) return false;
+  if(W->GetName().Contains(TEXT("L_MainMenu"))) { if(!Entered) { auto* G=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); G->SelectedCharacterId=TEXT("cthulhu_avatar"); G->OpenCharacterSelect(Mode); G->OpenBeliefSelect(); Entered=true; } return false; }
+  auto* M=ACultMatchDirector::Find(W); if(!M||W->GetTimeSeconds()<1) return false;
+  UGameplayStatics::SetGamePaused(W,true); FCultMatchTestAccess::VerifyBotAbilityOpportunity(Test,M); UGameplayStatics::SetGamePaused(W,false); return true;
+ }
+};
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDomBotAbilityOpportunityTest,"CultUlhu.Menu.BotAbilityOpportunity.Domination",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultDomBotAbilityOpportunityTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotAbilityOpportunityObservation(this,ECultPlayMode::Domination)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaBotAbilityOpportunityTest,"CultUlhu.Menu.BotAbilityOpportunity.Moba",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultMobaBotAbilityOpportunityTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotAbilityOpportunityObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 class FCultBotMeleeReachObservation:public IAutomationLatentCommand {
  FAutomationTestBase* Test; ECultPlayMode Mode; bool Entered=false; double Began=FPlatformTime::Seconds();
 public:

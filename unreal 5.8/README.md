@@ -107,3 +107,6 @@ clamp, bounded directional sparks and native feedback/physical-combat checks.
 
 `Docs/BotMeleeReach.md` records shared physical swing dimensions, size-aware bot
 reach/approach decisions and corrected-baseline/native match evidence.
+
+`Docs/BotAbilityOpportunity.md` records actual-shape bot aura/cone opportunities,
+resource preservation, alternate victims/cover and scoped native evidence.

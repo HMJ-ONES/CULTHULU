@@ -968,3 +968,43 @@ human match pacing still need work. The range test is not an unavoidable-hit
 mechanic; committed swings can still miss or be blocked/dodged. No all-kit,
 long-session balance, human fun or reference-level production quality is proven.
 The complete development goal remains active.
+
+## Useful bot area casts (2026-10-22)
+
+The original distance triggers allow Nightmare Veil to waste 35 stamina/15s
+cooldown and Crushing Maw to waste 30 stamina/8s on unreachable targets. Both
+mode baselines reproduce twelve valid resource/warning failures. Near-aura
+aggregate observation before its projection update and an incorrectly labelled
+immune-only scene are fixture issues, excluded from production-defect counts.
+
+Bot sphere/cone delivery now checks for any living hostile vulnerable victim in
+the actual shape with clear cover, reusing extracted physical area-contact math.
+Another nearby minion can make an aura useful when the selected hero is distant;
+control-immune structures and covered bodies do not create false opportunities.
+The extracted sphere/cone/ground-disk calculations are text-identical to the
+accepted prior math after iterator/output and whitespace substitutions. Source
+shapes, powers, ranges, costs, cooldowns, windups and human casting are retained.
+
+The canonical build succeeds. Ten distinct native checks have passing results
+across the recorded initial batch and an isolated retry. The initial ten-test
+batch was eight pass/two fail: a 45-minute four-frame gap exceeded one readiness
+timeout, and an unsupported MCP resource-discovery request marked AttackSignals
+failed despite its internal render checks. Both affected checks pass unchanged
+in a fresh process with only the MCP transport disabled by command line. This
+does not prove MCP interoperability and does not hide the original failures.
+BotAbilityOpportunityResults.json records all runs, hashes, exclusions and scope.
+
+Real near controls produce original fear and 32.2 cone damage in both modes;
+alternate-minion control, solid cover and immune-structure resource checks pass.
+Melee approach, defensive dodges, physical combat, attack signals and both mode
+integration fixtures also have passing results. Integration uses short live
+windows and scripted transitions, not uninterrupted human matches. All 425
+backed-up Content files remain byte-identical, and all sixteen released source
+definitions remain identical after line-ending normalization. No asset, download,
+archive, review image or standalone build is added in this source-only pass.
+
+The scan's added CPU cost is unmeasured. Complete per-kit tactics, resource/role
+coordination, heavy/summon/ground-impact decisions, human match pacing and final
+art/animation remain open. This fixes specific waste without proving competitive
+fun, sustained performance or reference-game production refinement. The complete
+development goal remains active.

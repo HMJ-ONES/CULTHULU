@@ -26,6 +26,7 @@ public:
  static bool Alive(AActor* Actor);
  static bool Enemy(AActor* Source,AActor* Other);
  static bool Clear(UWorld* W,FVector From,FVector To,AActor* Source,AActor* Target);
+ static bool AreaContact(EShape Kind,FVector Origin,FVector Direction,float Reach,float Radius,float HalfAngle,AActor* Target,FVector& Point);
  static void Hurt(AActor* Target,float Damage,AActor* Source,FVector Point);
 private:
  friend struct FCultAttackPresentationTestAccess;

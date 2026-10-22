@@ -8,6 +8,7 @@
 #include "CultMatchUnit.h"
 #include "Components/CapsuleComponent.h"
 #include "combat/Attacks.h"
+#include "EngineUtils.h"
 
 namespace {
  cultulhu::Vec3 P(FVector V) { return {float(V.X/100),float(V.Z/100),float(V.Y/100)}; }
@@ -57,6 +58,18 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
  if(S.effectKind=="stun"||S.effectKind=="debuff") { Radius=40; Speed=2200; Delay=.25f; }
  if(Id=="claw_of_the_sphinx"||Id=="crushing_maw"||Id=="crusher_claw") { Kind=Shape::Cone; Origin=Muzzle; Delay=.30f; Life=.06f; Angle=Id=="crusher_claw"?28:45; }
  if(Id=="doomfall_stomp"||Id=="protoplasm_slam") { Origin=Owner->FeetLocation()+FVector(0,0,12); Delay=.55f; }
+ if(Owner->IsBot()&&(Kind==Shape::Sphere||Kind==Shape::Cone)) {
+  FVector Committed=(Aim-Origin).GetSafeNormal(); if(Committed.IsNearlyZero()) Committed=Owner->AimRotation().Vector();
+  bool Useful=false;
+  // Use the attack's real geometric and cover checks. Area opportunities may
+  // involve a different enemy from the bot's selected aim target.
+  for(TActorIterator<AActor> It(Owner->GetWorld());It;++It) if(ACultSkillAttack::Enemy(Owner,*It)) {
+   if(auto* Unit=::Cast<ACultMatchUnit>(*It)) if(Unit->IsStructure()&&(S.effectKind=="pull"||S.effectKind=="fear_aura"||S.effectKind=="stun"||S.effectKind=="debuff")) continue;
+   FVector Contact;
+   if(ACultSkillAttack::AreaContact(Kind,Origin,Committed,Reach,Radius,Angle,*It,Contact)&&ACultSkillAttack::Clear(Owner->GetWorld(),Origin+FVector(0,0,40),Contact,Owner,*It)) { Useful=true; break; }
+  }
+  if(!Useful) return false;
+ }
  if(Kind==Shape::Bolt&&Owner->IsBot()) {
   if(auto* Target=Owner->GetBotAim()) if(ACultSkillAttack::Enemy(Owner,Target)) if(auto* Collision=::Cast<UPrimitiveComponent>(Target->GetRootComponent())) {
    FVector Closest; const float Distance=Collision->GetClosestPointOnCollision(Origin,Closest);
