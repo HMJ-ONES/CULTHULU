@@ -6,6 +6,7 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 #include "CultMatchDirector.h"
 #include "CultCombatAudio.h"
 #include "CultCombatCredit.h"
+#include "CultVesselSurface.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "core/EventBus.h"
 
@@ -109,12 +110,8 @@ void ACultUlhuPlayerPawn::BeginPlay()
 	VesselBody_->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Sphere")));
 	VesselBody_->SetRelativeScale3D(FVector(.84f, .84f, 1.76f));
 
- // A quiet shadow vessel keeps the placeholder readable until authored entity rigs arrive.
- if(auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Engine/BasicShapes/BasicShapeMaterial"))) {
-  auto* Shadow=UMaterialInstanceDynamic::Create(Base,this);
-  Shadow->SetVectorParameterValue(TEXT("Color"),Faction_==0?FLinearColor(.025f,.055f,.07f):FLinearColor(.075f,.025f,.04f));
-  VesselBody_->SetMaterial(0,Shadow);
- }
+ // A readable original surface for the placeholder until authored rigs arrive.
+ CultVesselSurface::Apply(this,VesselBody_);
 
 	if (UStaticMesh* Sphere = LoadObject<UStaticMesh>(
 			nullptr, TEXT("/Engine/BasicShapes/Sphere")))

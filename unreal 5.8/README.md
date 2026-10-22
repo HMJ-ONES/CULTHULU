@@ -117,3 +117,6 @@ checks across three modes and four viewport sizes.
 
 `Docs/BotHeavyOpportunity.md` records actual-arc bot heavy decisions, a reproduced
 moving-tip melee cover bypass, the physical contact correction and native checks.
+
+`Docs/VesselSurface.md` records the small original placeholder-body material,
+matched native views, geometry preservation and scoped render-cost measurements.

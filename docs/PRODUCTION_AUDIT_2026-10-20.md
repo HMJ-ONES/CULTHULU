@@ -1070,3 +1070,37 @@ heroes as dark placeholder forms and repetitive, sparsely dressed architecture;
 silhouette, authored hero art/rigs, animation and environmental identity remain
 large production gaps. This collision/decision correction does not establish
 the requested reference-game refinement. The full development goal stays open.
+
+## Placeholder vessel surface — 2026-10-22
+
+Actual material inspection confirms the stock body's Color parameter works;
+the unreadable forms were deliberately near-black and featureless. A new
+original opaque, lit material adds restrained vein/grain variation, subdued
+faction colour, small shadow fill and rim. It follows the stock body's UVs,
+adds no textures/geometry/lights/collision and retains one body component and
+one independent material instance per hero. The generated asset is 13,717
+bytes; ownership tags and content-hash backups protect user-authored assets.
+
+The canonical Editor target compiles in 15.12 seconds. Five final native
+checks pass without automation errors, verifying compiled shaders, ten body
+instances per competitive mode, unchanged transforms/capsules/health/collision,
+both existing hero-plate modes and combat feel. Eight matched native renders
+cover group and third-person views in both modes; four raw group images are
+backed up. A first green version was visually rejected as too bright/rubbery;
+the final version lowers base colour, vein contrast, fill and rim. Its earlier
+results, image hashes and cost samples remain in VesselSurfaceResults.json.
+
+Frozen A-B-B-A cost samples show unchanged draw-call/primitive counts but do
+not establish zero cost. The first accepted run increases median GPU time by
+0.196/0.625 ms (Domination/MOBA), with CPU variation in some windows. An unchanged
+repeat passes both fixtures and measures +0.156/+0.097 ms. Both sets are retained;
+no FPS improvement or low-spec certification is claimed. All 425 prior Content
+files and sixteen normalized released definitions remain unchanged. The new
+material is inside the existing AlwaysCook directory, but no fresh standalone
+package is generated or verified. No download or large archive is added.
+
+The heroes are still placeholder ovals, including the player's visible back.
+Distinct silhouettes, authored models/rigs, first-person arms, expressive
+animation and selection previews remain major gaps. This material treatment
+does not deliver those requirements or prove broad readability/human fun.
+The full production objective remains active.
