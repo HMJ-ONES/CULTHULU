@@ -11,15 +11,15 @@ This is a **source-link review file**, not downloaded asset data. Check each sou
 - **Assessment:** Exact Yithian anatomy; 489.5k triangles, static Blender sculpt.
 - **Rig/animation:** Do not assume included unless assessment explicitly states it; validate downloaded files.
 
-### 2. OPEN — second conical Yithian
-- **License/status:** NOT FOUND
-- **Assessment:** Find alternate lore-faithful downloadable model.
-- **Rig/animation:** Do not assume included unless assessment explicitly states it; validate downloaded files.
+### 2. [Great Race of Yith — CartoonCorpse (Thingiverse, indexed listing)](https://www.stlfinder.com/model/great-race-of-yith/4629637)
+- **Visual fit:** Exact lore conical Yithian miniature, but only aggregator model-listing page could be located.
+- **Licensing / technical:** FREE Thingiverse listing per STLFinder; original page/license/usage must be confirmed; likely static STL.
 
-### 3. OPEN — third Yithian
-- **License/status:** NOT FOUND
-- **Assessment:** Do not substitute a generic tentacle monster and claim it depicts a Yithian.
-- **Rig/animation:** Do not assume included unless assessment explicitly states it; validate downloaded files.
+
+### 3. [The Great Race of Yith — CultofPickle (Thingiverse, indexed listing)](https://www.stlfinder.com/model/the-great-race-of-yith/6602863)
+- **Visual fit:** Second independently authored Yithian miniature; source link via aggregator, original Thingiverse page not recovered.
+- **Licensing / technical:** FREE Thingiverse listing per STLFinder; copyright license, original author and files still require confirmation; static STL.
+
 
 ## Decision
 - [ ] Preferred model selected
