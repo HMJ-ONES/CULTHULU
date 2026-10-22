@@ -2,6 +2,7 @@
 #include "CultCombatAudio.h"
 #include "EngineUtils.h"
 #include "CultSkillAttack.h"
+#include "CultMeleeGeometry.h"
 #include "CultKitRuntime.h"
 #include "CultBlastFX.h"
 #include "CultFeralBeast.h"
@@ -40,12 +41,12 @@ FCultCombatHUDData ACultUlhuPlayerPawn::CombatHUD() const {
  if(Kit_) { H.RmbHint=Kit_->MinionThrowHint(); H.Name=UTF8_TO_TCHAR(Kit_->Def.displayName.c_str()); H.Stamina=Kit_->StaminaValue(); H.MaxStamina=Kit_->Def.maxStamina; for(int I=0;I<3;++I) { const auto& S=I==0?Kit_->Def.qAbility:I==1?Kit_->Def.fAbility:Kit_->Def.rAbility; H.AbilityNames[I]=UTF8_TO_TCHAR(S.name.c_str()); H.Cooldowns[I]=Kit_->Cooldown(I); } } return H;
 }
 void ACultUlhuPlayerPawn::StartMelee(float Damage,float Range,float Windup,float Duration) {
- const float H=GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*2;
- const FVector Origin=FeetLocation()+FVector(0,0,H*.48f);
+ const auto Profile=CultMeleeGeometry::Describe(this,Range);
+ const FVector Origin=Profile.Origin;
  FVector Aim=CameraAim().ImpactPoint; FVector Direction=(Aim-Origin).GetSafeNormal();
  if(Direction.IsNearlyZero()) Direction=AimRotation().Vector();
  const FTransform T(Direction.Rotation(),Origin); auto* A=GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
- if(!A) return; A->Shape=ACultSkillAttack::EShape::Sweep; A->Direction=Direction; A->Reach=Range>0?Range:H*.9f; A->Radius=FMath::Clamp(H*.035f,25.f,120.f); A->Windup=Windup; A->Duration=Duration; A->HalfAngle=bNextMeleeLeft_?-52.f:52.f; bNextMeleeLeft_=!bNextMeleeLeft_;
+ if(!A) return; A->Shape=ACultSkillAttack::EShape::Sweep; A->Direction=Direction; A->Reach=Profile.Reach; A->Radius=Profile.Radius; A->Windup=Windup; A->Duration=Duration; A->HalfAngle=bNextMeleeLeft_?-52.f:52.f; bNextMeleeLeft_=!bNextMeleeLeft_;
  TWeakObjectPtr<ACultUlhuPlayerPawn> Weak(this); A->Hit=[Weak,Damage](AActor* Target,FVector Point) { if(!Weak.IsValid()) return; if(auto* Pawn=Cast<ACultUlhuPlayerPawn>(Target)) if(Pawn->IsEvading()) { Pawn->ConfirmEvade(); return; } float D=Cast<ACultUlhuPlayerPawn>(Target)?Damage*(10.f/135.f):Damage;
  if(auto* M=ACultMatchDirector::Find(Weak->GetWorld())) { D=Damage*(Cast<ACultUlhuPlayerPawn>(Target)?15.f/135.f:Cast<ACultMatchUnit>(Target)&&!Cast<ACultMatchUnit>(Target)->IsStructure()?30.f/135.f:15.f/135.f)*M->DamageMultiplier(Weak.Get()); } if(auto* P=Cast<ACultPopulation>(Target)) if(!P->IsCultist()&&!P->IsSummoned()) D=FMath::Max(D,P->GetHealth()); ACultSkillAttack::Hurt(Target,D,Weak.Get(),Point); if(Weak->Kit_) Weak->Kit_->MeleeContact(Target); };
  SwingTime_=Windup+Duration; A->FinishSpawning(T);

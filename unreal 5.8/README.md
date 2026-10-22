@@ -104,3 +104,6 @@ competitive modes, matched views and six scoped native checks. No assets are dow
 
 `Docs/ImpactPresentation.md` records open hit/shock effects, the corrected hit-size
 clamp, bounded directional sparks and native feedback/physical-combat checks.
+
+`Docs/BotMeleeReach.md` records shared physical swing dimensions, size-aware bot
+reach/approach decisions and corrected-baseline/native match evidence.

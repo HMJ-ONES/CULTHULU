@@ -8,6 +8,7 @@
 #include "CultMatchUnit.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultSkillAttack.h"
+#include "CultMeleeGeometry.h"
 #include "CultPopulation.h"
 #include "EngineUtils.h"
 #include "Engine/StaticMeshActor.h"
@@ -205,7 +206,7 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
   else if(!F.DomPath.IsEmpty()) { F.DomFlankCompleted|=!F.DomEscape; F.DomPath.Reset(); F.DomPathIndex=0; F.DomEscape=false; }
 
  }
- float Stop=Cast<ACultFeralBeast>(Enemy)?1100:Enemy&&State_->Moba&&F.RouteStep>=2?1800:400;
+ float Stop=Cast<ACultFeralBeast>(Enemy)?1100:Enemy&&State_->Moba&&F.RouteStep>=2?CultMeleeGeometry::ApproachDistance(P,Enemy):400;
  CultBotThreat::Respond(P,State_->BotThreats[I],State_->Time,I);
  if(CultBotThreat::Avoiding(State_->BotThreats[I],State_->Time)) { Goal=P->FeetLocation()+State_->BotThreats[I].Escape*1600; Stop=0; }
  if(FVector::Dist2D(Goal,P->FeetLocation())>Stop) P->MoveMatchToward(Goal,Dt);
@@ -222,7 +223,7 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
  }
  if(Enemy&&!F.Retreating) {
   if(Best<3300) { if(HealSlot!=0) P->AbilityQ(); if(Best<2400&&HealSlot!=1) P->AbilityF(); if(Best<3500&&HealSlot!=2) P->AbilityR(); }
-  if(Best<3000) P->Smash();
+  if(CultMeleeGeometry::InReach(P,Enemy)) P->Smash();
   if(Best<2700&&I%2) { P->HeavyAttack(); P->ReleaseHeavy(); }
  }
 }

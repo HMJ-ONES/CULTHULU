@@ -934,3 +934,37 @@ view. Depth testing is retained. These shared effects fall short of character-sp
 VFX and animation. Distant-hit visibility, human satisfaction/balance, all-camera
 coverage, sustained performance and overall professional quality remain unproven.
 The full production goal remains open.
+
+## Bot melee reach and approach (2026-10-22)
+
+Fixed centre-distance melee/approach triggers ignored actual attack size and
+target height. The corrected native baseline reproduces unreachable primary
+swings in both modes, while reachable controls still deal real contact damage.
+A twenty-metre Mi-Go stalls outside a small minion: only 2.1cm advance, leaving
+1,797.9cm separation in thirty 16ms real character-movement steps. An earlier
+MOBA hero setup tested an off-lane target and is excluded; assigning the middle
+lane preserves production lane discipline and exposes the actual reach defect.
+
+Physical swings and bot decisions now share their unchanged origin/reach/radius
+definition. Bots only commit a primary when actual collision geometry plausibly
+intersects reach. MOBA approach includes target capsule radius and vertical spine
+clearance, with a margin inside possible contact and the original 1,800cm upper
+limit. It moves through real character physics; no attack extent, damage, source
+ability, cooldown, input, lane, objective, retreat or jungle spacing rule changes.
+The corrected small-minion control advances 454.0cm to 1,346.0cm separation.
+
+The canonical Editor build and all eight final native checks pass with zero
+automation errors: focused reach/contact in both modes, defensive dodge decisions
+in both modes, both match integration fixtures, physical combat and combat feedback.
+The match fixtures use short live windows and scripted transitions, not whole
+uninterrupted human matches. Sources,
+baseline errors/observations and limits are preserved in BotMeleeReachResults.json.
+All 425 backed-up Content files remain byte-identical. No new assets, downloads,
+review images, archives or standalone game are generated in this source-only pass.
+
+This fixes specific poor combat decisions, not the entire opponent AI. Broad
+spell/RMB triggers, role positioning, high-ground use, tactical coordination and
+human match pacing still need work. The range test is not an unavoidable-hit
+mechanic; committed swings can still miss or be blocked/dodged. No all-kit,
+long-session balance, human fun or reference-level production quality is proven.
+The complete development goal remains active.

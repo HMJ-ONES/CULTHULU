@@ -33,6 +33,33 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 struct FCultMatchTestAccess {
+ static void VerifyBotMeleeReach(FAutomationTestBase* T,ACultMatchDirector* M) {
+  auto* W=M->GetWorld(); M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false; HoldBots(M,true); Park(M); Unshield(M);
+  auto* Bot=M->Fighters()[5].Pawn.Get(); auto* Enemy=M->Fighters()[0].Pawn.Get(); Bot->bBotControlled_=true;
+  auto Reset=[&](FVector EnemyFeet) {
+   for(TActorIterator<ACultSkillAttack> It(W);It;++It) It->Destroy();
+   Bot->RelocateMatch(FVector(0,0,60000)); Enemy->RelocateMatch(EnemyFeet);
+   Bot->DashTime_=Bot->DashCooldown_=Bot->SmashCooldown_=Bot->SwingTime_=0;
+   for(int Slot=0;Slot<3;++Slot) Bot->Kit_->SetCooldown(Slot,999);
+   auto& F=M->State_->Fighters[5]; F.Lane=1; F.RouteStep=2; F.Think=0; F.DomPath.Reset(); F.Retreating=false; M->State_->BotThreats[5]=FCultBotThreatMemory();
+  };
+  auto Swings=[&]() { TArray<ACultSkillAttack*> Out; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Bot&&It->Shape==ACultSkillAttack::EShape::Sweep) Out.Add(*It); return Out; };
+  Reset(FVector(2900,0,60000)); M->BotThink(5,.016f);
+  T->TestEqual(TEXT("A twenty-metre bot preserves its swing when the target is beyond actual melee reach"),Swings().Num(),0);
+  Reset(FVector(1000,0,60000)); const float Before=Enemy->GetHealth(); M->BotThink(5,.016f); auto Close=Swings();
+  T->TestEqual(TEXT("The same bot commits a swing against a physically reachable target"),Close.Num(),1);
+  for(auto* A:Close) { A->Tick(0); A->Tick(.22f); }
+  T->TestTrue(TEXT("Reachable control swing causes real physical contact damage"),Enemy->GetHealth()<Before);
+  if(M->State_->Moba) {
+   Reset(M->Base(0));
+   auto* Floor=W->SpawnActor<AStaticMeshActor>(FVector(0,0,59950),FRotator::ZeroRotator); auto* C=Floor->GetStaticMeshComponent(); C->SetMobility(EComponentMobility::Movable); C->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube"))); C->SetWorldScale3D(FVector(200,200,1)); C->SetCollisionProfileName(TEXT("BlockAll"));
+   auto* Minion=M->AddUnit(0,0,0,-1,FVector(1800,0,60000),100,0,0,0); Minion->SetActorTickEnabled(false);
+   const FVector Start=Bot->FeetLocation();
+   for(int Step=0;Step<30;++Step) { M->BotThink(5,.016f); Bot->GetCharacterMovement()->TickComponent(.016f,LEVELTICK_All,nullptr); }
+   T->TestTrue(TEXT("A short-reach bot physically closes the old stopping gap against a small minion"),Bot->FeetLocation().X>Start.X+150);
+   T->AddInfo(FString::Printf(TEXT("Small-minion approach: %.1fcm actual advance; remaining separation %.1fcm"),Bot->FeetLocation().X-Start.X,FVector::Dist2D(Bot->FeetLocation(),Minion->GetActorLocation())));
+  }
+ }
  static TArray<TWeakObjectPtr<ACultMatchUnit>> AlliedObjectiveRouteProbes(ACultMatchDirector* M) {
   M->State_->Warmup=0; M->State_->NextWave=1000; HoldBots(M,true); Park(M);
   for(auto& F:M->State_->Fighters) if(auto* P=F.Pawn.Get()) P->GetCharacterMovement()->DisableMovement();
@@ -668,6 +695,22 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDomBotThreatTest,"CultUlhu.Menu.BotThreatD
 bool FCultDomBotThreatTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotThreatObservation(this,ECultPlayMode::Domination)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaBotThreatTest,"CultUlhu.Menu.BotThreatDecisions.Moba",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultMobaBotThreatTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotThreatObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+class FCultBotMeleeReachObservation:public IAutomationLatentCommand {
+ FAutomationTestBase* Test; ECultPlayMode Mode; bool Entered=false; double Began=FPlatformTime::Seconds();
+public:
+ FCultBotMeleeReachObservation(FAutomationTestBase* T,ECultPlayMode M):Test(T),Mode(M) {}
+ bool Update() override {
+  if(FPlatformTime::Seconds()-Began>90) { Test->AddError(TEXT("Bot melee reach test timed out")); return true; }
+  auto* W=GEditor->PlayWorld.Get(); if(!W||W->bIsTearingDown) return false;
+  if(W->GetName().Contains(TEXT("L_MainMenu"))) { if(!Entered) { auto* G=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); G->SelectedCharacterId=TEXT("mi_go"); G->OpenCharacterSelect(Mode); G->OpenBeliefSelect(); Entered=true; } return false; }
+  auto* M=ACultMatchDirector::Find(W); if(!M||W->GetTimeSeconds()<1) return false;
+  UGameplayStatics::SetGamePaused(W,true); FCultMatchTestAccess::VerifyBotMeleeReach(Test,M); UGameplayStatics::SetGamePaused(W,false); return true;
+ }
+};
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDomBotMeleeReachTest,"CultUlhu.Menu.BotMeleeReach.Domination",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultDomBotMeleeReachTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotMeleeReachObservation(this,ECultPlayMode::Domination)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaBotMeleeReachTest,"CultUlhu.Menu.BotMeleeReach.Moba",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultMobaBotMeleeReachTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultBotMeleeReachObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDominationMatchTest,"CultUlhu.Menu.DominationMatch",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultDominationMatchTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(.5f)); ADD_LATENT_AUTOMATION_COMMAND(FCultMatchObservation(this,false)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaMatchTest,"CultUlhu.Menu.MobaMatch",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
