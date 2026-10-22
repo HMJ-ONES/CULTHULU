@@ -29,6 +29,6 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - [ ] Third-party franchise/IP concerns cleared
 - [ ] Mesh and textures inspected
 - [ ] Rig, skeleton and animation status inspected
-- [ ] Preferred model selected
+- [x] Preferred model selected
 
-**Chosen model:** _None_
+**Chosen model:** **[Chariot ONLY (ShayHooperUni, recent comparison option 2)](https://sketchfab.com/3d-models/chariot-95baa95c8b9b4f4299de0e0609f7307c)** — selected by user 2026-10-22; **pending legal acquisition / formats / animation and UE import**. For recent option numbers, this selection overrides older numbered candidate slots. See [approved selections](../APPROVED_SELECTIONS_CODEX.md).
