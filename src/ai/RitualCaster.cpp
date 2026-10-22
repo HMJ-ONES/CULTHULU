@@ -79,7 +79,7 @@ void RitualCaster::update(double dt) {
         cast.amount = 1.0f;
         bus_.publish(cast);
 
-        if (rng_.chance(chance)) {
+        if (rng_.chance(std::min(0.95f, chance * (vulnerability_ ? vulnerability_(*target) : 1.0f)))) {
             ++succeeded_;
             GameEvent conv(EventType::ConversionPerformed);
             conv.sourceId = s->id();

@@ -158,6 +158,7 @@ CommandResult CommandSystem::issueCommand(DirectiveType d, Vec3 target,
 
     switch (outcome) {
         case CommandOutcome::Obeyed:
+            if (externalExecution_) break;
             if (d == DirectiveType::ConvertCampaign)
                 cult_.startConversionCampaign(5);
             else if (d == DirectiveType::RaidCity) {

@@ -38,7 +38,7 @@ by alias and which didn't.
 
 | Package piece | UE5 destination | How |
 |---|---|---|
-| `character.def` (id, names, hp/speed/stamina, Q/F/R, combo id, RMB, passive) | `UCultCharacterData` Data Asset (`/Game/Characters/<Name>/DA_<Name>`) | Manual entry per the field table below, or the import script (next section). Validated field-for-field by `unreal 5.8/Tests/validate_binding.py`. |
+| `character.def` (id, names, hp/speed/stamina, Q/F/R, combo id, RMB, passive) | `UCultCharacterData` Data Asset (`/Game/Characters/<Name>/DA_<Name>`) | Manual entry per the field table below, or the import script (next section). Validated field-for-field by `unreal/Tests/validate_binding.py`. |
 | `model.fbx` (rigged) | `USkeletalMesh` (`/Game/Characters/<Name>/SK_<Name>`) | FBX import (see below). Skeleton = the model's skeleton. |
 | `rig.map` / auto-mapped bones | UE retarget chain | The core `RigMapper` matches the FBX bone list to the 11-bone humanoid rig. In UE, the equivalent step is **IK Retargeter**: source = Mixamo/character skeleton, target = your UE mannequin-compatible skeleton. The `rig.map` is the human-readable record of that match — keep it next to the asset. |
 | `animations/*.canim` | `UAnimSequence`s | Core `.canim` clips are the *fallback*. In UE, import real FBX anims (or Mixamo packs) and retarget them; bind them in the character's AnimBP. The core ships procedural fallback clips for all 9 gameplay states (Idle, Walk, Run, Attack, Death, Cast, Stunned, Channel, CastWave — see `src/animation/ProceduralClips.h`); Levitate/Launch/Levitated stay unbound, driven by Wave of Domination logic. |

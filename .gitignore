@@ -13,3 +13,32 @@ assets/world/terrain/dark_wilds_ground.obj
 assets/world/terrain/dark_wilds_height.png
 # Creature textures: same deal as world textures — .png.b64 sidecars tracked.
 assets/creatures/Textures/*.png
+
+# Unreal generated outputs; keep Source, Config, tools and authored Content.
+**/Binaries/
+**/Intermediate/
+**/Saved/
+**/DerivedDataCache/
+**/.vs/
+**/__pycache__/
+**/lib/Win64/
+**/lib/Linux/
+*.sln
+*.suo
+*.VC.db
+*.pdb
+*.obj
+*.log
+*.backup
+/build-msvc/
+/build-masvc/
+/Source_Backup_*/
+/unreal 5.8 5.8*/
+/unreal 5.8/*.zip
+/unreal 5.8/Content/CharacterAnimations/
+/unreal 5.8/Content/CharacterDefinitions/
+/unreal 5.8/Content/Developers/
+/unreal 5.8/Content/Collections/
+/unreal 5.8/Config/DefaultEditorPerProjectUserSettings.ini
+# Retired local project is preserved on disk but excluded from future additions.
+/unreal/

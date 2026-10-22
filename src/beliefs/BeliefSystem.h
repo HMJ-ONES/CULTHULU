@@ -71,6 +71,8 @@ public:
     float conversionEfficiency() const;// Conversion: 1.5x campaign efficiency
     float conversionVulnerability() const; // Conversion: cultists easier to steal
 
+    // Engine binding replaces the count with living owned creatures each tick.
+    void setArmyFearSources(int count) { fearPassiveGen_ = 2.f * (count > 0 ? count : 0); }
     float fearLevel() const { return fear_; } // 0..100
     // Wave 4: external fear injection (e.g. Dread Broods synergy). Clamped.
     void addFear(float amount);

@@ -1,0 +1,300 @@
+{
+  "date_local": "2026-10-21",
+  "engine": "UE 5.8.3",
+  "target": "CultUlhuEditor Win64 Development",
+  "final_build": "Succeeded",
+  "final_test_build_seconds": 9.62,
+  "gameplay_build_seconds": 19.99,
+  "comparison_checkpoint": "0f4dd5c2c129843fb594153845e0d83873339872",
+  "original_body_baseline": {
+    "log": "ObjectiveCollisionBefore.log",
+    "sha256": "0a5a2a9f1c0a91c99bf8ef1cd214b1a028c916e1ab521cc7f869987e1a0d515a",
+    "queue_complete": true,
+    "tests": [
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.GreatOldOne",
+        "result": "Fail"
+      },
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.LaneWard",
+        "result": "Fail"
+      },
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.NexusWard",
+        "result": "Fail"
+      }
+    ],
+    "assertion_errors": [
+      "Expected 'Walking cannot cross the solid objective centre' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultObjectiveCollisionTest.cpp(44)]",
+      "Expected 'Root-motion dash cannot pass through the objective' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultObjectiveCollisionTest.cpp(52)]",
+      "Expected 'The minion walks around the objective rather than through its centre' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultObjectiveCollisionTest.cpp(63)]",
+      "Expected 'Walking cannot cross the solid objective centre' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultObjectiveCollisionTest.cpp(44)]",
+      "Expected 'Root-motion dash cannot pass through the objective' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultObjectiveCollisionTest.cpp(52)]",
+      "Expected 'The minion walks around the objective rather than through its centre' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultObjectiveCollisionTest.cpp(63)]",
+      "Expected 'Walking cannot cross the solid objective centre' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultObjectiveCollisionTest.cpp(44)]",
+      "Expected 'Root-motion dash cannot pass through the objective' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultObjectiveCollisionTest.cpp(52)]",
+      "Expected 'The minion walks around the objective rather than through its centre' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultObjectiveCollisionTest.cpp(63)]"
+    ],
+    "observations": [
+      "Objective collision kind=4 walkX=6436.7 dashX=1283.2 minionX=2331.2 detour=0.0",
+      "Objective removed kind=4 freeWalkX=6756.3 playerHeight=2933.3",
+      "Objective collision kind=3 walkX=6528.3 dashX=1247.7 minionX=2332.5 detour=0.0",
+      "Objective removed kind=3 freeWalkX=6739.2 playerHeight=2933.3",
+      "Objective collision kind=5 walkX=6659.7 dashX=1112.6 minionX=2348.2 detour=0.0",
+      "Objective removed kind=5 freeWalkX=6727.3 playerHeight=2933.3"
+    ]
+  },
+  "first_collision_integration": {
+    "log": "ObjectiveCollisionAfter.log",
+    "sha256": "5020e1c089c7218082bd8e1eb493563faa9819c098410f120e1fd1b804ff7004",
+    "queue_complete": true,
+    "tests": [
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.GreatOldOne",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.LaneWard",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.NexusWard",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.MobaMatch",
+        "result": "Fail"
+      },
+      {
+        "path": "CultUlhu.Menu.MobaMechanics",
+        "result": "Success"
+      }
+    ],
+    "assertion_errors": [
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Every lane supports the actual full-size capsule without a cliff blocking its road' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(238)]",
+      "Expected 'Each team physically advances a wave along every assigned curved route' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(490)]",
+      "Expected 'Each team physically advances a wave along every assigned curved route' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(490)]"
+    ],
+    "observations": [
+      "Objective collision kind=4 walkX=-1016.8 dashX=-1017.7 minionX=2326.8 detour=528.8",
+      "Objective removed kind=4 freeWalkX=4983.2 playerHeight=2933.3",
+      "Objective collision kind=3 walkX=-1016.9 dashX=-1017.7 minionX=2334.7 detour=522.5",
+      "Objective removed kind=3 freeWalkX=4983.1 playerHeight=2933.3",
+      "Objective collision kind=5 walkX=-1016.8 dashX=-1017.7 minionX=2348.2 detour=524.9",
+      "Objective removed kind=5 freeWalkX=4983.2 playerHeight=2933.3",
+      "Real hero damage during MOBA observation: 145.5",
+      "Assigned-lane entries observed: 9 / 9 bots",
+      "Team 0 lane 0 observed route progress 0.500",
+      "Team 0 lane 1 observed route progress 0.058",
+      "Team 0 lane 2 observed route progress 0.493",
+      "Team 1 lane 0 observed route progress 0.493",
+      "Team 1 lane 1 observed route progress 0.058",
+      "Team 1 lane 2 observed route progress 0.502"
+    ]
+  },
+  "allied_routing_baseline": {
+    "log": "AlliedObjectiveRoutingBefore.log",
+    "sha256": "e1df7eb097cfb26eb590154341af14ad5fd1ff7a45870d033d8d79b9c0618552",
+    "queue_complete": true,
+    "tests": [
+      {
+        "path": "CultUlhu.Menu.AlliedObjectiveRouting",
+        "result": "Fail"
+      }
+    ],
+    "assertion_errors": [
+      "Expected 'Every minion class on both teams passes its own nexus using real director routing' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(613)]",
+      "Expected 'Every minion class on both teams passes its own nexus using real director routing' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(613)]",
+      "Expected 'Every minion class on both teams passes its own nexus using real director routing' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(613)]",
+      "Expected 'Every minion class on both teams passes its own nexus using real director routing' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(613)]",
+      "Expected 'Every minion class on both teams passes its own nexus using real director routing' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(613)]",
+      "Expected 'Every minion class on both teams passes its own nexus using real director routing' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(613)]"
+    ],
+    "observations": [
+      "Allied route team=0 kind=0 waypoint=2 position=V(X=-26503.77, Y=114.99, Z=153.00) goal=V(X=-26250.00)",
+      "Allied route team=0 kind=1 waypoint=2 position=V(X=-26503.77, Y=114.99, Z=153.00) goal=V(X=-26250.00)",
+      "Allied route team=0 kind=2 waypoint=2 position=V(X=-26580.26, Y=154.50, Z=243.00) goal=V(X=-26250.00)",
+      "Allied route team=1 kind=0 waypoint=2 position=V(X=26503.77, Y=-114.99, Z=153.00) goal=V(X=26250.00)",
+      "Allied route team=1 kind=1 waypoint=2 position=V(X=26503.77, Y=-114.99, Z=153.00) goal=V(X=26250.00)",
+      "Allied route team=1 kind=2 waypoint=2 position=V(X=26580.26, Y=-154.50, Z=243.00) goal=V(X=26250.00)"
+    ]
+  },
+  "final_integration": {
+    "log": "ObjectiveCollisionRoutingFinal.log",
+    "sha256": "ca02b81ba676d1fc2f989f81aca6b7e948c10ead7aa1db9dd8a9c81c873b786c",
+    "queue_complete": true,
+    "tests": [
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.GreatOldOne",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.LaneWard",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.NexusWard",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.AlliedObjectiveRouting",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.MobaLaneClearance",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.MobaMatch",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.MobaMechanics",
+        "result": "Success"
+      }
+    ],
+    "assertion_errors": [],
+    "observations": [
+      "Objective collision kind=4 walkX=-1016.8 dashX=-1017.7 minionX=2335.4 detour=524.1",
+      "Objective removed kind=4 freeWalkX=4983.2 playerHeight=2933.3",
+      "Objective collision kind=3 walkX=-1016.9 dashX=-1017.7 minionX=2343.5 detour=523.8",
+      "Objective removed kind=3 freeWalkX=4983.1 playerHeight=2933.3",
+      "Objective collision kind=5 walkX=-1016.9 dashX=-1017.7 minionX=2337.1 detour=528.6",
+      "Objective removed kind=5 freeWalkX=4983.1 playerHeight=2933.3",
+      "Allied route team=0 kind=0 waypoint=6 position=V(X=-19090.84, Y=0.09, Z=153.00) goal=V(X=-18750.00)",
+      "Allied route team=0 kind=1 waypoint=6 position=V(X=-19090.84, Y=0.09, Z=153.00) goal=V(X=-18750.00)",
+      "Allied route team=0 kind=2 waypoint=6 position=V(X=-19171.51, Y=0.14, Z=243.00) goal=V(X=-18750.00)",
+      "Allied route team=1 kind=0 waypoint=6 position=V(X=19090.84, Y=-0.09, Z=153.00) goal=V(X=18750.00)",
+      "Allied route team=1 kind=1 waypoint=6 position=V(X=19090.84, Y=-0.09, Z=153.00) goal=V(X=18750.00)",
+      "Allied route team=1 kind=2 waypoint=6 position=V(X=19171.51, Y=-0.14, Z=243.00) goal=V(X=18750.00)",
+      "Lane terrain: 387 full-size samples; 68 solid-objective samples have supported side passages",
+      "Lane terrain: 387 full-size samples; 68 solid-objective samples have supported side passages",
+      "Real hero damage during MOBA observation: 145.5",
+      "Assigned-lane entries observed: 9 / 9 bots",
+      "Team 0 lane 0 observed route progress 0.502",
+      "Team 0 lane 1 observed route progress 0.490",
+      "Team 0 lane 2 observed route progress 0.488",
+      "Team 1 lane 0 observed route progress 0.487",
+      "Team 1 lane 1 observed route progress 0.551",
+      "Team 1 lane 2 observed route progress 0.503"
+    ]
+  },
+  "expanded_hero_detours": {
+    "log": "ObjectiveHeroDetours.log",
+    "sha256": "05c8bb64148294d7887f57708e149c69b2fc83bba963aef777d5df9d9f0074ce",
+    "queue_complete": true,
+    "tests": [
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.GreatOldOne",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.LaneWard",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.ObjectiveCollision.NexusWard",
+        "result": "Success"
+      }
+    ],
+    "assertion_errors": [],
+    "observations": [
+      "Objective collision kind=4 walkX=-1016.9 dashX=-1017.7 minionX=2343.1 detour=522.1",
+      "Hero objective detour kind=4 reached=1 maxY=1160.9 final=V(X=3337.77, Y=58.24, Z=1468.82)",
+      "Objective removed kind=4 freeWalkX=4983.2 playerHeight=2933.3",
+      "Objective collision kind=3 walkX=-1016.9 dashX=-1017.7 minionX=2354.7 detour=529.3",
+      "Hero objective detour kind=3 reached=1 maxY=1167.5 final=V(X=3331.51, Y=61.01, Z=1468.82)",
+      "Objective removed kind=3 freeWalkX=4983.1 playerHeight=2933.3",
+      "Objective collision kind=5 walkX=-1016.8 dashX=-1017.7 minionX=2337.0 detour=522.5",
+      "Hero objective detour kind=5 reached=1 maxY=1177.0 final=V(X=3344.71, Y=57.02, Z=1468.82)",
+      "Objective removed kind=5 freeWalkX=4983.2 playerHeight=2933.3"
+    ]
+  },
+  "unchanged_gameplay_between_final_integration_and_hero_detours": true,
+  "source_sha256": {
+    "Private/CultMatchUnit.cpp": "cc81d3ed0f4cc13c7a7fc4ab33b9c37b193ff1e456c8e14ca7b11583de63d800",
+    "Private/CultMatchBattle.cpp": "6d73209f4efedd368f709f47f0f72e7bbedf350eb8f2eb45d8cfb531d108fd1d",
+    "Private/CultMatchTest.cpp": "a1a6e67e8e6cce8953d58ee6f7a066559666ec8352eed8b0b95860e4c105c845",
+    "Private/CultObjectiveCollisionTest.cpp": "5c4d0ae014781a6cffb8f16d8e2efafb084244d6980937bda1037a0d394aa4ef"
+  },
+  "unchanged_inputs": {
+    "content_byte_identical": 423,
+    "character_byte_identical": 5,
+    "character_line_endings_only": 110
+  },
+  "substantive_input_differences": [],
+  "limits": [
+    "Physical fixtures use isolated inactive objectives and prepared units, not human matches.",
+    "Expanded hero/minion movement drives the real movement functions; raw input separately tests blocked walking.",
+    "Removal control uses actor destruction; normal damage/protection is tested separately.",
+    "The original coarse capsules and blockout visuals remain; decorative parts are not precise triangle obstacles.",
+    "No all-kit movement, long-session congestion, human fun/balance or independent executable proof."
+  ]
+}

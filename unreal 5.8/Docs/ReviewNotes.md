@@ -1,6 +1,6 @@
 # Review Notes — offline UE5 binding review (Oct 7, 2026)
 
-An offline inspection pass over `unreal 5.8/Source/` without a UE5 install.
+An offline inspection pass over `unreal/Source/` without a UE5 install.
 Everything in this file is **unverifiable from here** — it needs the
 owner's UE5 editor + a first compile to confirm. Code that was *clearly*
 wrong was fixed directly (see the wave-13 review notes in the shift

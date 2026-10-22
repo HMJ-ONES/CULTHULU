@@ -321,6 +321,16 @@ def place_terrain():
         terrain_asset, unreal.Vector(0, 0, 0),
         unreal.Rotator(0, 0, 0))
     actor.set_actor_label("SM_DarkWilds_Terrain")
+    # Static concave terrain must use its triangles for character collision.
+    body = terrain_asset.get_editor_property("body_setup")
+    if not body:
+        raise RuntimeError("Terrain has no body setup; cannot build walkable collision")
+    body.set_editor_property("collision_trace_flag",
+                             unreal.CollisionTraceFlag.CTF_USE_COMPLEX_AS_SIMPLE)
+    actor.static_mesh_component.set_collision_profile_name("BlockAll")
+    actor.static_mesh_component.set_collision_enabled(
+        unreal.CollisionEnabled.QUERY_AND_PHYSICS)
+    eal.save_loaded_asset(terrain_asset)
     ground_mat = eal.load_asset(build_materials.ground)
     if ground_mat:
         comp = actor.static_mesh_component
@@ -532,7 +542,7 @@ def scatter_props():
         mesh = eal.load_asset(DEST_CREATURES + "/SK_" + species)
         if not mesh:
             mesh = eal.load_asset(DEST_CREATURES + "/" + species)
-        if not mesh:
+        if not mesh and beast_class is None:
             log("SKIP", "no creature mesh for %s" % species)
             continue
         if beast_class is not None:
@@ -550,7 +560,8 @@ def scatter_props():
                         continue
                     a.set_actor_label("WILD_Beast_%s_%d" % (species, n))
                     try:
-                        a.set_mesh(mesh)
+                        if mesh and isinstance(mesh, unreal.StaticMesh):
+                            a.set_mesh(mesh)
                         a.set_species(species)
                     except Exception as e:  # noqa: BLE001
                         log("ERROR", "beast setup failed (%s): %s" % (species, e))
@@ -722,6 +733,8 @@ def place_player_starts():
             unreal.PlayerStart, unreal.Vector(x, y, z),
             unreal.Rotator(0, yaw, 0))
         a.set_actor_label(label)
+        a.set_editor_property("player_start_tag", unreal.Name(label))
+        a.set_editor_property("tags", [unreal.Name(label)])
     log("OK", "%d player starts placed" % len(starts))
 
 

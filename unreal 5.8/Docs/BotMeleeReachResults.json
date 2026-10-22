@@ -1,0 +1,165 @@
+{
+  "date": "2026-10-22",
+  "base": "ce0c674defed84a24b0f4063a61cc4550a97db64",
+  "build": {
+    "engine": "5.8.3",
+    "target": "CultUlhuEditor Win64 Development",
+    "canonical_validation": true,
+    "success": true,
+    "seconds": 24.95
+  },
+  "corrected_baseline": {
+    "log": "BotMeleeReachCorrectedBaseline.log",
+    "sha256": "76d2f7eec4163bdfad3b3b1b5a23387b08539d75f284bb63c6134e3d032e2927",
+    "tests": [
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotMeleeReach.Domination"
+      },
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotMeleeReach.Moba"
+      }
+    ],
+    "errors": [
+      "[2026.10.22-18.12.23:196][508]LogAutomationController: Error: Expected 'A twenty-metre bot preserves its swing when the target is beyond actual melee reach' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(48)]",
+      "[2026.10.22-18.12.24:709][541]LogAutomationController: Error: Expected 'A twenty-metre bot preserves its swing when the target is beyond actual melee reach' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(48)]",
+      "[2026.10.22-18.12.24:709][541]LogAutomationController: Error: Expected 'A short-reach bot physically closes the old stopping gap against a small minion' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(60)]"
+    ],
+    "observations": [
+      "Small-minion approach: 2.1cm actual advance; remaining separation 1797.9cm"
+    ]
+  },
+  "excluded_initial_setup": {
+    "log": "BotMeleeReachBaseline.log",
+    "sha256": "bda85c10a4229836107c45b3984d34be0427139b38612323d87cbceb1af5c6b1",
+    "tests": [
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotMeleeReach.Domination"
+      },
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotMeleeReach.Moba"
+      }
+    ],
+    "errors": [
+      "[2026.10.22-18.09.20:763][520]LogAutomationController: Error: Expected 'A twenty-metre bot preserves its swing when the target is beyond actual melee reach' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(48)]",
+      "[2026.10.22-18.09.22:198][553]LogAutomationController: Error: Expected 'The same bot commits a swing against a physically reachable target' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(51)]",
+      "[2026.10.22-18.09.22:198][553]LogAutomationController: Error: Expected 'Reachable control swing causes real physical contact damage' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(53)]",
+      "[2026.10.22-18.09.22:198][553]LogAutomationController: Error: Expected 'A short-reach bot physically closes the old stopping gap against a small minion' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(60)]"
+    ],
+    "observations": [
+      "Small-minion approach: 2.2cm actual advance; remaining separation 1797.8cm"
+    ],
+    "scope": "Initial MOBA hero target was outside the assigned top lane; near-hero failures do not measure attack reach. Middle-lane assignment fixes the fixture; original production code is rerun for corrected baseline."
+  },
+  "final": {
+    "log": "BotMeleeReachFinal.log",
+    "sha256": "3a262c13f186b5dd853b04fc260736aa83eae0090370dbec074c45b2f977a956",
+    "tests": [
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotMeleeReach.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotMeleeReach.Moba"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotThreatDecisions.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotThreatDecisions.Moba"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.CombatFeel"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.DominationMatch"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.MobaMatch"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.SkillCombat"
+      }
+    ],
+    "errors": [],
+    "observations": [
+      "Small-minion approach: 454.0cm actual advance; remaining separation 1346.0cm"
+    ]
+  },
+  "automation_errors": 0,
+  "measured_approach": {
+    "step_count": 30,
+    "step_seconds": 0.016,
+    "baseline_advance_cm": 2.1,
+    "baseline_remaining_separation_cm": 1797.9,
+    "fixed_advance_cm": 454.0,
+    "fixed_remaining_separation_cm": 1346.0,
+    "scope": "Actual CharacterMovement TickComponent on isolated platform with real director decisions; not a live match pacing measurement"
+  },
+  "physical_profile": {
+    "origin_height_fraction": 0.48,
+    "default_reach_height_fraction": 0.9,
+    "radius_height_fraction": 0.035,
+    "radius_clamp_cm": [
+      25,
+      120
+    ],
+    "physical_values_unchanged": true
+  },
+  "bot_approach": {
+    "horizontal_contact_fraction": 0.8,
+    "distance_clamp_cm": [
+      200,
+      1800
+    ],
+    "includes_target_capsule_radius_and_vertical_spine_clearance": true
+  },
+  "content_byte_identical": 425,
+  "new_assets": 0,
+  "downloads": 0,
+  "sources": [
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultMeleeGeometry.h",
+      "bytes": 453,
+      "sha256": "ee403eefe5f27be4302b7aaeef78a8fc853014b4d764d65893988328170f45a9"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultMeleeGeometry.cpp",
+      "bytes": 1829,
+      "sha256": "538cf1e37a2a7428672ef30ab0c4749f4c8d4f751ebe6bb74741733a603d1d4f"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultPlayerSkillCombat.cpp",
+      "bytes": 5348,
+      "sha256": "1f574554deca78585b32026a0c66c107e994a3963f15bf167bba086738cbd83d"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultMatchBattle.cpp",
+      "bytes": 20668,
+      "sha256": "1484d0785eb5078ac3986a7b2d3d791ddf79645cb89d03d9197ed9ac2b7ec0fc"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultMatchTest.cpp",
+      "bytes": 72415,
+      "sha256": "8f6c1d738a3ca0ffe99581e26019f2f1260fd9022de58bb6baa945ab4d892af6"
+    }
+  ],
+  "scope": "Focused real BotThink path in Domination and MOBA, unavailable-swing control, real reachable contact damage and actual small-minion approach; separate match integration fixtures, defensive dodges, physical combat and feedback checks. Match fixtures use short live-play windows and scripted transitions, not uninterrupted human matches.",
+  "limits": [
+    "A range opportunity is not proof of a guaranteed swing hit; committed windup/arc/cover/evasion remain",
+    "No complete per-kit spell/RMB engagement model, all-size tactics or navigation certification",
+    "No long-session, human fun/balance, multiplayer, frame-time or low-spec claim",
+    "No fresh independent standalone cook/package verification",
+    "Final animation, world/character art, audio/VFX cohesion and reference-level professional refinement remain incomplete"
+  ]
+}

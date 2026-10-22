@@ -42,7 +42,8 @@ class CULTULHU_API UCultUlhuGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	// The 20 playable roster entities (data mirrors assets/characters/*/character.def).
+	bool bPlayChosen = false;
+	// Current release roster; deferred character source files remain in assets/characters.
 	static const TArray<FCultRosterEntry>& Roster();
 
 	// ---- menu flow (called from the widgets / pawn) ----
@@ -54,6 +55,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "CultUlhu|Menu")
 	void StartPlay();
+ void OpenBeliefSelect();
+ bool SetInitialBeliefs(const TArray<int32>& Choices);
+ const TArray<int32>& InitialBeliefs() const { return InitialBeliefs_; }
 
 	UFUNCTION(BlueprintCallable, Category = "CultUlhu|Menu")
 	void ReturnToMenu();
@@ -69,6 +73,7 @@ public:
 	static FString ModeStartLabel(ECultPlayMode Mode);
 
 private:
+	TArray<int32> InitialBeliefs_;
 	void ShowWidget(UUserWidget* Widget, bool bUIOnly);
 	void ClearMenuWidgets();
 
