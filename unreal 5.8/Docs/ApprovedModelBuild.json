@@ -1,0 +1,19 @@
+{
+  "canonical_target": "CultUlhuEditor Win64 Development",
+  "engine": "UE 5.8.3",
+  "validator": "Tools/ValidateCultUlhu.py",
+  "build_result": "Succeeded",
+  "build_seconds": 65.13,
+  "released_character_definitions": "All sixteen match checkpoint ffda146 after line-ending normalization",
+  "source_animation_policy": "Only supplied clips; no invented attack/locomotion animations",
+  "local_tool": "Official signed Blender 4.5.15 LTS portable, temporary conversion use only",
+  "temporary_tool_removed": true,
+  "temporary_bytes_reclaimed": 1336376101,
+  "original_model_sources_preserved": true,
+  "final_portrait_build_result": "Succeeded",
+  "final_portrait_build_seconds": 22.21,
+  "idempotent_reimport_asset_hashes_checked": 138,
+  "idempotent_reimport_changed_assets": 0,
+  "capture_verification_build_seconds": 18.24,
+  "capture_waits_for_source_shaders": true
+}

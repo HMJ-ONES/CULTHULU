@@ -1,3 +1,32 @@
+# Current approved-model integration (2026-10-22)
+
+The active playable pawn is **ACultUlhuPlayerPawn** in the sole project,
+`unreal 5.8/CultUlhu.uproject`. Its **ACultCharacterModel** child supplies
+rendering only. The pawn keeps its existing canonical kit, collision,
+movement, health and camera. The original sixteen-character release allowlist
+still applies; the four deferred characters remain excluded.
+
+Start with [the simple next-steps guide](CharacterModels_NextSteps.md).
+Approved sources, acquisition evidence, animation roles and artist work are
+recorded in `unreal 5.8/Config/ApprovedCharacterModels.json`.
+`unreal 5.8/Tools/ImportSelectedCharacterAssets.py` imports locally staged
+sources into owned source-hash directories. It preserves source rigs and
+animations and never applies humanoid retargeting to these creatures.
+The generated runtime binding is
+`unreal 5.8/Content/CharacterModels/registry.json`; attribution is staged
+beside it as `CREDITS.md`. Character selection uses native model previews
+and portraits captured from those same meshes.
+
+Dense sculpture render LODs preserve LOD0 and the original downloads.
+Editor-only posed-vertex measurements can be persisted with
+`Tools/ApplyCharacterCalibration.py`, allowing runtime builds to normalize
+the model without CPU skinning. Actual clips remain separate from missing
+animation roles. A model with no clip is static, not automatically animated.
+
+The older Data Asset / humanoid mapping reference below describes a separate
+legacy pipeline. It does **not** select the visible model on the current
+playable pawn, and should not be followed for the approved nonhuman models.
+
 # Character Pipeline — `assets/characters/<name>/` → UE5
 
 How a plug-and-play character package becomes a playable UE5 character.
@@ -38,7 +67,7 @@ by alias and which didn't.
 
 | Package piece | UE5 destination | How |
 |---|---|---|
-| `character.def` (id, names, hp/speed/stamina, Q/F/R, combo id, RMB, passive) | `UCultCharacterData` Data Asset (`/Game/Characters/<Name>/DA_<Name>`) | Manual entry per the field table below, or the import script (next section). Validated field-for-field by `unreal/Tests/validate_binding.py`. |
+| `character.def` (id, names, hp/speed/stamina, Q/F/R, combo id, RMB, passive) | `UCultCharacterData` Data Asset (`/Game/Characters/<Name>/DA_<Name>`) | Manual entry per the field table below, or the import script (next section). Validated field-for-field by `unreal 5.8/Tests/validate_binding.py`. |
 | `model.fbx` (rigged) | `USkeletalMesh` (`/Game/Characters/<Name>/SK_<Name>`) | FBX import (see below). Skeleton = the model's skeleton. |
 | `rig.map` / auto-mapped bones | UE retarget chain | The core `RigMapper` matches the FBX bone list to the 11-bone humanoid rig. In UE, the equivalent step is **IK Retargeter**: source = Mixamo/character skeleton, target = your UE mannequin-compatible skeleton. The `rig.map` is the human-readable record of that match — keep it next to the asset. |
 | `animations/*.canim` | `UAnimSequence`s | Core `.canim` clips are the *fallback*. In UE, import real FBX anims (or Mixamo packs) and retarget them; bind them in the character's AnimBP. The core ships procedural fallback clips for all 9 gameplay states (Idle, Walk, Run, Attack, Death, Cast, Stunned, Channel, CastWave — see `src/animation/ProceduralClips.h`); Levitate/Launch/Levitated stay unbound, driven by Wave of Domination logic. |

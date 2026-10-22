@@ -11,7 +11,9 @@ public class CultUlhu : ModuleRules
 		// UI translation units contain file-local helpers with shared names.
 		bUseUnity = false;
  if (Target.bBuildEditor) PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd", "RHI", "RenderCore" });
- PrivateDependencyModuleNames.Add("Slate");
+ PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "Json" });
+ RuntimeDependencies.Add("$(ProjectDir)/Content/CharacterModels/registry.json",StagedFileType.NonUFS);
+ RuntimeDependencies.Add("$(ProjectDir)/Content/CharacterModels/CREDITS.md",StagedFileType.NonUFS);
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
