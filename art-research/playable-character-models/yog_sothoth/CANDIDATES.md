@@ -16,10 +16,10 @@ This file contains **review leads**, NOT 3D model binaries or a completed three-
 - **Rights / rig:** CC BY reported in secondary source; download/rig unverified. Verify commercial rights and files before use.
 
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Yog-Sothoth%2C%20the%20All-in-One%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 3. [Low Poly Eye — Floating](https://sketchfab.com/3d-models/low-poly-eye-96263357641c4cd48d6b856ebe20ce60)
+- **Visual fit:** A floating eye primitive to kitbash into Yog-Sothoth's cluster-of-spheres anatomy; NOT a complete dark model.
+- **Licensing / technical:** CC BY per Sketchfab; ~500 tris; animation tag but rig/clips require inspection.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
