@@ -4,6 +4,8 @@
 lives in `../src`; original character definitions and animation clips live in
 `../assets/characters`. Retired project copies are not build targets.
 
+Character art: [current model status](Docs/ApprovedCharacterModels.md) and [simple artist next steps](Docs/CharacterModels_NextSteps.md).
+
 ## Build and open on Windows
 
 Use the installed Unreal 5.8 engine and Visual Studio 2022 MSVC toolchain.

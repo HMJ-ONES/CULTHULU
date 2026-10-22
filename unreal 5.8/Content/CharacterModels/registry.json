@@ -1,0 +1,384 @@
+{
+  "schema_version": 1,
+  "characters": {
+    "mi_go": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo.MiGo"
+      ],
+      "skeletal": true,
+      "clips": [
+        {
+          "name": "MiGo_Anim",
+          "asset": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+          "seconds": 1.4166666269302368
+        }
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {
+        "walk": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+        "preview": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim"
+      },
+      "source_sha256": "8fe329b50a5e47ca6979fb2e4d10b5734aa4d368e692003b9f0089ec31a09ae0",
+      "import_profile": "original_fbx_v1",
+      "skeleton": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Skeleton.MiGo_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo.MiGo": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Skeleton.MiGo_Skeleton"
+      },
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Skeleton.MiGo_Skeleton",
+          "roles": {
+            "walk": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+            "preview": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim"
+          }
+        }
+      ],
+      "reference_bounds": [
+        -558.555419921875,
+        -1502.2425537109375,
+        477.7336120605469,
+        558.5503540039062,
+        -598.7636108398438,
+        1698.2406005859375
+      ],
+      "status": "IMPORTED_ANIMATED",
+      "source_url": "https://sketchfab.com/3d-models/insectoid-monster-rig-01323e4b2563430f9da85cd255b6e176",
+      "author": "DM-913",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/mi_go/Portraits/T_Portrait_fcca05c63385.T_Portrait_fcca05c63385"
+    },
+    "cthulhu_avatar": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_10.Object_10",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_11.Object_11",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_12.Object_12",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_13.Object_13",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_14.Object_14",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_15.Object_15",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_16.Object_16",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_17.Object_17",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_18.Object_18",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_4.Object_4",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_5.Object_5",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_6.Object_6",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_7.Object_7",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_8.Object_8",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_9.Object_9"
+      ],
+      "skeletal": false,
+      "clips": [],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {},
+      "source_sha256": "e49a354384dd8128b8631902a14917b60ad035441c648fb0b7ba3fe09e2a6b1b",
+      "import_profile": "default",
+      "reference_bounds": [
+        -51.171470642089844,
+        -57.36481857299805,
+        0.078765869140625,
+        52.466888427734375,
+        61.88492965698242,
+        193.0874786376953
+      ],
+      "render_lod": 1,
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/cthulhu-lovecraft-lore-d42fb260fa1546d09df367143520ccbd",
+      "author": "Brian Trepanier",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/cthulhu_avatar/Portraits/T_Portrait_165a3143029d.T_Portrait_165a3143029d"
+    },
+    "dagon": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_10.Object_10",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_11.Object_11",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_12.Object_12",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_13.Object_13",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_14.Object_14",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_4.Object_4",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_5.Object_5",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_6.Object_6",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_7.Object_7",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_8.Object_8",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_9.Object_9"
+      ],
+      "skeletal": false,
+      "clips": [],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {},
+      "source_sha256": "4eea3463112be757d595314c30c92d75fd8bd7c154498501af64e1597435515a",
+      "import_profile": "default",
+      "reference_bounds": [
+        -58.75777053833008,
+        -48.40899467468262,
+        0.86676025390625,
+        49.9761962890625,
+        66.31973266601562,
+        191.15223693847656
+      ],
+      "render_lod": 1,
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/dagon-lovecraft-lore-2d96cd1308de4e2e8f0b1413e26a5448",
+      "author": "Brian Trepanier",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/dagon/Portraits/T_Portrait_bd523a195505.T_Portrait_bd523a195505"
+    },
+    "nyarlathotep": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0.Cube_001_0",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_2aeace0882f12c8daef6e6c7022030c1.Cube_001_0_2aeace0882f12c8daef6e6c7022030c1",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_6e50ba541f3ae5be772bbaaa3bf8195f.Cube_001_0_6e50ba541f3ae5be772bbaaa3bf8195f",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_6ef5c57ec206b42d1fbf3336a8872c5a.Cube_001_0_6ef5c57ec206b42d1fbf3336a8872c5a",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_9eba5deb8f4bcccd419bdd46fc50676a.Cube_001_0_9eba5deb8f4bcccd419bdd46fc50676a",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_c25c61886fbfce5cc660ebae0b436d9b.Cube_001_0_c25c61886fbfce5cc660ebae0b436d9b",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_f58560948651a5897b58ce5d63cd8e4b.Cube_001_0_f58560948651a5897b58ce5d63cd8e4b",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Sphere_0.Sphere_0"
+      ],
+      "skeletal": false,
+      "clips": [],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {},
+      "source_sha256": "6f1331a918e1bb3471f7bec9a60f55b65d033eaf5064446f1d7d9cb10667674b",
+      "import_profile": "default",
+      "reference_bounds": [
+        -763.3758239746094,
+        -473.138427734375,
+        -83.544921875,
+        764.1424865722656,
+        2810.93017578125,
+        2832.471923828125
+      ],
+      "render_lod": 1,
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/lovecraftian-e640af2877d84d7d9ab14369dcd36d18",
+      "author": "JuanG3D",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/nyarlathotep/Portraits/T_Portrait_8d6c07297934.T_Portrait_8d6c07297934"
+    },
+    "shoggoths": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group28166_Default_Material_0.Group28166_Default_Material_0",
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group29013_Material_0.Group29013_Material_0",
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group33359_Material_3_0.Group33359_Material_3_0",
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group63675_Material_2_0.Group63675_Material_2_0"
+      ],
+      "skeletal": false,
+      "clips": [],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {},
+      "source_sha256": "d736cd045e730072390be58ab7f0a2586813fc7255599e1daf4a937968badce9",
+      "import_profile": "default",
+      "reference_bounds": [
+        -1561.518310546875,
+        -1306.34228515625,
+        -61.300140380859375,
+        2260.40185546875,
+        1729.852783203125,
+        3003.314453125
+      ],
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/lovecraftian-horror-6093cbb205444e9aa7b36d7be4ed9b58",
+      "author": "alexalbinyana",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/shoggoths/Portraits/T_Portrait_33b3cc9bf648.T_Portrait_33b3cc9bf648"
+    },
+    "yog_sothoth": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_10.Object_10",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_11.Object_11",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_12.Object_12",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_13.Object_13",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_14.Object_14",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_15.Object_15",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_16.Object_16",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_17.Object_17",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_18.Object_18",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_4.Object_4",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_5.Object_5",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_6.Object_6",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_7.Object_7",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_8.Object_8",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_9.Object_9"
+      ],
+      "skeletal": false,
+      "clips": [],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "bodies": 1,
+      "floating": true,
+      "animation_roles": {},
+      "source_sha256": "75111a826f4557c6b8e853ca4b1e20b55d733426e36277fbd007168172da8ba0",
+      "import_profile": "default",
+      "reference_bounds": [
+        -49.701704025268555,
+        -61.75864791870117,
+        1.0883026123046875,
+        52.17934036254883,
+        56.13851547241211,
+        191.56385803222656
+      ],
+      "render_lod": 1,
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/yog-sothoth-lovecraft-lore-bdf73725a4494ff8b7981685d52f73ab",
+      "author": "Brian Trepanier",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/yog_sothoth/Portraits/T_Portrait_3ca7d25100bc.T_Portrait_3ca7d25100bc"
+    },
+    "yig": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003.Armor_Side_LP_003",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned.Sword_scimitar_LP__005_Skinned",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001.Tail_3_LP__001"
+      ],
+      "skeletal": true,
+      "clips": [
+        {
+          "name": "Armor_Side_LP_003_Anim",
+          "asset": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Anim.Armor_Side_LP_003_Anim",
+          "seconds": 10.0
+        },
+        {
+          "name": "Sword_scimitar_LP__005_Skinned_Anim",
+          "asset": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Anim.Sword_scimitar_LP__005_Skinned_Anim",
+          "seconds": 10.0
+        },
+        {
+          "name": "Tail_3_LP__001_Anim",
+          "asset": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Anim.Tail_3_LP__001_Anim",
+          "seconds": 10.0
+        }
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {},
+      "source_sha256": "919aafc98cc40806a0496a2b6f2b1aa3e64843d9ed8c4689da81b21a7c7f6149",
+      "import_profile": "original_fbx_v1",
+      "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Skeleton.Armor_Side_LP_003_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003.Armor_Side_LP_003": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Skeleton.Armor_Side_LP_003_Skeleton",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned.Sword_scimitar_LP__005_Skinned": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Skeleton.Sword_scimitar_LP__005_Skinned_Skeleton",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001.Tail_3_LP__001": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Skeleton.Tail_3_LP__001_Skeleton"
+      },
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Skeleton.Armor_Side_LP_003_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Anim.Armor_Side_LP_003_Anim",
+            "preview": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Anim.Armor_Side_LP_003_Anim"
+          }
+        },
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Skeleton.Sword_scimitar_LP__005_Skinned_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Anim.Sword_scimitar_LP__005_Skinned_Anim",
+            "preview": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Anim.Sword_scimitar_LP__005_Skinned_Anim"
+          }
+        },
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Skeleton.Tail_3_LP__001_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Anim.Tail_3_LP__001_Anim",
+            "preview": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Anim.Tail_3_LP__001_Anim"
+          }
+        }
+      ],
+      "reference_bounds": [
+        -115.80287170410156,
+        -808.5872802734375,
+        -18.554018020629883,
+        525.0864868164062,
+        -96.97927856445312,
+        557.2256469726562
+      ],
+      "status": "IMPORTED_ANIMATED",
+      "source_url": "https://sketchfab.com/3d-models/naga-dragon-serpent-stylized-fantasy-monster-2fb96bd7a3c543eeabfb3868107ed4a4",
+      "author": "JoePrimal",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/yig/Portraits/T_Portrait_2c93bd0f4e3a.T_Portrait_2c93bd0f4e3a"
+    },
+    "nodens": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/nodens/Imports/hc7123257c10c/source/StaticMeshes/Box001__0.Box001__0",
+        "/Game/CultUlhu/Characters/nodens/Imports/hc7123257c10c/source/StaticMeshes/Cylinder002__0.Cylinder002__0",
+        "/Game/CultUlhu/Characters/nodens/Imports/hc7123257c10c/source/StaticMeshes/Freehand001__0.Freehand001__0"
+      ],
+      "skeletal": false,
+      "clips": [],
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {},
+      "source_sha256": "c7123257c10c37af7f21c8f0cc59118678c9879c9588bbbac86636a90aaf6235",
+      "import_profile": "default",
+      "reference_bounds": [
+        -234.1318664550782,
+        -225.51614379882818,
+        3.417036771774292,
+        387.49087524414074,
+        81.88893890380865,
+        154.44500732421875
+      ],
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/chariot-95baa95c8b9b4f4299de0e0609f7307c",
+      "author": "ShayHooperUni",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/nodens/Portraits/T_Portrait_eaa0d9574947.T_Portrait_eaa0d9574947"
+    },
+    "sghllor": {
+      "procedural": "sghllor_light_and_mist",
+      "meshes": [],
+      "skeletal": false,
+      "clips": [],
+      "animation_roles": {},
+      "floating": true,
+      "source_sha256": "original-sghllor-v1",
+      "status": "ORIGINAL_PROCEDURAL",
+      "source_url": "Original user-approved light-ball and mist concept",
+      "author": "CULT-ULHU",
+      "license": "ORIGINAL",
+      "core_material": "/Game/CultUlhu/Characters/sghllor/Original/M_SghllorCore.M_SghllorCore",
+      "mist_material": "/Game/CultUlhu/Characters/sghllor/Original/M_SghllorMist.M_SghllorMist",
+      "portrait": "/Game/CultUlhu/Characters/sghllor/Portraits/T_Portrait_95865ad2b191.T_Portrait_95865ad2b191"
+    }
+  }
+}

@@ -17,6 +17,7 @@ class UScrollBox;
 class UButton;
 class UTextBlock;
 class UCultCharacterCardWidget;
+class UCultCharacterPreviewWidget;
 
 UCLASS()
 class CULTULHU_API UCultCharacterSelectWidget : public UUserWidget
@@ -55,6 +56,7 @@ private:
 	UPROPERTY() UTextBlock* DetailSubtitle_ = nullptr;
 	UPROPERTY() UTextBlock* DetailFlavor_ = nullptr;
 	UPROPERTY() UTextBlock* DetailStats_ = nullptr;
+ UPROPERTY() UCultCharacterPreviewWidget* Preview_=nullptr;
 	UPROPERTY() UTextBlock* ModeHint_ = nullptr;
 	UPROPERTY() TArray<UTextBlock*> AbilityNames_;
 	UPROPERTY() TArray<UTextBlock*> AbilityMeta_;

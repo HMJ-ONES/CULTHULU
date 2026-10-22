@@ -10,6 +10,7 @@
 #include "Widgets/Layout/SDPIScaler.h"
 #include "UObject/StrongObjectPtr.h"
 #include "RenderingThread.h"
+#include "ShaderCompiler.h"
 #include "ImageUtils.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
@@ -33,8 +34,14 @@ public:
   if(FPlatformTime::Seconds()-Began>90) { Test->AddError(TEXT("Character selection capture timed out")); return true; }
   auto* W=GEditor->PlayWorld.Get(); if(!W||W->bIsTearingDown||!W->GetName().Contains(TEXT("L_MainMenu"))) return false;
   if(!Ready) { auto* G=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); G->SelectedCharacterId=TEXT("cthulhu_avatar"); G->OpenCharacterSelect(ECultPlayMode::FreeRoam); Ready=true; return false; }
+  // A cold editor may still be compiling the imported source materials.
+  // Capturing its temporary white fallback is not a review of the actual art.
+  if(GShaderCompilingManager&&GShaderCompilingManager->IsCompiling()) return false;
   TArray<UUserWidget*> Menus; UWidgetBlueprintLibrary::GetAllWidgetsOfClass(W,Menus,UCultCharacterSelectWidget::StaticClass(),true); if(Menus.Num()!=1) return false;
-  auto* Menu=Cast<UCultCharacterSelectWidget>(Menus[0]); Menu->RemoveFromParent();
+  auto* Menu=Cast<UCultCharacterSelectWidget>(Menus[0]);
+  const auto& Roster=UCultUlhuGameInstance::Roster();
+  for(int Index=0;Index<Roster.Num();++Index) if(Roster[Index].Id==TEXT("cthulhu_avatar")) Menu->SelectCharacter(Index);
+  Menu->RemoveFromParent();
   FString Label; FParse::Value(FCommandLine::Get(),TEXT("CharacterMenuCapture="),Label); if(Label!=TEXT("Before")&&Label!=TEXT("After")) Label=TEXT("Review");
   FWidgetRenderer Renderer(true,true);
   for(const FIntPoint Size:{FIntPoint(960,540),FIntPoint(1280,720),FIntPoint(1920,1080),FIntPoint(1280,540)}) {

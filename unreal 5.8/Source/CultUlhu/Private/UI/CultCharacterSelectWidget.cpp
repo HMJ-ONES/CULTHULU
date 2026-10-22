@@ -19,6 +19,7 @@
 #include "Components/ScaleBox.h"
 
 #include "UI/CultCharacterCardWidget.h"
+#include "UI/CultCharacterPreviewWidget.h"
 #include "CultUlhuGameInstance.h"
 #include "CultCanonicalKit.h"
 
@@ -47,27 +48,31 @@ void UCultCharacterSelectWidget::BuildLayout() {
  auto* FitSlot=Root_->AddChildToCanvas(Fit); FitSlot->SetAnchors(FAnchors(0,0,1,1)); FitSlot->SetOffsets(FMargin(0));
  auto* Reference=NewObject<USizeBox>(this); Reference->SetWidthOverride(1280); Reference->SetHeightOverride(720); Fit->AddChild(Reference);
  auto* Content=NewObject<UCanvasPanel>(this); Reference->AddChild(Content);
- auto* Col=NewObject<UVerticalBox>(this); auto* Outer=Content->AddChildToCanvas(Col); Outer->SetAnchors(FAnchors(.045f,.045f,.955f,.95f)); Outer->SetOffsets(FMargin(0));
+ auto* Col=NewObject<UVerticalBox>(this); auto* Outer=Content->AddChildToCanvas(Col); Outer->SetAnchors(FAnchors(.025f,.025f,.975f,.975f)); Outer->SetOffsets(FMargin(0));
  Col->AddChildToVerticalBox(MakeText(UCultUlhuGameInstance::ModeDisplayName(Mode_).ToUpper()+TEXT("  /  ENTITY SELECTION"),13,CultUI::Gold))->SetPadding(FMargin(0,0,0,6));
- TitleText_=MakeText(TEXT("CHOOSE YOUR ENTITY"),32,CultUI::Bone); Col->AddChildToVerticalBox(TitleText_)->SetPadding(FMargin(0,0,0,16));
- auto* Main=NewObject<UHorizontalBox>(this); auto* MainSlot=Col->AddChildToVerticalBox(Main); MainSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill)); MainSlot->SetPadding(FMargin(0,0,0,20));
- auto* Scroll=NewObject<UScrollBox>(this); Grid_=NewObject<UUniformGridPanel>(this); Grid_->SetSlotPadding(FMargin(0,0,10,10)); Grid_->SetMinDesiredSlotHeight(96); Scroll->AddChild(Grid_); Scroll->SetConsumeMouseWheel(EConsumeMouseWheel::WhenScrollingPossible);
- auto* RosterSlot=Main->AddChildToHorizontalBox(Scroll); RosterSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill)); RosterSlot->SetPadding(FMargin(0,0,24,0));
- auto* Detail=NewObject<UBorder>(this); Detail->SetBrushColor(CultUI::Panel); Detail->SetPadding(FMargin(20,18)); auto* DetailSize=NewObject<USizeBox>(this); DetailSize->SetWidthOverride(360); DetailSize->AddChild(Detail); Main->AddChildToHorizontalBox(DetailSize);
+ TitleText_=MakeText(TEXT("CHOOSE YOUR ENTITY"),28,CultUI::Bone); Col->AddChildToVerticalBox(TitleText_)->SetPadding(FMargin(0,0,0,8));
+ auto* Main=NewObject<UHorizontalBox>(this); auto* MainSlot=Col->AddChildToVerticalBox(Main); MainSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill)); MainSlot->SetPadding(FMargin(0,0,0,12));
+ auto* Scroll=NewObject<UScrollBox>(this); Grid_=NewObject<UUniformGridPanel>(this); Grid_->SetSlotPadding(FMargin(0,0,8,8)); Grid_->SetMinDesiredSlotHeight(76); Scroll->AddChild(Grid_); Scroll->SetConsumeMouseWheel(EConsumeMouseWheel::WhenScrollingPossible);
+ auto* RosterSize=NewObject<USizeBox>(this); RosterSize->SetHeightOverride(172); RosterSize->AddChild(Scroll);
+ Preview_=CreateWidget<UCultCharacterPreviewWidget>(this,UCultCharacterPreviewWidget::StaticClass());
+ auto* Studio=NewObject<UBorder>(this); Studio->SetBrushColor(CultUI::Panel); Studio->SetPadding(FMargin(0)); Studio->SetContent(Preview_);
+ auto* StudioSlot=Main->AddChildToHorizontalBox(Studio); StudioSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill)); StudioSlot->SetPadding(FMargin(0,0,24,0));
+ auto* Detail=NewObject<UBorder>(this); Detail->SetBrushColor(CultUI::Panel); Detail->SetPadding(FMargin(20,12)); auto* DetailSize=NewObject<USizeBox>(this); DetailSize->SetWidthOverride(490); DetailSize->AddChild(Detail); Main->AddChildToHorizontalBox(DetailSize);
  auto* DetailScroll=NewObject<UScrollBox>(this); Detail->SetContent(DetailScroll); auto* DetailCol=NewObject<UVerticalBox>(this); DetailScroll->AddChild(DetailCol);
- DetailCol->AddChildToVerticalBox(MakeText(TEXT("YOUR VESSEL"),11,CultUI::Teal))->SetPadding(FMargin(0,0,0,8));
  DetailText_=MakeText(TEXT(""),24,CultUI::Bone); DetailText_->SetAutoWrapText(true); DetailCol->AddChildToVerticalBox(DetailText_)->SetPadding(FMargin(0,0,0,2));
- DetailSubtitle_=MakeText(TEXT(""),12,CultUI::Gold); DetailSubtitle_->SetAutoWrapText(true); DetailCol->AddChildToVerticalBox(DetailSubtitle_)->SetPadding(FMargin(0,0,0,8));
+ DetailSubtitle_=MakeText(TEXT(""),12,CultUI::Gold); DetailSubtitle_->SetAutoWrapText(true); DetailCol->AddChildToVerticalBox(DetailSubtitle_)->SetPadding(FMargin(0,0,0,4));
  DetailFlavor_=MakeText(TEXT(""),13,CultUI::Muted); DetailFlavor_->SetAutoWrapText(true); DetailCol->AddChildToVerticalBox(DetailFlavor_)->SetPadding(FMargin(0,0,0,8));
- DetailStats_=MakeText(TEXT(""),12,CultUI::Teal); DetailCol->AddChildToVerticalBox(DetailStats_)->SetPadding(FMargin(0,0,0,12));
+ DetailFlavor_->SetVisibility(ESlateVisibility::Collapsed);
+ DetailStats_=MakeText(TEXT(""),12,CultUI::Teal); DetailCol->AddChildToVerticalBox(DetailStats_)->SetPadding(FMargin(0,0,0,6));
  const TCHAR* Keys[]={TEXT("Q"),TEXT("F"),TEXT("R"),TEXT("RMB")};
  for(int I=0;I<4;++I) {
-  auto* Row=NewObject<UHorizontalBox>(this); auto* Key=NewObject<UBorder>(this); Key->SetBrushColor(FLinearColor(.025f,.075f,.075f)); Key->SetPadding(FMargin(6)); Key->SetContent(CultUI::Label(this,Keys[I],I==3?12:16,CultUI::Teal,true,ETextJustify::Center));
+  auto* Row=NewObject<UHorizontalBox>(this); auto* Key=NewObject<UBorder>(this); Key->SetBrushColor(FLinearColor(.025f,.075f,.075f)); Key->SetPadding(FMargin(4)); Key->SetContent(CultUI::Label(this,Keys[I],I==3?12:16,CultUI::Teal,true,ETextJustify::Center));
   auto* KeySize=NewObject<USizeBox>(this); KeySize->SetWidthOverride(42); KeySize->SetHeightOverride(38); KeySize->AddChild(Key); Row->AddChildToHorizontalBox(KeySize)->SetPadding(FMargin(0,0,12,0));
   auto* Text=NewObject<UVerticalBox>(this); auto* Name=CultUI::Label(this,TEXT(""),16,CultUI::Bone,true); Name->SetAutoWrapText(true); Text->AddChildToVerticalBox(Name)->SetPadding(FMargin(0,0,0,3)); AbilityNames_.Add(Name);
   auto* Meta=MakeText(TEXT(""),11,CultUI::Muted); Meta->SetAutoWrapText(true); Text->AddChildToVerticalBox(Meta); AbilityMeta_.Add(Meta);
-  Row->AddChildToHorizontalBox(Text)->SetSize(FSlateChildSize(ESlateSizeRule::Fill)); DetailCol->AddChildToVerticalBox(Row)->SetPadding(FMargin(0,0,0,6));
+  Row->AddChildToHorizontalBox(Text)->SetSize(FSlateChildSize(ESlateSizeRule::Fill)); DetailCol->AddChildToVerticalBox(Row)->SetPadding(FMargin(0,0,0,4));
  }
+ Col->AddChildToVerticalBox(RosterSize)->SetPadding(FMargin(0,0,0,12));
  auto* Hints=NewObject<UHorizontalBox>(this); ModeHint_=MakeText(TEXT(""),11,CultUI::Gold); ModeHint_->SetAutoWrapText(true); Hints->AddChildToHorizontalBox(ModeHint_)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
  Hints->AddChildToHorizontalBox(MakeText(TEXT("LMB melee / V view / Tap Shift dash / Hold Shift sprint"),10,CultUI::Muted))->SetPadding(FMargin(16,0,0,0)); Col->AddChildToVerticalBox(Hints)->SetPadding(FMargin(0,0,0,8));
  auto* Row=NewObject<UHorizontalBox>(this); BackButton_=MakeButton(TEXT("BACK"),18); BackButton_->OnClicked.AddDynamic(this,&UCultCharacterSelectWidget::OnBackClicked); Row->AddChildToHorizontalBox(BackButton_);
@@ -83,7 +88,7 @@ void UCultCharacterSelectWidget::RebuildGrid()
 	Cards_.Empty();
 
 	const TArray<FCultRosterEntry>& R = UCultUlhuGameInstance::Roster();
-	const int32 Cols = 4;
+	const int32 Cols = 8;
  if(auto* GI=Cast<UCultUlhuGameInstance>(GetGameInstance())) for(int32 I=0;I<R.Num();++I) if(R[I].Id==GI->SelectedCharacterId) SelectedIndex_=I;
 	for (int32 i = 0; i < R.Num(); ++i)
 	{
@@ -114,6 +119,7 @@ void UCultCharacterSelectWidget::RefreshSelection()
 	if (DetailText_ && R.IsValidIndex(SelectedIndex_))
 	{
 		const FCultRosterEntry& E = R[SelectedIndex_];
+  if(Preview_) Preview_->ShowCharacter(E.Id);
   FString Short=E.DisplayName,Subtitle; int32 Comma; if(E.DisplayName.FindChar(',',Comma)) { Short=E.DisplayName.Left(Comma); Subtitle=E.DisplayName.Mid(Comma+1).TrimStartAndEnd(); }
   DetailText_->SetText(FText::FromString(Short.ToUpper())); DetailSubtitle_->SetText(FText::FromString(Subtitle)); DetailFlavor_->SetText(FText::FromString(E.Flavor));
   cultulhu::CharacterDef Def;

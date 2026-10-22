@@ -7,6 +7,7 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 #include "CultCombatAudio.h"
 #include "CultCombatCredit.h"
 #include "CultVesselSurface.h"
+#include "CultCharacterModel.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "core/EventBus.h"
 
@@ -137,6 +138,7 @@ void ACultUlhuPlayerPawn::BeginPlay()
 			E->SetRelativeScale3D(FVector(S));
 		}
 	}
+ ACultCharacterModel::AttachToPawn(this,CharacterId_);
 }
 
 bool ACultUlhuPlayerPawn::PlaceOnWalkableGround()
@@ -243,11 +245,11 @@ void ACultUlhuPlayerPawn::SetupPlayerInputComponent(UInputComponent* IC)
 
 void ACultUlhuPlayerPawn::ToggleCamera()
 {	bThirdPerson_ = !bThirdPerson_;
-	VesselBody_->SetVisibility(bThirdPerson_);
+	VesselBody_->SetVisibility(bThirdPerson_&&!VesselBody_->ComponentHasTag(TEXT("CultReplacedVessel")));
 	TArray<UStaticMeshComponent*> Visuals;
 	GetComponents(Visuals);
 	for (UStaticMeshComponent* Visual : Visuals)
-		if (Visual->ComponentHasTag(TEXT("VesselEye"))) Visual->SetVisibility(bThirdPerson_);
+		if (Visual->ComponentHasTag(TEXT("VesselEye"))) Visual->SetVisibility(bThirdPerson_&&!Visual->ComponentHasTag(TEXT("CultReplacedVessel")));
 	const float HalfH = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 	if (bThirdPerson_)
 	{
