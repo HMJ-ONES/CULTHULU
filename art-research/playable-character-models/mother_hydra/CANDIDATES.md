@@ -6,20 +6,23 @@
 
 This file contains **review leads**, NOT 3D model binaries or a completed three-model commercial-ready selection. Any direct model link needs a fresh creator/license/download/rights check before use. Generic searches below are open research tasks, NOT identified models.
 
-### 1. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Mother%20Hydra%2C%20the%20Deep%20Mother%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 1. [Sea Monster — Animated](https://sketchfab.com/3d-models/sea-monster-animated-eef3cd2ece654265aaf0dcf9ea27cd53)
+- **License / status:** CC BY indicated on source. Verify on the live source before production use.
+- **Visual fit:** Dark aquatic creature with good deep-ocean tone; must evolve toward towering female Deep One figure.
+- **Rig / animation:** Rigged/swimming animation indicated; ~16k triangles.
 
-### 2. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Mother%20Hydra%2C%20the%20Deep%20Mother%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
 
-### 3. OPEN — additional distinct model required
-- **Discovery link:** https://sketchfab.com/search?q=Mother%20Hydra%2C%20the%20Deep%20Mother%20dark%20horror&type=models&features=downloadable
-- **Status:** No specific candidate verified for this slot. Do **not** treat the search page as a model or a license.
-- **Requirements:** distinct downloadable 3D mesh, impressive dark silhouette, recognizable mythology, commercial-use compatible source permissions, rig/animations noted separately.
+### 2. [Leviathan Sea Monster](https://sketchfab.com/3d-models/leviathan-sea-monster-creature-model-3b7de5c0c4c747b686bf7527ea99e741)
+- **License / status:** CC BY indicated on source. Verify on the live source before production use.
+- **Visual fit:** Threatening oceanic leviathan. Strong horror texture basis but anatomically unlike Mother Hydra.
+- **Rig / animation:** ~20k triangles; rig/animation unverified.
+
+
+### 3. [Abyssnapper Deep Sea Monster](https://sketchfab.com/3d-models/abyssnapper-deep-sea-monster-a12b062e12af434e9f148927bdfc8f19)
+- **License / status:** CC BY indicated on source. Verify on the live source before production use.
+- **Visual fit:** Sinister abyssal head and body useful for Mother Hydra kitbashing; **not exact**.
+- **Rig / animation:** ~120k triangles; not rigged.
+
 
 ## Selection checklist
 - [ ] Exactly three actual distinct model pages reviewed
