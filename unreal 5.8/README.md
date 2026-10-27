@@ -1,3 +1,5 @@
+> [Consolidation and verified controls, 2026-10-27](Docs/ConsolidationReview_2026-10-27.md).
+
 # CULT-ULHU â€” Unreal 5.8 project
 
 `CultUlhu.uproject` in this directory is the active project. The gameplay core

@@ -4,11 +4,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 
-// Each handler below is a wiring stub: the exact core calls depend on how
-// the pawn exposes the core input model (InputManager) and ability system.
-// The comments name the intended core touch-points.
-// VERIFY IN EDITOR: implement the bodies, then playtest every binding
-// against Docs/EnhancedInputMapping.md.
+#include "CultUlhuPlayerPawn.h"
+#include "InputAction.h"
 
 void ACultUlhuPlayerController::BeginPlay()
 {
@@ -37,50 +34,43 @@ void ACultUlhuPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(InputComponent);
 	if (!EI) return;
-	// VERIFY IN EDITOR: confirm every BindAction below matches the action
-	// assets from Docs/EnhancedInputMapping.md (value types included).
-
-	// if (MoveAction) EI->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACultUlhuPlayerController::OnMove);
-	// if (JumpAction) EI->BindAction(JumpAction, ETriggerEvent::Started, this, &ACultUlhuPlayerController::OnJumpStarted);
-	// if (SprintAction) { Started -> OnSprintStarted; Completed -> OnSprintCompleted; }
-	// Q/F/R -> OnAbilityQ/F/R (Started)
-	// if (InteractAction) -> OnInteract (Started)
-	// if (StatsOverlayAction) -> OnStatsOverlay (Started; toggle)
-	// if (AttackAction) -> OnAttack (Started; feeds ComboTracker timestamps)
-	// RMB: Started -> OnHeavyAttackStarted; Completed -> OnHeavyAttackCompleted
-	//   (Wave of Domination: press = cast/hold, release = drop, LMB during hold = launch)
-	// if (CommandMenuAction) EI->BindAction(CommandMenuAction, ETriggerEvent::Started, this, &ACultUlhuPlayerController::OnCommandMenu);
+ const TPair<UInputAction*,ECultPlayerInput> Actions[]={
+  {JumpAction,ECultPlayerInput::Jump},{AbilityQAction,ECultPlayerInput::Q},
+  {AbilityFAction,ECultPlayerInput::F},{AbilityRAction,ECultPlayerInput::R},
+  {InteractAction,ECultPlayerInput::Interact},{StatsOverlayAction,ECultPlayerInput::Stats},
+  {AttackAction,ECultPlayerInput::Primary},{HeavyAttackAction,ECultPlayerInput::Heavy},
+  {CommandMenuAction,ECultPlayerInput::Command}};
+ for(const auto& Entry:Actions) if(Entry.Key) {
+  EI->BindAction(Entry.Key,ETriggerEvent::Started,this,&ACultUlhuPlayerController::OnActionStarted,Entry.Value);
+  EI->BindAction(Entry.Key,ETriggerEvent::Completed,this,&ACultUlhuPlayerController::OnActionCompleted,Entry.Value);
+  EI->BindAction(Entry.Key,ETriggerEvent::Canceled,this,&ACultUlhuPlayerController::OnActionCompleted,Entry.Value);
+ }
+ if(MoveAction) {
+  EI->BindAction(MoveAction,ETriggerEvent::Triggered,this,&ACultUlhuPlayerController::OnMove);
+  EI->BindAction(MoveAction,ETriggerEvent::Completed,this,&ACultUlhuPlayerController::OnMoveCompleted);
+  EI->BindAction(MoveAction,ETriggerEvent::Canceled,this,&ACultUlhuPlayerController::OnMoveCompleted);
+ }
+ if(SprintAction) {
+  EI->BindAction(SprintAction,ETriggerEvent::Started,this,&ACultUlhuPlayerController::OnSprintStarted);
+  EI->BindAction(SprintAction,ETriggerEvent::Completed,this,&ACultUlhuPlayerController::OnSprintCompleted);
+  EI->BindAction(SprintAction,ETriggerEvent::Canceled,this,&ACultUlhuPlayerController::OnSprintCompleted);
+ }
 }
-
-void ACultUlhuPlayerController::OnMove(const FInputActionValue& Value)
-{
-	// Core: InputManager WASD vector -> pawn movement (2D axis -> FVector).
-	(void)Value;
+void ACultUlhuPlayerController::OnActionStarted(ECultPlayerInput Input) {
+ if(auto* P=Cast<ACultUlhuPlayerPawn>(GetPawn())) P->RoutePlayerInput(Input,true);
 }
-
-void ACultUlhuPlayerController::OnJumpStarted()
-{
-	// Core: InputManager jump buffer; pawn->Jump() if grounded/coyote.
+void ACultUlhuPlayerController::OnActionCompleted(ECultPlayerInput Input) {
+ if(auto* P=Cast<ACultUlhuPlayerPawn>(GetPawn())) P->RoutePlayerInput(Input,false);
 }
-
-void ACultUlhuPlayerController::OnSprintStarted()
-{
-	// Core: StaminaGauge drain while held; pawn MaxWalkSpeed multiplier.
+void ACultUlhuPlayerController::OnMove(const FInputActionValue& Value) {
+ if(auto* P=Cast<ACultUlhuPlayerPawn>(GetPawn())) P->SetEnhancedMove(Value.Get<FVector2D>().GetClampedToMaxSize(1));
 }
-
-void ACultUlhuPlayerController::OnSprintCompleted() {}
-void ACultUlhuPlayerController::OnAbilityQ() {}  // SpellDef qAbility via cooldown/stamina gates
-void ACultUlhuPlayerController::OnAbilityF() {}
-void ACultUlhuPlayerController::OnAbilityR() {}
-void ACultUlhuPlayerController::OnInteract() {} // E: nearest Interactable (altar/captive/relic/door)
-void ACultUlhuPlayerController::OnStatsOverlay() {} // Tab: toggle UCultStatsPanelWidget
-void ACultUlhuPlayerController::OnAttack() {}   // LMB: ComboTracker chain -> anim + damage
-void ACultUlhuPlayerController::OnHeavyAttackStarted() {}   // RMB press: wave_of_domination cast / targeted stun
-void ACultUlhuPlayerController::OnHeavyAttackCompleted() {} // RMB release: drop victims
-
-void ACultUlhuPlayerController::OnCommandMenu(const FInputActionValue& Value)
-{
-	// Alt+LMB chord: raycast from click point, build MenuContext, open
-	// UCultCommandMenuWidget at the screen position.
-	(void)Value;
+void ACultUlhuPlayerController::OnMoveCompleted() {
+ if(auto* P=Cast<ACultUlhuPlayerPawn>(GetPawn())) P->SetEnhancedMove(FVector2D::ZeroVector);
+}
+void ACultUlhuPlayerController::OnSprintStarted() {
+ if(auto* P=Cast<ACultUlhuPlayerPawn>(GetPawn())) P->SetEnhancedSprint(true);
+}
+void ACultUlhuPlayerController::OnSprintCompleted() {
+ if(auto* P=Cast<ACultUlhuPlayerPawn>(GetPawn())) P->SetEnhancedSprint(false);
 }

@@ -42,3 +42,7 @@ assets/creatures/Textures/*.png
 /unreal 5.8/Config/DefaultEditorPerProjectUserSettings.ini
 # Retired local project is preserved on disk but excluded from future additions.
 /unreal/
+
+# Retired source backups and Python bytecode are not project inputs.
+*.bak
+*.pyc

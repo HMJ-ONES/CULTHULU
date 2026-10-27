@@ -13,7 +13,7 @@ Checks (all static, no engine):
  6. Every core header #included by the binding exists in ../src
     (catches typos like "beliefs/BeliefSystems.h").
 
-Run: python3 unreal/Tests/validate_binding.py   (from the repo root)
+Run: python3 "unreal 5.8/Tests/validate_binding.py"   (from the repo root)
 Exit 0 = all green.
 """
 import json
@@ -22,7 +22,8 @@ import re
 import sys
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-UNREAL = os.path.join(REPO, "unreal")
+UNREAL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+assert os.path.basename(UNREAL) == 'unreal 5.8', 'Canonical project required'
 SRC = os.path.join(REPO, "src")
 failures = []
 
@@ -36,7 +37,7 @@ def check(cond, msg):
 # --- 1. uproject -----------------------------------------------------------
 uproj_path = os.path.join(UNREAL, "CultUlhu.uproject")
 try:
-    with open(uproj_path) as f:
+    with open(uproj_path, encoding="utf-8-sig") as f:
         uproj = json.load(f)
     mods = {m["Name"] for m in uproj.get("Modules", [])}
     check({"CultUlhuCore", "CultUlhu"} <= mods,
@@ -66,22 +67,24 @@ marker_re = re.compile(r"//\s*VERIFY IN EDITOR:")
 for root, _, files in os.walk(os.path.join(UNREAL, "Source")):
     for fn in files:
         p = os.path.join(root, fn)
+        if not fn.endswith((".h", ".cpp", ".cs")):
+            continue
         with open(p, encoding="utf-8", errors="replace") as f:
             if marker_re.search(f.read()):
                 marker_files.add(os.path.relpath(p, UNREAL))
 
 verif_path = os.path.join(UNREAL, "Docs", "InEditorVerification.md")
-with open(verif_path) as f:
+with open(verif_path, encoding="utf-8-sig") as f:
     verif_text = f.read()
 for rel in sorted(marker_files):
     # checklist references the file by its Source/... or Docs/... path
-    check(rel in verif_text,
+    check(rel.replace(os.sep, '/') in verif_text.replace('\\', '/'),
           f"InEditorVerification.md accounts for markers in {rel}")
 check(len(marker_files) > 0, "found VERIFY IN EDITOR markers to account for")
 
 # --- 4. Enhanced Input action coverage --------------------------------------
 ei_path = os.path.join(UNREAL, "Docs", "EnhancedInputMapping.md")
-with open(ei_path) as f:
+with open(ei_path, encoding="utf-8-sig") as f:
     ei_text = f.read()
 for action in ("IA_Move", "IA_Jump", "IA_Sprint", "IA_AbilityQ", "IA_AbilityF",
                "IA_AbilityR", "IA_Interact", "IA_StatsOverlay", "IA_Attack",
@@ -93,7 +96,7 @@ def parse_def(path):
     """Minimal character.def parser: {section: {key: value}}, '' = global."""
     sections = {"": {}}
     cur = ""
-    with open(path) as f:
+    with open(path, encoding="utf-8-sig") as f:
         for raw in f:
             line = raw.strip()
             if not line or line.startswith("#"):
@@ -112,7 +115,7 @@ check(os.path.isfile(def_path), "template character.def exists for coverage chec
 if os.path.isfile(def_path):
     sections = parse_def(def_path)
     pipe_path = os.path.join(UNREAL, "Docs", "CharacterPipeline.md")
-    with open(pipe_path) as f:
+    with open(pipe_path, encoding="utf-8-sig") as f:
         pipe_text = f.read()
     expected = set()
     for sec, kv in sections.items():
@@ -123,8 +126,10 @@ if os.path.isfile(def_path):
                 "melee_combo", "rmb_ability", "[q]", "[rightclick]",
                 "[passive]", "cooldown", "stamina_cost", "effect",
                 "damage_mult", "cc_seconds"):
-        # Table lists keys backticked, sometimes as `key→Field` mappings.
-        check(f"`{key}`" in pipe_text or f"`{key}→" in pipe_text,
+        # Table lists keys backticked, sometimes as `keyÃ¢â€ â€™Field` mappings.
+        inline_fields = re.findall(r"`([^`\n]+)`", pipe_text)
+        check(any(re.search(r"(?<![\w])" + re.escape(key) + r"(?![\w])", field)
+                  for field in inline_fields),
               f"CharacterPipeline.md field table covers `{key}`")
     check(len(expected) >= 20,
           f"template def has a realistic field count ({len(expected)})")

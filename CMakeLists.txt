@@ -9,12 +9,17 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # The interactive driver has its own main() and is excluded here.
 file(GLOB_RECURSE CULTULHU_SRC CONFIGURE_DEPENDS src/*.cpp)
 list(FILTER CULTULHU_SRC EXCLUDE REGEX "src/driver/")
+list(FILTER CULTULHU_SRC EXCLUDE REGEX "src/(fuzz/fuzz_main|sim/main)\\.cpp$")
 # Micro-dev fix: BetaGame (lib code, src/fuzz/) constructs AntiCheat, so
 # its implementation must live in the lib — otherwise every lib consumer
 # (e.g. cultulhu_fuzz) fails to link with undefined AntiCheat symbols.
 list(APPEND CULTULHU_SRC src/driver/AntiCheat.cpp)
 add_library(cultulhu ${CULTULHU_SRC})
 target_include_directories(cultulhu PUBLIC src)
+if(MSVC)
+    target_compile_definitions(cultulhu PUBLIC NOMINMAX WIN32_LEAN_AND_MEAN _USE_MATH_DEFINES)
+    target_compile_options(cultulhu PUBLIC /EHsc /utf-8)
+endif()
 
 # Windows: the net layer uses Winsock2 + GetAdaptersAddresses().
 if(WIN32)
@@ -569,3 +574,7 @@ target_link_libraries(cultulhu_tests_micro_pointcontest PRIVATE cultulhu)
 add_test(NAME cultulhu_tests_micro_pointcontest COMMAND cultulhu_tests_micro_pointcontest)
 set_tests_properties(cultulhu_tests_micro_pointcontest PROPERTIES
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# Asset fixtures must resolve the clean source tree, regardless of build depth.
+get_property(CULTULHU_TESTS DIRECTORY PROPERTY TESTS)
+set_tests_properties(${CULTULHU_TESTS} PROPERTIES WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

@@ -45,6 +45,16 @@ public:
   if(Phase==2) {
    Test->TestFalse(TEXT("V toggle enters first person"),Player->IsThirdPerson());
    Test->TestEqual(TEXT("First person collapses the actual camera boom"),Arm->TargetArmLength,0.f);
+   const float EyeHeight=Camera->GetComponentLocation().Z-Player->FeetLocation().Z;
+   Test->TestTrue(TEXT("First-person camera stays at eye height inside the canonical capsule"),EyeHeight>Half*1.76f&&EyeHeight<Half*1.94f);
+   Test->AddInfo(FString::Printf(TEXT("Verified eye height %.1f cm / capsule %.1f cm"),EyeHeight,2*Half));
+   FScreenshotRequest::RequestScreenshot(FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir()/FString::Printf(TEXT("Screenshots/Camera_%s_%d_FirstPerson.png"),*Character,int32(Mode))),true,false);
+   // Keep this view through rendering; changing it in the request frame
+   // captures the camera transition instead of settled first person.
+   At=World->GetTimeSeconds(); Phase=20; return false;
+  }
+  if(Phase==20) {
+   if(FScreenshotRequest::IsScreenshotRequested()) return false;
    Player->ToggleCamera(); At=World->GetTimeSeconds(); Phase=3; return false;
   }
   if(Phase==3) {

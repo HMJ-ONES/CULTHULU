@@ -1,51 +1,27 @@
-# Enhanced Input Mapping — the owner's full binding scheme
+# Current controls and optional Enhanced Input
 
-One `UInputMappingContext` (`IMC_CultUlhu`) holding every action below.
-Create the `UInputAction` assets in `/Game/Input/Actions/`, the context in
-`/Game/Input/`. Value types and triggers are the load-bearing details —
-// VERIFY IN EDITOR: each row once, in PIE, with the "show debug" input
-// debugger (Enhanced Input has one; use it).
+The native pawn works immediately with keyboard and mouse; no Input Action assets or Blueprint setup are required. The controller also supports optional Enhanced Input references. Both paths share press/release routing, so the same physical press cannot trigger an action twice.
 
-## Actions
+| Action reference | Default control | Current behavior |
+| --- | --- | --- |
+| `IA_Move` | WASD / arrows | Camera-relative movement. Optional Axis2D uses X right, Y forward; physical movement keys take precedence. |
+| `IA_Jump` | Space | Existing jump and release behavior. |
+| `IA_Sprint` | Shift | Hold to sprint; a short tap requests the existing directional dash. A held sprint does not dash. |
+| `IA_AbilityQ` | Q | Original selected character Q, with existing gates and costs. |
+| `IA_AbilityF` | F | Original selected character F. |
+| `IA_AbilityR` | R | Original selected character R. |
+| `IA_Interact` | E | Existing interaction, including competitive invocation rules. |
+| `IA_StatsOverlay` | Tab | Toggle current stats display. |
+| `IA_Attack` | LMB | Existing melee, held-minion launch, or ALT selection according to current pawn state. |
+| `IA_HeavyAttack` | RMB | Existing character/mode RMB action and release. |
+| `IA_CommandMenu` | Hold Left ALT | Release cursor and select orders; release ALT to return to mouse look. LMB remains the pawn's existing context-sensitive command click. |
 
-| Input Action | Key(s) | Value type | Trigger | Core touch-point |
-|---|---|---|---|---|
-| `IA_Move` | WASD | Axis2D (`FVector2D`) | — (continuous) | `InputManager` move vector → `AddMovementInput` (camera-relative) |
-| `IA_Jump` | Space | Digital (bool) | `Started` | jump buffer + coyote stubs (`src/input`) → `ACharacter::Jump()` |
-| `IA_Sprint` | Left Shift | Digital (bool) | `Started` / `Completed` | `StaminaGauge`: drain 18/s while held, regen 12/s, exhausted at 0 → recover at 30; sprint multiplies `MaxWalkSpeed` |
-| `IA_AbilityQ` | Q | Digital | `Started` | `AbilitySlot` (Q): cooldown + stamina gates → `SpellDef` effect |
-| `IA_AbilityF` | F | Digital | `Started` | `AbilitySlot` (F) |
-| `IA_AbilityR` | R | Digital | `Started` | `AbilitySlot` (R) |
-| `IA_Interact` | E | Digital | `Started` | `findInteractable()` radius 3.0 m (altar/captive/relic/door) → `setInteractTarget()` |
-| `IA_StatsOverlay` | Tab | Digital | `Started` | toggles `UCultStatsPanelWidget` visibility |
-| `IA_Attack` | Left Mouse | Digital | `Started` | `ComboTracker` click timestamps → stage → anim state + damage × mult + CC |
-| `IA_HeavyAttack` | Right Mouse | Digital | `Started` / `Completed` | per-character RMB kit. Cthulhu Avatar = `wave_of_domination`: press = cast/hold, mouse-move = swing, LMB during hold = launch, release = drop |
-| `IA_CommandMenu` | **Alt + Left Mouse (chord)** | Digital | `Started` | raycast from cursor → `MenuContext` → `UCultCommandMenuWidget::OpenMenu()` |
+Mouse movement aims the camera. V switches first/third person. B opens beliefs/commands where the current mode permits them. Competitive Escape opens pause controls; Free Roam Escape returns home. Existing G recall and Enter rematch controls remain.
 
-## Notes
+## Optional action assets
 
-- **Chorded action:** `IA_CommandMenu` uses Enhanced Input's chorded-action
-  support (Alt as the chord key + LMB). If chorded actions misbehave in
-  your engine version, fall back to a manual check: on LMB `Started`, test
-  `IsInputKeyDown(EKeys::LeftAlt)` in the PlayerController.
-  // VERIFY IN EDITOR: the Alt+LMB chord fires exactly once per press and
-  // does NOT also trigger IA_Attack.
-- **LMB double duty:** during Wave of Domination's hold phase, LMB means
-  *launch victims*, not *melee*. The PlayerController must route LMB by
-  RMB-kit state (`WaveOfDomination::phase()`), not by a static binding.
-- **Stamina numbers** (tunable; also in the core README): 100 max, drain
-  18/s, regen 12/s, exhausted→recover at 30.
-- **Camera-relative movement:** `IA_Move` is fed through the control
-  rotation (yaw only), standard third/first-person template pattern.
-- **Tab vs UI focus:** the stats overlay is a toggle, not hold. Make sure
-  the widget doesn't steal keyboard focus (set `Is Focusable = false`).
-- **Gamepad (later):** leave the mapping context open for a gamepad
-  profile; the core consumes abstract states so only the context changes.
+Assign the matching `UInputAction` properties and `MappingContext` on `ACultUlhuPlayerController` only when extending the input profile. Use Boolean values except Axis2D for move. Discrete actions bind Started, Completed and Canceled; movement binds Triggered, Completed and Canceled. Sprint state enters the same tap/hold decision used by keyboard polling. Keep the command action as held ALT, not the obsolete ALT+LMB chord.
 
-## Mapping context contents (authoring checklist)
+The controller forwards to `ACultUlhuPlayerPawn`, which owns all actual combat, interaction, movement and control-state decisions. It does not bypass the kit runtime, add a second stamina drain, or substitute direct core calls. Missing optional references leave the zero-asset keyboard/mouse path active. Remapping menus and a complete gamepad profile are separate work.
 
-- [ ] All 11 actions above exist as assets with the value types listed
-- [ ] `IMC_CultUlhu` maps each action to its key(s) with priority 0
-- [ ] `ACultUlhuPlayerController.MappingContext` references `IMC_CultUlhu`
-- [ ] Each `UInputAction*` property on the controller is assigned in defaults
-- [ ] Alt+LMB chord does not double-fire `IA_Attack` (or the fallback check exists)
+Native verification: `CultUlhu.Input.EnhancedAndFallback` injects real Enhanced Input values, combines them with a legacy key, and checks one toggle per press, actual movement, completed release and held-sprint dash safety. `CultUlhu.Menu.EditorInput` retains the real S+LMB and ALT+S editor-shortcut regression.

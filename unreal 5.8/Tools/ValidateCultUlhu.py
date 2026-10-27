@@ -11,6 +11,7 @@ Also wired into unreal 5.8/Tools/SetupCultUlhu.ps1 (step 2).
 """
 import configparser
 import os
+import re
 import sys
 
 FAILURES = []
@@ -35,6 +36,22 @@ def main():
     # 2. project file exists there
     proj = os.path.join(uproj, "CultUlhu.uproject")
     check("CultUlhu.uproject in canonical dir", os.path.isfile(proj))
+    projects = []
+    for directory, folders, files in os.walk(repo):
+        folders[:] = [name for name in folders if name not in
+                      {'.git', '.vs', 'Binaries', 'Intermediate', 'Saved', 'DerivedDataCache', 'Content'}]
+        projects.extend(os.path.normpath(os.path.join(directory, name))
+                        for name in files if name.endswith('.uproject'))
+    check("exactly one active project descriptor", projects == [proj],
+          "preserve extra projects and archive their launch descriptors: " + ', '.join(projects))
+    target_classes = []
+    for directory, _, files in os.walk(os.path.join(uproj, 'Source')):
+        for name in files:
+            if name.endswith('.Target.cs'):
+                with open(os.path.join(directory, name), encoding='utf-8-sig') as source:
+                    target_classes.extend(re.findall(r'class\s+(\w+Target)\s*:', source.read()))
+    check("no duplicate Unreal target classes", len(target_classes)==len(set(target_classes)),
+          'retire duplicate Target.cs files; preserve the root Source targets')
 
     # 3+4. required gameplay sources + module definitions
     required = [

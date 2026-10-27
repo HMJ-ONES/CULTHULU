@@ -15,7 +15,7 @@ it contains no build output after that heading.
   additional commits, including migration `842820e`. This is a cached comparison,
   not a live GitHub verification.
 - The entire canonical project is currently untracked. The tracked older
-  `unreal/CultUlhu.uproject` is modified. Do not pull the migration over these
+  `unreal 5.8/CultUlhu.uproject` is modified. Do not pull the migration over these
   files or stage all untracked directories indiscriminately.
 - The canonical folder has Source, Content, Config, and build artifacts, but
   lacks Tools. World-building scripts exist in the older project. Reconcile

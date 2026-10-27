@@ -2,10 +2,13 @@
 
 Every `// VERIFY IN EDITOR:` marker in `Source/` appears here, grouped by
 area. Check each off in the owner's UE5. (An offline script,
-`unreal/Tests/validate_binding.py`, confirms this list stays in sync with
+`unreal 5.8/Tests/validate_binding.py`, confirms this list stays in sync with
 the markers — it can't verify the engine behavior, only the bookkeeping.)
 
 ## Build & modules
+
+- [ ] `Source/CultUlhu/Public/CultUlhuGameInstance.h`: confirm the native Home, mode, character and Free Roam belief selection transitions.
+- [ ] `Source/CultUlhu/Public/CultUlhuPlayGameMode.h`: confirm the canonical pawn and grounded spawn in the actual play map.
 
 - [ ] `Source/CultUlhuCore/CultUlhuCore.Build.cs`: the `cultulhu.lib` path
       resolves; lib was built with the same MSVC toolchain as the engine.
@@ -83,16 +86,14 @@ the markers — it can't verify the engine behavior, only the bookkeeping.)
 
 ## Input
 
-- [ ] `Source/CultUlhu/Public/CultUlhuPlayerController.h`: all 11
-      `UInputAction*` assigned in Blueprint defaults.
+- [ ] `Source/CultUlhu/Public/CultUlhuPlayerController.h`: optional `UInputAction*` references bind when supplied; the default controls work without them.
 - [ ] `Source/CultUlhu/Private/CultUlhuPlayerController.cpp`: every
       `BindAction` matches the action assets (`Docs/EnhancedInputMapping.md`).
 - [ ] `Source/CultUlhu/Private/CultUlhuPlayerController.cpp`: handler bodies
       implemented; full binding playtest passes.
 - [ ] `Source/CultUlhu/Private/CultUlhuPlayerController.cpp`: mapping
       context priority correct vs UI contexts.
-- [ ] `Docs/EnhancedInputMapping.md`: Alt+LMB chord fires once and does not
-      double-fire `IA_Attack` (or the fallback check is in place).
+- [ ] `Docs/EnhancedInputMapping.md`: held ALT command selection does not double-fire melee.
 - [ ] `Docs/EnhancedInputMapping.md`: authoring checklist complete
       (11 actions, context, assignments).
 

@@ -21,6 +21,7 @@ class USpringArmComponent;
 class UCameraComponent;
 
 struct FCultImpactText { FVector Point; float Amount=0,Age=0; bool Killed=false; uint32 TargetId=0; };
+enum class ECultPlayerInput : uint8 { Jump, Primary, Heavy, Q, F, R, Interact, Stats, Command, Count };
 struct FCultCombatHUDData {
  FString Name,AbilityNames[3],RmbHint; float Health=0,MaxHealth=1,Stamina=0,MaxStamina=100,Cooldowns[3]={},DashCooldown=0; bool Swinging=false;
 };
@@ -31,6 +32,10 @@ class CULTULHU_API ACultUlhuPlayerPawn : public ACharacter
 
 public:
 	ACultUlhuPlayerPawn();
+ // Optional Enhanced Input and zero-asset keys share one physical press/release.
+ void RoutePlayerInput(ECultPlayerInput Action,bool Down);
+ void SetEnhancedMove(FVector2D Value) { EnhancedMove_=Value; }
+ void SetEnhancedSprint(bool Down) { EnhancedSprint_=Down; }
 
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
@@ -136,6 +141,9 @@ public:
 	void AddCameraKick(float Strength);
 
 protected:
+ bool InputHeld_[static_cast<int32>(ECultPlayerInput::Count)]={};
+ FVector2D EnhancedMove_=FVector2D::ZeroVector;
+ bool EnhancedSprint_=false;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
 private:

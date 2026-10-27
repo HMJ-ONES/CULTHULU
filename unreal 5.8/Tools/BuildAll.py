@@ -1,20 +1,9 @@
 #!/usr/bin/env python3
-"""CULT-ULHU plug-and-play builder — run this ONE script in the UE editor.
+"""Open the canonical menu while preserving existing authored maps.
 
-Does everything in the right order:
-  1. Creates /Game/Maps/L_MainMenu  (the menu — supposed to look empty,
-     the buttons are drawn by code, not placed in the map)
-  2. Creates /Game/Maps/L_DarkWilds (the world map shell)
-  3. Builds the whole Dark Wilds world into L_DarkWilds: terrain, water,
-     props, creatures, lighting, fog, reflections, player starts
-  4. Opens L_MainMenu so you can press Play right away
-
-Run: Tools -> Execute Python Script -> BuildAll.py
-Safe to re-run after every `git pull` (rebuilds instead of duplicating).
-
-If L_MainMenu plays as a BLACK screen with no buttons, the C++ module
-did not compile — reopen the project and accept the rebuild prompt,
-then press Play again. See unreal 5.8/Docs/MainMenu.md.
+Run in the UE 5.8 editor. A complete existing map set is validated and opened,
+never regenerated. A partially missing set requires restoration from Git.
+The original initial-authoring sequence runs only when neither map exists.
 """
 import os
 import sys
@@ -30,6 +19,19 @@ def log(kind, msg):
 
 
 def main():
+    # Existing authored maps are the production input, not disposable output.
+    from pathlib import Path
+    import unreal
+    project=Path(__file__).resolve().parents[1]
+    assert project.name=='unreal 5.8' and (project/'CultUlhu.uproject').is_file()
+    assert Path(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())).resolve()==project
+    maps=[unreal.EditorAssetLibrary.does_asset_exist('/Game/Maps/'+name) for name in ['L_MainMenu','L_DarkWilds']]
+    if all(maps):
+        log('OK','Authored maps already present; preserve all map contents and open the menu.')
+        unreal.EditorLevelLibrary.load_level('/Game/Maps/L_MainMenu')
+        return
+    if any(maps):
+        raise RuntimeError('A required authored map is missing. Restore it from Git; existing maps were preserved.')
     log("STEP", "1/4 — menu maps")
     import BuildMainMenu
     BuildMainMenu.build_menu_maps()
@@ -57,7 +59,7 @@ def main():
     print("  L_DarkWilds = the world. Terrain, props, creatures, lighting,", flush=True)
     print("                and 3 player starts are already placed.", flush=True)
     print("NEXT: with L_MainMenu open, press Play. Click a mode, pick one of", flush=True)
-    print("the 20 characters, ENTER THE WILDS. WASD + mouse, Space jump,", flush=True)
+    print("the 16 release characters, ENTER THE WILDS. WASD + mouse, Space jump,", flush=True)
     print("V toggles camera, Esc back to menu.", flush=True)
     print("DESTRUCTION: walk to the razed city and LEFT-CLICK to smash —", flush=True)
     print("columns, walls, towers, crypts, arches and obelisks break apart.", flush=True)

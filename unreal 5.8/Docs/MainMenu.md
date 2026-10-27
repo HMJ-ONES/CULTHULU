@@ -1,3 +1,5 @@
+> Legacy implementation reference. Use [the current UE 5.8 runbook](IntegrationGuide.md) for setup; existing authored maps and native input need no regeneration.
+
 # Main Menu → Character Select → Play (in-UE flow)
 
 One-time setup, then the loop. Everything UI is pure C++ (no Widget

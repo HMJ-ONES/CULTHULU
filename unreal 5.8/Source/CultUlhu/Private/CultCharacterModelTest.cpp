@@ -14,6 +14,7 @@
 #include "ImageUtils.h"
 #include "RenderingThread.h"
 #include "SkeletalRenderPublic.h"
+#include "Rendering/SkeletalMeshRenderData.h"
 #include "Misc/Paths.h"
 #include "Misc/FileHelper.h"
 #include "HAL/FileManager.h"
@@ -54,6 +55,11 @@ public:
    if(Model) for(UMeshComponent* Part:Model->Parts()) {
     Test->AddInfo(FString::Printf(TEXT("MODEL_GEOMETRY %s %s bounds=%s origin=%s scale=%s"),*Ids[Index],*Part->GetName(),*Part->Bounds.BoxExtent.ToString(),*Part->Bounds.Origin.ToString(),*Part->GetRelativeScale3D().ToString()));
     if(auto* Skel=Cast<USkeletalMeshComponent>(Part)) Test->AddInfo(FString::Printf(TEXT("MODEL_RIG %s asset=%s bone0=%s"),*Ids[Index],*Skel->GetSkeletalMeshAsset()->GetPathName(),*Skel->GetBoneTransform(0).ToHumanReadableString()));
+    if(auto* Skel=Cast<USkeletalMeshComponent>(Part)) {
+     const auto* Data=Skel->GetSkeletalMeshAsset()->GetResourceForRendering(); uint32 Triangles=0;
+     if(Data&&Data->LODRenderData.Num()) for(const auto& Section:Data->LODRenderData[0].RenderSections) Triangles+=Section.NumTriangles;
+     Test->AddInfo(FString::Printf(TEXT("MODEL_SKELETAL_TRIANGLES %s %u LOD0"),*Ids[Index],Triangles));
+    }
     if(auto* Skel=Cast<USkeletalMeshComponent>(Part);Skel&&Ids[Index]==TEXT("mi_go")) {
      TArray<FFinalSkinVertex> Vertices; Skel->GetCPUSkinnedVertices(Vertices,0); FBox Actual(ForceInit);
      for(const auto& Vertex:Vertices) Actual+=Model->GetActorTransform().InverseTransformPosition(Skel->GetComponentTransform().TransformPosition(FVector(Vertex.Position)));

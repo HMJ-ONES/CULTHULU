@@ -2,7 +2,7 @@
 //
 // Binds the owner's full control scheme (Docs/EnhancedInputMapping.md):
 // WASD move, Space jump, Shift sprint, Q/F/R abilities, E interact,
-// Tab stats overlay, LMB melee combo, RMB heavy attack, Alt+LMB command menu.
+// Tab stats overlay, LMB melee combo, RMB heavy attack, held ALT command selection.
 //
 // The Input Actions + Mapping Context are editor assets; this class only
 // holds references and forwards to the core input model + game systems.
@@ -15,6 +15,7 @@
 
 #include "CultUlhuPlayerController.generated.h"
 
+enum class ECultPlayerInput : uint8;
 class UInputAction;
 class UInputMappingContext;
 
@@ -24,7 +25,7 @@ class CULTULHU_API ACultUlhuPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	// VERIFY IN EDITOR: assign all actions in the Blueprint defaults.
+	// Optional Enhanced Input assets. Keyboard/mouse work without these references.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CultUlhu|Input")
 	UInputAction* MoveAction = nullptr;        // WASD, 2D axis
 
@@ -65,20 +66,10 @@ public:
 	virtual void SetupInputComponent() override;
 
 private:
-	// Handlers forward into the core InputManager / game systems.
-	// VERIFY IN EDITOR: implement each handler body (see the .cpp stubs and
-	// Docs/EnhancedInputMapping.md for the intended wiring).
-	void OnMove(const struct FInputActionValue& Value);
-	void OnJumpStarted();
-	void OnSprintStarted();
-	void OnSprintCompleted();
-	void OnAbilityQ();
-	void OnAbilityF();
-	void OnAbilityR();
-	void OnInteract();
-	void OnStatsOverlay();
-	void OnAttack();
-	void OnHeavyAttackStarted();
-	void OnHeavyAttackCompleted();
-	void OnCommandMenu(const struct FInputActionValue& Value);
+ void OnActionStarted(ECultPlayerInput Input);
+ void OnActionCompleted(ECultPlayerInput Input);
+ void OnMove(const struct FInputActionValue& Value);
+ void OnMoveCompleted();
+ void OnSprintStarted();
+ void OnSprintCompleted();
 };

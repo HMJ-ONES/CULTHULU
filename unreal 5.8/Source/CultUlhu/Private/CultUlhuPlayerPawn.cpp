@@ -222,25 +222,47 @@ void ACultUlhuPlayerPawn::SetupPlayerInputComponent(UInputComponent* IC)
 	IC->BindKey(EKeys::G, IE_Pressed, this, &ACultUlhuPlayerPawn::RecallMatch);
  IC->BindKey(EKeys::Enter, IE_Pressed, this, &ACultUlhuPlayerPawn::RematchConfirm).bExecuteWhenPaused=true;
  IC->BindKey(EKeys::V, IE_Pressed, this, &ACultUlhuPlayerPawn::ToggleCamera);
-	IC->BindKey(EKeys::SpaceBar, IE_Pressed, this, &ACultUlhuPlayerPawn::TryJump);
-	IC->BindKey(EKeys::SpaceBar, IE_Released, this, &ACharacter::StopJumping);
 	IC->BindKey(EKeys::Escape, IE_Pressed, this, &ACultUlhuPlayerPawn::ReturnToMenu).bExecuteWhenPaused=true;
-	IC->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &ACultUlhuPlayerPawn::Smash).bExecuteWhenPaused=true;
- IC->BindKey(EKeys::LeftMouseButton, IE_Released, this, &ACultUlhuPlayerPawn::CommandReleased);
-	IC->BindKey(EKeys::RightMouseButton, IE_Pressed, this, &ACultUlhuPlayerPawn::HeavyAttack);
- IC->BindKey(EKeys::RightMouseButton, IE_Released, this, &ACultUlhuPlayerPawn::ReleaseHeavy);
- IC->BindKey(EKeys::LeftAlt, IE_Pressed, this, &ACultUlhuPlayerPawn::AltPressed);
- IC->BindKey(EKeys::LeftAlt, IE_Released, this, &ACultUlhuPlayerPawn::AltReleased);
  IC->BindKey(EKeys::B, IE_Pressed, this, &ACultUlhuPlayerPawn::ToggleFaith);
  IC->BindKey(EKeys::MouseScrollUp, IE_Pressed, this, &ACultUlhuPlayerPawn::FaithScrollUp);
  IC->BindKey(EKeys::MouseScrollDown, IE_Pressed, this, &ACultUlhuPlayerPawn::FaithScrollDown);
- IC->BindKey(EKeys::Tab, IE_Pressed, this, &ACultUlhuPlayerPawn::ToggleStats);
-	IC->BindKey(EKeys::Q, IE_Pressed, this, &ACultUlhuPlayerPawn::AbilityQ);
-	IC->BindKey(EKeys::F, IE_Pressed, this, &ACultUlhuPlayerPawn::AbilityF);
-	IC->BindKey(EKeys::R, IE_Pressed, this, &ACultUlhuPlayerPawn::AbilityR);
-	IC->BindKey(EKeys::E, IE_Pressed, this, &ACultUlhuPlayerPawn::Interact);
+ const TPair<FKey,ECultPlayerInput> Actions[]={
+  {EKeys::SpaceBar,ECultPlayerInput::Jump},{EKeys::LeftMouseButton,ECultPlayerInput::Primary},
+  {EKeys::RightMouseButton,ECultPlayerInput::Heavy},{EKeys::LeftAlt,ECultPlayerInput::Command},
+  {EKeys::Q,ECultPlayerInput::Q},{EKeys::F,ECultPlayerInput::F},{EKeys::R,ECultPlayerInput::R},
+  {EKeys::E,ECultPlayerInput::Interact},{EKeys::Tab,ECultPlayerInput::Stats}};
+ for(const auto& Entry:Actions) for(bool Down:{true,false}) {
+  FInputKeyBinding Binding(FInputChord(Entry.Key),Down?IE_Pressed:IE_Released);
+  Binding.bExecuteWhenPaused=!Down||Entry.Value==ECultPlayerInput::Primary;
+  Binding.KeyDelegate.GetDelegateForManualSet().BindLambda([this,Action=Entry.Value,Down]() { RoutePlayerInput(Action,Down); });
+  IC->KeyBindings.Add(MoveTemp(Binding));
+ }
 	IC->BindAxisKey(EKeys::MouseX, this, &ACultUlhuPlayerPawn::LookYaw);
 	IC->BindAxisKey(EKeys::MouseY, this, &ACultUlhuPlayerPawn::LookPitch);
+}
+void ACultUlhuPlayerPawn::RoutePlayerInput(ECultPlayerInput Action,bool Down) {
+ const int32 Index=static_cast<int32>(Action);
+ if(Index<0||Index>=static_cast<int32>(ECultPlayerInput::Count)||InputHeld_[Index]==Down) return;
+ InputHeld_[Index]=Down;
+ if(!Down) {
+  if(Action==ECultPlayerInput::Jump) StopJumping();
+  else if(Action==ECultPlayerInput::Primary) CommandReleased();
+  else if(Action==ECultPlayerInput::Heavy) ReleaseHeavy();
+  else if(Action==ECultPlayerInput::Command) AltReleased();
+  return;
+ }
+ switch(Action) {
+  case ECultPlayerInput::Jump:TryJump();break;
+  case ECultPlayerInput::Primary:Smash();break;
+  case ECultPlayerInput::Heavy:HeavyAttack();break;
+  case ECultPlayerInput::Q:AbilityQ();break;
+  case ECultPlayerInput::F:AbilityF();break;
+  case ECultPlayerInput::R:AbilityR();break;
+  case ECultPlayerInput::Interact:Interact();break;
+  case ECultPlayerInput::Stats:ToggleStats();break;
+  case ECultPlayerInput::Command:AltPressed();break;
+  default:break;
+ }
 }
 
 void ACultUlhuPlayerPawn::ToggleCamera()
@@ -461,7 +483,7 @@ void ACultUlhuPlayerPawn::PollMoveKeys(float DeltaSeconds)
 {
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (!PC) return;
-	const bool Shift=PC->IsInputKeyDown(EKeys::LeftShift)||PC->IsInputKeyDown(EKeys::RightShift);
+	const bool Shift=EnhancedSprint_||PC->IsInputKeyDown(EKeys::LeftShift)||PC->IsInputKeyDown(EKeys::RightShift);
 
 	if(Control_.Stop||PC->bShowMouseCursor) { ProcessShift(Shift,FVector::ZeroVector,DeltaSeconds,false); SetSprinting(false); return; }
  if(Control_.Fear) { ProcessShift(Shift,FVector::ZeroVector,DeltaSeconds,false); SetSprinting(false); AddMovementInput((GetActorLocation()-Control_.Origin).GetSafeNormal2D(),1); return; }
@@ -471,6 +493,7 @@ void ACultUlhuPlayerPawn::PollMoveKeys(float DeltaSeconds)
 	if (PC->IsInputKeyDown(EKeys::S) || PC->IsInputKeyDown(EKeys::Down))  Move -= Yaw.Vector();
 	if (PC->IsInputKeyDown(EKeys::D) || PC->IsInputKeyDown(EKeys::Right)) Move += FRotationMatrix(Yaw).GetScaledAxis(EAxis::Y);
 	if (PC->IsInputKeyDown(EKeys::A) || PC->IsInputKeyDown(EKeys::Left))  Move -= FRotationMatrix(Yaw).GetScaledAxis(EAxis::Y);
+ if(Move.IsNearlyZero()) Move=Yaw.Vector()*EnhancedMove_.Y+FRotationMatrix(Yaw).GetScaledAxis(EAxis::Y)*EnhancedMove_.X;
  const bool Sprint=ProcessShift(Shift,Move,DeltaSeconds);
  SetSprinting(Kit_?Kit_->Sprint(Sprint&&Move.SizeSquared()>0&&DashTime_<=0,DeltaSeconds):false);
  if (Move.SizeSquared() > 0.0f)
