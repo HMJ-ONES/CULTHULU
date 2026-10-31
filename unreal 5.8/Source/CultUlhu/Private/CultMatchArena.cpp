@@ -53,7 +53,13 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_ArenaSurface"));
   if(!Base) Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Engine/BasicShapes/BasicShapeMaterial"));
   auto* Material=UMaterialInstanceDynamic::Create(Base,A); Material->SetVectorParameterValue(TEXT("Color"),Color); C->SetMaterial(0,Material);
-  C->SetCollisionEnabled(Collision?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::NoCollision); if(Collision) { C->SetCollisionProfileName(TEXT("BlockAll")); A->Tags.Add(TEXT("CultMatchStoneSurface")); } A->Tags.Add(TEXT("MatchArena")); return A;
+  // Arena meshes are spawned during InitGame, before standalone registration
+  // finishes. Persist the intended profile: BlockAll otherwise restores collision
+  // on decorative lane paint/base discs and embeds every spawning creep.
+  C->SetCollisionProfileName(Collision?TEXT("BlockAll"):TEXT("NoCollision"));
+  C->SetCollisionEnabled(Collision?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::NoCollision);
+  A->SetActorEnableCollision(Collision);
+  if(Collision) A->Tags.Add(TEXT("CultMatchStoneSurface")); A->Tags.Add(TEXT("MatchArena")); return A;
  };
  // Domination's two entrances are actual holes, rather than ramps buried
  // beneath a single collision plane. Shared tile edges avoid cracks.

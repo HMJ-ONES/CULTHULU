@@ -422,6 +422,8 @@ struct FCultMatchTestAccess {
   HoldBots(M,true); Park(M); M->State_->NextWave=1000;
   for(auto& Weak:M->State_->Units) if(auto* U=Weak.Get()) { if(U->IsStructure()) { U->Range=0; U->Dps=0; } else U->Destroy(); }
  }
+ static void HoldWaveObservers(ACultMatchDirector* M) { HoldBots(M,true); Park(M); for(auto& F:M->State_->Fighters) if(auto* P=F.Pawn.Get()) { P->GetCharacterMovement()->DisableMovement(); P->SetActorTickEnabled(false); } }
+ static int WaveNumber(ACultMatchDirector* M) { return M->State_->Wave; }
  static void ToMatchPoint(ACultMatchDirector* M) { while(M->Score(0)<400) M->State_->Capture->notePlayerKill(0); }
  static float Time(ACultMatchDirector* M) { return M->State_->Time; }
  static void WindClock(ACultMatchDirector* M,float Amount) { M->State_->Capture->update(Amount); }
@@ -864,4 +866,50 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDominationMatchTest,"CultUlhu.Menu.Dominat
 bool FCultDominationMatchTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(.5f)); ADD_LATENT_AUTOMATION_COMMAND(FCultMatchObservation(this,false)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaMatchTest,"CultUlhu.Menu.MobaMatch",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultMobaMatchTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(.5f)); ADD_LATENT_AUTOMATION_COMMAND(FCultMatchObservation(this,true)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+class FCultNaturalWaveObservation:public IAutomationLatentCommand {
+ FAutomationTestBase* Test; int Phase=0; double Began=FPlatformTime::Seconds(); float At=0;
+ TArray<TWeakObjectPtr<ACultMatchUnit>> First,Siege; float Progress[2][3]={};
+public:
+ explicit FCultNaturalWaveObservation(FAutomationTestBase* T):Test(T) {}
+ bool Update() override {
+  if(FPlatformTime::Seconds()-Began>150) { Test->AddError(TEXT("Natural creep waves timed out")); return true; }
+  auto* W=GEditor->PlayWorld.Get(); if(!W||W->bIsTearingDown) return false;
+  if(W->GetName().Contains(TEXT("L_MainMenu"))) { if(!Phase) { auto* G=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); G->SelectedCharacterId=TEXT("mi_go"); G->OpenCharacterSelect(ECultPlayMode::Dotgoo); G->OpenBeliefSelect(); Phase=1; } return false; }
+  auto* M=ACultMatchDirector::Find(W); if(!M) return false;
+  if(Phase==1) { FCultMatchTestAccess::HoldWaveObservers(M); Phase=2; }
+  if(Phase==2) {
+   if(FCultMatchTestAccess::WaveNumber(M)<1) return false;
+   int Count[2][3]={};
+   for(TActorIterator<ACultMatchUnit> It(W);It;++It) if(!It->IsStructure()) { First.Add(*It); ++Count[It->Team][It->Lane]; }
+   for(int T=0;T<2;++T) for(int L=0;L<3;++L) Test->TestEqual(TEXT("The automatic first wave spawns four creeps on every team/lane"),Count[T][L],4);
+   At=M->Elapsed(); Phase=3;
+  }
+  for(auto& Weak:First) if(auto* U=Weak.Get()) Progress[U->Team][U->Lane]=FMath::Max(Progress[U->Team][U->Lane],FCultMobaRoute::Project(U->Team,U->Lane,U->GetActorLocation()).Progress);
+  if(Phase==3&&M->Elapsed()-At>15) {
+   for(auto& Weak:First) if(auto* U=Weak.Get()) {
+    const float P=FCultMobaRoute::Project(U->Team,U->Lane,U->GetActorLocation()).Progress;
+    Test->TestTrue(TEXT("Every original melee and ranged creep physically exits its base"),P>.10f);
+    if(P<=.10f) {
+     FHitResult Hit; FCollisionQueryParams Q(SCENE_QUERY_STAT(CreepSpawnProbe),false,U); auto* C=U->FindComponentByClass<UCapsuleComponent>();
+     W->SweepSingleByObjectType(Hit,U->GetActorLocation(),U->GetActorLocation()+FVector(0,0,200),FQuat::Identity,FCollisionObjectQueryParams(ECC_WorldStatic),FCollisionShape::MakeCapsule(C->GetScaledCapsuleRadius(),C->GetScaledCapsuleHalfHeight()),Q);
+     Test->AddInfo(FString::Printf(TEXT("Stalled wave team=%d lane=%d kind=%d speed=%.1f at=%s waypoint=%d progress=%.3f blocker=%s penetration=%d normal=%s"),U->Team,U->Lane,U->Kind,U->Speed,*U->GetActorLocation().ToCompactString(),U->Waypoint,P,*GetNameSafe(Hit.GetActor()),int(Hit.bStartPenetrating),*Hit.ImpactNormal.ToCompactString()));
+    }
+   }
+   Phase=4;
+  }
+  if(Phase==4&&FCultMatchTestAccess::WaveNumber(M)>=3) {
+   int Count[2][3]={}; for(TActorIterator<ACultMatchUnit> It(W);It;++It) if(It->Kind==2) { Siege.Add(*It); ++Count[It->Team][It->Lane]; }
+   for(int T=0;T<2;++T) for(int L=0;L<3;++L) Test->TestEqual(TEXT("The automatic third wave includes a siege creep on every team/lane"),Count[T][L],1);
+   At=M->Elapsed(); Phase=5;
+  }
+  if(Phase==5&&M->Elapsed()-At>18) {
+   for(auto& Weak:Siege) if(auto* U=Weak.Get()) Test->TestTrue(TEXT("Slower siege creeps also physically leave their base"),FCultMobaRoute::Project(U->Team,U->Lane,U->GetActorLocation()).Progress>.10f);
+   for(int T=0;T<2;++T) for(int L=0;L<3;++L) { Test->TestTrue(TEXT("Real first waves advance down every lane into contested territory"),Progress[T][L]>.28f); Test->AddInfo(FString::Printf(TEXT("Natural wave team %d lane %d progress %.3f"),T,L,Progress[T][L])); }
+   return true;
+  }
+  return false;
+ }
+};
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultNaturalWaveTest,"CultUlhu.Menu.NaturalCreepWaves",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultNaturalWaveTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultNaturalWaveObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 #endif
