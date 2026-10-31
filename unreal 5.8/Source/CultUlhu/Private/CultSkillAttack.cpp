@@ -1,5 +1,8 @@
 #include "CultSkillAttack.h"
 #include "CultReplicatedBody.h"
+#include "Net/UnrealNetwork.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerState.h"
 #include "CultCombatCredit.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultPopulation.h"
@@ -62,7 +65,20 @@ void ACultSkillAttack::Hurt(AActor* A,float D,AActor* S,FVector P) {
 }
 void ACultSkillAttack::BeginPlay() {
  Super::BeginPlay(); BornAt=GetWorld()->GetTimeSeconds(); Origin=Previous=GetActorLocation(); Direction.Normalize(); if(Shape==EShape::Sweep&&GetOwner()) SweepOffset=Origin-GetOwner()->GetActorLocation();
+ if(HasAuthority()&&WardLocked) WardChargeRemaining=Windup;
  BuildPresentation();
+}
+
+void ACultSkillAttack::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+ Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+ DOREPLIFETIME(ACultSkillAttack,WardTarget); DOREPLIFETIME(ACultSkillAttack,WardLocked); DOREPLIFETIME(ACultSkillAttack,WardChargeRemaining);
+}
+void ACultSkillAttack::OnRep_WardCountdown() { WardCountdownReceivedAt=GetWorld()->GetTimeSeconds(); }
+float ACultSkillAttack::WardReleaseRemaining() const {
+ if(HasAuthority()) return WardChargeRemaining;
+ const auto* PC=GetWorld()->GetFirstPlayerController(); const auto* State=PC?PC->PlayerState.Get():nullptr;
+ const float Transit=State?State->GetPingInMilliseconds()*.0005f:0.f;
+ return FMath::Max(0.f,WardChargeRemaining-(GetWorld()->GetTimeSeconds()-WardCountdownReceivedAt)-Transit);
 }
 
 void ACultSkillAttack::ShowSegment(FVector A,FVector B,float Width) { Visual->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cylinder"))); Visual->SetWorldLocation((A+B)*.5); Visual->SetWorldRotation(FRotationMatrix::MakeFromZ(B-A).Rotator()); Visual->SetWorldScale3D(FVector(Width/50,Width/50,FVector::Dist(A,B)/100)); }
@@ -108,6 +124,7 @@ void ACultSkillAttack::Tick(float Dt) {
  // Its first delta must exclude time before creation, especially on load hitches.
  if(FirstTick) { Dt=FMath::Min(Dt,FMath::Max(0.f,GetWorld()->GetTimeSeconds()-BornAt)); FirstTick=false; }
  if(Shape==EShape::Sweep) { Origin=GetOwner()->GetActorLocation()+SweepOffset; SetActorLocation(Origin); } const float Old=Age; Age+=Dt;
+ if(WardLocked) WardChargeRemaining=FMath::Max(0.f,Windup-Age);
  if(Age<Windup) { UpdatePresentation(); return; }
  const float Active=FMath::Min(Age-Windup,Duration);
  if(Shape==EShape::Bolt&&WardLocked) {

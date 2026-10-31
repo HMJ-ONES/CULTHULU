@@ -8,6 +8,8 @@
 #include "CultPopulation.h"
 #include "CultDestructible.h"
 #include "CultLivingLandscape.h"
+#include "CultSkillAttack.h"
+#include "CultWardWarning.h"
 #include "Containers/Ticker.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
@@ -34,6 +36,13 @@ struct FRoomProbe {
   auto* G=Game.Get(); auto* W=G?G->GetWorld():nullptr; if(!G) return false; const double Now=FPlatformTime::Seconds();
   if(Now-Began>150) return Finish(false,TEXT("timeout")); if(!W||W->bIsTearingDown) return true;
   auto* PC=W->GetFirstPlayerController(); auto* P=PC?Cast<ACultUlhuPlayerPawn>(PC->GetPawn()):nullptr; auto* M=ACultMatchDirector::Find(W);
+  if(!Host&&Mode==2&&Phase>=3&&!Has(TEXT("ward"))) {
+   const auto Warning=CultWardWarning::Observe(P);
+   if(Warning.IsVisible()&&!Warning.Incoming&&Warning.ReleaseIn>0&&Warning.ReleaseIn<=8.f&&Warning.Shot->WardChargeRemaining<=8.f) {
+    FFileHelper::SaveStringToFile(FString::Printf(TEXT("{\"chargeSeconds\":8,\"guestRemaining\":%.4f,\"serverRemaining\":%.4f}"),Warning.ReleaseIn,Warning.Shot->WardChargeRemaining),*File(TEXT("ward.json")));
+    Signal(TEXT("ward")); FScreenshotRequest::RequestScreenshot(File(TEXT("ward.png")),false,false);
+   }
+  }
   if(Now-LastLog>5) { LastLog=Now; UE_LOG(LogTemp,Display,TEXT("[CultRoomProbe] %s phase=%d map=%s net=%d pawn=%s match=%d fighters=%d slot=%d"),Host?TEXT("host"):TEXT("guest"),Phase,*W->GetName(),int(W->GetNetMode()),*GetNameSafe(P),M?int(M->Mode()):-1,M?M->Fighters().Num():0,M?M->Slot(P):-1); }
   if(W->GetName().Contains(TEXT("L_MainMenu"))) {
    if(Host&&Phase==0) { G->OpenModeEntry(ECultPlayMode(Mode)); FScreenshotRequest::RequestScreenshot(File(TEXT("entry.png")),true,false); At=Now; Phase=1; }
@@ -59,6 +68,13 @@ struct FRoomProbe {
     FVector Point=Guest->GetActorLocation()+FVector(1800,0,0); FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     if(Mode) { auto* U=W->SpawnActor<ACultMatchUnit>(Point,FRotator::ZeroRotator,Params); U->Team=0; U->Index=999; U->Health=1; U->Dps=U->Speed=0; U->SetOwner(M); Target=U; }
     else { auto* U=W->SpawnActor<ACultPopulation>(Point,FRotator::ZeroRotator,Params); U->Tags.Add(TEXT("RoomProbeTarget")); U->SetActorTickEnabled(false); Target=U; }
+    if(Mode==2) {
+     const FTransform T(Guest->GetActorLocation()+FVector(3000,1000,600));
+     auto* Ward=W->SpawnActorDeferred<ACultMatchUnit>(ACultMatchUnit::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+     Ward->Kind=3; Ward->Team=0; Ward->Index=998; Ward->FinishSpawning(T); Ward->SetActorTickEnabled(false);
+     auto* Shot=W->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Ward,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+     Shot->WardLocked=true; Shot->WardTarget=Guest; Shot->Windup=8; Shot->Duration=10; Shot->Speed=100; Shot->FinishSpawning(T);
+    }
     Position=Guest->GetActorLocation(); At=Now; Phase=4;
     if(Mode) { M->TogglePause(); Clock=M->Elapsed(); } else G->ToggleFreeRoamMenu();
    }

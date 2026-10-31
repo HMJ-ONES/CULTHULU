@@ -14,13 +14,18 @@ public:
  float Windup=.18f, Duration=.22f, Radius=35, Reach=2000, Speed=2400, HalfAngle=45;
  FVector Direction=FVector::ForwardVector;
  // Only ward shots use a target lock; character and minion bolts remain physical skill shots.
- TWeakObjectPtr<AActor> WardTarget;
- bool WardLocked=false;
+ UPROPERTY(Replicated) TWeakObjectPtr<AActor> WardTarget;
+ UPROPERTY(Replicated) bool WardLocked=false;
+ // Native countdown avoids the slower generic snapshot and initial GameState
+ // clock skew when a guest is still completing travel into a match.
+ UPROPERTY(ReplicatedUsing=OnRep_WardCountdown) float WardChargeRemaining=0;
+ float WardReleaseRemaining() const;
  TFunction<bool(AActor*)> TargetFilter;
  FVector ProjectilePosition() const { return Previous; }
  TFunction<void(AActor*,FVector)> Hit;
  TFunction<void(FVector)> Finished;
  virtual void BeginPlay() override;
+ virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
  virtual void Tick(float Dt) override;
  bool IsWindingUp() const { return Age<Windup; }
  float WindupProgress() const { return Windup>0?FMath::Clamp(Age/Windup,0.f,1.f):1.f; }
@@ -34,6 +39,8 @@ public:
 private:
  friend struct FCultSaveAccess;
  friend struct FCultAttackPresentationTestAccess;
+ UFUNCTION() void OnRep_WardCountdown();
+ float WardCountdownReceivedAt=0;
  float Age=0,Travel=0;
  float BornAt=0;
  bool FirstTick=true;

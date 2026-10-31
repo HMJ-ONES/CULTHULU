@@ -31,3 +31,11 @@ These tasks target the three priorities: playable first, then engaging combat an
 - Item **4 (danger/readability)** has existing impact/telegraph work but remains open for a broader player-facing clarity pass.
 - Items **5–10** remain open as written. Individual bot tactics have improved, but that does not certify item 6's full squad-level goals.
 - Free Roam persistence/co-op and corpse cleanup were added at the owner's request; see [save/co-op instructions](FreeRoamSavesAndCoop.md). They are additional improvements rather than a claim that every review item is finished.
+
+## Further review and ward clarity pass — 2026-10-31
+
+Item **4 remains partially complete**: real targeted ward shots now display a directional charge/incoming warning, dash instructions or recharge time. Native target/countdown replication supports guests. Routine announcements and overlapping goal/nameplate labels yield to this immediate danger. The first guest capture exposed join-time clock skew; that implementation was rejected in favor of an authoritative remaining-charge signal. The stricter two-process rerun passed, observing 7.878 seconds on the guest against a 7.9667-second replicated remainder for an eight-second fixture. Normal tower charge remains 0.25 seconds. Range/continuous aggro presentation, broader impact feedback and latency-balanced human playtests remain open.
+
+The old combat test counted all world corpses and asserted persistence beyond the requested lifetime. It now follows the killed fixture civilian's own corpse, checks its five-second Free Roam lifetime and verifies expiry, alongside its original physical projectile/melee/jump/dash checks.
+
+See [ward danger behavior](WardDangerReadability.md), [verification evidence](WardDangerVerification_2026-10-31.json) and the [updated presentation/fun critique](PresentationBenchmark_2026-10-31.md). The fresh captures still show prototype-level shadow readability, repeated materials and competing HUD strips. This pass does not complete the wider ten-task review or certify comparison-level fun and polish.

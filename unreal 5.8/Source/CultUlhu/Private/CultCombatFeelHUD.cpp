@@ -6,6 +6,9 @@
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
+#include "CultWardWarning.h"
+#include "CultMatchDirector.h"
+#include "UI/CultUIStyle.h"
 
 void DrawCultCombatFeel(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C)
 {
@@ -13,6 +16,20 @@ void DrawCultCombatFeel(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C)
  const float S=FMath::Clamp(FMath::Min(C->SizeX/1600.f,C->SizeY/900.f),.55f,2.f);
  const float X=C->SizeX*.5f,Y=C->SizeY*.5f;
  const FLinearColor Coral(1.f,.3f,.18f),Gold(1.f,.75f,.3f),Blue(.15f,.85f,1.f);
+ const auto* Match=ACultMatchDirector::Find(P->GetWorld());
+ if(!Match||!Match->IsPaused()) {
+  const auto Warning=CultWardWarning::Observe(P);
+  if(Warning.IsVisible()) {
+   const auto Panel=CultWardWarning::Panel(Warning,P->CombatHUD().DashCooldown,C); const auto& Box=Panel.Bounds;
+   HUD->DrawRect(CultUI::Panel,Box.Min.X,Box.Min.Y,Box.GetSize().X,Box.GetSize().Y);
+   HUD->DrawRect(Coral,Box.Min.X,Box.Min.Y,3*S,Box.GetSize().Y);
+   CultUI::DrawText(C,Panel.Title,Coral,Box.Min.X+48*S,Box.Min.Y+8*S,15*S,true);
+   CultUI::DrawText(C,Panel.Detail,CultUI::Bone,Box.Min.X+48*S,Box.Min.Y+12*S+Panel.TitleHeight,11*S);
+   const FVector Local=(Warning.Source-P->GetActorLocation()).GetSafeNormal2D().RotateAngleAxis(-P->AimRotation().Yaw,FVector::UpVector);
+   const FVector2D D(Local.Y,-Local.X),Side(-D.Y,D.X),Tip=FVector2D(Box.Min.X+26*S,Box.GetCenter().Y)+D*11*S;
+   for(int Sign:{-1,1}) { const auto End=Tip-D*12*S+Side*Sign*7*S; HUD->DrawLine(Tip.X,Tip.Y,End.X,End.Y,Coral,2*S); }
+  }
+ }
  const float Hurt=P->HurtFeedbackTime()/.32f;
  if(Hurt>0) {
   const FLinearColor Edge(1.f,.1f,.08f,Hurt*.38f);

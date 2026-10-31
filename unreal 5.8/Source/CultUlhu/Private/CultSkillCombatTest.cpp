@@ -10,7 +10,7 @@
 #include "CultUlhuPlayerPawn.h"
 #include "CultUlhuGameInstance.h"
 #if WITH_EDITOR
-#include "Tests/AutomationEditorCommon.h"
+#include "CultAutomationPIE.h"
 #include "Tests/AutomationCommon.h"
 #endif
 #include "Components/StaticMeshComponent.h"
@@ -39,7 +39,10 @@ public:
   if(Phase==1&&Clock>.8f) { Test->TestEqual(TEXT("Solid cover blocks the physical projectile"),Target->GetHealth(),1.f); Wall->Destroy(); Bolt(W); Phase=2; Clock=0; }
   else if(Phase==2&&Clock>.15f) { Target->SetActorLocation(Origin+FVector(1200,800,0)); Phase=3; }
   else if(Phase==3&&Clock>.8f) { Test->TestEqual(TEXT("A projectile misses a target that sidesteps its locked trajectory"),Target->GetHealth(),1.f); Target->SetActorLocation(Origin+FVector(1200,0,0)); Bolt(W); Test->TestEqual(TEXT("Projectile damage is not instantaneous"),Target->GetHealth(),1.f); Phase=4; Clock=0; }
-  else if(Phase==4&&Clock>.8f) { Test->TestTrue(TEXT("An actual projectile contact kills a civilian in one hit"),!Target.IsValid()); int Corpses=0; for(TActorIterator<ACultCorpse> It(W);It;++It) ++Corpses; InitialCorpses=Corpses; Test->TestTrue(TEXT("Civilian death leaves a corpse"),Corpses>0);
+  else if(Phase==4&&Clock>.8f) { Test->TestTrue(TEXT("An actual projectile contact kills a civilian in one hit"),!Target.IsValid());
+   for(TActorIterator<ACultCorpse> It(W);It;++It) if(FVector::Dist2D(It->GetActorLocation(),Origin+FVector(1200,0,0))<300&&It->GetActorLocation().Z>Origin.Z-5000) CivilianCorpse=*It;
+   Test->TestTrue(TEXT("The killed civilian leaves its own corpse"),CivilianCorpse.IsValid());
+   if(CivilianCorpse.IsValid()) { const float Remaining=CivilianCorpse->GetLifeSpan(); Test->TestTrue(TEXT("Free Roam corpse uses the requested five-second lifetime"),Remaining>3.5f&&Remaining<=5.f); CorpseExpires=W->GetTimeSeconds()+Remaining; }
    Test->TestTrue(TEXT("A directional dash is available"),Player->TryDash(FVector(0,1,0))); Before=Player->GetHealth(); Player->ReceiveDamage(20); Test->TestEqual(TEXT("Dash evade window rejects incoming damage"),Player->GetHealth(),Before); Test->TestFalse(TEXT("Holding cannot repeat a dash during cooldown"),Player->TryDash(FVector(0,-1,0))); Phase=5; Clock=0;
   }
   else if(Phase==5&&Clock>.35f) { Player->ReceiveDamage(10); Test->TestTrue(TEXT("Dash protection expires"),Player->GetHealth()<Before); Before=Player->GetHealth(); const FVector Feet=Player->FeetLocation();
@@ -53,7 +56,7 @@ public:
    // just-born attack is intentionally clamped by its first-frame safeguard.
    Test->TestEqual(TEXT("The same low attack actually contacts a standing hero"),GroundContacts,1);
    GroundContacts=0; Before=Player->GetHealth(); Player->TryJump(); GroundAttack(W,Player->FeetLocation()); Phase=6; Clock=0; }
-  else if(Phase==6&&Clock>3.5f) { int N=0; for(TActorIterator<ACultCorpse> It(W);It;++It) ++N; Test->TestTrue(TEXT("Corpses remain after the old three-second cleanup window"),N>=InitialCorpses); Test->TestEqual(TEXT("Jumping clears the delayed low attack collider"),GroundContacts,0); Test->AddInfo(FString::Printf(TEXT("Jump fixture: %d contacts from its ground attack; total health change %.1f"),GroundContacts,Before-Player->GetHealth()));
+  else if(Phase==6&&Clock>3.5f&&W->GetTimeSeconds()>CorpseExpires+.1f) { Test->TestFalse(TEXT("This civilian corpse despawns after its five-second lifetime"),CivilianCorpse.IsValid()); Test->TestEqual(TEXT("Jumping clears the delayed low attack collider"),GroundContacts,0); Test->AddInfo(FString::Printf(TEXT("Jump fixture: %d contacts from its ground attack; total health change %.1f"),GroundContacts,Before-Player->GetHealth()));
    FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
    Target=W->SpawnActor<ACultPopulation>(Origin+FVector(1200,0,0),FRotator::ZeroRotator,Params); Target->RecruitTo(2); Target->GetCharacterMovement()->DisableMovement();
    FTransform T(Origin); auto* A=W->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Player,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); A->Shape=ACultSkillAttack::EShape::Sweep; A->Direction=FVector::ForwardVector; A->Reach=1500; A->Radius=25; A->Windup=.2f; A->Duration=.25f; A->Hit=[this](AActor* Actor,FVector Point) { ++MeleeContacts; ACultSkillAttack::Hurt(Actor,10,Player,Point); }; A->FinishSpawning(T); Phase=7; Clock=0; }
@@ -67,12 +70,12 @@ public:
   A->Hit=[this](AActor* Actor,FVector Point) { if(Actor==Player) ++GroundContacts; ACultSkillAttack::Hurt(Actor,40,GroundCaster,Point); }; }
  void Bolt(UWorld* W) { FTransform T(Origin); auto* A=W->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Player,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); A->Shape=ACultSkillAttack::EShape::Bolt; A->Direction=FVector::ForwardVector; A->Speed=3000; A->Reach=1800; A->Radius=20; A->Windup=.1f; A->Duration=.7f; TWeakObjectPtr<ACultUlhuPlayerPawn> P(Player); A->Hit=[P](AActor* Actor,FVector Point) { if(P.IsValid()) ACultSkillAttack::Hurt(Actor,1,P.Get(),Point); }; A->FinishSpawning(T); }
 private:
- FAutomationTestBase* Test; double Started; bool Entered=false; int Phase=0,InitialCorpses=0,MeleeContacts=0,GroundContacts=0; float Clock=0,Before=0; FVector Origin; ACultUlhuPlayerPawn* Player=nullptr; AActor* GroundCaster=nullptr; TWeakObjectPtr<ACultSkillAttack> Pending; TWeakObjectPtr<ACultPopulation> Target; AStaticMeshActor* Wall=nullptr;
+ FAutomationTestBase* Test; double Started; bool Entered=false; int Phase=0,MeleeContacts=0,GroundContacts=0; float Clock=0,Before=0,CorpseExpires=0; FVector Origin; ACultUlhuPlayerPawn* Player=nullptr; AActor* GroundCaster=nullptr; TWeakObjectPtr<ACultSkillAttack> Pending; TWeakObjectPtr<ACultPopulation> Target; TWeakObjectPtr<ACultCorpse> CivilianCorpse; AStaticMeshActor* Wall=nullptr;
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultSkillCombatTest,"CultUlhu.SkillCombat",EAutomationTestFlags::ClientContext|EAutomationTestFlags::EngineFilter)
 bool FCultSkillCombatTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FSkillCombatObservation(this)); return true; }
 #if WITH_EDITOR
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultSkillCombatEditorTest,"CultUlhu.Menu.SkillCombat",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FCultSkillCombatEditorTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(1.f)); ADD_LATENT_AUTOMATION_COMMAND(FSkillCombatObservation(this)); return true; }
+bool FCultSkillCombatEditorTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FSkillCombatObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 #endif
 #endif

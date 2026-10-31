@@ -1,4 +1,5 @@
 #include "CultMatchDirector.h"
+#include "CultWardWarning.h"
 #include "CultHUDSpace.h"
 #include "CultMatchState.h"
 #include "CultMobaRoute.h"
@@ -73,7 +74,8 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
   CopyBottom+=Measure->Measure(Relics,CultUI::Font(11*S)).Y+Pad;
  }
  FBox2D ObjectiveAlert(ForceInit);
- if(!Announcement().IsEmpty()&&!IsOver()) {
+ const auto ThreatPanel=IsPaused()?FCultWardWarningPanel():CultWardWarning::Panel(CultWardWarning::Observe(P),P->CombatHUD().DashCooldown,C);
+ if(!Announcement().IsEmpty()&&!IsOver()&&!ThreatPanel.Bounds.bIsValid) {
   const float MaxWidth=FMath::Min(680*S,MX-48*S),AY=FMath::Max(155*S,CopyBottom+(H<500?Pad:2*Pad));
   const FString Alert=Wrap(Announcement(),MaxWidth-2*Pad,12); const auto AlertSize=Measure->Measure(Alert,CultUI::Font(12*S));
   const float Width=AlertSize.X+2*Pad,Height=AlertSize.Y+2*Pad,AX=FMath::Clamp(M-Width*.5f,24*S,MX-24*S-Width);
@@ -145,12 +147,12 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
    float LabelY=Screen.Y;
    if(ObjectiveAlert.bIsValid&&FBox2D(FVector2D(LabelX-6*S,LabelY-4*S),FVector2D(LabelX+Size.X+6*S,LabelY+Size.Y+4*S)).Intersect(ObjectiveAlert.ExpandBy(4*S))) LabelY=ObjectiveAlert.Max.Y+8*S;
    GoalBounds=FBox2D(FVector2D(LabelX-6*S,LabelY-4*S),FVector2D(LabelX+Size.X+6*S,LabelY+Size.Y+4*S));
-   Panel(LabelX-6*S,LabelY-4*S,Size.X+12*S,Size.Y+8*S); Text(Label,LabelX,LabelY,13,Gold);
+   if(!ThreatPanel.Bounds.bIsValid||!GoalBounds.Intersect(ThreatPanel.Bounds.ExpandBy(4*S))) { Panel(LabelX-6*S,LabelY-4*S,Size.X+12*S,Size.Y+8*S); Text(Label,LabelX,LabelY,13,Gold); }
   }
  }
  const FBox2D PlateSafe(FVector2D(24*S,FMath::Max(210*S,CopyBottom+2*Pad)),FVector2D(MX-24*S,HUD->CombatContentTop()-16*S));
  const float CombatScale=FMath::Clamp(FMath::Min(W/1600.f,H/900.f),.55f,2.f);
- const TArray<FBox2D> PlateReserved={ObjectiveAlert,GoalBounds,FBox2D(FVector2D(M-125*CombatScale,H*.5f-72*CombatScale),FVector2D(M+125*CombatScale,H*.5f-39*CombatScale)),FBox2D(FVector2D(M-35*S,H*.5f-25*S),FVector2D(M+35*S,H*.5f+25*S))};
+ const TArray<FBox2D> PlateReserved={ThreatPanel.Bounds,ObjectiveAlert,GoalBounds,FBox2D(FVector2D(M-125*CombatScale,H*.5f-72*CombatScale),FVector2D(M+125*CombatScale,H*.5f-39*CombatScale)),FBox2D(FVector2D(M-35*S,H*.5f-25*S),FVector2D(M+35*S,H*.5f+25*S))};
  CultHeroPlates::Draw(HUD,C,P,this,PlateSafe,PlateReserved);
  if(P->StatsVisible()||IsOver()||IsPaused()) {
   const float PW=760*S,PH=440*S,X=M-PW*.5f,Y=H*.5f-PH*.5f;

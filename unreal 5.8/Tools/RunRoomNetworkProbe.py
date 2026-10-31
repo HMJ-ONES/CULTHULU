@@ -45,6 +45,16 @@ def run(mode):
         print(json.dumps(results), flush=True)
         if not all(r["ok"] for r in results):
             raise RuntimeError(f"Mode {mode} failed")
+        if mode == 2 and not (evidence / "Room2_ward").is_file():
+            raise RuntimeError("DOTGOO guest never received the server's targeted ward warning")
+        if mode == 2:
+            warning = json.loads((evidence / "Room2_ward.json").read_text(encoding="utf-8-sig"))
+            # A normal 0.25s tower attack cannot satisfy this eight-second
+            # fixture check. Initial join clock skew must not extend it either.
+            if not (4 < warning["serverRemaining"] <= 8
+                    and 0 < warning["guestRemaining"] <= warning["serverRemaining"] + .01):
+                raise RuntimeError(f"Guest ward countdown diverged: {warning}")
+            print(json.dumps({"wardWarning": warning}), flush=True)
         return results
     finally:
         for p in processes:
