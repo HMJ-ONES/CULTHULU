@@ -314,7 +314,7 @@ void ACultUlhuPlayerPawn::Smash()
   if(auto* PC=Cast<APlayerController>(GetController())) if(PC->IsInputKeyDown(EKeys::LeftAlt)) { if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) { if(HUD->FaithVisible()) HUD->CommandClick(); else M->Ping(this); } return; }
   M->OnAction(this);
  }
- if(auto* PC=Cast<APlayerController>(GetController())) if(PC->IsInputKeyDown(EKeys::LeftAlt)) { if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) HUD->CommandClick(); return; }
+ if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->FaithVisible()||PC->IsInputKeyDown(EKeys::LeftAlt)) { HUD->CommandClick(); return; }
  if(Kit_ && Kit_->LeftClick()) return;
 	if(Control_.Stun || Control_.Fear) return;
  if (SmashCooldown_ > 0.0f || IsSwinging()) { if(!IsBot()&&SmashCooldown_<=.18f) MeleeBuffer_=.18f; return; }
@@ -448,7 +448,7 @@ bool ACultUlhuPlayerPawn::IsRmbHeld() const { return bRmbHeld_; }
 void ACultUlhuPlayerPawn::Notify(const FString& Text) { Notice_=Text; NoticeTime_=Text.Len()>80?6.f:3.f; if(!IsBot()) UE_LOG(LogTemp,Log,TEXT("[CultUlhu] %s"),*Text); }
 void ACultUlhuPlayerPawn::AltPressed() { MeleeBuffer_=0; if(auto* PC=Cast<APlayerController>(GetController())) { PC->bShowMouseCursor=true; FInputModeGameAndUI M; M.SetHideCursorDuringCapture(false); PC->SetInputMode(M); } }
 void ACultUlhuPlayerPawn::CommandReleased() { if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) HUD->CommandRelease(); }
-void ACultUlhuPlayerPawn::AltReleased() { if(auto* PC=Cast<APlayerController>(GetController())) { if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) HUD->CloseCommands(); PC->bShowMouseCursor=false; FInputModeGameOnly M; M.SetConsumeCaptureMouseDown(false); PC->SetInputMode(M); } }
+void ACultUlhuPlayerPawn::AltReleased() { if(auto* PC=Cast<APlayerController>(GetController())) { if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) { HUD->CloseCommands(); if(HUD->FaithVisible()) return; } PC->bShowMouseCursor=false; FInputModeGameOnly M; M.SetConsumeCaptureMouseDown(false); PC->SetInputMode(M); } }
 void ACultUlhuPlayerPawn::TryJump() { if(!Control_.Stop && !Control_.Fear && CanJump()) { Jump(); EvadeTime_=FMath::Max(EvadeTime_,.14f); } }
 void ACultUlhuPlayerPawn::ToggleStats() { bStats_=!bStats_; }
 

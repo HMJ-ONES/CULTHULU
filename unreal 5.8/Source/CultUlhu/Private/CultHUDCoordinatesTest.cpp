@@ -3,6 +3,7 @@
 #include "Tests/AutomationEditorCommon.h"
 #include "CultHUDSpace.h"
 #include "CultPlayHUD.h"
+#include "beliefs/BeliefSystem.h"
 #include "CultUlhuGameInstance.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultPopulation.h"
@@ -24,6 +25,7 @@
 struct FCultHUDCoordinateTestAccess {
  static TOptional<FBox2D> Command(ACultPlayHUD* H,int Id) { for(int I=0;I<H->Actions_.Num()&&I<H->Buttons_.Num();++I) if(H->Actions_[I]==Id) return H->Buttons_[I]; return {}; }
  static TOptional<FBox2D> Faith(ACultPlayHUD* H,const FString& Key) { for(int I=0;I<H->FaithActions_.Num()&&I<H->FaithButtons_.Num();++I) if(H->FaithActions_[I]==Key) return H->FaithButtons_[I]; return {}; }
+ static const TArray<int32>& Gauges(ACultPlayHUD* H) { return H->FaithGaugeBeliefs_; }
  static bool Outcomes(ACultPlayHUD* H) { return H->bFaithOutcomes_; }
  static int Belief(ACultPlayHUD* H) { return H->SelectedBelief_; }
  static bool Selecting(ACultPlayHUD* H) { return H->bSelecting_; }
@@ -131,6 +133,10 @@ public:
    HoldAlt(PC); if(Now-At<.15) return false;
    Test->TestEqual(TEXT("Dragging selects exactly the two visible followers"),D->SelectedCount(),2);
    Test->TestTrue(TEXT("Drag leaves the third follower unselected"),D->IsSelected(People[0].Get())&&D->IsSelected(People[1].Get())&&!D->IsSelected(People[2].Get()));
+   for(int Id=ACultWorldDirector::RestFollowers;Id<=ACultWorldDirector::PunishCultist;++Id) {
+    const auto Box=FCultHUDCoordinateTestAccess::Command(H,Id); Test->TestTrue(TEXT("Every faith action has a visible ALT hit region"),Box.IsSet()&&Box->Min.X>=0&&Box->Max.X<=Rect.Width()&&Box->Min.Y>=0&&Box->Max.Y<=Rect.Height());
+   }
+   FScreenshotRequest::RequestScreenshot(FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir()/TEXT("Screenshots")/(TEXT("FaithOrders_")+ShapeName()+TEXT(".png"))),true,false);
    Phase=16;
   }
   if(Phase==16) {
@@ -138,17 +144,28 @@ public:
    Test->TestTrue(TEXT("Clicking the rendered Prepare for battle button prepares the selected group"),D->BattlePrepared()&&D->PreparedCount()==2);
    CoordinateKey(PC,EKeys::B,IE_Pressed); At=Now; Phase=17; return false;
   }
-  if(Phase==17) { if(Now-At<.15) return false; CoordinateKey(PC,EKeys::B,IE_Released); Test->TestTrue(TEXT("Real B input opens Free Roam beliefs"),H->FaithVisible()); Phase=18; }
+  if(Phase==17) { if(Now-At<.15) return false; CoordinateKey(PC,EKeys::B,IE_Released); Test->TestTrue(TEXT("Real B input opens Free Roam beliefs"),H->FaithVisible()); CoordinateKey(PC,EKeys::LeftAlt,IE_Released); P->AltReleased();
+   Test->TestTrue(TEXT("B keeps its own mouse cursor without ALT"),PC->bShowMouseCursor);
+   Test->TestEqual(TEXT("Only the three adopted beliefs have rendered gauges"),FCultHUDCoordinateTestAccess::Gauges(H).Num(),3);
+   for(int Id:FCultHUDCoordinateTestAccess::Gauges(H)) Test->TestTrue(TEXT("Each gauge belongs to an active belief"),D->Beliefs().isActive(static_cast<cultulhu::Belief>(Id)));
+   Test->TestFalse(TEXT("Torture is removed from B"),FCultHUDCoordinateTestAccess::Faith(H,TEXT("Torture")).IsSet());
+   FScreenshotRequest::RequestScreenshot(FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir()/TEXT("Screenshots")/(TEXT("CompactBeliefs_")+ShapeName()+TEXT(".png"))),true,false);
+   Phase=18; }
   if(Phase==18) {
-   if(!Click(PC,FCultHUDCoordinateTestAccess::Faith(H,TEXT("outcomes")))) return false;
+   if(!Click(PC,FCultHUDCoordinateTestAccess::Faith(H,TEXT("outcomes")),false)) return false;
    Test->TestTrue(TEXT("The rendered Outcomes button receives its click"),FCultHUDCoordinateTestAccess::Outcomes(H)); Phase=19;
   }
   if(Phase==19) {
-   if(!Click(PC,FCultHUDCoordinateTestAccess::Faith(H,TEXT("select:0")))) return false;
+   if(!Click(PC,FCultHUDCoordinateTestAccess::Faith(H,TEXT("select:0")),false)) return false;
    Test->TestTrue(TEXT("The rendered first belief receives its click"),FCultHUDCoordinateTestAccess::Belief(H)==0&&!FCultHUDCoordinateTestAccess::Outcomes(H)); Phase=20;
   }
   if(Phase==20) {
-   if(!Click(PC,FCultHUDCoordinateTestAccess::Faith(H,TEXT("close")))) return false;
+   if(!Click(PC,FCultHUDCoordinateTestAccess::Faith(H,TEXT("adopt:0")),false)) return false;
+   Test->TestTrue(TEXT("The real replacement button starts delayed belief adoption"),D->Beliefs().adoptionRemaining(cultulhu::Belief::Torture)>=0&&!D->Beliefs().isActive(cultulhu::Belief::Torture));
+   D->Beliefs().restoreActive({cultulhu::Belief::Conversion,cultulhu::Belief::War,cultulhu::Belief::Dreams}); Phase=24;
+  }
+  if(Phase==24) {
+   if(!Click(PC,FCultHUDCoordinateTestAccess::Faith(H,TEXT("close")),false)) return false;
    Test->TestFalse(TEXT("The rendered Close button closes beliefs"),H->FaithVisible()); ++Shape; Phase=10; return false;
   }
   if(Phase==30) {

@@ -65,7 +65,12 @@ void ACultPlayHUD::OpenCommands(float X,float Y,AActor* SelectedEnemy)
  cultulhu::GameStateSummary Summary; for(TActorIterator<ACultPopulation> It(GetWorld());It;++It) { if(It->GetFaction()==0) ++Summary.commandableCultists; if(It->IsCaptive()) ++Summary.captivesHeld; }
  cultulhu::CommandMenu Model; const auto Menu=Model.generateMenu(C,Summary);
  Actions_.Reset(); Labels_.Reset(); Enabled_.Reset(); Buttons_.Reset();
- for(const auto& B:Menu) { Actions_.Add(static_cast<int32>(B.action)); Labels_.Add(UTF8_TO_TCHAR(B.label.c_str())); Enabled_.Add(B.enabled); if(!Enabled_.Last() && B.enabled) Labels_.Last()+=TEXT(" (unavailable)"); }
+ for(const auto& B:Menu) {
+  // Faith actions use the same follower-aware dispatch, wherever they appear.
+  using A=cultulhu::MenuAction;
+  if(B.action==A::RitualSacrifice||B.action==A::SacrificeOrder||B.action==A::RitualNecromancy||B.action==A::RitualConvert) continue;
+  Actions_.Add(static_cast<int32>(B.action)); Labels_.Add(UTF8_TO_TCHAR(B.label.c_str())); Enabled_.Add(B.enabled);
+ }
  auto Add=[&](int A,const FString& Label,bool On=true) { Actions_.Add(A); Labels_.Add(Label); Enabled_.Add(On); };
  Add(ACultWorldDirector::Preach,TEXT("Preach / recruit nearby"));
  Add(ACultWorldDirector::PrepareBattle,D->BattlePrepared()?TEXT("Disengage battle preparation"):TEXT("Prepare for battle"),D->BattlePrepared()||D->SelectedCount()>0);
@@ -75,6 +80,15 @@ void ACultPlayHUD::OpenCommands(float X,float Y,AActor* SelectedEnemy)
  auto Extra=[&](cultulhu::MenuAction A,const TCHAR* Label) { if(!Actions_.Contains(int(A))) Add(int(A),Label); };
  Extra(cultulhu::MenuAction::BuildAt,TEXT("Build with selected crew"));
  Extra(cultulhu::MenuAction::RaidAt,TEXT("Raze city at target"));
+ Add(ACultWorldDirector::RestFollowers,TEXT("Rest selected followers"));
+ Add(ACultWorldDirector::MassConvert,TEXT("Mass convert (entity)"));
+ Add(ACultWorldDirector::PlaceTrap,TEXT("Place capture trap"));
+ Add(ACultWorldDirector::TortureCaptive,TEXT("Torture captive"));
+ Add(ACultWorldDirector::SacrificeCaptive,TEXT("Sacrifice at temple"));
+ Add(ACultWorldDirector::PerformNecromancy,TEXT("Necromancy at temple"));
+ Add(ACultWorldDirector::BreedCreatures,TEXT("Breed captured creatures"));
+ Add(ACultWorldDirector::ImprisonCultist,TEXT("Imprison cultist"));
+ Add(ACultWorldDirector::PunishCultist,TEXT("Punish infringer"));
  CommandScreen_=FVector2D(X,Y); bCommands_=true;
 }
 void ACultPlayHUD::DrawHUD()
@@ -84,23 +98,25 @@ void ACultPlayHUD::DrawHUD()
  DrawCultCombat(this,P,Canvas);
  if(auto* M=ACultMatchDirector::Find(GetWorld())) { M->Draw(this,Canvas,P); return; }
 
- if(bFaith_) { DrawFaith(); return; }
+ if(bFaith_) { InspectionHover_.Reset(); DrawFaith(); return; }
  if(P->StatsVisible()) DrawSociety();
  DrawSelection();
  DrawPopulationInspection();
  if(bCommands_) {
-  const float Width=340*S, Height=42*S;
-  const int Rows=(Actions_.Num()+1)/2; const float PanelW=Width*2+8*S,PanelH=Rows*(Height+6*S);
-  const FVector2D Center(FMath::Clamp(CommandScreen_.X,8.f,Canvas->SizeX-PanelW-8),FMath::Clamp(CommandScreen_.Y,145*S,Canvas->SizeY-PanelH-16*S-8));
+  const int Cols=Canvas->SizeY<500||Canvas->SizeX>=1000?3:2;
+  const int Rows=FMath::DivideAndRoundUp(Actions_.Num(),Cols);
+  const float PanelW=FMath::Min(Canvas->SizeX-32.f,1000*S),Width=(PanelW-(Cols-1)*8*S)/Cols;
+  const float Height=FMath::Min(42*S,(Canvas->SizeY-155*S-32)/FMath::Max(1,Rows)-6*S),PanelH=Rows*(Height+6*S);
+  const FVector2D Center(FMath::Clamp(CommandScreen_.X,16.f,FMath::Max(16.f,Canvas->SizeX-PanelW-16)),FMath::Clamp(CommandScreen_.Y,120*S,FMath::Max(120*S,Canvas->SizeY-PanelH-16)));
   DrawRect(CultUI::Background,Center.X-8*S,Center.Y-8*S,PanelW+16*S,PanelH+16*S);
   Buttons_.Reset();
   for(int I=0;I<Actions_.Num();++I) {
-   const FVector2D Min=Center+FVector2D((I%2)*(Width+8*S),(I/2)*(Height+6*S));
+   const FVector2D Min=Center+FVector2D((I%Cols)*(Width+8*S),(I/Cols)*(Height+6*S));
    const FBox2D R(Min,Min+FVector2D(Width,Height)); Buttons_.Add(R);
    FVector2D Mouse; const bool Hover=Enabled_[I]&&CultHUDSpace::Pointer(GetOwningPlayerController(),Mouse)&&R.IsInside(Mouse);
    DrawRect(Hover?FLinearColor(.05f,.14f,.12f):CultUI::Panel,R.Min.X,R.Min.Y,R.GetSize().X,R.GetSize().Y);
    DrawRect(Hover?CultUI::Gold:CultUI::Line,R.Min.X,R.Min.Y,R.GetSize().X,1*S);
-   CultCanvasLabel(Canvas,Labels_[I],Enabled_[I]?CultUI::Bone:CultUI::Muted,R.Min.X+8*S,R.Min.Y+6*S,16.f*S);
+   CultCanvasLabel(Canvas,Labels_[I],Enabled_[I]?CultUI::Bone:CultUI::Muted,R.Min.X+8*S,R.Min.Y+4*S,FMath::Max(10.f,14.f*S));
   }
 
  }

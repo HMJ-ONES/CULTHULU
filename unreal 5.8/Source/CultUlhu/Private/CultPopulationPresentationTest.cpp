@@ -62,15 +62,18 @@ public:
    if(Now-At<1.2f) return false;
    for(int I=0;I<3;++I) Test->TestTrue(TEXT("Visible authored activity continues animating with inspection closed"),Animated[I]);
    People[1]->SetWorkProgress(.48f,true); People[1]->ShowContribution(TEXT("CONSTRUCTION + BELIEF"));
-   ACultWorldDirector::Find(W)->SelectFollowers({People[1].Get()}); Player->AltPressed(); At=Now; Phase=3; return false;
+   ACultWorldDirector::Find(W)->SelectFollowers({People[1].Get()}); Player->AltPressed(); FVector2D Mouse; PC->ProjectWorldLocationToScreen(People[1]->GetActorLocation(),Mouse); PC->SetMouseLocation(FMath::RoundToInt(Mouse.X),FMath::RoundToInt(Mouse.Y)); At=Now; Phase=3; return false;
   }
   if(Phase==3) {
-   if(Now-At<.2f) return false;
+   FVector2D Mouse; PC->ProjectWorldLocationToScreen(People[1]->GetActorLocation(),Mouse); PC->SetMouseLocation(FMath::RoundToInt(Mouse.X),FMath::RoundToInt(Mouse.Y));
+   if(Now-At<1.4f) { Test->TestEqual(TEXT("A brief hover shows no card"),HUD->InspectionCards().Num(),0); return false; }
+   if(Now-At<1.95f) return false;
+   Test->TestEqual(TEXT("Only the continuously hovered cultist has a card"),HUD->InspectionCards().Num(),1);
    Test->TestTrue(TEXT("Inspection image uses its close camera"),PC->GetViewTarget()==Camera.Get()&&FVector::Dist(PC->PlayerCameraManager->GetCameraLocation(),Camera->GetActorLocation())<10);
    for(int I=0;I<3;++I) {
     auto* P=People[I].Get(); P->Tick(.01f);
     const auto* Card=HUD->InspectionCards().FindByPredicate([P](const FCultInspectionCard& C){return C.Person==P;});
-    Test->TestTrue(TEXT("ALT immediately renders the current activity and health"),Card&&Card->Activity==P->InspectionActivity()&&Card->Health==100&&Card->MaxHealth==100);
+    if(I==1) Test->TestTrue(TEXT("Dwell renders activity and health at full opacity"),Card&&Card->Opacity>.99f&&Card->Activity==P->InspectionActivity()&&Card->Health==100&&Card->MaxHealth==100); else Test->TestNull(TEXT("Nearby cultists have no unsolicited cards"),Card);
     if(I==1) Test->TestTrue(TEXT("Rendered inspection text preserves the full progress and belief receipt"),Card&&Card->Selected&&Card->Activity.Contains(TEXT("48%"))&&Card->Contribution==TEXT("CONSTRUCTION + BELIEF"));
     TArray<UPoseableMeshComponent*> Parts; P->GetComponents(Parts); UPoseableMeshComponent* Leader=nullptr;
     for(auto* Part:Parts) if(!Part->LeaderPoseComponent.IsValid()) Leader=Part;
@@ -83,24 +86,19 @@ public:
    if(Now-At<.3f||FScreenshotRequest::IsScreenshotRequested()) return false;
    Test->TestTrue(TEXT("Rendered NPC inspection fixture is saved"),IFileManager::Get().FileSize(*Screenshot)>0);
    auto* Source=People[2].Get(); auto* Corpse=ACultCorpse::Leave(Source); Test->TestNotNull(TEXT("Authored animated NPC leaves a body"),Corpse);
-   if(Corpse) { TArray<UPoseableMeshComponent*> Parts; Corpse->GetComponents(Parts); TArray<UPoseableMeshComponent*> SourceParts; Source->GetComponents(SourceParts); Test->TestEqual(TEXT("Corpse preserves every rendered authored component"),Parts.Num(),SourceParts.Num()); for(auto* Part:Parts) Test->TestTrue(TEXT("Corpse pose is persistent and nonblocking"),Part->IsVisible()&&!Part->IsComponentTickEnabled()&&Part->GetCollisionEnabled()==ECollisionEnabled::NoCollision); Corpse->Destroy(); }
+   if(Corpse) { TArray<UPoseableMeshComponent*> Parts; Corpse->GetComponents(Parts); TArray<UPoseableMeshComponent*> SourceParts; Source->GetComponents(SourceParts); Parts.RemoveAll([](auto* Part){return !Part->GetSkinnedAsset();}); SourceParts.RemoveAll([](auto* Part){return !Part->GetSkinnedAsset();}); Test->TestEqual(TEXT("Corpse preserves every rendered authored component"),Parts.Num(),SourceParts.Num()); for(auto* Part:Parts) Test->TestTrue(TEXT("Corpse pose is persistent and nonblocking"),Part->IsVisible()&&!Part->IsComponentTickEnabled()&&Part->GetCollisionEnabled()==ECollisionEnabled::NoCollision); Corpse->Destroy(); }
    // Add a dense group, an actor behind the camera and a wall hiding one unit.
    for(int I=0;I<12;++I) { auto* P=W->SpawnActor<ACultPopulation>(FVector((I%3-1)*30,40+(I/3)*25,45100),FRotator::ZeroRotator); P->RecruitTo(0); P->GetCharacterMovement()->DisableMovement(); P->SetActorTickEnabled(false); P->Tick(.01f); People.Add(P); }
    const FVector Back=Camera->GetActorLocation()-Camera->GetActorForwardVector()*1000;
    auto* Behind=W->SpawnActor<ACultPopulation>(Back,FRotator::ZeroRotator); Behind->GetCharacterMovement()->DisableMovement(); Behind->SetActorTickEnabled(false); Behind->Tick(.01f); People.Add(Behind);
    const FVector Mid=(Camera->GetActorLocation()+People[0]->GetActorLocation()+FVector(0,0,113))*.5f;
    Wall=W->SpawnActor<AStaticMeshActor>(Mid,FRotator::ZeroRotator); Wall->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable); Wall->GetStaticMeshComponent()->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"))); Wall->SetActorScale3D(FVector(2.5f,.8f,6));
-   At=Now; Phase=5; return false;
+   FVector2D Mouse; PC->ProjectWorldLocationToScreen(People[0]->GetActorLocation(),Mouse); PC->SetMouseLocation(FMath::RoundToInt(Mouse.X),FMath::RoundToInt(Mouse.Y)); At=Now; Phase=5; return false;
   }
   if(Phase==5) {
    if(Now-At<.4f) return false;
    const auto& Cards=HUD->InspectionCards();
-   Test->TestTrue(TEXT("Dense crowds retain neighboring cards beside the selected worker"),Cards.Num()>=3&&Cards.Num()<=8);
-   Test->TestNotNull(TEXT("Selected worker keeps priority in a crowded group"),Cards.FindByPredicate([this](const FCultInspectionCard& C){return C.Person==People[1];}));
-   Test->TestNull(TEXT("Inspection never reveals someone hidden behind scenery"),Cards.FindByPredicate([this](const FCultInspectionCard& C){return C.Person==People[0];}));
-   Test->TestNull(TEXT("Actors behind the camera have no inspection card"),Cards.FindByPredicate([this](const FCultInspectionCard& C){return C.Person==People.Last();}));
-   for(const auto& Card:Cards) Test->TestTrue(TEXT("Crowd labels stay above their body's head"),Card.Bounds.Max.Y<=Card.Anchor.Y);
-   for(int I=0;I<Cards.Num();++I) for(int J=I+1;J<Cards.Num();++J) Test->TestFalse(TEXT("Dense inspection cards never overlap"),Cards[I].Bounds.Intersect(Cards[J].Bounds));
+   Test->TestEqual(TEXT("Moving to an occluded cultist fades away the old card without crowd clutter"),Cards.Num(),0);
    Screenshot=FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir()/TEXT("Screenshots/PopulationInspectionCrowd.png")); FScreenshotRequest::RequestScreenshot(Screenshot,true,false); Phase=6; At=Now; return false;
   }
   if(Phase==6) {
@@ -109,8 +107,8 @@ public:
    Player->AltReleased(); At=Now; Phase=7; return false;
   }
   if(Phase==7) {
-   if(Now-At<.1f) return false;
-   Test->TestEqual(TEXT("ALT release immediately clears rendered cards"),HUD->InspectionCards().Num(),0);
+   if(Now-At<.35f) return false;
+   Test->TestEqual(TEXT("ALT release leaves no rendered cards after fading"),HUD->InspectionCards().Num(),0);
    for(auto& P:People) if(P.IsValid()) P->Destroy(); if(Wall.IsValid()) Wall->Destroy(); ACultWorldDirector::Find(W)->SelectFollowers({});
    PC->SetViewTarget(Player); if(Camera.IsValid()) Camera->Destroy(); if(Floor.IsValid()) Floor->Destroy(); return true;
   }

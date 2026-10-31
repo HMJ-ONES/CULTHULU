@@ -7,6 +7,7 @@
 struct FCultFaithTestAccess {
  static auto& State(ACultWorldDirector* D) { return *D->State_; }
  static void Step(ACultWorldDirector* D,float Dt) { D->TickFaith(Dt); }
+ static void Society(ACultWorldDirector* D,float Dt) { D->TickSociety(Dt); }
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultFaithGameplayTest,"CultUlhu.Beliefs",
  EAutomationTestFlags::ClientContext | EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -62,12 +63,36 @@ bool FCultFaithGameplayTest::RunTest(const FString& Parameters)
   D->FaithAction(TEXT("Torture"),Prisoner,Altar->GetActorLocation()); TestEqual(TEXT("Torture operates on an actual captive"),D->FaithEventCount(int(E::TorturePerformed)),Tortures+1);
   TestTrue(TEXT("Torture grants the original per-victim power"),FMath::IsNearlyEqual(D->FaithPower()-TorturePower,6.4f,.01f));
   D->FaithAction(TEXT("Torture"),Prisoner,Altar->GetActorLocation()); TestEqual(TEXT("The same captive cannot be spammed for repeated per-victim rewards"),D->FaithEventCount(int(E::TorturePerformed)),Tortures+1);
+  // ALT dispatch must create physical, interruptible work, never an immediate reward.
+  auto* Worker=Person(Altar->GetActorLocation()+FVector(700,300,100));
+  auto* OrderedCaptive=Person(Altar->GetActorLocation()+FVector(800,300,100),false); OrderedCaptive->Capture(nullptr,0);
+  FCultFaithTestAccess::Step(D,0); D->SelectFollowers({Worker}); Worker->SetLoyalty(0,false);
+  TestTrue(TEXT("ALT noncombat order reports disobedience"),D->Execute(ACultWorldDirector::TortureCaptive,OrderedCaptive,OrderedCaptive->GetActorLocation()).Contains(TEXT("disobeying")));
+  Worker->SetLoyalty(100,false); for(auto& Row:State.People) if(Row.Actor==Worker) { Faith.Cult.at(Row.Index).setDevotion(100); Faith.Cult.at(Row.Index).setState(cultulhu::CultistState::Loyal); }
+  const bool WasSociety=State.SocietyEnabled; State.SocietyEnabled=true;
+  TArray<float> SocietyTimers; for(auto& F:State.Faiths) { SocietyTimers.Add(F->SocietyTimer); F->SocietyTimer=1e9; }
+  const int OrderedBefore=D->FaithEventCount(int(E::TorturePerformed)); FString Ordered;
+  for(int Attempt=0;Attempt<64&&!Ordered.Contains(TEXT("Torture ordered"));++Attempt) Ordered=D->Execute(ACultWorldDirector::TortureCaptive,OrderedCaptive,OrderedCaptive->GetActorLocation());
+  TestTrue(TEXT("ALT dispatch assigns a real follower"),Ordered.Contains(TEXT("Torture ordered"))&&Worker->GetActivity()==TEXT("Torture"));
+  TestEqual(TEXT("Issuing torture gives no immediate reward"),D->FaithEventCount(int(E::TorturePerformed)),OrderedBefore);
+  TestTrue(TEXT("Duplicate ALT work on the same victim is rejected"),D->Execute(ACultWorldDirector::TortureCaptive,OrderedCaptive,OrderedCaptive->GetActorLocation()).Contains(TEXT("already working")));
+  FCultFaithTestAccess::Society(D,19); TestEqual(TEXT("Ordered torture waits for all 20 work seconds"),D->FaithEventCount(int(E::TorturePerformed)),OrderedBefore);
+  FCultFaithTestAccess::Society(D,1); TestEqual(TEXT("Physical ordered work rewards exactly once"),D->FaithEventCount(int(E::TorturePerformed)),OrderedBefore+1);
+  FCultFaithTestAccess::Society(D,2); TestEqual(TEXT("Finished ALT work cannot double reward"),D->FaithEventCount(int(E::TorturePerformed)),OrderedBefore+1);
+  auto* InterruptedCaptive=Person(Altar->GetActorLocation()+FVector(800,400,100),false); InterruptedCaptive->Capture(nullptr,0);
+  Ordered.Empty(); for(int Attempt=0;Attempt<64&&!Ordered.Contains(TEXT("Torture ordered"));++Attempt) Ordered=D->Execute(ACultWorldDirector::TortureCaptive,InterruptedCaptive,InterruptedCaptive->GetActorLocation());
+  Worker->PlayerOrder(TEXT("Build"),Worker->GetActorLocation()); FCultFaithTestAccess::Society(D,21);
+  TestEqual(TEXT("Explicit reassignment interrupts work without power"),D->FaithEventCount(int(E::TorturePerformed)),OrderedBefore+1);
+  D->SelectFollowers({}); State.SocietyEnabled=WasSociety; for(int I=0;I<3;++I) State.Faiths[I]->SocietyTimer=SocietyTimers[I];
   Faith.Beliefs.restoreActive({B::Chaos}); const int Imprisoned=D->FaithEventCount(int(E::CultistImprisoned)); D->FaithAction(TEXT("Imprison"),Patient,Patient->GetActorLocation());
   TestTrue(TEXT("Imprisonment immobilizes the actual cultist"),Patient->IsCaptive()); TestEqual(TEXT("Imprisonment feeds the original Chaos penalty"),D->FaithEventCount(int(E::CultistImprisoned)),Imprisoned+1);
   Faith.Beliefs.restoreActive({B::Breeding}); TArray<ACultFeralBeast*> Parents;
   for(int I=0;I<2;++I) { auto* Beast=W->SpawnActor<ACultFeralBeast>(Altar->GetActorLocation()+FVector(2000,I*800,100),FRotator::ZeroRotator,Params); Beast->Capture(nullptr,0); Parents.Add(Beast); }
   const int Births=D->FaithEventCount(int(E::MonstrosityBred)); const FString Birth=D->FaithAction(TEXT("Breed"),Altar,Altar->GetActorLocation());
   TestTrue(TEXT("Two owned captive beasts produce an actual native hybrid"),Birth.Contains(TEXT("was born"))); TestEqual(TEXT("One actual birth feeds Breeding once"),D->FaithEventCount(int(E::MonstrosityBred)),Births+1);
+  const int BeastHandling=D->FaithEventCount(int(E::TorturePerformed));
+  D->Execute(ACultWorldDirector::TortureCaptive,Parents[0],Parents[0]->GetActorLocation());
+  TestEqual(TEXT("ALT preserves original captured-creature handling"),D->FaithEventCount(int(E::TorturePerformed)),BeastHandling+1);
   for(auto* Beast:Parents) Beast->Destroy();
   auto* Priest=Person(Altar->GetActorLocation()+FVector(300,0,100)); auto* Victim=Person(Altar->GetActorLocation()+FVector(500,0,100),false); Victim->Capture();
   Faith.Beliefs.restoreActive({B::Sacrifice}); int Completed=D->FaithEventCount(int(E::SacrificeCompleted));
