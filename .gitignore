@@ -46,3 +46,9 @@ assets/creatures/Textures/*.png
 # Retired source backups and Python bytecode are not project inputs.
 *.bak
 *.pyc
+# Local artist interchange and remeshing outputs; keep scripts/reports in Git.
+/assets/instant_meshes/**/*.ply
+/assets/instant_meshes/**/*.blend*
+/assets/instant_meshes/**/*.png
+/assets/retopology/*.blend*
+/assets/retopology/*.png
