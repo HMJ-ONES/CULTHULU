@@ -1,4 +1,5 @@
 #include "CultWildsPresentation.h"
+#include "CultSceneLighting.h"
 #include "EngineUtils.h"
 #include "HAL/IConsoleManager.h"
 #include "Engine/DirectionalLight.h"
@@ -45,15 +46,12 @@ void CultWildsPresentation::Apply(UWorld* World)
 
  bool HasMoon=false;
  for(TActorIterator<ADirectionalLight> It(World);It;++It) {
-  auto* Light=It->GetLightComponent(); Light->SetIntensity(HasMoon?0.f:2.5f);
+  auto* Light=It->GetLightComponent(); Light->SetMobility(EComponentMobility::Movable); Light->SetIntensity(HasMoon?0.f:2.5f);
   Light->SetLightColor(FLinearColor(.62f,.76f,.82f));
   if(!HasMoon) It->SetActorRotation(FRotator(-32,-35,0));
   HasMoon=true;
  }
- for(TActorIterator<ASkyLight> It(World);It;++It) {
-  auto* Light=It->GetLightComponent(); Light->SetIntensity(.55f);
-  Light->SetLightColor(FLinearColor(.68f,.78f,.79f));
- }
+ CultSceneLighting::Ambient(World,.55f,FLinearColor(.68f,.78f,.79f));
  // Do not let the atmosphere's daytime sun disk contradict the moonlit rig.
  for(TActorIterator<AActor> It(World);It;++It) {
   TArray<USkyAtmosphereComponent*> Atmospheres; It->GetComponents(Atmospheres);

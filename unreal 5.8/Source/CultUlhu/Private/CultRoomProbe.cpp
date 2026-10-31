@@ -10,6 +10,7 @@
 #include "CultLivingLandscape.h"
 #include "CultSkillAttack.h"
 #include "CultWardWarning.h"
+#include "CultMatchLightingProbe.h"
 #include "Containers/Ticker.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
@@ -25,6 +26,7 @@ struct FRoomProbe {
  TWeakObjectPtr<UCultUlhuGameInstance> Game; bool Host=false; int Mode=0,Phase=0; double Began=FPlatformTime::Seconds(),At=0,LastLog=0;
  TWeakObjectPtr<ACultUlhuPlayerPawn> Guest; TWeakObjectPtr<AActor> Target; TWeakObjectPtr<ACultMatchUnit> Creep;
  FVector Position,CreepStart; float Clock=0; bool Moved=false,WaveMoved=false,Combat=false,LocalMenu=false,HostBot=false;
+ FCultMatchLightingProbe Lighting;
  FString File(const TCHAR* Suffix) const { return FPaths::ProjectSavedDir()/TEXT("Automation")/FString::Printf(TEXT("Room%d_%s"),Mode,Suffix); }
  void Signal(const TCHAR* Suffix) { FFileHelper::SaveStringToFile(TEXT("ready"),*File(Suffix)); }
  bool Has(const TCHAR* Suffix) const { return IFileManager::Get().FileExists(*File(Suffix)); }
@@ -59,6 +61,10 @@ struct FRoomProbe {
   if(Host&&Phase==2&&!G->RoomCode.IsEmpty()) { FFileHelper::SaveStringToFile(G->RoomCode,*File(TEXT("code.txt"))); Phase=3; }
   if(Mode&&(!M||M->Fighters().Num()!=10)) return true;
   if(!Mode&&!G->FreeRoamReady) return true;
+  if(Phase==3&&FParse::Param(FCommandLine::Get(),TEXT("CultRoomLighting"))&&(!Host||Has(TEXT("ready")))) {
+   if(!Lighting.Tick(W,Host,Mode)) return true;
+   if(Host&&!Has(TEXT("lighting_guest"))) return true;
+  }
   if(Host) {
    if(Phase==3) {
     for(FConstPlayerControllerIterator It=W->GetPlayerControllerIterator();It;++It) if(auto* C=It->Get()) if(!C->IsLocalController()) Guest=Cast<ACultUlhuPlayerPawn>(C->GetPawn());

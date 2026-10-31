@@ -3,6 +3,7 @@
 // CULT-ULHU play game mode implementation.
 #include "CultActorLabels.h"
 #include "CultWildsPresentation.h"
+#include "CultSceneLighting.h"
 
 #include "EngineUtils.h"
 #include "GameFramework/PlayerStart.h"
@@ -45,16 +46,6 @@ void ACultUlhuPlayGameMode::InitGame(const FString& MapName,const FString& Optio
  if(!MapName.Contains(TEXT("L_DarkWilds"))) return;
  // A fixed sky environment keeps moving creatures readable in the vessel's shadow.
  // Capturing the runtime blockout can otherwise produce nearly black ambient light.
- auto* Ambient=LoadObject<UTextureCube>(nullptr,TEXT("/Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap"));
- bool HasSky=false;
- auto ConfigureSky=[&](USkyLightComponent* Sky) {
-  HasSky=true; Sky->SetMobility(EComponentMobility::Movable);
-  if(Ambient) {
-   Sky->SetRealTimeCaptureEnabled(false); Sky->SourceType=SLS_SpecifiedCubemap;
-   Sky->SetCubemap(Ambient); Sky->SetIntensity(.10f); Sky->SetLightColor(FLinearColor(.72f,.82f,1.f));
-   Sky->SetLowerHemisphereColor(FLinearColor(.025f,.035f,.055f));
-  } else Sky->SetRealTimeCaptureEnabled(true);
- };
  // Runtime replacement keeps the authored level and all imported art recoverable.
  for(TActorIterator<AActor> It(GetWorld());It;++It) {
   if(It->IsA<AReflectionCapture>()) { It->Destroy(); continue; }
@@ -64,10 +55,9 @@ void ACultUlhuPlayGameMode::InitGame(const FString& MapName,const FString& Optio
   for(auto* C:Components) { C->SetVisibility(false); C->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
   TArray<UTextRenderComponent*> Labels; It->GetComponents(Labels); for(auto* Label:Labels) Label->SetVisibility(false);
   TArray<ULightComponent*> Lights; It->GetComponents(Lights); for(auto* Light:Lights) Light->SetMobility(EComponentMobility::Movable);
-  TArray<USkyLightComponent*> Skies; It->GetComponents(Skies); for(auto* Sky:Skies) ConfigureSky(Sky);
   if(It->IsA<APlayerStart>()) It->SetActorLocation(FVector(0,0,2000));
  }
- if(!HasSky) if(auto* Sky=GetWorld()->SpawnActor<ASkyLight>()) ConfigureSky(Sky->GetLightComponent());
+ CultSceneLighting::Ambient(GetWorld(),.10f,FLinearColor(.72f,.82f,1.f));
  if(auto* GI=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(GI->SelectedMode!=ECultPlayMode::FreeRoam) { ACultMatchDirector::BuildArena(GetWorld(),GI->SelectedMode); return; }
  CultWildsPresentation::Apply(GetWorld());
  auto* Land=GetWorld()->SpawnActor<ACultLivingLandscape>(); auto* GI=Cast<UCultUlhuGameInstance>(GetGameInstance()); Land->Generate(GI?GI->FreeRoamSeed:FMath::Rand());

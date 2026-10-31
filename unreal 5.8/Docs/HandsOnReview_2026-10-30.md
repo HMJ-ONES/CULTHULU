@@ -39,3 +39,11 @@ Item **4 remains partially complete**: real targeted ward shots now display a di
 The old combat test counted all world corpses and asserted persistence beyond the requested lifetime. It now follows the killed fixture civilian's own corpse, checks its five-second Free Roam lifetime and verifies expiry, alongside its original physical projectile/melee/jump/dash checks.
 
 See [ward danger behavior](WardDangerReadability.md), [verification evidence](WardDangerVerification_2026-10-31.json) and the [updated presentation/fun critique](PresentationBenchmark_2026-10-31.md). The fresh captures still show prototype-level shadow readability, repeated materials and competing HUD strips. This pass does not complete the wider ten-task review or certify comparison-level fun and polish.
+
+## Runtime lighting mismatch corrected — 2026-10-31
+
+Matched north/south host/guest cameras confirmed the unusually dark guest scene was a real presentation bug. The host selected an ambient cubemap in server-only GameMode initialization; guests did not receive that setup. Shared local runtime lighting now supplies the same ambient source. Free Roam guests also apply their missing presentation profile, with explicit movable directional lights so moon rotation can match the host.
+
+The final build passed real two-process checks in Free Roam, Domination and DOTGOO. Across all twelve gray-reference comparisons, host/guest mean absolute differences stayed below 0.4 sRGB levels out of 255. The earlier DOTGOO guest play-area samples contained 18.7–21.2% near-black pixels; the final guest samples contain less than 0.1%. The existing Free Roam courtyard/cave presentation test also passed physical-transform, floor-collision and sky-trace checks.
+
+See [runtime lighting behavior and reproduction](RuntimeLightingParity.md) and [recorded verification](RuntimeLightingVerification_2026-10-31.json). This corrects a host/guest visibility mismatch while preserving the host's existing art profile. Route identity, architecture/material refinement, camera composition, HUD density, all-creature contrast, artist-directed animation and full-match fun evaluation remain open.

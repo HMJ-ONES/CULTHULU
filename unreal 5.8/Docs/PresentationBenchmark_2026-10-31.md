@@ -8,7 +8,7 @@ This update inspected the current gameplay source, a standalone lane/wave captur
 
 ## Observable gaps
 
-1. **Readability in shadow.** The guest capture has large structures that become nearly black silhouettes. The pale lane is visible, but individual surfaces and nearby combatants are harder to read. A matched-camera host/guest lighting comparison is needed before attributing this to networking. Improve shadow fill and character separation without replacing the dark theme with bright daylight.
+1. **Readability in shadow.** Matched-camera checks subsequently confirmed a real guest ambient-light omission: a server-only setup selected the cubemap, while guests captured a nearly black sky. Shared runtime lighting now corrects that omission; Free Roam also receives the missing client presentation and movable moonlight setup. See `RuntimeLightingParity.md`. This resolves a visibility mismatch, not the wider need to audit character separation, roofed areas and all creature materials while retaining the dark theme.
 2. **Landmark and route identity.** Repeated gray masonry, similar pillars and large simple structures dominate the capture. More geometry alone will not create a polished arena. Give each approach a recognizable silhouette, material family and focal landmark; keep navigation and combat sightlines clear.
 3. **Scale and camera composition.** Large architecture occupies a substantial part of the aiming view in the short capture. Hero bodies, elevated geometry and third-person framing need to be evaluated together along real traversal routes, rather than in separate empty fixtures.
 4. **Competing information.** Mode title, binding help, first-ability prompt, level progress, relic status, announcements, objective labels and hero plates all compete for attention. The ward-warning pass gives immediate danger priority over overlapping routine messages; the overall hierarchy still needs simplification and contextual onboarding.
@@ -22,7 +22,7 @@ For the owner's Onslaught comparison, evaluate the complete point-fight loop: cl
 
 ## Next substantial review passes
 
-- Run a matched-camera lighting/contrast check, then improve shadow readability and route landmarks with the existing original/approved asset policy.
+- Continue shadow/character contrast review across real combat positions, and improve route landmarks with the existing original/approved asset policy. Matched-camera host/guest checks now cover the initial lighting mismatch.
 - Measure full Domination approach/flank/rejoin routes and watch live fights from the capture rectangle, high ground and tunnel exits. Remove positions that produce unavoidable damage or offer no useful decision.
 - Reduce permanent instructional strips through contextual prompts, retaining critical ability, target, objective and danger information.
 - Add persistent comfort/settings controls and test them through actual resolution, input-focus and camera changes.

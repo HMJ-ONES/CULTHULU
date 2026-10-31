@@ -1,4 +1,5 @@
 #include "CultMatchDirector.h"
+#include "CultSceneLighting.h"
 #include "CultMatchSurfaces.h"
 #include "CultMatchBackdrop.h"
 #include "CultJungleCliffs.h"
@@ -35,10 +36,10 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
  Settings.bOverride_VignetteIntensity=true; Settings.VignetteIntensity=.18f;
  bool Moon=false;
  for(TActorIterator<ADirectionalLight> It(W);It;++It) {
-  auto* Light=It->GetLightComponent(); Light->SetIntensity(Moon?0.f:2.5f);
+  auto* Light=It->GetLightComponent(); Light->SetMobility(EComponentMobility::Movable); Light->SetIntensity(Moon?0.f:2.5f);
   Light->SetLightColor(FLinearColor(.65f,.78f,.85f)); Moon=true;
  }
- for(TActorIterator<ASkyLight> It(W);It;++It) It->GetLightComponent()->SetIntensity(.6f);
+ CultSceneLighting::Ambient(W,.6f,FLinearColor(.72f,.82f,1.f));
  for(TActorIterator<ASkyAtmosphere> It(W);It;++It) It->GetComponent()->SetVisibility(false);
  bool Fog=false;
  auto SetFog=[](UExponentialHeightFogComponent* C) {

@@ -1,6 +1,7 @@
 #include "TimerManager.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultUlhuPlayerController.h"
+#include "CultWildsPresentation.h"
 #include "CultUlhuGameInstance.h"
 #include "CultWorldDirector.h"
 #include "CultPopulation.h"
@@ -59,7 +60,7 @@ void ACultLivingLandscape::OnRep_Seed() {
   TArray<UStaticMeshComponent*> Parts; It->GetComponents(Parts);
   for(auto* C:Parts) { C->SetVisibility(false); C->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
  }
- Generate(WorldSeed); PopulateCultWilds(GetWorld());
+ Generate(WorldSeed); CultWildsPresentation::Apply(GetWorld()); PopulateCultWilds(GetWorld());
  if(auto* GI=Cast<UCultUlhuGameInstance>(GetGameInstance())) { GI->FreeRoamSeed=WorldSeed; GI->SelectedMode=ECultPlayMode::FreeRoam; GI->FreeRoamReady=true; }
  UE_LOG(LogTemp,Display,TEXT("[CultCoop] Client generated shared terrain seed %d"),WorldSeed);
 }
