@@ -25,7 +25,9 @@ void ACultPlayHUD::CommandClick()
  auto* PC=GetOwningPlayerController(); auto* P=Cast<ACultUlhuPlayerPawn>(GetOwningPawn()); if(!PC||!P) return;
  FVector2D Pointer; if(!CultHUDSpace::Pointer(PC,Pointer)) return;
  const float X=Pointer.X,Y=Pointer.Y;
+ if(bRegionMap_) { RegionMapClick(Pointer); return; }
  if(bFaith_) { FaithClick(X,Y); return; }
+ if(auto* D=ACultWorldDirector::Find(GetWorld())) if(D->BattlePrepared()&&RegionMapHint_.IsInside(Pointer)) { ToggleRegionMap(); return; }
  if(bCommands_) { for(int I=0;I<Buttons_.Num();++I) if(Buttons_[I].IsInside(FVector2D(X,Y))) { if(Enabled_[I]) { if(auto* D=ACultWorldDirector::Find(GetWorld())) { if(GetWorld()->GetNetMode()==NM_Client) { if(auto* C=Cast<ACultUlhuPlayerController>(PlayerOwner)) C->ServerCultOrder(Actions_[I],CommandTarget_.Get(),CommandPoint_); } else P->Notify(D->Execute(Actions_[I],CommandTarget_.Get(),CommandPoint_)); } CloseCommands(); } return; } CloseCommands(); return; }
  SelectionStart_=FVector2D(X,Y); bSelecting_=true;
 }
@@ -98,7 +100,15 @@ void ACultPlayHUD::DrawHUD()
  DrawCultCombat(this,P,Canvas);
  if(auto* M=ACultMatchDirector::Find(GetWorld())) { M->Draw(this,Canvas,P); return; }
 
+ if(bRegionMap_) { InspectionHover_.Reset(); DrawRegionMap(); return; }
  if(bFaith_) { InspectionHover_.Reset(); DrawFaith(); return; }
+ RegionMapHint_=FBox2D(ForceInit);
+ if(auto* D=ACultWorldDirector::Find(GetWorld())) if(D->BattlePrepared()) {
+  const float Width=280*S,Y=FMath::Max(135*S,CombatBottomTop_-32*S);
+  RegionMapHint_=FBox2D(FVector2D(Canvas->SizeX-Width-20*S,Y),FVector2D(Canvas->SizeX-20*S,Y+26*S));
+  DrawRect(CultUI::Panel,RegionMapHint_.Min.X,Y,Width,26*S);
+  CultCanvasLabel(Canvas,FString::Printf(TEXT("M  MAP / SEND %d PREPARED"),D->PreparedCount()),CultUI::Gold,RegionMapHint_.Min.X+8*S,Y+4*S,13*S);
+ }
  if(P->StatsVisible()) DrawSociety();
  DrawSelection();
  DrawPopulationInspection();

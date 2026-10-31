@@ -64,7 +64,7 @@ public:
    Building->Tags.Add(TEXT("PersistenceBuilding")); Building->ApplyDamage(55,Building->GetActorLocation()); BuildingHP=Building->GetHealth();
    FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
    auto* Follower=W->SpawnActor<ACultPopulation>(P->FeetLocation()+FVector(6000,0,100),FRotator::ZeroRotator,Params);
-   Follower->Tags.Add(TEXT("PersistenceFollower")); Follower->RecruitTo(0); Follower->SetLoyalty(82,false); Follower->PlayerOrder(TEXT("Patrol"),Follower->GetActorLocation(),nullptr,true);
+   Follower->Tags.Add(TEXT("PersistenceFollower")); Follower->RecruitTo(0); Follower->SetLoyalty(82,false); Follower->PlayerOrder(TEXT("Explore"),FVector(90000,90000,0),nullptr,true);
    Follower->SetActorTickEnabled(false);
    for(TActorIterator<ACultDestructible> It(W);It;++It) if(*It!=Building&&It->GetFaction()==1&&!It->IsDestroyed()) { It->Tags.Add(TEXT("PersistenceRuins")); It->ApplyDamage(It->GetHealth()+1,It->GetActorLocation(),0,P); break; }
    for(TActorIterator<ACultFeralBeast> It(W);It;++It) if(!It->IsDead()) { It->Tags.Add(TEXT("PersistenceCaptive")); It->Capture(P,0); It->SetBredHealth(333); It->SetActorTickEnabled(false); break; }
@@ -139,6 +139,7 @@ public:
   T->TestTrue(TEXT("Damaged building health survives loading"),B&&FMath::IsNearlyEqual(B->GetHealth(),BuildingHP,.1f));
   T->TestTrue(TEXT("Cult membership and loyalty survive loading"),F&&F->IsCultist()&&F->GetFaction()==0&&FMath::IsNearlyEqual(F->GetLoyalty(),82.f,1.f));
   T->TestTrue(TEXT("Player battle assignments survive loading"),F&&F->HasPlayerBattle());
+  T->TestTrue(TEXT("Expedition activity and distant destination survive loading"),F&&F->GetActivity()==TEXT("Explore")&&FVector::Dist2D(F->GetCommandPoint(),FVector(90000,90000,0))<1);
   auto* Ruins=Tagged<ACultDestructible>(W,TEXT("PersistenceRuins")); auto* Captive=Tagged<ACultFeralBeast>(W,TEXT("PersistenceCaptive"));
   T->TestTrue(TEXT("Destroyed structures stay destroyed"),Ruins&&Ruins->IsDestroyed()&&Ruins->GetHealth()<=0);
   T->TestTrue(TEXT("Captured creature allegiance and bred health survive loading"),Captive&&Captive->IsCaptured()&&Captive->GetCaptiveFaction()==0&&FMath::IsNearlyEqual(Captive->GetMaxHealth(),333.f)&&FMath::IsNearlyEqual(Captive->GetHealth(),333.f));

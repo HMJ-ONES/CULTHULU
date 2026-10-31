@@ -36,7 +36,7 @@ FString ACultWorldDirector::PlayerOrder(int32 Action,AActor* Target,FVector Poin
   if(State_->PreparedActive) { State_->PreparedActive=false; State_->Prepared.Reset(); return TEXT("Battle preparation disengaged. Existing fronts continue; all unassigned followers are available."); }
   if(!SelectedCount()) return TEXT("Select your followers with ALT + drag first.");
   State_->Prepared=State_->Selected; State_->PreparedActive=true;
-  return FString::Printf(TEXT("%d prepared. ALT + click an enemy or city, then Attack / Raze."),PreparedCount());
+  return FString::Printf(TEXT("%d prepared. Press M to select a distant region, or ALT + click a local target."),PreparedCount());
  }
  TArray<ACultPopulation*> Units;
  if(Action==GlobalRetreat) {

@@ -34,7 +34,7 @@ void ACultUlhuPlayerController::ServerChooseFreeRoamCharacter_Implementation(con
  UE_LOG(LogTemp,Display,TEXT("[CultCoop] Joined player %s as %s"),*GetName(),*Id);
 }
 void ACultUlhuPlayerController::ServerCultOrder_Implementation(int32 Action,AActor* Target,FVector_NetQuantize Point) {
- auto* P=Cast<ACultUlhuPlayerPawn>(GetPawn()); if(!P||ACultMatchDirector::IsMatch(GetWorld())||Point.ContainsNaN()||FVector::Dist2D(Point,P->FeetLocation())>30000) return;
+ auto* P=Cast<ACultUlhuPlayerPawn>(GetPawn()); if(!P||ACultMatchDirector::IsMatch(GetWorld())||Point.ContainsNaN()||((Action<ACultWorldDirector::ExploreRegion||Action>ACultWorldDirector::RaidRegion)&&FVector::Dist2D(Point,P->FeetLocation())>30000)) return;
  if(auto* D=ACultWorldDirector::Find(GetWorld())) P->Notify(D->Execute(Action,Target,Point));
 }
 void ACultUlhuPlayerController::ServerCultSelection_Implementation(const TArray<ACultPopulation*>& Units) {

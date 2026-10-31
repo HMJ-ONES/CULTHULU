@@ -31,6 +31,8 @@ public:
 	virtual void DrawHUD() override;
 	void CommandClick();
  void ToggleFaith();
+ void ToggleRegionMap();
+ bool RegionMapVisible() const { return bRegionMap_; }
  bool FaithVisible() const { return bFaith_; }
  void ScrollFaith(int Lines) { FaithScroll_=FMath::Max(0,FaithScroll_+Lines); }
 	void CloseCommands() { bCommands_=false; bSelecting_=false; }
@@ -41,6 +43,13 @@ public:
 private:
  friend void DrawCultCombat(ACultPlayHUD*,ACultUlhuPlayerPawn*,UCanvas*);
  friend struct FCultHUDCoordinateTestAccess;
+ friend struct FCultRegionMapTestAccess;
+ bool bRegionMap_=false;
+ int32 MapRegion_=INDEX_NONE;
+ FBox2D RegionMapBounds_,RegionMapHint_;
+ TArray<FBox2D> RegionMapButtons_;
+ void DrawRegionMap();
+ void RegionMapClick(FVector2D Pointer);
  float CombatBottomTop_=MAX_flt;
  TArray<FCultInspectionCard> InspectionCards_;
  FCultInspectionHover InspectionHover_;

@@ -108,6 +108,7 @@ public:
  float HitConfirmTime() const { return HitConfirmTime_; }
 	bool StatsVisible() const { return bStats_; }
  void ToggleFaith();
+ void ToggleRegionMap();
  void FaithScrollUp();
  void FaithScrollDown();
 

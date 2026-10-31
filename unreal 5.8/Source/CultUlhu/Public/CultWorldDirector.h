@@ -19,7 +19,8 @@ public:
  float CombatMultiplier(int32 Faction) const;
  // Native player orders deliberately override core whole-cult obedience for combat only.
  enum EPlayerCommand { Preach=100, PrepareBattle, DisengageBattle, GlobalRetreat, ClearSelection,
-  RestFollowers=200, MassConvert, PlaceTrap, TortureCaptive, SacrificeCaptive, PerformNecromancy, BreedCreatures, ImprisonCultist, PunishCultist };
+  RestFollowers=200, MassConvert, PlaceTrap, TortureCaptive, SacrificeCaptive, PerformNecromancy, BreedCreatures, ImprisonCultist, PunishCultist,
+  ExploreRegion=300, HuntRegion, RaidRegion };
  void SelectFollowers(const TArray<ACultPopulation*>& Units);
  bool IsSelected(const ACultPopulation* Unit) const;
  int32 SelectedCount() const;
@@ -28,6 +29,7 @@ public:
  FString CommandSummary() const;
  FString PlayerOrder(int32 Action,AActor* Target,FVector Point);
  FString FaithOrder(int32 Action,AActor* Target,FVector Point);
+ FString RegionOrder(int32 Action,FVector Point);
  FString PreachAtEntity();
  FString Execute(int32 Action, AActor* Target, FVector Point);
  FString Status() const;

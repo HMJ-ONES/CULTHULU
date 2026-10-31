@@ -230,6 +230,7 @@ void ACultUlhuPlayerPawn::SetupPlayerInputComponent(UInputComponent* IC)
  IC->BindKey(EKeys::V, IE_Pressed, this, &ACultUlhuPlayerPawn::ToggleCamera);
 	IC->BindKey(EKeys::Escape, IE_Pressed, this, &ACultUlhuPlayerPawn::ReturnToMenu).bExecuteWhenPaused=true;
  IC->BindKey(EKeys::B, IE_Pressed, this, &ACultUlhuPlayerPawn::ToggleFaith);
+ IC->BindKey(EKeys::M, IE_Pressed, this, &ACultUlhuPlayerPawn::ToggleRegionMap);
  IC->BindKey(EKeys::MouseScrollUp, IE_Pressed, this, &ACultUlhuPlayerPawn::FaithScrollUp);
  IC->BindKey(EKeys::MouseScrollDown, IE_Pressed, this, &ACultUlhuPlayerPawn::FaithScrollDown);
  const TPair<FKey,ECultPlayerInput> Actions[]={
@@ -250,6 +251,10 @@ void ACultUlhuPlayerPawn::RoutePlayerInput(ECultPlayerInput Action,bool Down) {
  if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->FreeRoamMenuOpen) return;
  const int32 Index=static_cast<int32>(Action);
  if(Index<0||Index>=static_cast<int32>(ECultPlayerInput::Count)||InputHeld_[Index]==Down) return;
+ // Cursor interaction belongs to the local HUD, including a co-op guest.
+ if(Action==ECultPlayerInput::Primary) if(auto* PC=Cast<APlayerController>(GetController())) if(PC->IsLocalController()) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->FaithVisible()||HUD->RegionMapVisible()||PC->IsInputKeyDown(EKeys::LeftAlt)) {
+  InputHeld_[Index]=Down; if(Down) HUD->CommandClick(); else HUD->CommandRelease(); return;
+ }
  if(!HasAuthority()&&Action>=ECultPlayerInput::Primary&&Action<=ECultPlayerInput::Interact) {
   const auto Aim=CameraAim(); FVector O=Camera_->GetComponentLocation(),D=(Aim.ImpactPoint-O).GetSafeNormal();
   InputHeld_[Index]=Down; ServerCombatInput(uint8(Action),Down,O,D); return;
@@ -301,6 +306,7 @@ void ACultUlhuPlayerPawn::ToggleCamera()
 
 void ACultUlhuPlayerPawn::ReturnToMenu()
 {
+ if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->RegionMapVisible()) { HUD->ToggleRegionMap(); return; }
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->IsOver()) { M->TogglePause(); return; }
 	if (UCultUlhuGameInstance* GI = Cast<UCultUlhuGameInstance>(GetGameInstance()))
 		{ if(GI->SelectedMode==ECultPlayMode::FreeRoam) GI->ToggleFreeRoamMenu(); else GI->ReturnToMenu(); }
@@ -314,7 +320,7 @@ void ACultUlhuPlayerPawn::Smash()
   if(auto* PC=Cast<APlayerController>(GetController())) if(PC->IsInputKeyDown(EKeys::LeftAlt)) { if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) { if(HUD->FaithVisible()) HUD->CommandClick(); else M->Ping(this); } return; }
   M->OnAction(this);
  }
- if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->FaithVisible()||PC->IsInputKeyDown(EKeys::LeftAlt)) { HUD->CommandClick(); return; }
+ if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->FaithVisible()||HUD->RegionMapVisible()||PC->IsInputKeyDown(EKeys::LeftAlt)) { HUD->CommandClick(); return; }
  if(Kit_ && Kit_->LeftClick()) return;
 	if(Control_.Stun || Control_.Fear) return;
  if (SmashCooldown_ > 0.0f || IsSwinging()) { if(!IsBot()&&SmashCooldown_<=.18f) MeleeBuffer_=.18f; return; }
@@ -448,7 +454,7 @@ bool ACultUlhuPlayerPawn::IsRmbHeld() const { return bRmbHeld_; }
 void ACultUlhuPlayerPawn::Notify(const FString& Text) { Notice_=Text; NoticeTime_=Text.Len()>80?6.f:3.f; if(!IsBot()) UE_LOG(LogTemp,Log,TEXT("[CultUlhu] %s"),*Text); }
 void ACultUlhuPlayerPawn::AltPressed() { MeleeBuffer_=0; if(auto* PC=Cast<APlayerController>(GetController())) { PC->bShowMouseCursor=true; FInputModeGameAndUI M; M.SetHideCursorDuringCapture(false); PC->SetInputMode(M); } }
 void ACultUlhuPlayerPawn::CommandReleased() { if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) HUD->CommandRelease(); }
-void ACultUlhuPlayerPawn::AltReleased() { if(auto* PC=Cast<APlayerController>(GetController())) { if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) { HUD->CloseCommands(); if(HUD->FaithVisible()) return; } PC->bShowMouseCursor=false; FInputModeGameOnly M; M.SetConsumeCaptureMouseDown(false); PC->SetInputMode(M); } }
+void ACultUlhuPlayerPawn::AltReleased() { if(auto* PC=Cast<APlayerController>(GetController())) { if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) { HUD->CloseCommands(); if(HUD->FaithVisible()||HUD->RegionMapVisible()) return; } PC->bShowMouseCursor=false; FInputModeGameOnly M; M.SetConsumeCaptureMouseDown(false); PC->SetInputMode(M); } }
 void ACultUlhuPlayerPawn::TryJump() { if(!Control_.Stop && !Control_.Fear && CanJump()) { Jump(); EvadeTime_=FMath::Max(EvadeTime_,.14f); } }
 void ACultUlhuPlayerPawn::ToggleStats() { bStats_=!bStats_; }
 
@@ -549,3 +555,5 @@ bool ACultUlhuPlayerPawn::ProcessShift(bool Down,FVector Direction,float Dt,bool
  PreviousShift_=Down;
  return Down&&ShiftHeldSeconds_>=TapLimit;
 }
+
+void ACultUlhuPlayerPawn::ToggleRegionMap() { if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) HUD->ToggleRegionMap(); }

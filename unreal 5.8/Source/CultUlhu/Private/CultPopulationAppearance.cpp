@@ -29,7 +29,7 @@ void ACultPopulation::UpdateHumanAppearance(float Dt)
  const bool Rite=Activity_==TEXT("SacrificePerformer")||Activity_==TEXT("Necromancy");
  const bool Preach=Activity_==TEXT("Preach")||Activity_==TEXT("Convert")||Activity_==TEXT("WhisperCampaign");
  const bool Working=Activity_==TEXT("Build")||Activity_==TEXT("Torture");
- const bool Fighting=Activity_==TEXT("Raid")||Activity_==TEXT("Attack")||Activity_==TEXT("WildsHunt");
+ const bool Fighting=Activity_==TEXT("Raid")||Activity_==TEXT("Attack")||Activity_==TEXT("WildsHunt")||Activity_==TEXT("Hunt");
  const bool Kneeling=(bCaptive_||Prayer||Activity_==TEXT("SacrificeVictim"))&&!Walking;
  FLinearColor FactionColor=Faction_==0?FLinearColor(.06,.36,.28):Faction_==1?FLinearColor(.55,.15,.08):Faction_==2?FLinearColor(.3,.12,.46):FLinearColor(.32,.28,.24);
  if(AppearanceFaction_!=Faction_||AppearanceCultist_!=bCultist_) {
@@ -72,7 +72,7 @@ FString ACultPopulation::InspectionActivity() const
   {TEXT("Retreat"),TEXT("Retreating")},{TEXT("Rest"),TEXT("Resting")},{TEXT("Patrol"),TEXT("Patrolling")},
   {TEXT("Wander"),TEXT("Wandering")},{TEXT("Follow"),TEXT("Following")},{TEXT("Torture"),TEXT("Torturing")},
   {TEXT("SacrificePerformer"),TEXT("Making sacrifice")},{TEXT("SacrificeVictim"),TEXT("Sacrifice victim")},
-  {TEXT("WildsHunt"),TEXT("Hunting")},{TEXT("MendEffigy"),TEXT("Mending effigy")},
+  {TEXT("Explore"),TEXT("Exploring")},{TEXT("Hunt"),TEXT("Hunting")},{TEXT("WildsHunt"),TEXT("Hunting")},{TEXT("MendEffigy"),TEXT("Mending effigy")},
   {TEXT("OmenReading"),TEXT("Reading omens")},{TEXT("ChantingCircle"),TEXT("Chanting")},
   {TEXT("DreamSharing"),TEXT("Sharing dreams")},{TEXT("WhisperCampaign"),TEXT("Spreading whispers")}
  };

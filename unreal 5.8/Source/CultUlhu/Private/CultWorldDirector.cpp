@@ -180,6 +180,7 @@ void ACultWorldDirector::FactionOrder(int Faction,const FString& Verb,FVector Po
 FString ACultWorldDirector::Execute(int32 Action,AActor* Target,FVector Point)
 {
  if(!State_) return TEXT("The cult is unavailable"); using A=cultulhu::MenuAction; using D=cultulhu::DirectiveType; A Order=static_cast<A>(Action); if(Order==A::Cancel) return TEXT("");
+ if(Action>=ExploreRegion&&Action<=RaidRegion) return RegionOrder(Action,Point);
  if(Action>=RestFollowers&&Action<=PunishCultist) return FaithOrder(Action,Target,Point);
  if(Action>=100||Order==A::Follow||Order==A::AttackTarget||Order==A::RaidAt||Order==A::MoveTo||Order==A::ScoutAt||Order==A::BuildAt||Order==A::BuildAltarAt||Order==A::CaptureOrder||Order==A::ConvertOrder) return PlayerOrder(Action,Target,Point);
  auto& F=*State_->Faiths[0];

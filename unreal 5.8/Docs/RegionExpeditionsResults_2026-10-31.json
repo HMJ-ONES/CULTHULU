@@ -1,0 +1,77 @@
+{
+  "checked_utc": "2026-10-31T17:37:46.486876+00:00",
+  "baseline_commit": "57b76ec41d2e849ab36190e197c6fcfe3382ccb0",
+  "canonical_target": "CultUlhuEditor Win64 Development",
+  "build": "Succeeded",
+  "build_log_sha256": "87295662a1b183b1d31116346716666dea065783189e6f1e6d0fb2fbe521de9d",
+  "results": [
+    {
+      "test": "CultUlhu.FreeRoam.Persistence",
+      "result": "Success",
+      "log": "RegionMapTests.log",
+      "log_sha256": "34c36174f495b0be9374981918dce7be07df689d5c3439dfcb70460e907dce31"
+    },
+    {
+      "test": "CultUlhu.FreeRoam.RegionExpeditions",
+      "result": "Success",
+      "log": "RegionMapTests.log",
+      "log_sha256": "34c36174f495b0be9374981918dce7be07df689d5c3439dfcb70460e907dce31"
+    },
+    {
+      "test": "CultUlhu.Menu.ArmyHUDCoordinates",
+      "result": "Success",
+      "log": "RegionMapTests.log",
+      "log_sha256": "34c36174f495b0be9374981918dce7be07df689d5c3439dfcb70460e907dce31"
+    },
+    {
+      "test": "CultUlhu.ArmyCommands",
+      "result": "Success",
+      "log": "RegionArmyTests.log",
+      "log_sha256": "94eb7c3497284db009a67675a5e61a428e856c4b47d6fc5bdbf18d9ea7d0bcba"
+    },
+    {
+      "test": "CultUlhu.FreeRoam.RegionExpeditions",
+      "result": "Success",
+      "log": "RegionMapFinal.log",
+      "log_sha256": "cf839f90eca2ccea85a49165d04baa4a9fcdef6fe5218cedfa9b16fdd89550f9"
+    }
+  ],
+  "unique_passed_tests": 4,
+  "new_feature_checks": [
+    "Actual M and mouse clicks open map, select region and dispatch beyond 300m",
+    "Map coordinates round-trip all 36 sectors; action regions stay within view",
+    "Only prepared troops receive the order; physical marching is observed",
+    "Separate groups retain Explore and Hunt assignments concurrently",
+    "A hunter kills a real nearby monster using the existing attack loop",
+    "Raid targets a living enemy city; outside-world orders reject; global retreat recalls",
+    "Full save/load preserves Explore activity and distant command point"
+  ],
+  "rendered_map_reviewed": "Saved/Screenshots/RegionExpeditions.png",
+  "limitations": [
+    "Not a complete unattended multi-kilometer expedition or low-spec performance certification.",
+    "Coarse terrain routing plus local collision avoidance may require redirection around dynamic obstructions.",
+    "Server validation and local HUD routing support regional co-op orders; no new two-machine playtest was run.",
+    "No new packaged release, fog-of-war system, or abstract expedition rewards."
+  ],
+  "source_sha256": {
+    "unreal 5.8/Source/CultUlhu/Private/CultBeliefHUD.cpp": "d4d588006a77c8150bad1e14c805755f2385e9abf62c93aa90e54f3778794ed3",
+    "unreal 5.8/Source/CultUlhu/Private/CultFreeRoamNetwork.cpp": "14f5a1f7d7916ff2ff909544be1a4e57c26759977c53bc0ca4e18605fcab3a16",
+    "unreal 5.8/Source/CultUlhu/Private/CultFreeRoamPersistenceTest.cpp": "270f4934e475616d9dc7960b06e2b0a57fc656586e5be6e4b99839f0658b5d66",
+    "unreal 5.8/Source/CultUlhu/Private/CultPlayHUD.cpp": "f9d2b816014b9083d5c47d551c90efde2d84a1abe866ea572503da27b12af143",
+    "unreal 5.8/Source/CultUlhu/Private/CultPlayerCommands.cpp": "c39a40363bca54038c9e8b4bb053e806c3d3e98326b0bbce1c5b8037ce477b9d",
+    "unreal 5.8/Source/CultUlhu/Private/CultPopulation.cpp": "f8ff0f311ccea910d07439591f6a186a7affd559068c2ea647e3df7081a00194",
+    "unreal 5.8/Source/CultUlhu/Private/CultPopulationAppearance.cpp": "5ad2c914dda89167b6b20f71598767c0f3a7a8017c7c9efacf74964c11ff800b",
+    "unreal 5.8/Source/CultUlhu/Private/CultUlhuPlayerPawn.cpp": "21129d9cfec6ecb7bea859c81fa950c550259c2a10dd42a81bd3597ab9b78afe",
+    "unreal 5.8/Source/CultUlhu/Private/CultWorldDirector.cpp": "f76b93dac751c986acc476103f36207549a79f1e685c6fe4c3f21b6fe2189b1d",
+    "unreal 5.8/Source/CultUlhu/Public/CultPlayHUD.h": "f0ed69616d07cd9b6cbdfa8e575c1bc3bcaa94375b293d9cfed9c76d0f940d5c",
+    "unreal 5.8/Source/CultUlhu/Public/CultPopulation.h": "4d11e9e232bf22e2a932466df3366bbfb0bcc428e620c9422cf606b04b0c09d1",
+    "unreal 5.8/Source/CultUlhu/Public/CultUlhuPlayerPawn.h": "cfc88452cdcf83097e3c39786801ef5e75ee18c93b48e644a5c13c5cb97b7561",
+    "unreal 5.8/Source/CultUlhu/Public/CultWorldDirector.h": "5e089b112111be7fb0ef0a46975224ce1a43a70ce77828280088cb0b1783f3e5",
+    "unreal 5.8/Source/CultUlhu/Private/CultRegionMap.h": "f9ac0b0c46b19af326ce38b7577911c73e70871a543fa772e6a27e21a25c6061",
+    "unreal 5.8/Source/CultUlhu/Private/CultRegionMapHUD.cpp": "4652e352d001ecb070d8a65af1d28543630eb15195c91ba2257820f0dea6521a",
+    "unreal 5.8/Source/CultUlhu/Private/CultRegionOrders.cpp": "318a812b4894a582ad27091b5f17d391ed1960fd0a73cc1620a2464136bf015c",
+    "unreal 5.8/Source/CultUlhu/Private/CultRegionNavigation.h": "c7cbf429162aaef4a66ab3c87242a6173f3a2abdede0da997d3da588bba9bf1b",
+    "unreal 5.8/Source/CultUlhu/Private/CultRegionNavigation.cpp": "9216b8daed6464a1d477672ab12b2906f5b3648afc2e1a212818657686a3bef9",
+    "unreal 5.8/Source/CultUlhu/Private/CultRegionMapTest.cpp": "9b057a52255170745212501bff4ccc0d25c2f3e82f05ea13c0f2a9d8a27a5419"
+  }
+}

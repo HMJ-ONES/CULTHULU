@@ -98,6 +98,7 @@ private:
 	float OrderTime_ = 0.f;
  bool bDirective_=false;
  bool bPlayerBattle_=false;
+ TArray<FVector> ExpeditionRoute_; int32 ExpeditionWaypoint_=0;
  float DecisionWait_=0,DecisionElapsed_=0; FVector DecisionMove_=FVector::ZeroVector; bool bWasStopped_=false;
  void UpdateDecision(float Elapsed);
 	float AmbientTime_ = 0.f;

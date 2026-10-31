@@ -19,6 +19,7 @@
 void ACultPlayHUD::ToggleFaith()
 {
  if(ACultMatchDirector::IsMatch(GetWorld())) return;
+ if(bRegionMap_) ToggleRegionMap();
  bFaith_=!bFaith_; CloseCommands(); InspectionHover_.Reset();
  if(auto* PC=GetOwningPlayerController()) {
   PC->bShowMouseCursor=bFaith_||PC->IsInputKeyDown(EKeys::LeftAlt);

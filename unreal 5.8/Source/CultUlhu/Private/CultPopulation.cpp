@@ -1,3 +1,5 @@
+#include "CultRegionMap.h"
+#include "CultRegionNavigation.h"
 #include "CultReplicatedBody.h"
 #include "CultPopulation.h"
 #include "ProfilingDebugging/CsvProfiler.h"
@@ -57,6 +59,7 @@ void ACultPopulation::ReceiveAttack(float Damage,int32 Attacker,bool Accounted,b
 void ACultPopulation::PlayerOrder(const FString& Action,FVector Point,AActor* Target,bool Battle)
 {
  for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this) It->Destroy();
+ ExpeditionRoute_.Reset(); ExpeditionWaypoint_=0;
  bPlayerBattle_=false; Order(Action,Point,Target,Battle?1.e9f:600.f,true); bPlayerBattle_=Battle;
 }
 void ACultPopulation::Order(const FString& Action,FVector Point,AActor* Target,float Duration,bool bDirective)
@@ -64,7 +67,7 @@ void ACultPopulation::Order(const FString& Action,FVector Point,AActor* Target,f
  if(bPlayerBattle_) return; // Only an explicit player reassignment releases a battle group.
  DecisionWait_=0;
  if(Activity_!=Action) { WorkProgress_=0; bWorking_=false; }
- bDirective_=bDirective; Activity_=Action; OrderPoint_=Point; OrderTarget_=Target; OrderTime_=Duration; bAttack_=Action==TEXT("Attack")||Action==TEXT("Raid")||Action==TEXT("WildsHunt");
+ bDirective_=bDirective; Activity_=Action; OrderPoint_=Point; OrderTarget_=Target; OrderTime_=Duration; bAttack_=Action==TEXT("Attack")||Action==TEXT("Raid")||Action==TEXT("WildsHunt")||Action==TEXT("Hunt");
 }
 void ACultPopulation::Tick(float Dt)
 {
@@ -115,11 +118,21 @@ void ACultPopulation::UpdateDecision(float Dt)
   if(Activity_==TEXT("Torture")&&OrderTarget_.IsValid()&&FVector::Dist2D(GetActorLocation(),OrderTarget_->GetActorLocation())<=400) return;
   if(Activity_==TEXT("Rest")||Activity_==TEXT("SacrificePerformer")||Activity_==TEXT("SacrificeVictim")||Activity_==TEXT("Necromancy")) return;
   if(FVector::Dist2D(Target,GetActorLocation())<500 && (Activity_==TEXT("Pray")||Activity_==TEXT("OmenReading")||Activity_==TEXT("ChantingCircle")||Activity_==TEXT("DreamSharing")||Activity_==TEXT("MendEffigy"))) return;
+  const bool Expedition=bPlayerBattle_&&(Activity_==TEXT("Explore")||Activity_==TEXT("Hunt")||Activity_==TEXT("Raid"));
+  const int Region=CultRegionMap::Index(OrderPoint_);
+  if(Expedition&&(Activity_==TEXT("Explore")||Activity_==TEXT("Hunt"))&&FVector::Dist2D(GetActorLocation(),OrderPoint_)<10000) {
+   const int Corner=(int(GetWorld()->GetTimeSeconds()/40)+int(GetUniqueID()%4))%4;
+   FVector Patrol=OrderPoint_+FVector(Corner<2?-10000:10000,Corner%2?-10000:10000,0),Floor;
+   if(CultRegionMap::Index(Patrol)==Region&&ACultLivingLandscape::Surface(GetWorld(),Patrol,Floor)) Target=Floor;
+  }
   AActor* Enemy=nullptr; float Best=bAttack_?10000.f:1200.f;
   const FVector BattleCenter=OrderTarget_.IsValid()?OrderTarget_->GetActorLocation():OrderPoint_;
   if(OrderTarget_.IsValid() && (!Cast<ACultPopulation>(OrderTarget_.Get())||Cast<ACultPopulation>(OrderTarget_.Get())->GetFaction()!=Faction_) && (Activity_==TEXT("Capture") || Activity_==TEXT("Attack"))) { Enemy=OrderTarget_.Get(); Best=FVector::Dist2D(GetActorLocation(),Enemy->GetActorLocation()); }
-  if(Activity_!=TEXT("Capture")&&Activity_!=TEXT("Retreat")) for(TActorIterator<ACultPopulation> It(GetWorld());It;++It) if(It->IsCultist()&&It->GetFaction()!=Faction_&&Director&&Director->AtWar(Faction_,It->GetFaction())) { float D=FVector::Dist2D(GetActorLocation(),It->GetActorLocation()); if(D<Best&&(!bPlayerBattle_||FVector::Dist2D(It->GetActorLocation(),BattleCenter)<6000)) { Best=D; Enemy=*It; } }
-  if(Activity_!=TEXT("Capture")&&Activity_!=TEXT("Retreat")) for(TActorIterator<ACultFeralBeast> It(GetWorld());It;++It) if(!It->IsDead()&&!It->IsCaptured()) { float D=FVector::Dist2D(GetActorLocation(),It->GetActorLocation()); if(D<Best&&(!bPlayerBattle_||FVector::Dist2D(It->GetActorLocation(),BattleCenter)<6000)) { Best=D; Enemy=*It; } }
+  if(Activity_!=TEXT("Capture")&&Activity_!=TEXT("Retreat")) for(TActorIterator<ACultPopulation> It(GetWorld());It;++It) if(It->IsCultist()&&It->GetFaction()!=Faction_&&Director&&Director->AtWar(Faction_,It->GetFaction())) { float D=FVector::Dist2D(GetActorLocation(),It->GetActorLocation()); if(D<Best&&(!bPlayerBattle_||(Expedition?CultRegionMap::Index(It->GetActorLocation())==Region:FVector::Dist2D(It->GetActorLocation(),BattleCenter)<6000))) { Best=D; Enemy=*It; } }
+  if(Activity_!=TEXT("Capture")&&Activity_!=TEXT("Retreat")) for(TActorIterator<ACultFeralBeast> It(GetWorld());It;++It) if(!It->IsDead()&&!It->IsCaptured()) { float D=FVector::Dist2D(GetActorLocation(),It->GetActorLocation()); if(D<Best&&(!bPlayerBattle_||(Expedition?CultRegionMap::Index(It->GetActorLocation())==Region:FVector::Dist2D(It->GetActorLocation(),BattleCenter)<6000))) { Best=D; Enemy=*It; } }
+  if(Activity_==TEXT("Hunt")) for(TActorIterator<ACultFeralBeast> It(GetWorld());It;++It) if(!It->IsDead()&&!It->IsCaptured()&&CultRegionMap::Index(It->GetActorLocation())==Region) {
+   const float D=FVector::Dist2D(GetActorLocation(),It->GetActorLocation()); if(!Enemy||D<Best) { Best=D; Enemy=*It; }
+  }
   if(Enemy) { Target=Enemy->GetActorLocation(); Stop=180; if(auto* Avatar=Cast<ACultUlhuPlayerPawn>(Enemy)) Stop=Avatar->GetCapsuleComponent()->GetScaledCapsuleRadius()+150; if(Best<Stop+120&&AttackTime_<=0) { const float Strike=Activity_==TEXT("Capture")?0.f:Director?Director->CultDamage(this,10):10; if(Activity_==TEXT("Capture")) { if(auto* P=Cast<ACultPopulation>(Enemy)) P->Capture(this,Faction_); else if(auto* Beast=Cast<ACultFeralBeast>(Enemy)) Beast->Capture(this,Faction_);
     for(TActorIterator<ACultDestructible> It(GetWorld());It;++It) if(It->ActorHasTag(TEXT("FaithAltar"))&&It->GetFaction()==Faction_&&!It->IsDestroyed()) { Order(TEXT("Escort"),It->GetActorLocation()+FVector(700,0,0),nullptr,600,true); break; } } else {
      const FVector Origin=GetActorLocation()+FVector(0,0,10); FTransform T(Origin); auto* A=GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
@@ -139,6 +152,11 @@ void ACultPopulation::UpdateDecision(float Dt)
    if(Quarry) { Target=Surface+(GetActorLocation()-Surface).GetSafeNormal2D()*100; Stop=65;
     if(Distance<280&&AttackTime_<=0) { Quarry->ApplyDamage(Director?Director->CultDamage(this,10):10,Surface,Faction_,this); AttackTime_=1; }
    }
+  }
+  if(Expedition&&FVector::Dist2D(GetActorLocation(),Target)>8000) {
+   if(ExpeditionRoute_.IsEmpty()||FVector::Dist2D(ExpeditionRoute_.Last(),Target)>6000) { CultRegionNavigation::Route(GetWorld(),GetActorLocation(),Target,ExpeditionRoute_); ExpeditionWaypoint_=0; }
+   while(ExpeditionWaypoint_<ExpeditionRoute_.Num()&&FVector::Dist2D(GetActorLocation(),ExpeditionRoute_[ExpeditionWaypoint_])<700) ++ExpeditionWaypoint_;
+   if(ExpeditionWaypoint_<ExpeditionRoute_.Num()) Target=ExpeditionRoute_[ExpeditionWaypoint_];
   }
  }
  FVector Direction=Target-GetActorLocation(); Direction.Z=0;
