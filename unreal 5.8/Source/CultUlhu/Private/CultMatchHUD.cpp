@@ -104,6 +104,13 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
   }
  } else { auto A=Point(Objective()); const auto E=CaptureHalfExtent(); const float RX=E.X/64000.f*Map,RY=E.Y/60000.f*Map; HUD->DrawRect(Holder()==Ally?Blue:Holder()==Enemy?Orange:Gold,A.X-RX,A.Y-RY,RX*2,RY*2); }
  if(!State_->Moba) {
+  // Match the neutral skyline symbols rather than adding another text legend.
+  const auto Crown=Point(FVector(0,27000,0)),Hollow=Point(FVector(0,-27000,0));
+  const auto Symbol=CultUI::Bone.CopyWithNewOpacity(.8f);
+  HUD->DrawLine(Crown.X-7*S,Crown.Y+3*S,Crown.X+7*S,Crown.Y+3*S,Symbol,1.2f*S);
+  for(int K=-1;K<=1;++K) HUD->DrawLine(Crown.X+K*6*S,Crown.Y+3*S,Crown.X+K*6*S,Crown.Y-(K?3:6)*S,Symbol,1.2f*S);
+  const FVector2D Corners[]={FVector2D(0,-6),FVector2D(7,0),FVector2D(0,6),FVector2D(-7,0)};
+  for(int K=0;K<4;++K) HUD->DrawLine(Hollow.X+Corners[K].X*S,Hollow.Y+Corners[K].Y*S,Hollow.X+Corners[(K+1)%4].X*S,Hollow.Y+Corners[(K+1)%4].Y*S,Symbol,1.2f*S);
   // Dashed underground line and portal brackets distinguish this from the seal.
   const FLinearColor Tunnel(.25f,.65f,.68f);
   for(int Y=-23000;Y<24000;Y+=2200) { const auto A=Point(FVector(0,Y,0)),B=Point(FVector(0,Y+1000,0)); HUD->DrawLine(A.X,A.Y,B.X,B.Y,Tunnel,1.2f*S); }
@@ -112,6 +119,13 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
  }
  for(auto& U:State_->Units) if(U.IsValid()&&U->Health>0) { auto A=Point(U->GetActorLocation()); const float Size=U->IsStructure()?6*S:2*S; HUD->DrawRect(U->Team==Ally?Blue:Orange,A.X-Size*.5f,A.Y-Size*.5f,Size,Size); }
  for(const auto& F:State_->Fighters) if(F.Pawn.IsValid()&&F.Respawn<=0) { auto A=Point(F.Pawn->FeetLocation()); const float Size=F.Pawn.Get()==P?8*S:5*S; HUD->DrawRect(F.Pawn.Get()==P?White:F.Team==Ally?Blue:Orange,A.X-Size*.5f,A.Y-Size*.5f,Size,Size); }
+ if(P->GetHealth()>0) {
+  const auto Raw=Point(P->FeetLocation()); const float Angle=FMath::DegreesToRadians(P->AimRotation().Yaw);
+  const FVector2D Direction(FMath::Cos(Angle),-FMath::Sin(Angle)),Across(-Direction.Y,Direction.X);
+  auto ClampMap=[&](FVector2D V) { return FVector2D(FMath::Clamp(V.X,double(MX+2*S),double(MX+Map-2*S)),FMath::Clamp(V.Y,double(MY+2*S),double(MY+Map-2*S))); };
+  const auto A=ClampMap(Raw),Tip=ClampMap(A+Direction*14*S); HUD->DrawLine(A.X,A.Y,Tip.X,Tip.Y,White,1.5f*S);
+  for(int Sign:{-1,1}) { const auto End=ClampMap(Tip-Direction*5*S+Across*Sign*3*S); HUD->DrawLine(Tip.X,Tip.Y,End.X,End.Y,White,1.5f*S); }
+ }
  if(State_->Moba) for(const auto& R:State_->Relics) if(R.Claim<0&&State_->Time>=R.Spawn) { auto A=Point(R.Point); HUD->DrawRect(Gold,A.X-3*S,A.Y-3*S,6*S,6*S); }
  if(State_->Moba) for(TActorIterator<ACultJungleCamp> It(GetWorld());It;++It) {
   const auto A=Point(It->GetActorLocation()); const bool Alive=It->Monster()&&!It->Monster()->IsDead();

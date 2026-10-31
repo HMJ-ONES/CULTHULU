@@ -1,0 +1,376 @@
+{
+  "date": "2026-10-31",
+  "project": "unreal 5.8/CultUlhu.uproject",
+  "canonicalValidation": "Passed",
+  "build": {
+    "target": "CultUlhuEditor Win64 Development",
+    "result": "Succeeded",
+    "log": "Saved/DominationFinalDiagnosticBuild.log"
+  },
+  "nativeChecks": [
+    {
+      "test": "CultUlhu.Menu.DominationArchitecture",
+      "result": "Success",
+      "log": "Saved/DominationGroundCoverageTests.log"
+    },
+    {
+      "test": "CultUlhu.Menu.DominationMatch",
+      "result": "Success",
+      "log": "Saved/DominationLayoutRegression.log"
+    },
+    {
+      "test": "CultUlhu.Menu.MatchHUDCoordinates",
+      "result": "Success",
+      "log": "Saved/DominationWayfindingTests.log"
+    }
+  ],
+  "physicalCoverage": [
+    "Full-height Cthulhu actually walks from each overpass to its forward overlook",
+    "Real non-homing attack actor contacts an enemy on the seal from each forward lip",
+    "Full-height Cthulhu actually walks underneath both balconies without clipping or roof relocation",
+    "Slabs block direct shots between covered ground and upper deck",
+    "Overlooks do not capture the ground scoring rectangle",
+    "Decorative facade/inlay collision disabled; solid skyline remains on the existing perimeter",
+    "Appearance comparison preserves geometry transforms and collision",
+    "Existing full keep/catacomb/four-branch traversal, autonomous team combat/capture/flanking and match completion"
+  ],
+  "regressionScopeNote": "Full-match regression followed the gameplay balcony addition. Later changes completed the outside-arena Hollow symbol and minimap/diagnostic presentation; final focused tests reran the physical overlook, covered-walk and projectile checks.",
+  "decoration": {
+    "components": 7,
+    "triangles": 2940,
+    "newAssetDownloads": 0
+  },
+  "network": {
+    "mode": "Domination",
+    "command": "Tools/RunRoomNetworkProbe.py --mode 1 --lighting",
+    "runnerExitCode": 0,
+    "sameComputerTwoProcesses": true,
+    "movementCombatMenuClockAndBotHandoff": "Passed",
+    "referenceRaysClear": {
+      "host_0": true,
+      "host_1": true,
+      "guest_0": true,
+      "guest_1": true
+    },
+    "measurements": {
+      "directory": "Saved\\Automation",
+      "views": [
+        {
+          "view": 0,
+          "width": 1280,
+          "height": 720,
+          "regions": {
+            "playArea": {
+              "host": {
+                "samples": 105472,
+                "meanSrgb255": 42.584,
+                "p10Srgb255": 17.243,
+                "medianSrgb255": 26.818,
+                "p90Srgb255": 96.191,
+                "nearBlackFractionBelow8": 0.00283
+              },
+              "guest": {
+                "samples": 105472,
+                "meanSrgb255": 42.99,
+                "p10Srgb255": 17.243,
+                "medianSrgb255": 26.962,
+                "p90Srgb255": 96.84,
+                "nearBlackFractionBelow8": 0.00133
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 1.373
+            },
+            "ground": {
+              "host": {
+                "samples": 58880,
+                "meanSrgb255": 51.814,
+                "p10Srgb255": 17.243,
+                "medianSrgb255": 52.622,
+                "p90Srgb255": 103.271,
+                "nearBlackFractionBelow8": 0.00504
+              },
+              "guest": {
+                "samples": 58880,
+                "meanSrgb255": 52.574,
+                "p10Srgb255": 17.243,
+                "medianSrgb255": 53.18,
+                "p90Srgb255": 103.696,
+                "nearBlackFractionBelow8": 0.00217
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 2.225
+            },
+            "grayLeft": {
+              "host": {
+                "samples": 195,
+                "meanSrgb255": 29.2,
+                "p10Srgb255": 28.949,
+                "medianSrgb255": 28.949,
+                "p90Srgb255": 29.736,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "guest": {
+                "samples": 195,
+                "meanSrgb255": 29.152,
+                "p10Srgb255": 28.949,
+                "medianSrgb255": 28.949,
+                "p90Srgb255": 29.664,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 0.215
+            },
+            "grayRight": {
+              "host": {
+                "samples": 195,
+                "meanSrgb255": 55.05,
+                "p10Srgb255": 31.736,
+                "medianSrgb255": 50.311,
+                "p90Srgb255": 87.886,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "guest": {
+                "samples": 195,
+                "meanSrgb255": 55.093,
+                "p10Srgb255": 31.736,
+                "medianSrgb255": 50.171,
+                "p90Srgb255": 87.886,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 0.246
+            }
+          }
+        },
+        {
+          "view": 1,
+          "width": 1280,
+          "height": 720,
+          "regions": {
+            "playArea": {
+              "host": {
+                "samples": 105472,
+                "meanSrgb255": 43.037,
+                "p10Srgb255": 18.524,
+                "medianSrgb255": 28.605,
+                "p90Srgb255": 91.945,
+                "nearBlackFractionBelow8": 0.00061
+              },
+              "guest": {
+                "samples": 105472,
+                "meanSrgb255": 42.852,
+                "p10Srgb255": 18.315,
+                "medianSrgb255": 27.89,
+                "p90Srgb255": 92.193,
+                "nearBlackFractionBelow8": 0.00169
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 1.529
+            },
+            "ground": {
+              "host": {
+                "samples": 58880,
+                "meanSrgb255": 50.326,
+                "p10Srgb255": 17.315,
+                "medianSrgb255": 51.252,
+                "p90Srgb255": 98.696,
+                "nearBlackFractionBelow8": 0.001
+              },
+              "guest": {
+                "samples": 58880,
+                "meanSrgb255": 50.004,
+                "p10Srgb255": 17.243,
+                "medianSrgb255": 50.899,
+                "p90Srgb255": 98.768,
+                "nearBlackFractionBelow8": 0.00313
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 2.578
+            },
+            "grayLeft": {
+              "host": {
+                "samples": 195,
+                "meanSrgb255": 63.569,
+                "p10Srgb255": 36.383,
+                "medianSrgb255": 61.103,
+                "p90Srgb255": 95.958,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "guest": {
+                "samples": 195,
+                "meanSrgb255": 63.557,
+                "p10Srgb255": 36.383,
+                "medianSrgb255": 60.958,
+                "p90Srgb255": 96.605,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 0.228
+            },
+            "grayRight": {
+              "host": {
+                "samples": 195,
+                "meanSrgb255": 33.354,
+                "p10Srgb255": 32.809,
+                "medianSrgb255": 33.524,
+                "p90Srgb255": 33.524,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "guest": {
+                "samples": 195,
+                "meanSrgb255": 33.357,
+                "p10Srgb255": 32.809,
+                "medianSrgb255": 33.524,
+                "p90Srgb255": 33.524,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 0.218
+            }
+          }
+        }
+      ]
+    },
+    "cameraConfiguration": {
+      "host": {
+        "mode": 1,
+        "role": "host",
+        "fov": 75,
+        "cameraHeight": 12000,
+        "aimHeight": 6500,
+        "cameraDistance": 12500,
+        "directional": [
+          {
+            "name": "DirectionalLight_0",
+            "intensity": 2.5,
+            "visible": true,
+            "hidden": false,
+            "pitch": -30.0,
+            "yaw": 0.0
+          }
+        ],
+        "sky": [
+          {
+            "name": "SkyLight_0",
+            "intensity": 0.6,
+            "sourceType": 1,
+            "cubemap": "/Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap",
+            "visible": true,
+            "hidden": false
+          }
+        ],
+        "unboundGrades": [
+          {
+            "priority": 100.0,
+            "manualExposure": true,
+            "exposureBias": 0.75
+          }
+        ]
+      },
+      "guest": {
+        "mode": 1,
+        "role": "guest",
+        "fov": 75,
+        "cameraHeight": 12000,
+        "aimHeight": 6500,
+        "cameraDistance": 12500,
+        "directional": [
+          {
+            "name": "DirectionalLight_0",
+            "intensity": 2.5,
+            "visible": true,
+            "hidden": false,
+            "pitch": -30.0,
+            "yaw": 0.0
+          }
+        ],
+        "sky": [
+          {
+            "name": "SkyLight_0",
+            "intensity": 0.6,
+            "sourceType": 1,
+            "cubemap": "/Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap",
+            "visible": true,
+            "hidden": false
+          }
+        ],
+        "unboundGrades": [
+          {
+            "priority": 100.0,
+            "manualExposure": true,
+            "exposureBias": 0.75
+          }
+        ]
+      }
+    }
+  },
+  "screenshots": [
+    {
+      "path": "Saved/Screenshots/DominationArt_0_Before.png",
+      "width": 1261,
+      "height": 504,
+      "sha256": "79e33dadd214c6081e9276ae87550cc8ff8e34057b87867dbf27bc1fcbda3890"
+    },
+    {
+      "path": "Saved/Screenshots/DominationArt_0_After.png",
+      "width": 1261,
+      "height": 504,
+      "sha256": "64f196145b0d9e0256f58dc79d605adeb71c76931b105e5f08d35f8e8353651a"
+    },
+    {
+      "path": "Saved/Screenshots/DominationArt_1_Before.png",
+      "width": 1261,
+      "height": 504,
+      "sha256": "ac9260073ed371772bd95041ed5da46a3d99dae14687cab25e6608fb5d593019"
+    },
+    {
+      "path": "Saved/Screenshots/DominationArt_1_After.png",
+      "width": 1261,
+      "height": 504,
+      "sha256": "e0f6da16bb1da479bfed7946fa4c456fcf994bdfbf448e9f8b4e0182e44f5fa3"
+    },
+    {
+      "path": "Saved/Screenshots/DominationArt_2_Before.png",
+      "width": 1261,
+      "height": 504,
+      "sha256": "16c79174f4583de8ef35e986f941530c8eccbbd34b63bc860ebaec343d5e702e"
+    },
+    {
+      "path": "Saved/Screenshots/DominationArt_2_After.png",
+      "width": 1261,
+      "height": 504,
+      "sha256": "0114afbd8b3ca346dc3e70ff9c919988942ddc12fab1fe3a0910c21ec32ec7e5"
+    },
+    {
+      "path": "Saved/Screenshots/DominationArt_3_Before.png",
+      "width": 1261,
+      "height": 504,
+      "sha256": "9c57b2d0f9209b8b4580684650c0f8194b62cb2f9d765f4468ec54168e87eaf5"
+    },
+    {
+      "path": "Saved/Screenshots/DominationArt_3_After.png",
+      "width": 1261,
+      "height": 504,
+      "sha256": "6831197f24a4280ff917b557b54498f23fc3ddd2182177a102894fd83e6ad0f7"
+    }
+  ],
+  "renderInspection": [
+    "Crown/Hollow silhouettes and matching symbols",
+    "Crypt descent chevrons",
+    "Forward overlook/cover view",
+    "Elevated reference shapes remain visible above the fight",
+    "Paired-client minimap orientation cues"
+  ],
+  "comparisonScope": "Hidden/shown decoration retains the new gameplay balconies; isolates architecture appearance, not the entire old/new layout.",
+  "diagnosticCorrectionBeforeDelivery": "The first elevated-camera run measured combat shadows on low references (4.608 sRGB MAE). Reference shapes were raised above ground fighters; camera geometry is recorded/projected, rays must be clear, and original maximum difference 4/minimum median 15 gates were preserved.",
+  "limitations": [
+    "Independent AI use of the new overlooks is not implemented or certified by controlled traversal.",
+    "Representative projectile fixture does not verify every authored kit matchup.",
+    "No complete human-controlled match or subjective fun certification.",
+    "No different-computer/adverse-network, packaged-build or low-spec performance certification.",
+    "Architecture remains blocky; material variation, weathering, camera/contrast review and artist-directed motion remain open."
+  ],
+  "sourceSha256": {
+    "Source/CultUlhu/Private/CultDominationArt.h": "f3d193b1d5aec3835447f8ac61f36d0449747f792d07e4972ccf8114c842caa5",
+    "Source/CultUlhu/Private/CultDominationArt.cpp": "892a6ef40f5cfebbc50933f5caca15dd480464d59b6b4934aa71822464b9a904",
+    "Source/CultUlhu/Private/CultDominationArtTest.cpp": "7a65d8f076eee2cf2e963564c56d9214d7d99aa4c214ff26ccbfde1b2580a51b",
+    "Source/CultUlhu/Private/CultMatchArena.cpp": "685b472304d8781a49f28424c2fc691e3fcc68dfe6bd3d9150282153a9f6678f",
+    "Source/CultUlhu/Private/CultMatchDirector.cpp": "cd017bdd1f052ddabc6e8418764b3593aa328cc2a2d19f90b7db69f879cfa725",
+    "Source/CultUlhu/Private/CultMatchHUD.cpp": "627153812cb55def44c4cdba33b7caea7f2bb370158bad3ad4e8f53f3d9507ab",
+    "Source/CultUlhu/Private/CultMatchLightingProbe.cpp": "24f09e6eb316f922f20b7d9b337701246649842dbf67547e898ddf5290c80cf0",
+    "Tools/AnalyzeMatchLighting.py": "f753fa79ff2ee7dae63cabb7501f5828f3fa822d8faa4b7b7a9d357cbf2b09e6",
+    "Tools/RunRoomNetworkProbe.py": "5d8e287adbba9f21929846b51133d42d1bbe9928563adcde4cbf2a11e5ebbf91"
+  }
+}

@@ -5,6 +5,7 @@ Input folders must be inside the canonical project's Saved directory.
 """
 import argparse
 import json
+import math
 from pathlib import Path
 import struct
 import zlib
@@ -84,8 +85,11 @@ def stats(values):
 def analyze(folder, mode):
     report = {"directory": str(folder.relative_to(PROJECT)), "views": []}
     for view in (0, 1):
+        config = json.loads((folder / f"Room{mode}_lighting_host.json").read_text(encoding="utf-8-sig"))
+        distance = math.hypot(config.get("cameraDistance", 12500), config.get("cameraHeight", 6500) - config.get("aimHeight", 1500))
+        offset = 1200 / (2 * math.tan(math.radians(config["fov"] / 2)) * distance)
         regions = {"playArea": (.1, .35, .9, .92), "ground": (.1, .6, .9, .92),
-                   "grayLeft": (.432, .48, .452, .52), "grayRight": (.548, .48, .568, .52)}
+                   "grayLeft": (.49-offset, .48, .51-offset, .52), "grayRight": (.49+offset, .48, .51+offset, .52)}
         images = {role: pixels(folder / f"Room{mode}_lighting_{role}_{view}.png") for role in ("host", "guest")}
         assert images["host"][:2] == images["guest"][:2]
         row = {"view": view, "width": images["host"][0], "height": images["host"][1], "regions": {}}

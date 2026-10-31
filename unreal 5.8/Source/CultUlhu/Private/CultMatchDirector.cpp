@@ -6,6 +6,7 @@
 #include "CultMatchState.h"
 #include "CultMobaJungle.h"
 #include "CultDominationRoute.h"
+#include "CultDominationArt.h"
 #include "CultJungleCamp.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultMatchUnit.h"
@@ -238,7 +239,7 @@ FString ACultMatchDirector::Hint(const ACultUlhuPlayerPawn* P) const {
  if(State_->Warmup>0) return FString::Printf(TEXT("BATTLE STARTS IN %.0f"),FMath::CeilToFloat(State_->Warmup));
  if(F->Recall>0) return FString::Printf(TEXT("RECALLING  %.1fs | Movement or damage cancels"),F->Recall);
  if(F->Invoke>0) return FString::Printf(TEXT("INVOKING ARTIFACT  %.0f%%"),F->Invoke/20*100);
- if(Mode()==ECultPlayMode::Domination&&P->FeetLocation().Z< -800) return TEXT("CATACOMB | Side ramps exit through the keeps | North / south ramps reach the outer courts");
+ if(Mode()==ECultPlayMode::Domination) { const auto Route=CultDominationArt::RouteHint(P->FeetLocation()); if(!Route.IsEmpty()) return Route; }
  if(Mode()==ECultPlayMode::Domination) return TEXT("Hold the central seal +1/s | Hero kills +5 | G recall | ALT + click rally");
  for(TActorIterator<ACultJungleCamp> It(GetWorld());It;++It) if(FVector::Dist2D(P->FeetLocation(),It->GetActorLocation())<3500&&FMath::Abs(P->FeetLocation().Z-It->GetActorLocation().Z)<800) {
   if(It->Resetting()) return It->Title()+TEXT(" is resetting | Return to the plateau to fight");

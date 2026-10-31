@@ -6,6 +6,7 @@
 #include "CultMobaRoute.h"
 #include "CultMobaJungle.h"
 #include "CultDominationRoute.h"
+#include "CultDominationArt.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/PointLight.h"
 #include "Components/PointLightComponent.h"
@@ -147,6 +148,10 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   }
   for(int Side:{-1,1}) {
    auto* Bridge=WalkSurface(FVector(0,Side*12500,5500),FVector(11000,5000,1000)); Bridge->Tags.Add(TEXT("CultDominationOverpass"));
+   // Connected forward balconies bring the upper route into useful range of
+   // the seal's edge, with a sheltered ground approach beneath both decks.
+   auto* Overlook=WalkSurface(FVector(0,Side*8500,5500),FVector(6000,4000,1000)); Overlook->Tags.Add(TEXT("CultDominationOverlook"));
+   for(int Edge:{-1,1}) Box(FVector(Edge*2800,Side*8400,6650),FVector(600,1800,1300),Trim);
    for(int End:{-1,1}) Box(FVector(End*3500,Side*15500,2500),FVector(1000,1000,5000),Stone);
   }
   // The catacomb has 47m clear height under the surface slab. Both ends
@@ -223,5 +228,6 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
  for(float X:{-14000.f,14000.f}) for(int Side:{-1,1}) Art(TEXT("ruined-column-b"),FVector(X,Side*19500,0),FVector(900,900,6500),0);
  CultMatchBackdrop::Build(W,Moba);
  CultMatchSurfaces::Apply(W,CultMatchSurfaces::Enabled());
+ if(!Moba) CultDominationArt::Build(W);
 }
 

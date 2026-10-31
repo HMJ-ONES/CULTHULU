@@ -49,6 +49,10 @@ def run(mode, lighting=False):
             raise RuntimeError(f"Mode {mode} failed")
         if lighting:
             for role in ("host", "guest"):
+                for view in (0, 1):
+                    visibility = json.loads((evidence / f"Room{mode}_lighting_{role}_{view}_visibility.json").read_text(encoding="utf-8-sig"))
+                    if not visibility["referenceRaysClear"]:
+                        raise RuntimeError(f"Lighting reference objects are occluded: {role}, view {view}")
                 for suffix in (".json", "_0.png", "_1.png"):
                     if not (evidence / f"Room{mode}_lighting_{role}{suffix}").is_file():
                         raise RuntimeError(f"Missing matched lighting capture: {role}{suffix}")
