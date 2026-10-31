@@ -31,6 +31,11 @@ class CULTULHU_API ACultUlhuPlayerPawn : public ACharacter
 	GENERATED_BODY()
 
 public:
+ virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+ void ConfigurePlayer(const FString& Id) { CharacterId_=Id; Faction_=0; bBotControlled_=false; }
+ UFUNCTION(Server,Reliable) void ServerCombatInput(uint8 Action,bool Down,FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction);
+ UFUNCTION(Server,Reliable) void ServerDash(FVector_NetQuantizeNormal Direction);
+ UFUNCTION(Server,Reliable) void ServerSprint(bool Sprint);
 	ACultUlhuPlayerPawn();
  // Optional Enhanced Input and zero-asset keys share one physical press/release.
  void RoutePlayerInput(ECultPlayerInput Action,bool Down);
@@ -149,6 +154,7 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
 private:
+ friend struct FCultSaveAccess;
  friend struct FCultCombatFeelTestAccess;
  friend struct FCultMatchTestAccess;
  friend struct FCultTacticsTestAccess;
@@ -186,8 +192,12 @@ private:
 	float Health_ = 1000.f;
 	class FCultKitRuntime* Kit_ = nullptr;
 	int32 Faction_ = 0;
- bool bBotControlled_=false,bMatchDead_=false;
-	FString CharacterId_;
+ UPROPERTY(Replicated) bool bBotControlled_=false;
+ bool bMatchDead_=false;
+	UPROPERTY(Replicated) FString CharacterId_;
+ FVector NetworkAimOrigin_=FVector::ZeroVector,NetworkAimDirection_=FVector::ForwardVector;
+ float NetworkAimAt_=-100;
+ bool NetworkSprinting_=false;
 	TWeakObjectPtr<AActor> BotAim_;
 	FString Notice_; float NoticeTime_=0;
 	bool bStats_ = false;

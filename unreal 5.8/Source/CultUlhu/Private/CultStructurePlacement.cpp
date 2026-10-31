@@ -35,5 +35,5 @@ ACultDestructible* CultStructurePlacement::Spawn(UWorld* World,const FString& Na
  if(ProtectCharacters&&CharactersOccupy(World,Mesh,Transform)) return nullptr;
  auto* Building=World->SpawnActorDeferred<ACultDestructible>(ACultDestructible::StaticClass(),Transform,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
  if(!Building) return nullptr;
- Building->SetMesh(Mesh); Building->Tags.Add(FName(*FString::Printf(TEXT("Faction%d"),Faction))); Building->FinishSpawning(Transform); return Building;
+ Building->SetMesh(Mesh); Building->Tags.Add(FName(*FString::Printf(TEXT("Faction%d"),Faction))); Building->FinishSpawning(Transform); Building->SetReplicates(true); Building->bAlwaysRelevant=true; Building->ForceNetUpdate(); return Building;
 }

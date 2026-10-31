@@ -69,7 +69,7 @@ void ACultUlhuPlayGameMode::InitGame(const FString& MapName,const FString& Optio
  if(!HasSky) if(auto* Sky=GetWorld()->SpawnActor<ASkyLight>()) ConfigureSky(Sky->GetLightComponent());
  if(auto* GI=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(GI->SelectedMode!=ECultPlayMode::FreeRoam) { ACultMatchDirector::BuildArena(GetWorld(),GI->SelectedMode); return; }
  CultWildsPresentation::Apply(GetWorld());
- auto* Land=GetWorld()->SpawnActor<ACultLivingLandscape>(); Land->Generate(FMath::Rand());
+ auto* Land=GetWorld()->SpawnActor<ACultLivingLandscape>(); auto* GI=Cast<UCultUlhuGameInstance>(GetGameInstance()); Land->Generate(GI?GI->FreeRoamSeed:FMath::Rand());
 }
 
 void ACultUlhuPlayGameMode::BeginPlay()
@@ -106,7 +106,7 @@ void ACultUlhuPlayGameMode::BeginPlay()
     It->SetActorEnableCollision(false); TArray<UStaticMeshComponent*> Parts; It->GetComponents(Parts);
     for(auto* C:Parts) { C->SetVisibility(false); C->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
    }
-   GetWorld()->SpawnActor<ACultWorldDirector>(); if(ACultMatchDirector::IsMatch(GetWorld())) GetWorld()->SpawnActor<ACultMatchDirector>(); else PopulateCultWilds(GetWorld()); }));
+   GetWorld()->SpawnActor<ACultWorldDirector>(); if(ACultMatchDirector::IsMatch(GetWorld())) GetWorld()->SpawnActor<ACultMatchDirector>(); else { PopulateCultWilds(GetWorld()); if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->BeginFreeRoamSession(); } }));
 }
 
 AActor* ACultUlhuPlayGameMode::ChoosePlayerStart_Implementation(AController* Player)
@@ -133,5 +133,11 @@ APawn* ACultUlhuPlayGameMode::SpawnDefaultPawnFor_Implementation(
 {
 	if (GetWorld() && GetWorld()->GetName().Contains(TEXT("L_MainMenu")))
 		return nullptr;
-	return Super::SpawnDefaultPawnFor_Implementation(NewPlayer, StartSpot);
+	if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->SelectedMode==ECultPlayMode::FreeRoam) {
+  FTransform Transform=StartSpot?StartSpot->GetActorTransform():FTransform(FVector(0,0,2500));
+  if(GetWorld()->GetNetMode()==NM_ListenServer) for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It) if(auto* Other=It->Get()) if(Other!=NewPlayer&&Other->GetPawn()) { Transform.SetLocation(Other->GetPawn()->GetActorLocation()+FVector(0,5000,0)); break; }
+  auto* Body=GetWorld()->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),Transform,NewPlayer,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+  if(Body) { Body->ConfigurePlayer(G->SelectedCharacterId); Body->FinishSpawning(Transform); } return Body;
+ }
+ return Super::SpawnDefaultPawnFor_Implementation(NewPlayer, StartSpot);
 }

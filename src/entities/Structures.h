@@ -178,6 +178,7 @@ public:
     uint64_t repairTargetId() const { return repairTargetId_; }
 
     float progress() const { return progress_; } // 0..1
+    void restoreProgress(float p) { progress_ = p < 0 ? 0 : (p > 1 ? 1 : p); }
     bool finished() const { return progress_ >= 1.0f; }
 
     void addBuilder(uint64_t cultistId) { builders_.insert(cultistId); }

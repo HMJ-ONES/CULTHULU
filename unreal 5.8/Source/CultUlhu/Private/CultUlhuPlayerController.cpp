@@ -1,5 +1,6 @@
 // CULT-ULHU player controller implementation.
 #include "CultUlhuPlayerController.h"
+#include "CultUlhuGameInstance.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
@@ -10,6 +11,7 @@
 void ACultUlhuPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+ if(IsLocalController()&&GetNetMode()==NM_Client) if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) ServerChooseFreeRoamCharacter(G->SelectedCharacterId);
 	if (IsLocalController() && !GetWorld()->GetName().Contains(TEXT("L_MainMenu")))
 	{
 		FInputModeGameOnly Mode;

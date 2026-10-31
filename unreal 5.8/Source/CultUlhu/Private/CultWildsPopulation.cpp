@@ -10,7 +10,7 @@ void InstanceMaterials(UInstancedStaticMeshComponent* C,const FString& Name) { F
 void PopulateCultWilds(UWorld* World)
 {
  auto* Land=ACultLivingLandscape::Find(World); if(!Land) return;
- FRandomStream R(FMath::Rand());
+ FRandomStream R(Land->WorldSeed ^ 0x315769);
  const TArray<FString> Names={TEXT("cave-rock-tall-a"),TEXT("rocks-tall"),TEXT("tree-dead-large"),TEXT("pine-dead-crooked"),TEXT("dark-crystal-cluster")};
  for(int Type=0;Type<Names.Num();++Type) {
   const FString Path=TEXT("/Game/CultUlhu/World/")+Names[Type]+TEXT("/StaticMeshes/")+Names[Type];
@@ -39,6 +39,7 @@ void PopulateCultWilds(UWorld* World)
  }
  TArray<FVector> Encounters=ACultLivingLandscape::CaveSites(); Encounters.Add(FVector(9000,9000,0)); Encounters.Add(FVector(-30000,20000,0)); Encounters.Add(FVector(50000,-30000,0));
  const TArray<FString> Species={TEXT("skittering_ghoul"),TEXT("charnel_imp"),TEXT("pale_wight"),TEXT("ossified_brute")};
+ if(World->GetNetMode()==NM_Client) return;
  for(const auto& Center:Encounters) for(int I=0;I<5;++I) {
   FVector P; if(!ACultLivingLandscape::Surface(World,Center+FVector(R.FRandRange(-2500.f,2500.f),R.FRandRange(-2500.f,2500.f),0),P)) continue;
   FTransform T(P+FVector(0,0,300)); auto* B=World->SpawnActorDeferred<ACultFeralBeast>(ACultFeralBeast::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); B->SetSpecies(Species[I%4]); B->FinishSpawning(T);

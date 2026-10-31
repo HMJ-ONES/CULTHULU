@@ -16,7 +16,7 @@ The native pawn works immediately with keyboard and mouse; no Input Action asset
 | `IA_HeavyAttack` | RMB | Existing character/mode RMB action and release. |
 | `IA_CommandMenu` | Hold Left ALT | Release cursor and select orders; release ALT to return to mouse look. LMB remains the pawn's existing context-sensitive command click. |
 
-Mouse movement aims the camera. V switches first/third person. B opens beliefs/commands where the current mode permits them. Competitive Escape opens pause controls; Free Roam Escape returns home. Existing G recall and Enter rematch controls remain.
+Mouse movement aims the camera. V switches first/third person. B opens beliefs/commands where the current mode permits them. Competitive Escape opens pause controls; Free Roam Escape opens its save/load and co-op menu, pausing solo play. Use Save & Return to Main Menu to leave with progress preserved. Existing G recall and Enter rematch controls remain.
 
 ## Optional action assets
 

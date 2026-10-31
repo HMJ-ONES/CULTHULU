@@ -43,6 +43,7 @@ public:
  cultulhu::CharacterDef Def;
  FVector LastEffectLocation = FVector::ZeroVector;
 private:
+ friend struct FCultSaveAccess;
  friend struct FCultCombatFeelTestAccess;
  friend struct FCultMobaMechanicsTestAccess;
  struct Mirror { TWeakObjectPtr<AActor> Actor; std::unique_ptr<cultulhu::Entity> Core; float BeforeHp = 0; FVector BeforePosition; };

@@ -32,6 +32,7 @@ public:
  static bool AreaContact(EShape Kind,FVector Origin,FVector Direction,float Reach,float Radius,float HalfAngle,AActor* Target,FVector& Point);
  static void Hurt(AActor* Target,float Damage,AActor* Source,FVector Point);
 private:
+ friend struct FCultSaveAccess;
  friend struct FCultAttackPresentationTestAccess;
  float Age=0,Travel=0;
  float BornAt=0;

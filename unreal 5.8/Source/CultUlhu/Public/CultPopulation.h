@@ -58,6 +58,7 @@ public:
  FString InspectionRole() const;
  FString InspectionContribution() const { return ContributionTime_>0?Contribution_:FString(); }
 private:
+ friend struct FCultSaveAccess;
  friend struct FCultArmyTestAccess;
  UPROPERTY() class UPoseableMeshComponent* HumanPose_=nullptr;
  UPROPERTY() TArray<class UPoseableMeshComponent*> HumanPoseParts_;

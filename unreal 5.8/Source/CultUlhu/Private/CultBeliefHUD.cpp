@@ -25,6 +25,7 @@ void ACultPlayHUD::FaithClick(float X,float Y)
   if(Key.StartsWith(TEXT("select:"))) { SelectedBelief_=FCString::Atoi(*Key.Mid(7)); FaithScroll_=0; bFaithOutcomes_=false; return; }
   if(Key==TEXT("rules")||Key==TEXT("outcomes")) { bFaithOutcomes_=Key==TEXT("outcomes"); FaithScroll_=0; return; }
   if(Key==TEXT("close")) { bFaith_=false; return; }
+  if(GetWorld()->GetNetMode()==NM_Client) { P->Notify(TEXT("The host manages shared cult beliefs and entity rites. You can still command cultists with ALT.")); return; }
   if(Key.StartsWith(TEXT("adopt:"))) { const int Slot=FCString::Atoi(*Key.Mid(6)); auto& Active=D->Beliefs().active(); const int Out=Slot>=0&&Slot<int(Active.size())?int(Active[Slot]):-1; P->Notify(D->RequestBelief(SelectedBelief_,Out)?TEXT("Belief adoption requested; watch the follower adoption timer."):TEXT("Cannot adopt: already active/pending, or all three slots are reserved. Choose a replacement.")); return; }
   auto Hit=P->CameraAim(); P->Notify(D->FaithAction(Key,Hit.GetActor(),Hit.bBlockingHit?Hit.ImpactPoint:Hit.TraceEnd)); return;
  }

@@ -1,3 +1,4 @@
+#include "CultReplicatedBody.h"
 #include "CultPopulation.h"
 #include "ProfilingDebugging/CsvProfiler.h"
 CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
@@ -22,6 +23,8 @@ TAutoConsoleVariable<float> DecisionInterval(TEXT("cult.Population.DecisionInter
 
 ACultPopulation::ACultPopulation()
 {
+ bReplicates=true; SetReplicateMovement(true); SetNetUpdateFrequency(10.f); SetNetCullDistanceSquared(100000.f*100000.f);
+ CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody"));
  PrimaryActorTick.bCanEverTick=true;
  GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
  GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
@@ -44,6 +47,7 @@ void ACultPopulation::RecruitTo(int32 Faction)
  if(auto* D=ACultWorldDirector::Find(GetWorld())) D->Register(this);
 }
 void ACultPopulation::ReceiveAttack(float Damage,int32 Attacker,bool Accounted,bool Feral) {
+ if(!HasAuthority()) return;
  if(Health_<=0||Damage<=0) return; if(!bCultist_&&!bSummoned_&&Damage<Health_) { Damage=Health_; Accounted=false; }
  const float Before=Health_; Health_-=Damage;
  if(auto* D=ACultWorldDirector::Find(GetWorld())) if(D->PersonHurt(this,Before,Damage,Attacker,Accounted,Feral)) return;
@@ -66,6 +70,7 @@ void ACultPopulation::Tick(float Dt)
 {
  CSV_SCOPED_TIMING_STAT(CultRuntime, PopulationTick);
  Super::Tick(Dt);
+ if(!HasAuthority()) { UpdateHumanAppearance(Dt); return; }
  UpdateHumanAppearance(Dt);
  Control_.Tick(Dt); AttackTime_=FMath::Max(0.f,AttackTime_-Dt); OrderTime_=FMath::Max(0.f,OrderTime_-Dt);
  GetCharacterMovement()->MaxWalkSpeed=250.f*Control_.Speed;

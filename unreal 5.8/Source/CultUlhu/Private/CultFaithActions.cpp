@@ -9,6 +9,7 @@ cultulhu::Vec3 RitePos(FVector P) { return {float(P.X/100),float(P.Z/100),float(
 }
 FString ACultWorldDirector::FaithAction(const FString& Action,AActor* Target,FVector Point,int32 Faction,ACultPopulation* Agent)
 {
+ if(!HasAuthority()) return TEXT("The host manages shared cult beliefs and entity rites.");
  if(ACultMatchDirector::IsMatch(GetWorld())) return TEXT("Beliefs, civilian rites, and cult management are available only in Free Roam.");
  if(!State_||Faction<0||Faction>2) return TEXT("Cult unavailable"); using B=cultulhu::Belief; using E=cultulhu::EventType;
  auto& F=*State_->Faiths[Faction]; auto* Person=Cast<ACultPopulation>(Target);

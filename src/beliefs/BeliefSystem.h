@@ -83,10 +83,13 @@ public:
     // reset. Invalid entries are skipped; capped at MAX_ACTIVE.
     void restoreActive(const std::vector<Belief>& beliefs);
 
+    template<class Visitor> void visitPersistentState(Visitor& v) { v(active_, pending_, activeWars_, inCombat_, night_, fear_, fearPassiveGen_, massConvertReadyAt_, onslaughtIdleTime_); }
+
 private:
     struct Pending {
         Belief belief;
         double remaining;
+        template<class Visitor> void visitPersistentState(Visitor& v) { v(belief, remaining); }
     };
 
     EventBus& bus_;

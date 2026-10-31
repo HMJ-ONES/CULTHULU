@@ -26,6 +26,7 @@ bool ACultUlhuPlayerPawn::CanDash() const {
 }
 float ACultUlhuPlayerPawn::DashTravelDistance() const { return WalkSpeed_*StandardDashSpeed*StandardDashTime; }
 bool ACultUlhuPlayerPawn::TryDash(FVector Direction) {
+ if(!HasAuthority()) ServerDash(Direction.GetSafeNormal2D());
  if(!CanDash()||Direction.IsNearlyZero()||!Kit_->SpendStamina(18)) return false;
  if(IsBot()) GetCharacterMovement()->bRunPhysicsWithNoController=true;
  if(auto* M=ACultMatchDirector::Find(GetWorld())) M->OnAction(this);

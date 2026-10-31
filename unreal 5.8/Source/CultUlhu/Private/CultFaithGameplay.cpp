@@ -70,6 +70,7 @@ void ACultWorldDirector::OnFaithEvent(int32 Faction,const cultulhu::GameEvent& E
 }
 bool ACultWorldDirector::RequestBelief(int32 In,int32 Out,int32 Faction)
 {
+ if(!HasAuthority()) return false;
  if(ACultMatchDirector::IsMatch(GetWorld())) return false;
  if(!State_||In<0||In>=int(cultulhu::Belief::Count)||Faction<0||Faction>2) return false;
  auto& F=*State_->Faiths[Faction]; auto Incoming=static_cast<cultulhu::Belief>(In);
@@ -83,6 +84,7 @@ int32 ACultWorldDirector::FaithEventCount(int32 E,int32 F) const { return State_
 TArray<FString> ACultWorldDirector::FaithJournal(int32 F) const { return State_?State_->Faiths[FMath::Clamp(F,0,2)]->Journal:TArray<FString>(); }
 FString ACultWorldDirector::FaithSummary(int32 Faction) const
 {
+ if(!HasAuthority()) return State_?State_->RemoteFaith[FMath::Clamp(Faction,0,2)]:FString();
  if(!State_) return TEXT("Cult unavailable"); auto& F=*State_->Faiths[FMath::Clamp(Faction,0,2)]; const auto& S=F.Exertion.stats();
  return FString::Printf(TEXT("Power %.1f | Fear %.1f | Risk %.1f%% | Combat x%.2f | Conversion %.1f%% | Loyalty/s %+.4f\nResting %d | Sorcerer rituals %llu/%llu | Income x%.2f | %s"),F.Power.value(),F.Beliefs.fearLevel(),F.Cult.insurrectionRisk(),S.combatPowerMult,S.conversionChance*100,S.loyaltyDriftPerSec,int(F.Dreams.restingCount()),F.RitualCaster.ritualsSucceeded(),F.RitualCaster.ritualsAttempted(),(F.Beliefs.active().size()>=3?.5f:F.Beliefs.active().size()==2?.75f:1.f),F.InCombat?TEXT("in combat"):TEXT("out of combat"));
 }

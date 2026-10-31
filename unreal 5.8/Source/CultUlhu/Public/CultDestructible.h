@@ -55,6 +55,7 @@ protected:
 	float HealthMultiplier_ = 1.0f;
 
 private:
+ friend struct FCultSaveAccess;
 	void Collapse(FVector HitLocation);
 	void SpawnDebris(FVector Center, float RadiusCm);
 	static UStaticMesh* SharedMesh(const TCHAR* Path);

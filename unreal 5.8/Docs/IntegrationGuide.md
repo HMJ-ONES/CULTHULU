@@ -15,7 +15,7 @@ $taskEngine = 'C:/Program Files/Epic Games/UE_5.8'
 
 Stop if a validation or build fails. The core helper uses the same installed MSVC toolchain and stages the library at `unreal 5.8/lib/Win64/cultulhu.lib`, the path used by `CultUlhuCore.Build.cs`. The separate root CMake project builds all headless suites; it is not a replacement for the canonical library helper.
 
-Press Play from `L_MainMenu`, choose a mode and entity, then enter play. Only Free Roam asks for three starting beliefs. Competitive modes retain their pause menu and return-home controls. Keep `DefaultEngine.ini`'s native game instance and play game mode; do not substitute legacy tutorial GameMode/Blueprint classes.
+Press Play from `L_MainMenu`. Free Roam opens its own menu: choose **New World** for character selection and three starting beliefs, **Continue Saved World** to resume, or **Join Co-op** to connect to a host. Esc pauses solo Free Roam and opens save/load, host/join, and save-and-exit controls; autosaves run every 60 unpaused seconds. See [Free Roam saves and co-op](FreeRoamSavesAndCoop.md). Competitive modes go directly to character selection without beliefs. Competitive modes retain their pause menu and return-home controls. Keep `DefaultEngine.ini`'s native game instance and play game mode; do not substitute legacy tutorial GameMode/Blueprint classes.
 
 [Controls](EnhancedInputMapping.md), [artist next steps](CharacterModels_NextSteps.md), and [model status](ApprovedCharacterModels.md) describe the active pipeline. `BuildAll.py` now preserves existing authored maps and opens the main menu. It is not a required regeneration step. It refuses a partially missing map set; restore the missing authored map from Git instead of replacing working art.
 

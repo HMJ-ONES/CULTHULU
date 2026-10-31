@@ -1,3 +1,4 @@
+#include "CultReplicatedBody.h"
 #include "CultSkillAttack.h"
 #include "CultCombatCredit.h"
 #include "CultUlhuPlayerPawn.h"
@@ -21,6 +22,7 @@ bool FriendlyBody(AActor* Source,AActor* Other) {
 }
 }
 ACultSkillAttack::ACultSkillAttack() {
+ bReplicates=true; SetReplicateMovement(true); SetNetUpdateFrequency(20.f); SetNetCullDistanceSquared(100000.f*100000.f); CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody"));
  PrimaryActorTick.bCanEverTick=true; RootComponent=CreateDefaultSubobject<USceneComponent>(TEXT("AttackOrigin"));
  Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttackVisual")); Visual->SetupAttachment(RootComponent); Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision); Visual->SetCastShadow(false);
 }
@@ -101,7 +103,7 @@ void ACultSkillAttack::Area() {
  }
 }
 void ACultSkillAttack::Tick(float Dt) {
- Super::Tick(Dt); if(!Alive(GetOwner())) { Destroy(); return; }
+ Super::Tick(Dt); if(!HasAuthority()) { Age+=Dt; UpdatePresentation(); return; } if(!Alive(GetOwner())) { Destroy(); return; }
  // Spawned during an actor tick, an attack can tick again in that same frame.
  // Its first delta must exclude time before creation, especially on load hitches.
  if(FirstTick) { Dt=FMath::Min(Dt,FMath::Max(0.f,GetWorld()->GetTimeSeconds()-BornAt)); FirstTick=false; }

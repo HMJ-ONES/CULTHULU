@@ -65,6 +65,8 @@ public:
     // Decay, derived stats, loyalty drift, tension events, synergy upkeep.
     void update(double dt);
 
+    template<class Visitor> void visitPersistentState(Visitor& v) { v(exertion_, tensionCooldown_); }
+
 private:
     void feedFromEvent(const GameEvent& e);
     void feedFromDirective(const GameEvent& e); // parses DirectiveResolved

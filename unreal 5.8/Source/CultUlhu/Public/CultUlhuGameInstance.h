@@ -10,6 +10,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Engine/EngineBaseTypes.h"
 
 #include "CultUlhuGameInstance.generated.h"
 
@@ -42,6 +43,23 @@ class CULTULHU_API UCultUlhuGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
+ virtual void Init() override;
+ virtual void Shutdown() override;
+ FString FreeRoamSaveSlot=TEXT("FreeRoam");
+ int32 FreeRoamSeed=0;
+ bool FreeRoamMenuOpen=false;
+ bool FreeRoamReady=false;
+ FString SaveStatus;
+ void ToggleFreeRoamMenu();
+ void ResumeFreeRoam();
+ bool SaveFreeRoam();
+ bool ContinueFreeRoam();
+ void FinishFreeRoamLoad();
+ void ExitFreeRoam();
+ bool HostFreeRoam();
+ bool JoinFreeRoam(const FString& Address);
+ bool HasFreeRoamSave() const;
+ void BeginFreeRoamSession();
 	bool bPlayChosen = false;
 	// Current release roster; deferred character source files remain in assets/characters.
 	static const TArray<FCultRosterEntry>& Roster();
@@ -73,6 +91,9 @@ public:
 	static FString ModeStartLabel(ECultPlayMode Mode);
 
 private:
+ void NetworkFailure(UWorld* World,UNetDriver* Driver,ENetworkFailure::Type Failure,const FString& Reason);
+ TArray<uint8> PendingFreeRoam_;
+ FTimerHandle AutosaveTimer_;
 	TArray<int32> InitialBeliefs_;
 	void ShowWidget(UUserWidget* Widget, bool bUIOnly);
 	void ClearMenuWidgets();

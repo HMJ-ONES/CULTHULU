@@ -141,6 +141,7 @@ void ACultWorldDirector::OnFaithReward(int32 Faction,const cultulhu::GameEvent& 
 FString ACultWorldDirector::RecentContribution(int32 Faction) const { if(!State_) return TEXT(""); auto& F=*State_->Faiths[FMath::Clamp(Faction,0,2)]; return GetWorld()->GetTimeSeconds()<=F.ContributionUntil?F.LastContribution:TEXT(""); }
 FString ACultWorldDirector::ActivitySummary(int32 Faction) const
 {
+ if(!HasAuthority()) return State_?State_->RemoteActivities[FMath::Clamp(Faction,0,2)]:FString();
  if(!State_) return TEXT(""); TMap<FString,int32> Counts;
  for(auto& Row:State_->People) if(Row.Faction==Faction&&Row.Actor.IsValid()) Counts.FindOrAdd(Row.Actor->GetActivity())++;
  FString Out=CultName(Faction)+FString::Printf(TEXT(" | power %.0f | strength x%.2f | "),State_->Faiths[FMath::Clamp(Faction,0,2)]->Power.value(),CombatMultiplier(Faction)); for(const FString Key:{TEXT("Pray"),TEXT("Preach"),TEXT("Convert"),TEXT("Torture"),TEXT("SacrificePerformer"),TEXT("Necromancy"),TEXT("Build"),TEXT("Raid"),TEXT("Attack"),TEXT("Capture"),TEXT("Rest")}) if(Counts.FindRef(Key)>0) Out+=FString::Printf(TEXT("%s %d  "),*Key,Counts[Key]); return Out;

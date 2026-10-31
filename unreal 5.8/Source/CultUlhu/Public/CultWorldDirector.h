@@ -53,6 +53,7 @@ public:
  float CultDamage(ACultPopulation* Attacker,float Base);
  bool BeginAmbient(ACultPopulation* Person,int32 Action);
 private:
+ friend struct FCultSaveAccess;
  friend struct FCultArmyTestAccess;
  friend struct FCultFaithTestAccess;
  struct FState;

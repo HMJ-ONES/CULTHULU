@@ -65,6 +65,7 @@ struct ACultWorldDirector::FState
   float RestRemaining=0,RestDue=90; bool Lost=false; };
  struct City { FVector Center; TArray<TWeakObjectPtr<ACultDestructible>> Buildings; };
  struct Build { std::unique_ptr<cultulhu::ConstructionSite> Site; FVector Point; int Faction; TArray<TWeakObjectPtr<ACultPopulation>> Workers; int LastDecile=-1; TWeakObjectPtr<AActor> Preview; };
+ FString RemoteStatus,RemoteActivities[3],RemoteFaith[3]; int32 RemoteCities=0,RemotePrepared=0;
  std::vector<std::unique_ptr<Faith>> Faiths;
  std::vector<Person> People;
  struct Labor { TWeakObjectPtr<ACultPopulation> Worker,Victim; TWeakObjectPtr<ACultDestructible> Altar; FString Kind; float Remaining=20,Elapsed=0,WorkerHp=0,VictimHp=0; }; std::vector<Labor> Labors;

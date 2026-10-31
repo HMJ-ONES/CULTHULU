@@ -1,3 +1,4 @@
+#include "CultReplicatedBody.h"
 #include "CultDestructible.h"
 // CULT-ULHU destructible building implementation.
 #include "CultActorLabels.h"
@@ -11,6 +12,8 @@
 
 ACultDestructible::ACultDestructible()
 {
+ bReplicates=true; bAlwaysRelevant=true; SetReplicateMovement(true); SetNetUpdateFrequency(10.f); SetNetCullDistanceSquared(100000.f*100000.f);
+ CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody"));
 	PrimaryActorTick.bCanEverTick = true;
 
 	MeshComp_ = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BuildingMesh"));
@@ -48,11 +51,12 @@ void ACultDestructible::BeginPlay()
 		const float R = MeshComp_->GetStaticMesh()->GetBounds().SphereRadius;
 		RadiusM = FMath::Max(1.0f, R / 100.0f * GetActorScale3D().X);
 	}
-	MaxHealth_ = Health_ = (50.0f + RadiusM * 18.0f) * HealthMultiplier_;
+	MaxHealth_ = Health_ = (150.0f + RadiusM * 54.0f) * HealthMultiplier_;
 }
 
 void ACultDestructible::ApplyDamage(float Amount, FVector HitLocation,int32 Attacker,AActor* Agent)
 {
+ if(!HasAuthority()) return;
 	if (bDestroyed_ || Amount <= 0.0f)
 		return;
 	Health_ -= Amount;
@@ -90,7 +94,7 @@ void ACultDestructible::Collapse(FVector HitLocation)
 		{
 			R->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 			R->GetStaticMeshComponent()->SetForceDisableNanite(true);
-			R->GetStaticMeshComponent()->SetStaticMesh(Rubble);
+			R->Tags.Add(TEXT("CultRubble")); R->GetStaticMeshComponent()->SetStaticMesh(Rubble);
 			// Rubble is visual debris. Its coarse imported collision can trap
 			// the giant capsule while landing across a destroyed building.
 			R->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

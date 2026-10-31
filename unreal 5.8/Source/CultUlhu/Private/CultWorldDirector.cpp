@@ -1,3 +1,4 @@
+#include "CultReplicatedBody.h"
 #include "CultWorldDirector.h"
 #include "CultStructurePlacement.h"
 #include "CultActorLabels.h"
@@ -39,9 +40,9 @@ ACultPopulation* PersonAt(UWorld* W,FVector Ground) {
  if(W->OverlapBlockingTestByChannel(P,FQuat::Identity,ECC_Pawn,FCollisionShape::MakeCapsule(42,88),Q)) return nullptr;
  FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn; return W->SpawnActor<ACultPopulation>(P,FRotator::ZeroRotator,Params);
 } }
-ACultWorldDirector::ACultWorldDirector() { PrimaryActorTick.bCanEverTick=true; }
+ACultWorldDirector::ACultWorldDirector() { bReplicates=true; bAlwaysRelevant=true; CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody")); PrimaryActorTick.bCanEverTick=true; }
 ACultWorldDirector* ACultWorldDirector::Find(UWorld* W) { for(TActorIterator<ACultWorldDirector> It(W);It;++It) return *It; return nullptr; }
-void ACultWorldDirector::BeginPlay() { Super::BeginPlay(); State_=new FState; InitializeFaith(); if(ACultMatchDirector::IsMatch(GetWorld())) { return; } for(TActorIterator<ACultPopulation> It(GetWorld());It;++It) if(It->IsCultist()) Register(*It); BuildTemples(); SpawnRivals(); for(int I=0;I<7;++I) NewCity(); PopulateSociety(); }
+void ACultWorldDirector::BeginPlay() { Super::BeginPlay(); State_=new FState; InitializeFaith(); if(!HasAuthority()) return; if(ACultMatchDirector::IsMatch(GetWorld())) { return; } for(TActorIterator<ACultPopulation> It(GetWorld());It;++It) if(It->IsCultist()) Register(*It); BuildTemples(); SpawnRivals(); for(int I=0;I<7;++I) NewCity(); PopulateSociety(); }
 void ACultWorldDirector::EndPlay(const EEndPlayReason::Type R) { delete State_; State_=nullptr; Super::EndPlay(R); }
 cultulhu::EventBus& ACultWorldDirector::Bus(int32 F) { return State_->Faiths[FMath::Clamp(F,0,2)]->Bus; }
 cultulhu::BeliefSystem& ACultWorldDirector::Beliefs(int32 F) { return State_->Faiths[FMath::Clamp(F,0,2)]->Beliefs; }
@@ -139,7 +140,7 @@ void ACultWorldDirector::NewCity()
   UE_LOG(LogTemp,Log,TEXT("[CultUlhu] Clustered settlement: %d buildings, %d residents near %s"),Used.Num(),Residents,*Center.ToString());
  }
 }
-int32 ACultWorldDirector::CityCount() const { int N=0; if(State_) for(auto& C:State_->Cities) { for(auto& B:C.Buildings) if(B.IsValid()&&!B->IsDestroyed()) { ++N; break; } } return N; }
+int32 ACultWorldDirector::CityCount() const { if(!HasAuthority()) return State_?State_->RemoteCities:0; int N=0; if(State_) for(auto& C:State_->Cities) { for(auto& B:C.Buildings) if(B.IsValid()&&!B->IsDestroyed()) { ++N; break; } } return N; }
 void ACultWorldDirector::AdvancePopulation()
 {
  if(!State_) return; int Civs=0,Beasts=0;
@@ -190,7 +191,7 @@ FString ACultWorldDirector::Execute(int32 Action,AActor* Target,FVector Point)
 void ACultWorldDirector::Tick(float Dt)
 {
  CSV_SCOPED_TIMING_STAT(CultRuntime, WorldTick);
- Super::Tick(Dt); if(!State_) return;
+ Super::Tick(Dt); if(!HasAuthority()) return; if(!State_) return;
  if(ACultMatchDirector::IsMatch(GetWorld())) return; // Beliefs and exertion are Free Roam only.
 
  { CSV_SCOPED_TIMING_STAT(CultRuntime, FaithTick); TickFaith(Dt); }
@@ -278,6 +279,7 @@ void ACultWorldDirector::Tick(float Dt)
 }
 FString ACultWorldDirector::Status() const
 {
+ if(!HasAuthority()) return State_?State_->RemoteStatus:FString();
  if(!State_) return TEXT(""); auto& F=*State_->Faiths[0]; int Live=0; for(auto& P:State_->People) if(P.Faction==0&&P.Actor.IsValid()) ++Live;
  FString Creeds; for(auto B:F.Beliefs.active()) Creeds+=FString(UTF8_TO_TCHAR(cultulhu::beliefName(B)))+TEXT(" ");
  return FString::Printf(TEXT("Cultists %d | Risk %.0f%% | Power %.0f | Wars %d | New towns %d | %s"),Live,F.Cult.insurrectionRisk(),F.Power.value(),F.Wars.warCount(),CityCount(),*Creeds);

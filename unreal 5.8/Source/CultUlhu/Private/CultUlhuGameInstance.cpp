@@ -1,4 +1,9 @@
 #include "CultUlhuGameInstance.h"
+#include "CultFreeRoamSave.h"
+#include "UI/CultFreeRoamMenuWidget.h"
+#include "TimerManager.h"
+#include "Engine/Engine.h"
+#include "CultUlhuPlayerPawn.h"
 // CULT-ULHU game instance implementation.
 #include "CultActorLabels.h"
 
@@ -168,6 +173,8 @@ void UCultUlhuGameInstance::StartPlay()
  if(SelectedMode!=ECultPlayMode::FreeRoam) InitialBeliefs_.Reset();
  cultulhu::CharacterDef Definition; if(!CultCanonicalKit::Load(SelectedCharacterId,Definition)) return;
 	bPlayChosen = true;
+ FreeRoamReady=false; FreeRoamMenuOpen=false; PendingFreeRoam_.Reset();
+ if(SelectedMode==ECultPlayMode::FreeRoam) FreeRoamSeed=FMath::Rand();
 	ClearMenuWidgets();
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
@@ -180,7 +187,9 @@ void UCultUlhuGameInstance::StartPlay()
 
 void UCultUlhuGameInstance::ReturnToMenu()
 {
-	bPlayChosen = false;
+	bPlayChosen = false; FreeRoamReady=false; FreeRoamMenuOpen=false;
+ UGameplayStatics::SetGamePaused(this,false);
+ GetWorld()->GetTimerManager().ClearTimer(AutosaveTimer_);
 	ClearMenuWidgets();
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
@@ -188,4 +197,77 @@ void UCultUlhuGameInstance::ReturnToMenu()
 		PC->bShowMouseCursor = true;
 	}
 	UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("/Game/Maps/L_MainMenu")));
+}
+
+bool UCultUlhuGameInstance::HasFreeRoamSave() const { return CultFreeRoamSave::Exists(FreeRoamSaveSlot); }
+void UCultUlhuGameInstance::ToggleFreeRoamMenu() {
+ if(SelectedMode!=ECultPlayMode::FreeRoam&&FreeRoamReady) return;
+ if(FreeRoamMenuOpen) { ResumeFreeRoam(); return; }
+ if(auto* P=Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(this,0))) { P->RoutePlayerInput(ECultPlayerInput::Heavy,false); P->RoutePlayerInput(ECultPlayerInput::Primary,false); P->StopJumping(); P->SetSprinting(false); }
+ FreeRoamMenuOpen=true;
+ if(FreeRoamReady&&GetWorld()->GetNetMode()==NM_Standalone) UGameplayStatics::SetGamePaused(this,true);
+ auto* Widget=CreateWidget<UCultFreeRoamMenuWidget>(this,UCultFreeRoamMenuWidget::StaticClass()); ShowWidget(Widget,true);
+}
+void UCultUlhuGameInstance::ResumeFreeRoam() {
+ if(!FreeRoamReady) { FreeRoamMenuOpen=false; ShowHomeScreen(); return; }
+ FreeRoamMenuOpen=false; ClearMenuWidgets(); UGameplayStatics::SetGamePaused(this,false);
+ if(auto* PC=GetWorld()->GetFirstPlayerController()) { PC->SetInputMode(FInputModeGameOnly()); PC->bShowMouseCursor=false; PC->ResetIgnoreMoveInput(); PC->ResetIgnoreLookInput(); }
+}
+bool UCultUlhuGameInstance::SaveFreeRoam() {
+ TArray<uint8> Data; FString Error;
+ if(!FreeRoamReady||!CultFreeRoamSave::Capture(GetWorld(),Data,Error)||!CultFreeRoamSave::Write(Data,Error,FreeRoamSaveSlot)) { SaveStatus=Error.IsEmpty()?TEXT("The world is not ready to save."):Error; return false; }
+ SaveStatus=TEXT("World saved  /  ")+FDateTime::Now().ToString(TEXT("%H:%M:%S"));
+ UE_LOG(LogTemp,Display,TEXT("[CultSave] %s (%d bytes)"),*SaveStatus,Data.Num()); return true;
+}
+bool UCultUlhuGameInstance::ContinueFreeRoam() {
+ if(GetWorld()->GetNetMode()==NM_Client) { SaveStatus=TEXT("The host controls world loading."); return false; }
+ if(GetWorld()->GetNetMode()==NM_ListenServer) { SaveStatus=TEXT("Save and return to the menu before loading a co-op world."); return false; }
+ TArray<uint8> Data; FString Error; int32 Seed; FString Character; TArray<int32> Beliefs;
+ if(!CultFreeRoamSave::Read(Data,Error,FreeRoamSaveSlot)||!CultFreeRoamSave::Inspect(Data,Seed,Character,Beliefs,Error)) { SaveStatus=Error; return false; }
+ PendingFreeRoam_=MoveTemp(Data); FreeRoamSeed=Seed; SelectedCharacterId=Character; InitialBeliefs_=Beliefs; SelectedMode=ECultPlayMode::FreeRoam;
+ bPlayChosen=true; FreeRoamReady=false; FreeRoamMenuOpen=false; ClearMenuWidgets(); UGameplayStatics::SetGamePaused(this,false);
+ UGameplayStatics::OpenLevel(this,TEXT("/Game/Maps/L_DarkWilds")); return true;
+}
+void UCultUlhuGameInstance::FinishFreeRoamLoad() {
+ if(!PendingFreeRoam_.IsEmpty()) { FString Error; if(!CultFreeRoamSave::Restore(GetWorld(),PendingFreeRoam_,Error)) { SaveStatus=TEXT("Load failed: ")+Error; FreeRoamReady=false; PendingFreeRoam_.Reset(); ToggleFreeRoamMenu(); return; } PendingFreeRoam_.Reset(); SaveStatus=TEXT("Saved world restored."); }
+ FreeRoamReady=true; FreeRoamMenuOpen=false;
+ GetWorld()->GetTimerManager().SetTimer(AutosaveTimer_,FTimerDelegate::CreateWeakLambda(this,[this]() { if(FreeRoamReady&&GetWorld()->GetNetMode()!=NM_Client) SaveFreeRoam(); }),60.f,true);
+}
+void UCultUlhuGameInstance::BeginFreeRoamSession() { FinishFreeRoamLoad(); }
+void UCultUlhuGameInstance::ExitFreeRoam() {
+ if(GetWorld()->GetNetMode()!=NM_Client&&!SaveFreeRoam()) return;
+ ReturnToMenu();
+}
+bool UCultUlhuGameInstance::HostFreeRoam() {
+ if(!FreeRoamReady||GetWorld()->GetNetMode()!=NM_Standalone) { SaveStatus=TEXT("Enter or continue a world before hosting."); return false; }
+ if(!SaveFreeRoam()) return false;
+ FString Error; if(!CultFreeRoamSave::Read(PendingFreeRoam_,Error,FreeRoamSaveSlot)) { SaveStatus=Error; return false; }
+ FreeRoamReady=false; FreeRoamMenuOpen=false; ClearMenuWidgets(); UGameplayStatics::SetGamePaused(this,false);
+ UGameplayStatics::OpenLevel(this,TEXT("/Game/Maps/L_DarkWilds"),true,TEXT("listen")); return true;
+}
+bool UCultUlhuGameInstance::JoinFreeRoam(const FString& Input) {
+ FString Address=Input.TrimStartAndEnd();
+ // Direct IP/hostnames only: never accept travel options or console commands from an edit box.
+ if(Address.IsEmpty()||Address.Len()>253) { SaveStatus=TEXT("Enter the host's LAN, VPN or public IP address."); return false; }
+ for(TCHAR C:Address) if(!FChar::IsAlnum(C)&&C!=TEXT('.')&&C!=TEXT(':')&&C!=TEXT('-')) { SaveStatus=TEXT("Use a hostname or IP, optionally followed by :7777."); return false; }
+ if(FreeRoamReady&&GetWorld()->GetNetMode()!=NM_Client&&!SaveFreeRoam()) return false;
+ if(auto* PC=GetWorld()->GetFirstPlayerController()) {
+  SelectedMode=ECultPlayMode::FreeRoam; bPlayChosen=true; FreeRoamMenuOpen=false; FreeRoamReady=false; ClearMenuWidgets(); UGameplayStatics::SetGamePaused(this,false);
+  PC->ClientTravel(Address,TRAVEL_Absolute); return true;
+ }
+ SaveStatus=TEXT("No local player is available to join."); return false;
+}
+
+#if WITH_DEV_AUTOMATION_TESTS
+void StartCultCoopProbe(UCultUlhuGameInstance* Game);
+#endif
+void UCultUlhuGameInstance::Init() { Super::Init();
+#if WITH_DEV_AUTOMATION_TESTS
+ StartCultCoopProbe(this);
+#endif
+ if(GEngine) GEngine->OnNetworkFailure().AddUObject(this,&UCultUlhuGameInstance::NetworkFailure); }
+void UCultUlhuGameInstance::Shutdown() { if(GEngine) GEngine->OnNetworkFailure().RemoveAll(this); Super::Shutdown(); }
+void UCultUlhuGameInstance::NetworkFailure(UWorld* World,UNetDriver* Driver,ENetworkFailure::Type Failure,const FString& Reason) {
+ if(SelectedMode!=ECultPlayMode::FreeRoam||!bPlayChosen) return;
+ SaveStatus=TEXT("Co-op connection ended: ")+Reason+TEXT(". Your local saved world is available with Continue."); ReturnToMenu();
 }

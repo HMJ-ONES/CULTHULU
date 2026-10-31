@@ -1,3 +1,5 @@
+#include "Net/UnrealNetwork.h"
+#include "CultReplicatedBody.h"
 #include "CultFeralBeast.h"
 #include "ProfilingDebugging/CsvProfiler.h"
 CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
@@ -20,6 +22,8 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 
 ACultFeralBeast::ACultFeralBeast()
 {
+ bReplicates=true; SetReplicateMovement(true); SetNetUpdateFrequency(10.f); SetNetCullDistanceSquared(100000.f*100000.f);
+ CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody"));
 	PrimaryActorTick.bCanEverTick = true;
 
 	Collision_ = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BeastCollision"));
@@ -241,7 +245,8 @@ void ACultFeralBeast::AttachEyes()
 	EyeR_->SetVisibility(true);
 }
 
-void ACultFeralBeast::ApplyDamage(float Amount) { ReceiveCombatDamage(Amount,nullptr); }
+void ACultFeralBeast::ApplyDamage(float Amount) {
+ if(!HasAuthority()) return; ReceiveCombatDamage(Amount,nullptr); }
 
 void ACultFeralBeast::ReceiveCombatDamage(float Amount,AActor* Source)
 {
@@ -322,6 +327,12 @@ void ACultFeralBeast::Tick(float DeltaSeconds)
 {
  CSV_SCOPED_TIMING_STAT(CultRuntime, CreatureTick);
 	Super::Tick(DeltaSeconds);
+ if(!HasAuthority()) { AnimateCreature(DeltaSeconds,GetVelocity().Size()*DeltaSeconds); return; }
+ if(GetWorld()->GetNetMode()!=NM_Standalone&&!bCaptured_) {
+  float Nearest=MAX_flt; for(TActorIterator<ACultUlhuPlayerPawn> It(GetWorld());It;++It) if(!It->IsBot()&&It->GetHealth()>0) {
+   float D=FVector::DistSquared(GetActorLocation(),It->GetActorLocation()); if(D<Nearest) { Nearest=D; Player_=*It; }
+  }
+ }
  Control_.Tick(DeltaSeconds);
 	if (State_ == EState::Dead)
 		return;
@@ -445,3 +456,5 @@ void ACultFeralBeast::BeginSwipe(FVector Target) {
  RecoveryTime_=Heavy?1.05f:SpeciesId_==TEXT("pale_wight")?.8f:.5f;
  AttackAnimTime_=A->Windup+A->Duration; AttackCooldown_=AttackAnimTime_+RecoveryTime_+.18f;
 }
+
+void ACultFeralBeast::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const { Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(ACultFeralBeast,SpeciesId_); }

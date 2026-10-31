@@ -25,6 +25,9 @@ class CULTULHU_API ACultUlhuPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+ UFUNCTION(Server,Reliable) void ServerChooseFreeRoamCharacter(const FString& Id);
+ UFUNCTION(Server,Reliable) void ServerCultOrder(int32 Action,AActor* Target,FVector_NetQuantize Point);
+ UFUNCTION(Server,Reliable) void ServerCultSelection(const TArray<class ACultPopulation*>& Units);
 	// Optional Enhanced Input assets. Keyboard/mouse work without these references.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CultUlhu|Input")
 	UInputAction* MoveAction = nullptr;        // WASD, 2D axis
@@ -66,6 +69,7 @@ public:
 	virtual void SetupInputComponent() override;
 
 private:
+ bool FreeRoamCharacterChosen_=false;
  void OnActionStarted(ECultPlayerInput Input);
  void OnActionCompleted(ECultPlayerInput Input);
  void OnMove(const struct FInputActionValue& Value);

@@ -6,6 +6,7 @@
 
 ACultLivingLandscape::ACultLivingLandscape()
 {
+ bReplicates=true; bAlwaysRelevant=true;
  PrimaryActorTick.bCanEverTick=false; Tags.Add(TEXT("CultTerrain"));
  Ground_=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("LivingGround")); RootComponent=Ground_;
  Caves_=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("CavernVaults")); Caves_->SetupAttachment(Ground_);
@@ -31,6 +32,7 @@ float ACultLivingLandscape::Height(float X,float Y) const
 }
 void ACultLivingLandscape::Generate(int32 Seed)
 {
+ WorldSeed=Seed;
  FRandomStream R(Seed); NoiseOffset_=FVector2D(R.FRandRange(20,200),R.FRandRange(20,200));
  TArray<FVector> V,N; TArray<int32> T; TArray<FVector2D> UV; TArray<FLinearColor> Colors;
  constexpr int Grid=180; constexpr float Step=Extent*2/Grid;

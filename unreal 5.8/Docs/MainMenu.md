@@ -1,3 +1,5 @@
+> Current Free Roam behavior: [saving, pause menu and co-op](FreeRoamSavesAndCoop.md). Esc opens this menu; it does not immediately return home.
+
 > Legacy implementation reference. Use [the current UE 5.8 runbook](IntegrationGuide.md) for setup; existing authored maps and native input need no regeneration.
 
 # Main Menu → Character Select → Play (in-UE flow)

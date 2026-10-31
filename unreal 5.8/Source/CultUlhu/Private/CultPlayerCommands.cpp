@@ -16,7 +16,7 @@ void ACultWorldDirector::SelectFollowers(const TArray<ACultPopulation*>& Units)
 bool ACultWorldDirector::IsSelected(const ACultPopulation* P) const { return State_&&Commandable(P)&&State_->Selected.Contains(P); }
 int32 ACultWorldDirector::SelectedCount() const { int N=0; if(State_) for(auto& P:State_->Selected) N+=Commandable(P.Get()); return N; }
 bool ACultWorldDirector::BattlePrepared() const { return State_&&State_->PreparedActive; }
-int32 ACultWorldDirector::PreparedCount() const { int N=0; if(State_) for(auto& P:State_->Prepared) N+=Commandable(P.Get()); return N; }
+int32 ACultWorldDirector::PreparedCount() const { if(!HasAuthority()) return State_?State_->RemotePrepared:0; int N=0; if(State_) for(auto& P:State_->Prepared) N+=Commandable(P.Get()); return N; }
 FString ACultWorldDirector::CommandSummary() const
 {
  if(!State_) return TEXT("");

@@ -1,4 +1,6 @@
+#include "CultReplicatedBody.h"
 #include "CultCorpse.h"
+#include "CultMatchDirector.h"
 #include "CultUlhuPlayerPawn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/PoseableMeshComponent.h"
@@ -9,6 +11,7 @@
 ACultCorpse::ACultCorpse() { PrimaryActorTick.bCanEverTick=false; RootComponent=CreateDefaultSubobject<USceneComponent>(TEXT("Corpse")); Tags.Add(TEXT("Corpse")); }
 ACultCorpse* ACultCorpse::Leave(AActor* Body) {
  if(!IsValid(Body)||Body->ActorHasTag(TEXT("CorpseRecorded"))) return nullptr; Body->Tags.Add(TEXT("CorpseRecorded"));
+ if(Body->HasAuthority()) if(auto* Net=Body->FindComponentByClass<UCultReplicatedBody>()) Net->LeaveCorpse();
  auto* C=Body->GetWorld()->SpawnActor<ACultCorpse>(Body->GetActorLocation(),Body->GetActorRotation()); if(!C) return nullptr;
  TArray<UMeshComponent*> Parts; Body->GetComponents(Parts);
  TArray<AActor*> Attached; Body->GetAttachedActors(Attached);
@@ -33,5 +36,6 @@ ACultCorpse* ACultCorpse::Leave(AActor* Body) {
  FBox Bounds(ForceInit); TArray<UMeshComponent*> Copies; C->GetComponents(Copies);
  for(auto* Part:Copies) { Part->UpdateBounds(); Bounds+=Part->Bounds.GetBox(); }
  if(Bounds.IsValid) C->AddActorWorldOffset(FVector(0,0,Floor.Z+3-Bounds.Min.Z));
+ C->SetLifeSpan(ACultMatchDirector::IsMatch(Body->GetWorld())?2.f:5.f);
  return C;
 }

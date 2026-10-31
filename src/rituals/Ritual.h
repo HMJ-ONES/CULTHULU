@@ -33,6 +33,8 @@ public:
         return duration_ > 0.0 ? static_cast<float>(elapsed_ / duration_) : 1.0f;
     }
 
+    template<class Visitor> void visitPersistentState(Visitor& v) { v(duration_, elapsed_, active_, interrupted_); }
+
 protected:
     virtual void onStart() {} // wave 18: optional rite-begin hook
     virtual void onComplete() = 0;

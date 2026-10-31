@@ -1,3 +1,4 @@
+#include "CultUlhuPlayerController.h"
 #include "CultPlayHUD.h"
 #include "CultCanvasLabel.h"
 #include "CultHUDSpace.h"
@@ -25,7 +26,7 @@ void ACultPlayHUD::CommandClick()
  FVector2D Pointer; if(!CultHUDSpace::Pointer(PC,Pointer)) return;
  const float X=Pointer.X,Y=Pointer.Y;
  if(bFaith_) { FaithClick(X,Y); return; }
- if(bCommands_) { for(int I=0;I<Buttons_.Num();++I) if(Buttons_[I].IsInside(FVector2D(X,Y))) { if(Enabled_[I]) { if(auto* D=ACultWorldDirector::Find(GetWorld())) P->Notify(D->Execute(Actions_[I],CommandTarget_.Get(),CommandPoint_)); CloseCommands(); } return; } CloseCommands(); return; }
+ if(bCommands_) { for(int I=0;I<Buttons_.Num();++I) if(Buttons_[I].IsInside(FVector2D(X,Y))) { if(Enabled_[I]) { if(auto* D=ACultWorldDirector::Find(GetWorld())) { if(GetWorld()->GetNetMode()==NM_Client) { if(auto* C=Cast<ACultUlhuPlayerController>(PlayerOwner)) C->ServerCultOrder(Actions_[I],CommandTarget_.Get(),CommandPoint_); } else P->Notify(D->Execute(Actions_[I],CommandTarget_.Get(),CommandPoint_)); } CloseCommands(); } return; } CloseCommands(); return; }
  SelectionStart_=FVector2D(X,Y); bSelecting_=true;
 }
 void ACultPlayHUD::CommandRelease()
@@ -42,7 +43,7 @@ void ACultPlayHUD::CommandRelease()
     if(It->IsCultist()&&It->GetFaction()==0) Units.Add(*It); else if(It->GetHealth()>0) SelectedEnemy=*It;
    }
   }
-  if(!Units.IsEmpty()) { D->SelectFollowers(Units); SelectedEnemy=nullptr; }
+  if(!Units.IsEmpty()) { D->SelectFollowers(Units); if(GetWorld()->GetNetMode()==NM_Client) if(auto* C=Cast<ACultUlhuPlayerController>(PlayerOwner)) C->ServerCultSelection(Units); SelectedEnemy=nullptr; }
   if(auto* P=Cast<ACultUlhuPlayerPawn>(GetOwningPawn())) P->Notify(FString::Printf(TEXT("%d followers selected. Choose Build or Prepare for battle."),D->SelectedCount()));
  }
  OpenCommands(X,Y,SelectedEnemy);
@@ -55,7 +56,7 @@ void ACultPlayHUD::OpenCommands(float X,float Y,AActor* SelectedEnemy)
  if(FVector2D::Distance(SelectionStart_,FVector2D(X,Y))<=12) if(auto* Own=Cast<ACultPopulation>(CommandTarget_.Get())) if(Own->IsCultist()&&Own->GetFaction()==0) {
   TArray<ACultPopulation*> Units;
   for(TActorIterator<ACultPopulation> It(GetWorld());It;++It) if(FVector::Dist2D(Own->GetActorLocation(),It->GetActorLocation())<1000&&GetOwningPlayerController()->LineOfSightTo(*It,GetOwningPlayerController()->PlayerCameraManager?GetOwningPlayerController()->PlayerCameraManager->GetCameraLocation():FVector::ZeroVector)) Units.Add(*It);
-  D->SelectFollowers(Units);
+  D->SelectFollowers(Units); if(GetWorld()->GetNetMode()==NM_Client) if(auto* C=Cast<ACultUlhuPlayerController>(PlayerOwner)) C->ServerCultSelection(Units);
  }
  cultulhu::MenuContext C; C.pos={float(CommandPoint_.X/100),float(CommandPoint_.Z/100),float(CommandPoint_.Y/100)};
  if(auto* Unit=Cast<ACultPopulation>(CommandTarget_.Get())) C.kind=Unit->IsCaptive()?cultulhu::MenuContext::Kind::Captive:Unit->GetFaction()==0?cultulhu::MenuContext::Kind::OwnCultist:cultulhu::MenuContext::Kind::Enemy;

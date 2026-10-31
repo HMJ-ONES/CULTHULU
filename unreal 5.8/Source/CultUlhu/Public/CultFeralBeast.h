@@ -24,6 +24,7 @@ public:
 	ACultFeralBeast();
 
 	virtual void BeginPlay() override;
+ virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
 	virtual void Tick(float DeltaSeconds) override;
 
 	// Called by the build script right after spawning.
@@ -73,6 +74,7 @@ protected:
 	UStaticMeshComponent* EyeR_ = nullptr;
 
 private:
+ friend struct FCultSaveAccess;
  friend class ACultJungleCamp;
  TWeakObjectPtr<class ACultJungleCamp> JungleCamp_;
  friend struct FCultCombatFeelTestAccess;
@@ -90,7 +92,7 @@ private:
 	void Die();
  void BeginSwipe(FVector Target);
 
-	UPROPERTY(EditAnywhere, Category = "CultUlhu|Beast")
+	UPROPERTY(EditAnywhere, Replicated, Category = "CultUlhu|Beast")
 	FString SpeciesId_ = TEXT("skittering_ghoul");
 	float Health_ = 60.0f;
  bool bCaptured_=false;

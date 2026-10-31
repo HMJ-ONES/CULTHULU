@@ -1,3 +1,4 @@
+#include "CultReplicatedBody.h"
 #include "CultUlhuPlayerPawn.h"
 #include "ProfilingDebugging/CsvProfiler.h"
 CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
@@ -40,6 +41,8 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 
 ACultUlhuPlayerPawn::ACultUlhuPlayerPawn()
 {
+ bReplicates=true; SetReplicateMovement(true); SetNetUpdateFrequency(10.f); SetNetCullDistanceSquared(100000.f*100000.f);
+ CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody"));
 	PrimaryActorTick.bCanEverTick = true;
 	VesselBody_ = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VesselBody"));
 	VesselBody_->SetupAttachment(GetCapsuleComponent());
@@ -75,7 +78,7 @@ void ACultUlhuPlayerPawn::BeginPlay()
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
  GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
 	// Resolve the final capsule, before the first movement tick (also works in PIE).
-	if (!PlaceOnWalkableGround())
+	if (HasAuthority() && !PlaceOnWalkableGround())
 	{
 		GetCharacterMovement()->DisableMovement();
 		UE_LOG(LogTemp, Error, TEXT("[CultUlhu] No clear walkable spawn near %s. Repair terrain collision; movement disabled to prevent falling through the map."), *GetActorLocation().ToString());
@@ -99,8 +102,8 @@ void ACultUlhuPlayerPawn::BeginPlay()
 
 	// Camera rig for the scaled body.
 	const float HalfH = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
-	SpringArm_->TargetArmLength = (ACultMatchDirector::IsMatch(GetWorld())?260.f:700.f) * CharScale_;
- SpringArm_->SocketOffset=ACultMatchDirector::IsMatch(GetWorld())?FVector(0,90*CharScale_,15*CharScale_):FVector::ZeroVector;
+	SpringArm_->TargetArmLength = 260.f * CharScale_;
+ SpringArm_->SocketOffset=FVector(0,90*CharScale_,15*CharScale_);
 	SpringArm_->SetRelativeLocation(FVector(0.0f, 0.0f, HalfH * 0.75f));
 	bThirdPerson_ = true;
 
@@ -244,8 +247,13 @@ void ACultUlhuPlayerPawn::SetupPlayerInputComponent(UInputComponent* IC)
 	IC->BindAxisKey(EKeys::MouseY, this, &ACultUlhuPlayerPawn::LookPitch);
 }
 void ACultUlhuPlayerPawn::RoutePlayerInput(ECultPlayerInput Action,bool Down) {
+ if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->FreeRoamMenuOpen) return;
  const int32 Index=static_cast<int32>(Action);
  if(Index<0||Index>=static_cast<int32>(ECultPlayerInput::Count)||InputHeld_[Index]==Down) return;
+ if(!HasAuthority()&&Action>=ECultPlayerInput::Primary&&Action<=ECultPlayerInput::Interact) {
+  const auto Aim=CameraAim(); FVector O=Camera_->GetComponentLocation(),D=(Aim.ImpactPoint-O).GetSafeNormal();
+  InputHeld_[Index]=Down; ServerCombatInput(uint8(Action),Down,O,D); return;
+ }
  InputHeld_[Index]=Down;
  if(!Down) {
   if(Action==ECultPlayerInput::Jump) StopJumping();
@@ -278,8 +286,8 @@ void ACultUlhuPlayerPawn::ToggleCamera()
 	const float HalfH = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 	if (bThirdPerson_)
 	{
-		SpringArm_->TargetArmLength = (ACultMatchDirector::IsMatch(GetWorld())?260.f:700.f) * CharScale_;
- SpringArm_->SocketOffset=ACultMatchDirector::IsMatch(GetWorld())?FVector(0,90*CharScale_,15*CharScale_):FVector::ZeroVector;
+		SpringArm_->TargetArmLength = 260.f * CharScale_;
+ SpringArm_->SocketOffset=FVector(0,90*CharScale_,15*CharScale_);
 		SpringArm_->SetRelativeLocation(FVector(0.0f, 0.0f, HalfH * 0.75f));
 	}
 	else
@@ -295,7 +303,7 @@ void ACultUlhuPlayerPawn::ReturnToMenu()
 {
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->IsOver()) { M->TogglePause(); return; }
 	if (UCultUlhuGameInstance* GI = Cast<UCultUlhuGameInstance>(GetGameInstance()))
-		GI->ReturnToMenu();
+		{ if(GI->SelectedMode==ECultPlayMode::FreeRoam) GI->ToggleFreeRoamMenu(); else GI->ReturnToMenu(); }
 }
 
 void ACultUlhuPlayerPawn::Smash()
@@ -327,6 +335,7 @@ float ACultUlhuPlayerPawn::GetHealth() const { return Kit_?Kit_->Hp():Health_; }
 
 void ACultUlhuPlayerPawn::SetSprinting(bool bSprint)
 {
+ if(!HasAuthority()&&NetworkSprinting_!=bSprint) { NetworkSprinting_=bSprint; ServerSprint(bSprint); }
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed_ * (DashTime_>0?DashSpeed_/WalkSpeed_:bSprint ? 1.85f : 1.f) * (Control_.Stop?0.f:Control_.Speed);
 }
 
@@ -375,6 +384,7 @@ void ACultUlhuPlayerPawn::AbilityF() { if(auto* M=ACultMatchDirector::Find(GetWo
 void ACultUlhuPlayerPawn::AbilityR() { if(auto* M=ACultMatchDirector::Find(GetWorld())) { if(!M->AbilityAvailable(this,2,true)) { if(!IsBot()) Notify(TEXT("Ability locked: choose Q or F at level 1, both at level 3, R at level 6.")); return; } } if(!Control_.Stun && !Control_.Fear && Kit_) Kit_->Cast(2); }
 void ACultUlhuPlayerPawn::ReceiveDamage(float Amount,AActor* Source)
 {
+ if(!HasAuthority()) return;
  if(Amount<=0) return;
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->DamageAllowed(this,Source)) return;
  const auto* Ward=Cast<ACultMatchUnit>(Source);
@@ -416,11 +426,12 @@ float ACultUlhuPlayerPawn::GetMaxHealth() const { return Kit_?Kit_->MaxHp():500.
 FVector ACultUlhuPlayerPawn::GetLastEffectLocation() const { return Kit_?Kit_->LastEffectLocation:FVector::ZeroVector; }
 void ACultUlhuPlayerPawn::EndPlay(const EEndPlayReason::Type Reason) { delete Kit_; Kit_=nullptr; Super::EndPlay(Reason); }
 FVector ACultUlhuPlayerPawn::FeetLocation() const { return GetActorLocation()-FVector(0,0,GetCapsuleComponent()->GetScaledCapsuleHalfHeight()); }
-FRotator ACultUlhuPlayerPawn::AimRotation() const { return IsBot()&&BotAim_.IsValid()?(BotAim_->GetActorLocation()-GetActorLocation()).Rotation():Camera_->GetComponentRotation(); }
+FRotator ACultUlhuPlayerPawn::AimRotation() const { if(HasAuthority()&&!IsLocallyControlled()&&!IsBot()&&GetWorld()->GetTimeSeconds()-NetworkAimAt_<1.f) return NetworkAimDirection_.Rotation(); return IsBot()&&BotAim_.IsValid()?(BotAim_->GetActorLocation()-GetActorLocation()).Rotation():Camera_->GetComponentRotation(); }
 FHitResult ACultUlhuPlayerPawn::CameraAim(float RangeCm,bool Cursor) const
 {
  FVector Start=Camera_->GetComponentLocation(), Direction=Camera_->GetForwardVector();
  if(IsBot()) { Start=FeetLocation()+FVector(0,0,150); Direction=BotAim_.IsValid()?(BotAim_->GetActorLocation()-Start).GetSafeNormal():GetActorForwardVector(); }
+ else if(HasAuthority()&&GetNetMode()!=NM_Standalone&&!IsLocallyControlled()&&GetWorld()->GetTimeSeconds()-NetworkAimAt_<1.f) { Start=NetworkAimOrigin_; Direction=NetworkAimDirection_; }
  else if(auto* PC=Cast<APlayerController>(GetController())) {
   if(Cursor) PC->DeprojectMousePositionToWorld(Start,Direction);
   else { if(PC->PlayerCameraManager) PC->PlayerCameraManager->UpdateCamera(0.f); int32 Width=0,Height=0; PC->GetViewportSize(Width,Height); if(Width>0&&Height>0) PC->DeprojectScreenPositionToWorld(Width*.5f,Height*.5f,Start,Direction); }
@@ -455,12 +466,19 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
 
 	if(Kit_) { Kit_->Tick(DeltaSeconds); Health_=Kit_->Hp(); }
  UpdateRecovery(DeltaSeconds);
+ if(HasAuthority()&&!IsBot()&&!IsLocallyControlled()&&GetNetMode()!=NM_Standalone) {
+  SetSprinting(Kit_?Kit_->Sprint(NetworkSprinting_,DeltaSeconds):false);
+  GroundCheckTime_-=DeltaSeconds; if(GroundCheckTime_<=0) { GroundCheckTime_=.05f; GuardTerrainBoundary(); }
+ }
  SmashCooldown_=FMath::Max(0.f,SmashCooldown_-DeltaSeconds);
  TickCombatFeel(DeltaSeconds);
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->CanAct(this)) { GetCharacterMovement()->StopMovementImmediately(); return; }
  if(IsBot()) { if(Kit_) Kit_->Sprint(false,DeltaSeconds); SetSprinting(false); return; }
  APlayerController* PC = Cast<APlayerController>(GetController());
-	if (!PC) return;
+ if(!HasAuthority()&&IsLocallyControlled()&&InputHeld_[static_cast<int32>(ECultPlayerInput::Heavy)]&&GetWorld()->GetTimeSeconds()-NetworkAimAt_>.1f) {
+  NetworkAimAt_=GetWorld()->GetTimeSeconds(); const auto Aim=CameraAim(); const FVector Origin=Camera_->GetComponentLocation(); ServerCombatInput(uint8(ECultPlayerInput::Heavy),true,Origin,(Aim.ImpactPoint-Origin).GetSafeNormal());
+ }
+	if (!PC || !PC->IsLocalController()) return;
 
 
 	HeavyCooldown_ = FMath::Max(0.f, HeavyCooldown_ - DeltaSeconds);
@@ -488,8 +506,9 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
 
 void ACultUlhuPlayerPawn::PollMoveKeys(float DeltaSeconds)
 {
+ if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->FreeRoamMenuOpen) return;
 	APlayerController* PC = Cast<APlayerController>(GetController());
-	if (!PC) return;
+	if (!PC || !PC->IsLocalController()) return;
 	const bool Shift=EnhancedSprint_||PC->IsInputKeyDown(EKeys::LeftShift)||PC->IsInputKeyDown(EKeys::RightShift);
 
 	if(Control_.Stop||PC->bShowMouseCursor) { ProcessShift(Shift,FVector::ZeroVector,DeltaSeconds,false); SetSprinting(false); return; }
