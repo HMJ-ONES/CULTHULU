@@ -1,4 +1,5 @@
 #include "CultUlhuPlayGameMode.h"
+#include "CultMatchSpawn.h"
 // CULT-ULHU play game mode implementation.
 #include "CultActorLabels.h"
 #include "CultWildsPresentation.h"
@@ -133,9 +134,10 @@ APawn* ACultUlhuPlayGameMode::SpawnDefaultPawnFor_Implementation(
 {
 	if (GetWorld() && GetWorld()->GetName().Contains(TEXT("L_MainMenu")))
 		return nullptr;
-	if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->SelectedMode==ECultPlayMode::FreeRoam) {
+	if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) {
   FTransform Transform=StartSpot?StartSpot->GetActorTransform():FTransform(FVector(0,0,2500));
-  if(GetWorld()->GetNetMode()==NM_ListenServer) for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It) if(auto* Other=It->Get()) if(Other!=NewPlayer&&Other->GetPawn()) { Transform.SetLocation(Other->GetPawn()->GetActorLocation()+FVector(0,5000,0)); break; }
+  if(G->SelectedMode!=ECultPlayMode::FreeRoam) Transform=FTransform(FRotator::ZeroRotator,CultMatchSpawn::Feet(G->SelectedMode,0)+FVector(0,0,2000));
+  if(G->SelectedMode==ECultPlayMode::FreeRoam&&GetWorld()->GetNetMode()==NM_ListenServer) for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It) if(auto* Other=It->Get()) if(Other!=NewPlayer&&Other->GetPawn()) { Transform.SetLocation(Other->GetPawn()->GetActorLocation()+FVector(0,5000,0)); break; }
   auto* Body=GetWorld()->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),Transform,NewPlayer,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
   if(Body) { Body->ConfigurePlayer(G->SelectedCharacterId); Body->FinishSpawning(Transform); } return Body;
  }

@@ -1,4 +1,5 @@
 #include "CultMatchDirector.h"
+#include "CultMatchSpawn.h"
 #include "CultHUDSpace.h"
 #include "CultMatchState.h"
 #include "CultMobaJungle.h"
@@ -80,9 +81,8 @@ void ACultMatchDirector::SpawnFighter(int I) {
  auto& F=State_->Fighters[I];
  // The lead vessel's right-shoulder camera looks outside the formation.
  // Mirror both axes for the opposing team; the same layout applies on respawn.
- const float Forward=F.Team==0?1.f:-1.f;
  // Keep the lead shoulder view inside the temple's flank columns as well.
- const FVector Offset(Forward*2600,Forward*(1-(I%5))*1500,0); const FVector Feet=Base(F.Team)+Offset;
+ const FVector Feet=CultMatchSpawn::Feet(Mode(),F.Team,I%5);
  if(!F.Pawn.IsValid()) {
   FTransform T(Feet+FVector(0,0,1500)); auto* P=GetWorld()->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
   P->ConfigureBot(F.Kit,F.Team); F.Pawn=P; P->FinishSpawning(T);

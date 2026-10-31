@@ -25,6 +25,7 @@ class CULTULHU_API ACultUlhuPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+ virtual void UpdateHiddenComponents(const FVector& ViewLocation,TSet<FPrimitiveComponentId>& HiddenComponents) override;
  UFUNCTION(Server,Reliable) void ServerChooseFreeRoamCharacter(const FString& Id);
  UFUNCTION(Server,Reliable) void ServerCultOrder(int32 Action,AActor* Target,FVector_NetQuantize Point);
  UFUNCTION(Server,Reliable) void ServerCultSelection(const TArray<class ACultPopulation*>& Units);

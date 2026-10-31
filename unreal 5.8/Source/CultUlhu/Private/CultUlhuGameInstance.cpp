@@ -260,10 +260,12 @@ bool UCultUlhuGameInstance::JoinFreeRoam(const FString& Input) {
 
 #if WITH_DEV_AUTOMATION_TESTS
 void StartCultCoopProbe(UCultUlhuGameInstance* Game);
+void StartCultPresentationProbe(UCultUlhuGameInstance* Game);
 #endif
 void UCultUlhuGameInstance::Init() { Super::Init();
 #if WITH_DEV_AUTOMATION_TESTS
  StartCultCoopProbe(this);
+ StartCultPresentationProbe(this);
 #endif
  if(GEngine) GEngine->OnNetworkFailure().AddUObject(this,&UCultUlhuGameInstance::NetworkFailure); }
 void UCultUlhuGameInstance::Shutdown() { if(GEngine) GEngine->OnNetworkFailure().RemoveAll(this); Super::Shutdown(); }

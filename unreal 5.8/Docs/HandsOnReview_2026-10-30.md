@@ -22,3 +22,12 @@ This is a bounded review, not an assertion that everything is certified. The UI 
 10. **Add a proper settings and comfort layer.** The visible main/pause flows lack a clear settings entry. Add sensitivity/invert, FOV and camera distance, key remapping, audio controls, readable HUD scale, color-independent team cues and graphics presets with an FPS/frame-time option. Keep settings persistent and test window/resolution/input capture changes. Done means players can make the game comfortable and playable on their own hardware.
 
 These tasks target the three priorities: playable first, then engaging combat and readable decisions, with consistent art direction and motion throughout. Completing a checklist alone does not prove fun; repeat playtests with the owner are needed after each substantial change.
+
+
+## Progress recorded 2026-10-31
+
+- Items **1 (first spawn/handoff)** and **2 (nearby-body camera obstruction)** are implemented and verified in the [spawn/camera reliability report](PresentationSafety_2026-10-31.md). Standalone menu-to-play checks pass in all three modes; crowded-view checks preserve enemies, collision and other views.
+- Item **3 (rig mechanics/blending)** has a separate implemented mechanical pass: see [RigMotionGuide.md](RigMotionGuide.md) and [combat/motion evidence](CombatMotionVerification_2026-10-31.md). Artist-directed acting, terrain-aware IK and dedicated first-person arms remain further work.
+- Item **4 (danger/readability)** has existing impact/telegraph work but remains open for a broader player-facing clarity pass.
+- Items **5–10** remain open as written. Individual bot tactics have improved, but that does not certify item 6's full squad-level goals.
+- Free Roam persistence/co-op and corpse cleanup were added at the owner's request; see [save/co-op instructions](FreeRoamSavesAndCoop.md). They are additional improvements rather than a claim that every review item is finished.
