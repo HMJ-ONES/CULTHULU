@@ -9,6 +9,7 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "UI/CultHomeScreenWidget.h"
+#include "UI/CultRoomMenuWidget.h"
 #include "UI/CultCharacterSelectWidget.h"
 #include "UI/CultCharacterCardWidget.h"
 #include "InputKeyEventArgs.h"
@@ -40,6 +41,10 @@ public:
     Test->TestTrue(TEXT("Real Home Domination button opens selection"),ClickText(UI[0],TEXT("DOMINATION"))); Phase=1; return false;
    }
    if(Phase==1) {
+    UWidgetBlueprintLibrary::GetAllWidgetsOfClass(W,UI,UCultRoomMenuWidget::StaticClass(),true); if(UI.Num()!=1) return false;
+    Test->TestTrue(TEXT("Room screen opens offline practice"),ClickText(UI[0],TEXT("PRACTICE / OFFLINE"))); UI.Empty(); Phase=6; return false;
+   }
+   if(Phase==6) {
     UWidgetBlueprintLibrary::GetAllWidgetsOfClass(W,UI,UCultCharacterCardWidget::StaticClass(),false);
     Test->TestEqual(TEXT("Menu keeps exactly sixteen released character cards"),UI.Num(),16);
     bool Clicked=false; for(auto* Card:UI) if(ClickText(Card,TEXT("CTHULHU"))) { Clicked=true; break; }
@@ -57,9 +62,10 @@ public:
    At=W->GetTimeSeconds(); Phase=3; return false;
   }
   if(Phase==3) {
-   // Paused world time intentionally stops; use the real pause state.
-   if(!Match->IsPaused()) return false;
-   Test->TestTrue(TEXT("Actual Escape key opens competitive pause"),UGameplayStatics::IsGamePaused(W));
+   // Competitive menus must never pause the world.
+   if(!Match->IsPaused()||W->GetTimeSeconds()-At<1) return false;
+   Test->TestFalse(TEXT("Escape opens a local menu without pausing"),UGameplayStatics::IsGamePaused(W));
+   Test->TestTrue(TEXT("World keeps advancing behind Escape menu"),W->GetTimeSeconds()-At>=1);
    PC->InputKey(FInputKeyEventArgs(nullptr,FInputDeviceId::CreateFromInternalId(0),EKeys::Escape,IE_Released,0.f,false,FPlatformTime::Cycles64()));
    GI->ReturnToMenu(); Phase=5; return false;
   }

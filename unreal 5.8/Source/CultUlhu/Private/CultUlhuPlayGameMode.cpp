@@ -107,7 +107,7 @@ void ACultUlhuPlayGameMode::BeginPlay()
     It->SetActorEnableCollision(false); TArray<UStaticMeshComponent*> Parts; It->GetComponents(Parts);
     for(auto* C:Parts) { C->SetVisibility(false); C->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
    }
-   GetWorld()->SpawnActor<ACultWorldDirector>(); if(ACultMatchDirector::IsMatch(GetWorld())) GetWorld()->SpawnActor<ACultMatchDirector>(); else { PopulateCultWilds(GetWorld()); if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->BeginFreeRoamSession(); } }));
+   GetWorld()->SpawnActor<ACultWorldDirector>(); if(ACultMatchDirector::IsMatch(GetWorld())) { GetWorld()->SpawnActor<ACultMatchDirector>(); if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->HostedRoomLobby) G->ShowHostedRoomLobby(); } else { PopulateCultWilds(GetWorld()); if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->BeginFreeRoamSession(); } }));
 }
 
 AActor* ACultUlhuPlayGameMode::ChoosePlayerStart_Implementation(AController* Player)
@@ -134,6 +134,7 @@ APawn* ACultUlhuPlayGameMode::SpawnDefaultPawnFor_Implementation(
 {
 	if (GetWorld() && GetWorld()->GetName().Contains(TEXT("L_MainMenu")))
 		return nullptr;
+ if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->HostedRoomLobby&&NewPlayer&&NewPlayer->IsLocalController()) return nullptr;
 	if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) {
   FTransform Transform=StartSpot?StartSpot->GetActorTransform():FTransform(FVector(0,0,2500));
   if(G->SelectedMode!=ECultPlayMode::FreeRoam) Transform=FTransform(FRotator::ZeroRotator,CultMatchSpawn::Feet(G->SelectedMode,0)+FVector(0,0,2000));
@@ -143,3 +144,12 @@ APawn* ACultUlhuPlayGameMode::SpawnDefaultPawnFor_Implementation(
  }
  return Super::SpawnDefaultPawnFor_Implementation(NewPlayer, StartSpot);
 }
+
+void ACultUlhuPlayGameMode::PreLogin(const FString& Options,const FString& Address,const FUniqueNetIdRepl& Id,FString& Error) {
+ Super::PreLogin(Options,Address,Id,Error); if(!Error.IsEmpty()) return;
+ if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) {
+  G->ValidateRoomLogin(Options,Error); int Players=0; for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It) if(It->Get()&&It->Get()->GetPawn()) ++Players;
+  if(Players>=(G->SelectedMode==ECultPlayMode::FreeRoam?8:10)) Error=TEXT("This room is full. Ask the host for another match.");
+ }
+}
+void ACultUlhuPlayGameMode::Logout(AController* Exiting) { if(auto* M=ACultMatchDirector::Find(GetWorld())) M->RemoveHumanPlayer(Exiting); Super::Logout(Exiting); }

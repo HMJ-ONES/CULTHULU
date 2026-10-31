@@ -1,5 +1,5 @@
-#include "CultReplicatedBody.h"
 #include "CultSkillAttack.h"
+#include "CultReplicatedBody.h"
 #include "CultCombatCredit.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultPopulation.h"

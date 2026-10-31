@@ -1,4 +1,5 @@
 #include "CultJungleCamp.h"
+#include "Net/UnrealNetwork.h"
 #include "CultCombatCredit.h"
 #include "CultActorLabels.h"
 #include "CultFeralBeast.h"
@@ -16,11 +17,11 @@ ACultUlhuPlayerPawn* CreditHero(AActor* Source) {
  return CultCombatCredit::Hero(Source);
 }
 }
-ACultJungleCamp::ACultJungleCamp() { PrimaryActorTick.bCanEverTick=true; RootComponent=CreateDefaultSubobject<USceneComponent>(TEXT("CampOrigin")); }
+ACultJungleCamp::ACultJungleCamp() { bReplicates=true; bAlwaysRelevant=true; PrimaryActorTick.bCanEverTick=true; RootComponent=CreateDefaultSubobject<USceneComponent>(TEXT("CampOrigin")); }
 ACultFeralBeast* ACultJungleCamp::Monster() const { return Monster_.Get(); }
 ACultUlhuPlayerPawn* ACultJungleCamp::Target() const { return Target_.Get(); }
 void ACultJungleCamp::BeginPlay() {
- Super::BeginPlay(); CampIndex=FMath::Clamp(CampIndex,0,3); SetActorLocation(FCultMobaJungle::Ground(CampIndex)); SpawnMonster();
+ Super::BeginPlay(); CampIndex=FMath::Clamp(CampIndex,0,3); SetActorLocation(FCultMobaJungle::Ground(CampIndex)); if(HasAuthority()) SpawnMonster();
 }
 void ACultJungleCamp::SpawnMonster() {
  const FVector Ground=FCultMobaJungle::Ground(CampIndex); FTransform Transform(Ground+FVector(0,0,1000));
@@ -33,13 +34,13 @@ void ACultJungleCamp::SpawnMonster() {
  Monster_=B; Target_.Reset(); LastSource_.Reset(); RewardPaid_=Resetting_=false; Respawn_=ResetTime_=0;
 }
 void ACultJungleCamp::Tick(float Dt) {
- Super::Tick(Dt); auto* M=ACultMatchDirector::Find(GetWorld()); if(!M||M->IsOver()||M->IsPaused()||M->Warmup()>0) return;
+ Super::Tick(Dt); if(!HasAuthority()) return; auto* M=ACultMatchDirector::Find(GetWorld()); if(!M||M->IsOver()||M->Warmup()>0) return;
  if(auto* B=Monster_.Get()) if(!B->IsDead()) return;
  if(Respawn_>0) { Respawn_=FMath::Max(0.f,Respawn_-Dt); if(Respawn_>0) return; }
  SpawnMonster();
 }
 bool ACultJungleCamp::DamageAllowed(AActor* Source) const {
- auto* M=ACultMatchDirector::Find(GetWorld()); if(!M||M->IsOver()||M->IsPaused()||M->Warmup()>0||Resetting_) return false;
+ auto* M=ACultMatchDirector::Find(GetWorld()); if(!M||M->IsOver()||M->Warmup()>0||Resetting_) return false;
  if(auto* Hero=CreditHero(Source)) return M->Slot(Hero)>=0;
  if(auto* Unit=Cast<ACultMatchUnit>(Source)) return Unit->Health>0;
  return false;
@@ -77,7 +78,7 @@ void ACultJungleCamp::MonsterDied(ACultFeralBeast* B) {
  LastSource_.Reset();
 }
 void ACultJungleCamp::TickMonster(ACultFeralBeast* B,float Dt) {
- auto* M=ACultMatchDirector::Find(GetWorld()); if(!M||M->IsOver()||M->IsPaused()||M->Warmup()>0) { CancelAttacks(); B->AnimateCreature(Dt,0); return; }
+ auto* M=ACultMatchDirector::Find(GetWorld()); if(!M||M->IsOver()||M->Warmup()>0) { CancelAttacks(); B->AnimateCreature(Dt,0); return; }
  const FVector Before=B->GetActorLocation();
  B->AttackCooldown_=FMath::Max(0.f,B->AttackCooldown_-Dt); B->StaggerCooldown_=FMath::Max(0.f,B->StaggerCooldown_-Dt);
  B->PoiseReset_=FMath::Max(0.f,B->PoiseReset_-Dt); if(B->PoiseReset_<=0) B->PoiseDamage_=0;
@@ -118,3 +119,5 @@ void ACultJungleCamp::TickMonster(ACultFeralBeast* B,float Dt) {
  }
  B->AnimateCreature(Dt,FVector::Dist2D(Before,B->GetActorLocation()));
 }
+
+void ACultJungleCamp::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const { Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(ACultJungleCamp,CampIndex); DOREPLIFETIME(ACultJungleCamp,Monster_); DOREPLIFETIME(ACultJungleCamp,Respawn_); DOREPLIFETIME(ACultJungleCamp,Resetting_); }

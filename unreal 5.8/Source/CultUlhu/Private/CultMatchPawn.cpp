@@ -1,3 +1,4 @@
+#include "CultUlhuPlayerController.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultMatchDirector.h"
 #include "CultKitRuntime.h"
@@ -16,7 +17,12 @@ void ACultUlhuPlayerPawn::RelocateMatch(FVector Feet) {
  const FVector Position=Feet+FVector(0,0,GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3);
  SetActorLocation(Position,false,nullptr,ETeleportType::TeleportPhysics); LastSafeLocation_=HomeLocation_=Position;
  GetCharacterMovement()->StopMovementImmediately(); GetCharacterMovement()->SetMovementMode(MOVE_Walking);
- if(auto* PC=Cast<APlayerController>(GetController())) PC->SetControlRotation(FRotator(-12,GetFaction()?180:0,0));
+ if(auto* PC=Cast<APlayerController>(GetController())) {
+  const FRotator Look(-12,GetFaction()?180:0,0); PC->SetControlRotation(Look);
+  // Autonomous proxies do not consume ordinary replicated movement. Respawn
+  // must also reach an idle owner, without waiting for their next move packet.
+  if(HasAuthority()&&!PC->IsLocalController()) PC->ClientSetLocation(Position,Look);
+ }
 }
 void ACultUlhuPlayerPawn::RespawnMatch(FVector Feet) {
  float CDs[3]={}; if(Kit_) for(int I=0;I<3;++I) CDs[I]=Kit_->Cooldown(I);
@@ -41,8 +47,8 @@ void ACultUlhuPlayerPawn::MoveMatchToward(FVector Goal,float Dt) {
   SetActorRotation(Heading.Rotation()); break;
  }
 }
-void ACultUlhuPlayerPawn::HealMatch(float Amount) { if(Kit_&&!bMatchDead_) { Kit_->Heal(Amount); Health_=Kit_->Hp(); } }
-void ACultUlhuPlayerPawn::RecallMatch() { if(auto* M=ACultMatchDirector::Find(GetWorld())) M->StartRecall(this); }
+void ACultUlhuPlayerPawn::HealMatch(float Amount) { if(HasAuthority()&&Kit_&&!bMatchDead_) { Kit_->Heal(Amount); Health_=Kit_->Hp(); } }
+void ACultUlhuPlayerPawn::RecallMatch() { if(!HasAuthority()) { if(auto* PC=Cast<ACultUlhuPlayerController>(GetController())) PC->ServerMatchAction(0,FeetLocation()); return; } if(auto* M=ACultMatchDirector::Find(GetWorld())) M->StartRecall(this); }
 void ACultUlhuPlayerPawn::RematchConfirm() { if(auto* M=ACultMatchDirector::Find(GetWorld())) M->Rematch(); }
 
 void ACultUlhuPlayerPawn::MarkCombat() { LastCombatAt_=GetWorld()->GetTimeSeconds(); }
@@ -78,4 +84,8 @@ void ACultUlhuPlayerPawn::SummonLandedDamage(float Actual) {
  if(Actual<=0||GetHealth()<=0||bMatchDead_) return;
  MarkCombat();
  if(CharacterId_==TEXT("shub_niggurath")) HealMatch(Actual*.1f);
+}
+
+void ACultUlhuPlayerPawn::OnRep_MatchDead() {
+ if(bMatchDead_) SetMatchDead(); else { SetActorHiddenInGame(false); SetActorEnableCollision(true); GetCharacterMovement()->SetMovementMode(MOVE_Walking); GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap); }
 }

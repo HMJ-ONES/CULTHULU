@@ -36,6 +36,6 @@ UButton* UCultHomeScreenWidget::MakeModeButton(const FString& Title,const FStrin
  else if(Title==TEXT("DOMINATION")) B->OnClicked.AddDynamic(this,&UCultHomeScreenWidget::OnDominationClicked);
  else B->OnClicked.AddDynamic(this,&UCultHomeScreenWidget::OnDotgooClicked); return B;
 }
-void UCultHomeScreenWidget::OnFreeRoamClicked() { if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->ToggleFreeRoamMenu(); }
-void UCultHomeScreenWidget::OnDominationClicked() { if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->OpenCharacterSelect(ECultPlayMode::Domination); }
-void UCultHomeScreenWidget::OnDotgooClicked() { if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->OpenCharacterSelect(ECultPlayMode::Dotgoo); }
+void UCultHomeScreenWidget::OnFreeRoamClicked() { if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->OpenModeEntry(ECultPlayMode::FreeRoam); }
+void UCultHomeScreenWidget::OnDominationClicked() { if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->OpenModeEntry(ECultPlayMode::Domination); }
+void UCultHomeScreenWidget::OnDotgooClicked() { if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->OpenModeEntry(ECultPlayMode::Dotgoo); }

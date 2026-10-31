@@ -32,7 +32,7 @@ class CULTULHU_API ACultUlhuPlayerPawn : public ACharacter
 
 public:
  virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
- void ConfigurePlayer(const FString& Id) { CharacterId_=Id; Faction_=0; bBotControlled_=false; }
+ void ConfigurePlayer(const FString& Id,int32 Team=0) { CharacterId_=Id; Faction_=Team; bBotControlled_=false; }
  UFUNCTION(Server,Reliable) void ServerCombatInput(uint8 Action,bool Down,FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction);
  UFUNCTION(Server,Reliable) void ServerDash(FVector_NetQuantizeNormal Direction);
  UFUNCTION(Server,Reliable) void ServerSprint(bool Sprint);
@@ -192,9 +192,10 @@ private:
  float LastCombatAt_=-100.f;
 	float Health_ = 1000.f;
 	class FCultKitRuntime* Kit_ = nullptr;
-	int32 Faction_ = 0;
+	UPROPERTY(Replicated) int32 Faction_ = 0;
  UPROPERTY(Replicated) bool bBotControlled_=false;
- bool bMatchDead_=false;
+ UPROPERTY(ReplicatedUsing=OnRep_MatchDead) bool bMatchDead_=false;
+ UFUNCTION() void OnRep_MatchDead();
 	UPROPERTY(Replicated) FString CharacterId_;
  FVector NetworkAimOrigin_=FVector::ZeroVector,NetworkAimDirection_=FVector::ForwardVector;
  float NetworkAimAt_=-100;

@@ -1,3 +1,4 @@
+#include "Kismet/GameplayStatics.h"
 #include "CultMatchDirector.h"
 #include "CultCombatCredit.h"
 #include "CultMatchState.h"
@@ -55,6 +56,11 @@ void ACultMatchDirector::SpawnWaves() {
 }
 bool ACultMatchDirector::UnitProtected(const ACultMatchUnit* U) const {
  if(!State_||!State_->Moba) return false;
+ if(!HasAuthority()) {
+  if(U->Kind==4) return !CoreOpen(U->Team); if(U->Kind==5) return !LaneWardsCleared(U->Team);
+  const int Outer=U->Lane*4+U->Team*2+(U->Team==0?1:0); if(U->Index==Outer) return false;
+  for(const auto& W:State_->Units) if(W.IsValid()&&W->Kind==3&&W->Index==Outer&&W->Health>0) return true; return false;
+ }
  return U->Kind==4?!CoreOpen(U->Team):U->Kind==5?!LaneWardsCleared(U->Team):U->Kind==3?State_->Moba->TowerShielded(U->Index):false;
 }
 float ACultMatchDirector::HurtUnit(ACultMatchUnit* U,float Damage,AActor* Source) {
@@ -67,8 +73,8 @@ float ACultMatchDirector::HurtUnit(ACultMatchUnit* U,float Damage,AActor* Source
  if(U->Kind==4) Hp=State_->Moba->HitCore(U->Team,Damage,Attacker);
  if(Hp<=0&&U->Health>0) {
   const int Killer=Slot(CultCombatCredit::Hero(Source));
-  if(U->Kind==3) { Announce(FString::Printf(TEXT("%s %s tower destroyed%s"),U->Team==0?TEXT("Allied"):TEXT("Enemy"),U->Lane==0?TEXT("top"):U->Lane==1?TEXT("mid"):TEXT("bottom"),LaneWardsCleared(U->Team)?TEXT(" | Nexus ward exposed!"):TEXT(""))); for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Team!=U->Team) GrantXP(I,I==Killer?800:200); }
-  else if(U->Kind==5) { State_->NexusDestroyed[U->Team]=true; Announce(U->Team==0?TEXT("Our nexus ward has fallen. Protect our god!"):TEXT("Enemy nexus ward destroyed. Their god is exposed!")); for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Team!=U->Team) GrantXP(I,I==Killer?800:200); }
+  if(U->Kind==3) { Announce(FString::Printf(TEXT("%s %s tower destroyed%s"),U->Team==0?TEXT("Blue"):TEXT("Orange"),U->Lane==0?TEXT("top"):U->Lane==1?TEXT("mid"):TEXT("bottom"),LaneWardsCleared(U->Team)?TEXT(" | Nexus ward exposed!"):TEXT(""))); for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Team!=U->Team) GrantXP(I,I==Killer?800:200); }
+  else if(U->Kind==5) { State_->NexusDestroyed[U->Team]=true; Announce(U->Team==0?TEXT("Blue nexus ward has fallen. Their god is exposed!"):TEXT("Orange nexus ward destroyed. Their god is exposed!")); for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Team!=U->Team) GrantXP(I,I==Killer?800:200); }
   else if(U->Kind==4) { U->Health=0; Finish(1-U->Team); }
   else for(int I=0;I<State_->Fighters.Num();++I) { auto& F=State_->Fighters[I]; if(F.Team==U->Team||F.Respawn>0||!F.Pawn.IsValid()) continue; if(I==Killer||FVector::Dist2D(F.Pawn->FeetLocation(),U->GetActorLocation())<6000) GrantXP(I,I==Killer?60:30); }
  }
@@ -176,7 +182,7 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
   const float D=FVector::Dist2D(P->FeetLocation(),B->GetActorLocation());
   if(D<Best&&ACultSkillAttack::Clear(GetWorld(),P->GetActorLocation(),B->GetActorLocation(),P,B)) { Best=D; Enemy=B; }
  }
- if(State_->PingTime>0&&F.Team==0&&I>0&&I<3) { Goal=State_->PingPoint; if(Enemy&&FVector::Dist2D(Enemy->GetActorLocation(),Goal)>6000) Enemy=nullptr; }
+ if(State_->PingTime>0&&F.Team==State_->PingTeam&&I%5<3) { Goal=State_->PingPoint; if(Enemy&&FVector::Dist2D(Enemy->GetActorLocation(),Goal)>6000) Enemy=nullptr; }
  if(F.Retreating) { Enemy=nullptr; Goal=State_->Moba&&FVector::Dist2D(P->FeetLocation(),Base(F.Team))>6500?FCultMobaRoute::Follow(F.Team,F.Lane,P->FeetLocation(),0.f):Base(F.Team)+FVector(F.Team?-2600:2600,((I%5)-2)*400,0); F.RouteStep=1; }
  if(Enemy) {
   if(State_->Moba) Goal=Enemy->GetActorLocation();
@@ -296,7 +302,7 @@ void ACultMatchDirector::UpdateRelics(float Dt) {
 }
 FString ACultMatchDirector::RelicStatus() const {
  if(!State_||!State_->Moba) return FString();
- for(const auto& R:State_->Relics) if(R.ChannelSlot==0&&R.Claim<0) return FString::Printf(TEXT("CLAIMING %s  %.0f%%"),*R.Name,R.Need>0?100*R.Channel/R.Need:100);
+ for(const auto& R:State_->Relics) if(R.ChannelSlot==Slot(Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(this,0)))&&R.Claim<0) return FString::Printf(TEXT("CLAIMING %s  %.0f%%"),*R.Name,R.Need>0?100*R.Channel/R.Need:100);
  return State_->Time<600?FString::Printf(TEXT("Mythic relic in %.0fs | Tiers require level 10 / 20 / 30"),600-State_->Time):TEXT("Mythic relic available at mid | Level 30");
 }
 

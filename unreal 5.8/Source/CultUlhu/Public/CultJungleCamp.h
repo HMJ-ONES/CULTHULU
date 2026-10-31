@@ -12,7 +12,8 @@ public:
  ACultJungleCamp();
  virtual void BeginPlay() override;
  virtual void Tick(float Dt) override;
- int CampIndex=0;
+ virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+ UPROPERTY(Replicated) int CampIndex=0;
  ACultFeralBeast* Monster() const;
  ACultUlhuPlayerPawn* Target() const;
  bool Resetting() const { return Resetting_; }
@@ -25,11 +26,11 @@ public:
  void TickMonster(ACultFeralBeast* Beast,float Dt);
 private:
  friend struct FCultJungleTestAccess;
- TWeakObjectPtr<ACultFeralBeast> Monster_;
+ UPROPERTY(Replicated) TWeakObjectPtr<ACultFeralBeast> Monster_;
  TWeakObjectPtr<ACultUlhuPlayerPawn> Target_;
  TWeakObjectPtr<AActor> LastSource_;
- float Respawn_=0,ResetTime_=0;
- bool Resetting_=false,RewardPaid_=false;
+ UPROPERTY(Replicated) float Respawn_=0; float ResetTime_=0;
+ UPROPERTY(Replicated) bool Resetting_=false; bool RewardPaid_=false;
  void SpawnMonster();
  void StartReset();
  void CancelAttacks();

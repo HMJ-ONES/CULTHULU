@@ -33,6 +33,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 struct FCultMatchTestAccess {
+ static void FinishForMenuTest(ACultMatchDirector* M) { M->Finish(0); }
  static void VerifyBotHeavyOpportunity(FAutomationTestBase* T,ACultMatchDirector* M) {
   auto* W=M->GetWorld(); M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false;
   auto& F=M->State_->Fighters[5]; if(F.Pawn.IsValid()) F.Pawn->Destroy(); F.Pawn=nullptr; F.Kit=TEXT("dagon"); M->SpawnFighter(5);
@@ -465,7 +466,7 @@ public:
     FCultMatchTestAccess::VerifyMobaTerrain(Test,M);
     P->RelocateMatch(FCultMobaJungle::Entry(2,false)); At=W->GetTimeSeconds(); Phase=10; return false;
    }
-   float PausedTime=M->Elapsed(); M->TogglePause(); Test->TestTrue(TEXT("Escape pause freezes the actual local game"),UGameplayStatics::IsGamePaused(W)); M->Tick(1); Test->TestEqual(TEXT("Paused match cannot advance"),M->Elapsed(),PausedTime); M->TogglePause(); Test->TestFalse(TEXT("Resume unpauses the game"),UGameplayStatics::IsGamePaused(W));
+   float PausedTime=M->Elapsed(); M->TogglePause(); Test->TestFalse(TEXT("Competitive Escape menu never pauses the world"),UGameplayStatics::IsGamePaused(W)); M->Tick(1); Test->TestTrue(TEXT("Match advances behind the local menu"),M->Elapsed()>PausedTime); M->TogglePause(); Test->TestFalse(TEXT("Resume unpauses the game"),UGameplayStatics::IsGamePaused(W));
    Test->TestTrue(TEXT("Spawn view faces the battlefield rather than the back of its temple"),FMath::Abs(FMath::FindDeltaAngleDegrees(W->GetFirstPlayerController()->GetControlRotation().Yaw,0.f))<2);
    auto* Doctrines=ACultWorldDirector::Find(W);
    Test->TestFalse(TEXT("Competitive belief changes are refused by the game service"),Doctrines->RequestBelief(0,5));
@@ -912,4 +913,22 @@ public:
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultNaturalWaveTest,"CultUlhu.Menu.NaturalCreepWaves",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultNaturalWaveTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultNaturalWaveObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+
+class FCultLocalMenuEnd:public IAutomationLatentCommand {
+ FAutomationTestBase* T; bool Started=false; double Began=FPlatformTime::Seconds();
+public:
+ FCultLocalMenuEnd(FAutomationTestBase* In):T(In) {}
+ bool Update() override {
+  if(FPlatformTime::Seconds()-Began>60) { T->AddError(TEXT("Local menu finish test timeout")); return true; }
+  auto* W=GEditor->PlayWorld.Get(); if(!W||W->bIsTearingDown) return false;
+  if(W->GetName().Contains(TEXT("L_MainMenu"))) { if(!Started) { Started=true; auto* G=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); G->OpenCharacterSelect(ECultPlayMode::Domination); G->StartPlay(); } return false; }
+  auto* M=ACultMatchDirector::Find(W); if(!M||M->Warmup()>0) return false;
+  M->TogglePause(); const float Before=M->Elapsed(); M->Tick(1);
+  T->TestTrue(TEXT("Menu remains open while match advances"),M->IsPaused()&&M->Elapsed()>Before&&!UGameplayStatics::IsGamePaused(W));
+  FCultMatchTestAccess::FinishForMenuTest(M);
+  T->TestTrue(TEXT("A match ending behind Escape replaces menu with results"),M->IsOver()&&!M->IsPaused()&&!UGameplayStatics::IsGamePaused(W)); return true;
+ }
+};
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultLocalMenuEndTest,"CultUlhu.Menu.CompetitiveMenuEnd",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultLocalMenuEndTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultLocalMenuEnd(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 #endif

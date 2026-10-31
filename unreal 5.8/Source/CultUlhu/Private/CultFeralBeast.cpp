@@ -1,6 +1,6 @@
+#include "CultFeralBeast.h"
 #include "Net/UnrealNetwork.h"
 #include "CultReplicatedBody.h"
-#include "CultFeralBeast.h"
 #include "ProfilingDebugging/CsvProfiler.h"
 CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 // CULT-ULHU feral beast implementation.

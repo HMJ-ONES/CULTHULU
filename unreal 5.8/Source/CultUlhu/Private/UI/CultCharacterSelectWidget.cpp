@@ -77,7 +77,7 @@ void UCultCharacterSelectWidget::BuildLayout() {
  Hints->AddChildToHorizontalBox(MakeText(TEXT("LMB melee / V view / Tap Shift dash / Hold Shift sprint"),10,CultUI::Muted))->SetPadding(FMargin(16,0,0,0)); Col->AddChildToVerticalBox(Hints)->SetPadding(FMargin(0,0,0,8));
  auto* Row=NewObject<UHorizontalBox>(this); BackButton_=MakeButton(TEXT("BACK"),18); BackButton_->OnClicked.AddDynamic(this,&UCultCharacterSelectWidget::OnBackClicked); Row->AddChildToHorizontalBox(BackButton_);
  auto* Space=NewObject<USizeBox>(this); Row->AddChildToHorizontalBox(Space)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
- PlayButton_=MakeButton(Mode_==ECultPlayMode::FreeRoam?TEXT("CHOOSE INITIAL BELIEFS"):TEXT("ENTER BATTLE"),22,true); PlayButton_->OnClicked.AddDynamic(this,&UCultCharacterSelectWidget::OnPlayClicked); Row->AddChildToHorizontalBox(PlayButton_); Col->AddChildToVerticalBox(Row);
+ PlayButton_=MakeButton((Mode_==ECultPlayMode::FreeRoam&&Cast<UCultUlhuGameInstance>(GetGameInstance())->RoomAction!=ECultRoomAction::Join)?TEXT("CHOOSE INITIAL BELIEFS"):TEXT("ENTER BATTLE"),22,true); PlayButton_->OnClicked.AddDynamic(this,&UCultCharacterSelectWidget::OnPlayClicked); Row->AddChildToHorizontalBox(PlayButton_); Col->AddChildToVerticalBox(Row);
  if(!WidgetTree) WidgetTree=NewObject<UWidgetTree>(this,TEXT("WidgetTree")); WidgetTree->RootWidget=Root_;
 }
 
@@ -137,14 +137,14 @@ void UCultCharacterSelectWidget::RefreshSelection()
    AbilityNames_[3]->SetText(FText::FromString(Sling?TEXT("Minion Sling"):UTF8_TO_TCHAR(Def.rightClick.name.c_str())));
    AbilityMeta_[3]->SetText(FText::FromString(Sling?TEXT("LIFT / THROW / 20s COOLDOWN"):TEXT("ALTERNATE ATTACK")));
   }
-  ModeHint_->SetText(FText::FromString(Mode_==ECultPlayMode::FreeRoam?TEXT("Choose 3 starting beliefs next. Press B in play to change them over time."):Mode_==ECultPlayMode::Dotgoo?TEXT("Choose Q or F at level 1. Both unlock at level 3; R at level 6."):TEXT("Hold the seal. Eliminations add points.")));
+  ModeHint_->SetText(FText::FromString(Mode_==ECultPlayMode::FreeRoam?(Cast<UCultUlhuGameInstance>(GetGameInstance())->RoomAction==ECultRoomAction::Join?TEXT("Join your friend. Their world and cult beliefs are shared."):TEXT("Choose 3 starting beliefs next. Press B in play to change them over time.")):Mode_==ECultPlayMode::Dotgoo?TEXT("Choose Q or F at level 1. Both unlock at level 3; R at level 6."):TEXT("Hold the seal. Eliminations add points.")));
 	}
 
 }
 
 void UCultCharacterSelectWidget::OnBackClicked()
 {
-	if (auto* GI = Cast<UCultUlhuGameInstance>(GetGameInstance())) GI->ShowHomeScreen();
+	if (auto* GI = Cast<UCultUlhuGameInstance>(GetGameInstance())) GI->OpenModeEntry(Mode_);
 }
 
 void UCultCharacterSelectWidget::OnPlayClicked()

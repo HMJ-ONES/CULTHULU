@@ -37,12 +37,28 @@ struct FCultRosterEntry
 	UPROPERTY(BlueprintReadOnly) float HeightM = 20.0f;
 };
 
+enum class ECultRoomAction:uint8 { None, Find, Host, Private, Join };
+
 UCLASS(Blueprintable)
 class CULTULHU_API UCultUlhuGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
 public:
+ void OpenModeEntry(ECultPlayMode Mode);
+ void BeginRoomAction(ECultRoomAction Action,const FString& Code=FString());
+ void PublicRoomFound(const FString& Host,int Port);
+ bool CompleteRoomJoin();
+ void CopyRoomCode();
+ void LeaveCompetitiveMatch();
+ void ShowHostedRoomLobby();
+ void RejoinHostedRoom();
+ bool HostedRoomLobby=false;
+ void ValidateRoomLogin(const FString& Options,FString& Error) const;
+ FString RoomStatus,RoomCode,RoomHost,RoomKey;
+ ECultRoomAction RoomAction=ECultRoomAction::None;
+ bool RoomHosting=false,RoomPrivate=false;
+ int32 RoomPort=7777;
  virtual void Init() override;
  virtual void Shutdown() override;
  FString FreeRoamSaveSlot=TEXT("FreeRoam");
@@ -91,6 +107,7 @@ public:
 	static FString ModeStartLabel(ECultPlayMode Mode);
 
 private:
+ class FCultRoomService* Rooms_=nullptr;
  void NetworkFailure(UWorld* World,UNetDriver* Driver,ENetworkFailure::Type Failure,const FString& Reason);
  TArray<uint8> PendingFreeRoam_;
  FTimerHandle AutosaveTimer_;

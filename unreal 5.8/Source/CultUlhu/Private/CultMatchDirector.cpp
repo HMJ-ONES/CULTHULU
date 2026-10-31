@@ -1,4 +1,6 @@
 #include "CultMatchDirector.h"
+#include "CultUlhuPlayerController.h"
+#include "CultReplicatedBody.h"
 #include "CultMatchSpawn.h"
 #include "CultHUDSpace.h"
 #include "CultMatchState.h"
@@ -15,30 +17,32 @@
 #include "CultBlastFX.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
+#include "Engine/ReflectionCapture.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "modes/Match.h"
 
-ACultMatchDirector::ACultMatchDirector() { PrimaryActorTick.bCanEverTick=true; }
+ACultMatchDirector::ACultMatchDirector() { PrimaryActorTick.bCanEverTick=true; bReplicates=true; bAlwaysRelevant=true; SetNetUpdateFrequency(10.f); CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody")); }
 bool ACultMatchDirector::IsMatch(UWorld* W) { auto* G=W?Cast<UCultUlhuGameInstance>(W->GetGameInstance()):nullptr; return G&&G->SelectedMode!=ECultPlayMode::FreeRoam&&!W->GetName().Contains(TEXT("L_MainMenu")); }
 ACultMatchDirector* ACultMatchDirector::Find(UWorld* W) { if(W) for(TActorIterator<ACultMatchDirector> It(W);It;++It) return *It; return nullptr; }
 ECultPlayMode ACultMatchDirector::Mode() const { return State_?State_->Mode:ECultPlayMode::FreeRoam; }
 bool ACultMatchDirector::IsOver() const { return State_&&State_->Over; }
-bool ACultMatchDirector::IsPaused() const { return State_&&State_->Paused; }
+bool ACultMatchDirector::IsPaused() const { return State_&&(State_->LocalMenu); }
 int ACultMatchDirector::Winner() const { return State_?State_->Winner:-1; }
 float ACultMatchDirector::Elapsed() const { return State_?State_->Time:0; }
 float ACultMatchDirector::Warmup() const { return State_?State_->Warmup:0; }
-float ACultMatchDirector::Score(int T) const { return State_&&State_->Capture?State_->Capture->score(FMath::Clamp(T,0,1)):0; }
-float ACultMatchDirector::CoreHealth(int T) const { return State_&&State_->Moba?State_->Moba->baseHp(FMath::Clamp(T,0,1)):0; }
-int ACultMatchDirector::TowersAlive(int T) const { return State_&&State_->Moba?State_->Moba->aliveTowerCount(FMath::Clamp(T,0,1)):0; }
+float ACultMatchDirector::Score(int T) const { return !HasAuthority()&&State_?State_->RemoteScores[FMath::Clamp(T,0,1)]:State_&&State_->Capture?State_->Capture->score(FMath::Clamp(T,0,1)):0; }
+float ACultMatchDirector::CoreHealth(int T) const { return !HasAuthority()&&State_?State_->RemoteCore[FMath::Clamp(T,0,1)]:State_&&State_->Moba?State_->Moba->baseHp(FMath::Clamp(T,0,1)):0; }
+int ACultMatchDirector::TowersAlive(int T) const { return !HasAuthority()&&State_?State_->RemoteTowers[FMath::Clamp(T,0,1)]:State_&&State_->Moba?State_->Moba->aliveTowerCount(FMath::Clamp(T,0,1)):0; }
 bool ACultMatchDirector::LaneWardsCleared(int T) const { return State_&&State_->Moba&&TowersAlive(T)==0; }
 bool ACultMatchDirector::NexusAlive(int T) const { return State_&&State_->Moba&&!State_->NexusDestroyed[FMath::Clamp(T,0,1)]; }
 bool ACultMatchDirector::CoreOpen(int T) const { return LaneWardsCleared(T)&&!NexusAlive(T); }
 FVector ACultMatchDirector::LaneWaypoint(int T,int L,int Step) const { return State_&&State_->Moba?State_->Moba->Waypoint(T,L,Step):FVector::ZeroVector; }
-bool ACultMatchDirector::Contested() const { return State_&&State_->Capture&&State_->Capture->contested(); }
-bool ACultMatchDirector::Overtime() const { return State_&&State_->Capture&&State_->Capture->overtime(); }
-int ACultMatchDirector::Holder() const { return State_&&State_->Capture?State_->Capture->holder():-1; }
+bool ACultMatchDirector::Contested() const { return State_&&(!HasAuthority()?State_->RemoteContested:State_->Capture&&State_->Capture->contested()); }
+bool ACultMatchDirector::Overtime() const { return State_&&(!HasAuthority()?State_->RemoteOvertime:State_->Capture&&State_->Capture->overtime()); }
+int ACultMatchDirector::Holder() const { return State_?(!HasAuthority()?State_->RemoteHolder:State_->Capture?State_->Capture->holder():-1):-1; }
 FVector ACultMatchDirector::Base(int T) const { return FVector((T==0?-1:1)*(Mode()==ECultPlayMode::Dotgoo?30000.f:23000.f),0,0); }
 const TArray<FCultMatchFighter>& ACultMatchDirector::Fighters() const { static const TArray<FCultMatchFighter> Empty; return State_?State_->Fighters:Empty; }
 int ACultMatchDirector::Slot(const AActor* P) const { if(P&&State_) for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Pawn==P) return I; return -1; }
@@ -48,6 +52,10 @@ bool ACultMatchDirector::CanAct(const ACultUlhuPlayerPawn* P) const { auto* F=Fi
 void ACultMatchDirector::BeginPlay() {
  Super::BeginPlay(); State_=new FState;
  auto* GI=Cast<UCultUlhuGameInstance>(GetGameInstance()); State_->Mode=GI->SelectedMode;
+ if(!HasAuthority()) {
+  for(TActorIterator<AActor> It(GetWorld());It;++It) if(It->IsA<AReflectionCapture>()) It->Destroy(); else if(It->HasAnyFlags(RF_WasLoaded)) { TArray<UStaticMeshComponent*> Parts; It->GetComponents(Parts); if(Parts.Num()) { It->SetActorEnableCollision(false); It->SetActorHiddenInGame(true); } }
+  BuildArena(GetWorld(),State_->Mode); RefreshRemoteMatch(); return;
+ }
  if(Mode()==ECultPlayMode::Domination) { State_->Capture=std::make_unique<cultulhu::CapturePointMode>(State_->Bus,State_->Clock); State_->Capture->addPoint({0,0,0},35); }
  else {
   State_->Moba=std::make_unique<FCultNativeMoba>(State_->Bus,State_->Clock,State_->Rng); State_->Moba->Setup();
@@ -64,7 +72,7 @@ void ACultMatchDirector::BeginPlay() {
  for(int I=0;I<10;++I) {
   FCultMatchFighter F; F.Team=I/5; F.Lane=(I%5)%3; F.Kit=Picks[I%5];
   for(const auto& R:Roster) if(R.Id==F.Kit) { F.Name=R.DisplayName; int Comma; if(F.Name.FindChar(',',Comma)) F.Name.LeftInline(Comma); }
-  if(I==0) { F.Pawn=Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(GetWorld(),0)); F.Name+=TEXT(" (YOU)"); }
+  if(I==0) { F.Pawn=Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(GetWorld(),0)); F.Name+=TEXT(" (YOU)"); if(F.Pawn.IsValid()) if(auto* C=Cast<ACultUlhuPlayerController>(F.Pawn->GetController())) C->MatchSlot=0; }
   State_->Fighters.Add(F); SpawnFighter(I);
  }
  if(Mode()==ECultPlayMode::Dotgoo) for(int Camp=0;Camp<FCultMobaJungle::Camps;++Camp) {
@@ -90,13 +98,13 @@ void ACultMatchDirector::SpawnFighter(int I) {
  if(F.Pawn.IsValid()) { F.Pawn->RespawnMatch(Feet); F.Pawn->SetActorRotation(FRotator(0,F.Team?180:0,0)); }
  F.DomPath.Reset(); F.DomPathIndex=0; F.DomEscape=false;
  if(Mode()==ECultPlayMode::Domination&&I%5==4) F.DomPath=FCultDominationRoute::Flank(F.Team,(F.Team?-1:1)*(F.Deaths%2?-1:1));
- F.Shield=3; F.Respawn=0; F.Recall=F.Invoke=0; F.RouteStep=1; F.Retreating=false; if(F.Pawn.IsValid()) F.Pawn->MarkCombat();
+ F.Shield=3; F.Respawn=0; F.Recall=F.Invoke=0; F.RouteStep=1; F.Retreating=false; if(F.Pawn.IsValid()) F.Pawn->MarkCombat(); F.Pawn->Tags.AddUnique(FName(*FString::Printf(TEXT("MatchFighter%d"),I)));
 }
 void ACultMatchDirector::Announce(const FString& Text) { State_->Notice=Text; State_->NoticeTime=6; UE_LOG(LogTemp,Log,TEXT("[CultMatch] %s"),*Text); }
 FString ACultMatchDirector::Announcement() const { return State_&&State_->NoticeTime>0?State_->Notice:FString(); }
 const TArray<FCultMatchElimination>& ACultMatchDirector::Eliminations() const { static const TArray<FCultMatchElimination> Empty; return State_?State_->Eliminations:Empty; }
 void ACultMatchDirector::Tick(float Dt) {
- Super::Tick(Dt); if(!State_||State_->Paused) return; State_->NoticeTime=FMath::Max(0.f,State_->NoticeTime-Dt);
+ Super::Tick(Dt); if(!State_) return; if(!HasAuthority()) { if(!State_->Over) State_->Time+=Dt; State_->Warmup=FMath::Max(0.f,State_->Warmup-Dt); RefreshRemoteMatch(); return; } if(State_->Paused) return; State_->NoticeTime=FMath::Max(0.f,State_->NoticeTime-Dt);
  if(State_->Over) return;
  for(auto& Entry:State_->Eliminations) Entry.Remaining-=Dt;
  State_->Eliminations.RemoveAll([](const auto& Entry){return Entry.Remaining<=0;});
@@ -107,7 +115,7 @@ void ACultMatchDirector::Tick(float Dt) {
   int Counts[2]={0,0};
   for(const auto& F:State_->Fighters) if(F.Pawn.IsValid()&&F.Respawn<=0&&F.Pawn->GetHealth()>0&&InsideCapture(F.Pawn->FeetLocation())) ++Counts[F.Team];
   int Prev=Holder(); bool WasOT=Overtime(); State_->Capture->setOccupants(0,Counts[0],Counts[1]); State_->Capture->update(Dt);
-  if(Prev!=Holder()&&Holder()>=0) Announce(Holder()==0?TEXT("Your team controls the seal +1 / second"):TEXT("Enemy team controls the seal. Contest it to stop scoring."));
+  if(Prev!=Holder()&&Holder()>=0) Announce(Holder()==0?TEXT("Blue team controls the seal +1 / second"):TEXT("Orange team controls the seal +1 / second"));
   if(!WasOT&&Overtime()) Announce(TEXT("SUDDEN DEATH | First score wins. Contest the seal!"));
   if(State_->Capture->isOver()) Finish(State_->Capture->winner());
  } else {
@@ -162,7 +170,7 @@ void ACultMatchDirector::HeroDied(ACultUlhuPlayerPawn* P,AActor* Source) {
  }
  // Eliminations must not replace capture, overtime, rally or defense messages.
  FCultMatchElimination Entry; Entry.Attacker=Killer>=0?State_->Fighters[Killer].Name:TEXT("ENVIRONMENT");
- Entry.Victim=Victim.Name; Entry.AttackerTeam=Killer>=0?State_->Fighters[Killer].Team:-1; Entry.VictimTeam=Victim.Team; Entry.Local=I==0||Killer==0;
+ Entry.Victim=Victim.Name; Entry.AttackerTeam=Killer>=0?State_->Fighters[Killer].Team:-1; Entry.VictimTeam=Victim.Team; Entry.Local=I==0||Killer==0; Entry.AttackerSlot=Killer; Entry.VictimSlot=I;
  if(State_->Eliminations.Num()>=4) State_->Eliminations.RemoveAt(0);
  State_->Eliminations.Add(MoveTemp(Entry));
  UE_LOG(LogTemp,Log,TEXT("[CultMatch] %s eliminated %s"),*State_->Eliminations.Last().Attacker,*Victim.Name);
@@ -189,27 +197,39 @@ void ACultMatchDirector::Interact(ACultUlhuPlayerPawn* P) {
  P->Notify(TEXT("G: recall to your healing temple. Jungle relics channel automatically when eligible and uncontested."));
 }
 void ACultMatchDirector::Ping(ACultUlhuPlayerPawn* P) {
- if(!CanAct(P)) return; auto Hit=P->CameraAim(25000,true); if(!Hit.bBlockingHit) { P->Notify(TEXT("Aim your rally ping at solid ground.")); return; } State_->PingPoint=Hit.ImpactPoint; State_->PingPoint.X=FMath::Clamp(State_->PingPoint.X,Mode()==ECultPlayMode::Dotgoo?-35000.f:-28000.f,Mode()==ECultPlayMode::Dotgoo?35000.f:28000.f); State_->PingPoint.Y=FMath::Clamp(State_->PingPoint.Y,Mode()==ECultPlayMode::Dotgoo?-18000.f:-27000.f,Mode()==ECultPlayMode::Dotgoo?18000.f:27000.f); State_->PingTime=12; Announce(TEXT("Rally ping sent. Nearby allies will support this position."));
+ if(!CanAct(P)) return; const auto Hit=P->CameraAim(25000,true); if(!Hit.bBlockingHit) { P->Notify(TEXT("Aim your rally at solid ground.")); return; }
+ if(!HasAuthority()) { if(auto* PC=Cast<ACultUlhuPlayerController>(P->GetController())) PC->ServerMatchAction(1,Hit.ImpactPoint); return; } PingAt(P,Hit.ImpactPoint);
+}
+void ACultMatchDirector::PingAt(ACultUlhuPlayerPawn* P,FVector Point) {
+ if(!HasAuthority()||!CanAct(P)||Point.ContainsNaN()||FVector::Dist2D(Point,P->FeetLocation())>30000) return;
+ State_->PingPoint=Point; State_->PingPoint.X=FMath::Clamp(Point.X,-35000.,35000.); State_->PingPoint.Y=FMath::Clamp(Point.Y,-27000.,27000.); State_->PingTime=12; State_->PingTeam=P->GetFaction(); Announce(TEXT("Rally ping sent."));
 }
 void ACultMatchDirector::Finish(int T) {
- if(State_->Over) return; State_->Over=true; State_->Winner=T;
+ if(State_->Over) return; State_->LocalMenu=false; State_->Over=true; State_->Winner=T;
  for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) It->Destroy();
  for(auto& F:State_->Fighters) if(F.Pawn.IsValid()) { F.Pawn->GetCharacterMovement()->DisableMovement(); F.Pawn->SetActorTickEnabled(false); }
  for(auto& U:State_->Units) if(U.IsValid()) U->SetActorTickEnabled(false);
- Announce(T<0?TEXT("DRAW"):T==0?TEXT("VICTORY"):TEXT("DEFEAT"));
+ Announce(T<0?TEXT("DRAW"):TEXT("Match complete."));
  if(auto* PC=GetWorld()->GetFirstPlayerController()) { PC->bShowMouseCursor=true; FInputModeGameAndUI Input; Input.SetHideCursorDuringCapture(false); PC->SetInputMode(Input); }
 }
 void ACultMatchDirector::TogglePause() {
- if(!State_||State_->Over) return; State_->Paused=!State_->Paused; UGameplayStatics::SetGamePaused(this,State_->Paused);
- if(auto* PC=GetWorld()->GetFirstPlayerController()) { PC->bShowMouseCursor=State_->Paused; if(State_->Paused) { FInputModeGameAndUI Input; Input.SetHideCursorDuringCapture(false); PC->SetInputMode(Input); } else PC->SetInputMode(FInputModeGameOnly()); }
+ if(!State_||State_->Over) return;
+ State_->LocalMenu=!State_->LocalMenu;
+ if(auto* PC=GetWorld()->GetFirstPlayerController()) { PC->bShowMouseCursor=IsPaused(); if(IsPaused()) { if(auto* P=Cast<ACultUlhuPlayerPawn>(PC->GetPawn())) P->RoutePlayerInput(ECultPlayerInput::Heavy,false); FInputModeGameAndUI Input; Input.SetHideCursorDuringCapture(false); PC->SetInputMode(Input); } else PC->SetInputMode(FInputModeGameOnly()); }
 }
-void ACultMatchDirector::Rematch() { if(State_&&(State_->Over||State_->Paused)) { auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance()); G->bPlayChosen=true; UGameplayStatics::SetGamePaused(this,false); if(auto* PC=GetWorld()->GetFirstPlayerController()) { PC->bShowMouseCursor=false; PC->SetInputMode(FInputModeGameOnly()); } UGameplayStatics::OpenLevel(this,TEXT("/Game/Maps/L_DarkWilds")); } }
+void ACultMatchDirector::Rematch() {
+ if(!State_||!IsOver()) return; if(!HasAuthority()) { if(auto* P=Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(this,0))) P->Notify(TEXT("Only the host can restart the room.")); return; }
+ auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance()); G->bPlayChosen=true; UGameplayStatics::SetGamePaused(this,false);
+ if(GetNetMode()==NM_ListenServer) { GetWorld()->ServerTravel(FString::Printf(TEXT("/Game/Maps/L_DarkWilds?listen?CultProtocol=1?CultMode=%d?CultKey=%s"),int(Mode()),*G->RoomKey),true); return; }
+ UGameplayStatics::OpenLevel(this,TEXT("/Game/Maps/L_DarkWilds"));
+}
 void ACultMatchDirector::ClickResult() {
  if(!IsOver()&&!IsPaused()) return; auto* PC=GetWorld()->GetFirstPlayerController(); FVector2D Pointer; if(!CultHUDSpace::Pointer(PC,Pointer)) return;
+ if(State_->RoomCopyBounds.bIsValid&&State_->RoomCopyBounds.IsInside(Pointer)) { if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->CopyRoomCode(); return; }
  for(int I=0;I<State_->ResultButtons.Num();++I) if(State_->ResultButtons[I].IsInside(Pointer)) {
   if(IsPaused()&&I==0) TogglePause();
-  else if((IsOver()&&I==0)||(IsPaused()&&I==1)) Rematch();
-  else if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) { UGameplayStatics::SetGamePaused(this,false); G->ReturnToMenu(); } return;
+  else if(IsOver()&&I==0) Rematch();
+  else if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->LeaveCompetitiveMatch(); return;
  }
 }
 FString ACultMatchDirector::Hint(const ACultUlhuPlayerPawn* P) const {

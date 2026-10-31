@@ -1,4 +1,5 @@
 #include "CultUlhuGameInstance.h"
+#include "CultRoomService.h"
 #include "CultFreeRoamSave.h"
 #include "UI/CultFreeRoamMenuWidget.h"
 #include "TimerManager.h"
@@ -114,6 +115,7 @@ void UCultUlhuGameInstance::ShowHomeScreen()
 		if (!Map.Contains(TEXT("L_MainMenu")))
 			return; // only auto-show on the menu map
 	}
+ if(Rooms_) Rooms_->StopSearch(); RoomAction=ECultRoomAction::None;
 	if (UCultHomeScreenWidget* Widget =
 		CreateWidget<UCultHomeScreenWidget>(this, UCultHomeScreenWidget::StaticClass()))
 	{
@@ -162,6 +164,7 @@ bool UCultUlhuGameInstance::SetInitialBeliefs(const TArray<int32>& Choices)
 }
 void UCultUlhuGameInstance::OpenBeliefSelect()
 {
+ if(RoomAction==ECultRoomAction::Join) { StartPlay(); return; }
  if(SelectedMode!=ECultPlayMode::FreeRoam) { StartPlay(); return; }
  InitialBeliefs_.Reset();
  if(auto* Widget=CreateWidget<UCultBeliefSelectWidget>(this,UCultBeliefSelectWidget::StaticClass())) ShowWidget(Widget,true);
@@ -169,6 +172,7 @@ void UCultUlhuGameInstance::OpenBeliefSelect()
 void UCultUlhuGameInstance::StartPlay()
 {
  if(!CultCanonicalKit::IsReleased(SelectedCharacterId)) { OpenCharacterSelect(SelectedMode); return; }
+ if(CompleteRoomJoin()) return;
  if(SelectedMode==ECultPlayMode::FreeRoam&&InitialBeliefs_.Num()!=3) { OpenBeliefSelect(); return; }
  if(SelectedMode!=ECultPlayMode::FreeRoam) InitialBeliefs_.Reset();
  cultulhu::CharacterDef Definition; if(!CultCanonicalKit::Load(SelectedCharacterId,Definition)) return;
@@ -182,11 +186,12 @@ void UCultUlhuGameInstance::StartPlay()
 		PC->bShowMouseCursor = false;
 	}
 	// The Dark Wilds map is built by unreal/Tools/BuildDarkWilds.py.
-	UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("/Game/Maps/L_DarkWilds")));
+	UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("/Game/Maps/L_DarkWilds")),true,RoomHosting?FString::Printf(TEXT("listen?CultProtocol=1?CultMode=%d?CultKey=%s"),int(SelectedMode),*RoomKey):FString());
 }
 
 void UCultUlhuGameInstance::ReturnToMenu()
 {
+ HostedRoomLobby=false; RoomHosting=false; RoomPrivate=false; RoomAction=ECultRoomAction::None; RoomCode.Empty(); RoomKey.Empty(); if(Rooms_) Rooms_->StopSearch();
 	bPlayChosen = false; FreeRoamReady=false; FreeRoamMenuOpen=false;
  UGameplayStatics::SetGamePaused(this,false);
  GetWorld()->GetTimerManager().ClearTimer(AutosaveTimer_);
@@ -243,6 +248,7 @@ bool UCultUlhuGameInstance::HostFreeRoam() {
  if(!SaveFreeRoam()) return false;
  FString Error; if(!CultFreeRoamSave::Read(PendingFreeRoam_,Error,FreeRoamSaveSlot)) { SaveStatus=Error; return false; }
  FreeRoamReady=false; FreeRoamMenuOpen=false; ClearMenuWidgets(); UGameplayStatics::SetGamePaused(this,false);
+ RoomHosting=true; RoomPrivate=false; RoomHost=CultRoomCode::LocalAddress(); RoomKey.Empty(); RoomPort=7777; RoomCode.Empty();
  UGameplayStatics::OpenLevel(this,TEXT("/Game/Maps/L_DarkWilds"),true,TEXT("listen")); return true;
 }
 bool UCultUlhuGameInstance::JoinFreeRoam(const FString& Input) {
@@ -253,7 +259,8 @@ bool UCultUlhuGameInstance::JoinFreeRoam(const FString& Input) {
  if(FreeRoamReady&&GetWorld()->GetNetMode()!=NM_Client&&!SaveFreeRoam()) return false;
  if(auto* PC=GetWorld()->GetFirstPlayerController()) {
   SelectedMode=ECultPlayMode::FreeRoam; bPlayChosen=true; FreeRoamMenuOpen=false; FreeRoamReady=false; ClearMenuWidgets(); UGameplayStatics::SetGamePaused(this,false);
-  PC->ClientTravel(Address,TRAVEL_Absolute); return true;
+  RoomHosting=false; RoomPrivate=false; RoomCode.Empty(); RoomKey.Empty();
+  PC->ClientTravel(Address+TEXT("?CultProtocol=1?CultMode=0"),TRAVEL_Absolute); return true;
  }
  SaveStatus=TEXT("No local player is available to join."); return false;
 }
@@ -262,16 +269,19 @@ bool UCultUlhuGameInstance::JoinFreeRoam(const FString& Input) {
 void StartCultCoopProbe(UCultUlhuGameInstance* Game);
 void StartCultPresentationProbe(UCultUlhuGameInstance* Game);
 void StartCultCreepWaveProbe(UCultUlhuGameInstance* Game);
+void StartCultRoomProbe(UCultUlhuGameInstance* Game);
 #endif
-void UCultUlhuGameInstance::Init() { Super::Init();
+void UCultUlhuGameInstance::Init() { Super::Init(); Rooms_=new FCultRoomService(this);
 #if WITH_DEV_AUTOMATION_TESTS
  StartCultCoopProbe(this);
  StartCultPresentationProbe(this);
  StartCultCreepWaveProbe(this);
+ StartCultRoomProbe(this);
 #endif
  if(GEngine) GEngine->OnNetworkFailure().AddUObject(this,&UCultUlhuGameInstance::NetworkFailure); }
-void UCultUlhuGameInstance::Shutdown() { if(GEngine) GEngine->OnNetworkFailure().RemoveAll(this); Super::Shutdown(); }
+void UCultUlhuGameInstance::Shutdown() { delete Rooms_; Rooms_=nullptr; if(GEngine) GEngine->OnNetworkFailure().RemoveAll(this); Super::Shutdown(); }
 void UCultUlhuGameInstance::NetworkFailure(UWorld* World,UNetDriver* Driver,ENetworkFailure::Type Failure,const FString& Reason) {
- if(SelectedMode!=ECultPlayMode::FreeRoam||!bPlayChosen) return;
+ if(!bPlayChosen) return;
+ RoomStatus=TEXT("Connection ended or the room is unavailable. Check the code and your shared Radmin network.");
  SaveStatus=TEXT("Co-op connection ended: ")+Reason+TEXT(". Your local saved world is available with Continue."); ReturnToMenu();
 }

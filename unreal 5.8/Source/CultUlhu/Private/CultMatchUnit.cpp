@@ -1,4 +1,6 @@
 #include "CultMatchUnit.h"
+#include "Net/UnrealNetwork.h"
+#include "CultReplicatedBody.h"
 #include "CultMatchDirector.h"
 #include "CultSkillAttack.h"
 #include "CultUlhuPlayerPawn.h"
@@ -11,13 +13,14 @@
 #include "Materials/MaterialInstanceDynamic.h"
 
 ACultMatchUnit::ACultMatchUnit() {
+ bReplicates=true; bAlwaysRelevant=true; SetReplicateMovement(true); SetNetUpdateFrequency(20.f); CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody"));
  PrimaryActorTick.bCanEverTick=true;
  Capsule=CreateDefaultSubobject<UCapsuleComponent>(TEXT("UnitCollision")); RootComponent=Capsule;
  Capsule->InitCapsuleSize(65,150); Capsule->SetCollisionObjectType(ECC_Pawn);
  Capsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly); Capsule->SetCollisionResponseToAllChannels(ECR_Ignore); Capsule->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
 }
 void ACultMatchUnit::BeginPlay() {
- Super::BeginPlay(); MaxHealth=Health; Previous=GetActorLocation(); Phase=GetUniqueID()*.31f;
+ Super::BeginPlay(); if(HasAuthority()) MaxHealth=Health; Previous=GetActorLocation(); Phase=GetUniqueID()*.31f;
  const float Half=Kind==4?1600:Kind>=3?1250:Kind==2?240:150;
  Capsule->SetCapsuleSize(Kind>=3?450:Kind==2?150:65,Half);
  if(IsStructure()) {
@@ -52,13 +55,13 @@ void ACultMatchUnit::BeginPlay() {
 }
 FString ACultMatchUnit::Title() const { return Kind==5?TEXT("NEXUS WARD"):Kind==4?TEXT("GREAT OLD ONE"):Kind==3?TEXT("WARD TOWER"):Kind==2?TEXT("SIEGE ACOLYTE"):Kind==1?TEXT("HEX ACOLYTE"):TEXT("CULT VANGUARD"); }
 void ACultMatchUnit::Tick(float Dt) {
- Super::Tick(Dt); if(Health<=0) return; if(UpdateTransit(Dt)) return; Control.Tick(Dt); AttackCooldown=FMath::Max(0.f,AttackCooldown-Dt);
+ Super::Tick(Dt); if(!HasAuthority()) { const float Travel=FVector::Dist2D(Previous,GetActorLocation()); Previous=GetActorLocation(); AnimateArtBody(Dt,Travel>1); return; } RemoteTransit_=uint8(Transit); if(Health<=0) return; if(UpdateTransit(Dt)) return; Control.Tick(Dt); AttackCooldown=FMath::Max(0.f,AttackCooldown-Dt);
  if(Life>0) { Life-=Dt; if(Life<=0) { Health=0; Die(); return; } }
  const float Walk=FVector::Dist2D(Previous,GetActorLocation()); Previous=GetActorLocation(); Phase+=Dt*8; AnimateArtBody(Dt,Walk>1);
  if(!IsStructure()&&Parts.Num()>=6) for(int I=2;I<6;++I) Parts[I]->SetRelativeRotation(FRotator(Walk>1?FMath::Sin(Phase+(I%2)*PI)*30:0,0,0));
 }
 void ACultMatchUnit::Hurt(float Amount,AActor* Source) {
- if(Health<=0||Amount<=0||IsInTransit()) return;
+ if(!HasAuthority()||Health<=0||Amount<=0||IsInTransit()) return;
  if(auto* D=ACultMatchDirector::Find(GetWorld())) Health=D->HurtUnit(this,Amount,Source);
  if(Health<=0) Die();
 }
@@ -102,4 +105,8 @@ void ACultMatchUnit::FireAt(AActor* Target) {
  A->Hit=[Weak,Damage](AActor* Other,FVector Point) { if(Weak.IsValid()) ACultSkillAttack::Hurt(Other,Damage,Weak.Get(),Point); };
  if(IsStructure()) { A->WardLocked=true; A->WardTarget=Target; A->Duration=2.f; }
  A->FinishSpawning(T); AttackCooldown=1.f;
+}
+
+void ACultMatchUnit::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+ Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(ACultMatchUnit,Team); DOREPLIFETIME(ACultMatchUnit,Lane); DOREPLIFETIME(ACultMatchUnit,Kind); DOREPLIFETIME(ACultMatchUnit,Index); DOREPLIFETIME(ACultMatchUnit,Health); DOREPLIFETIME(ACultMatchUnit,MaxHealth); DOREPLIFETIME(ACultMatchUnit,RemoteTransit_);
 }

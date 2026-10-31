@@ -23,6 +23,7 @@
 
 void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* P) {
  if(!State_||!C||!P) return;
+ const int Ally=P->GetFaction(),Enemy=1-Ally,LocalSlot=Slot(P);
  const float S=FMath::Clamp(FMath::Min(C->SizeX/1600.f,C->SizeY/900.f),.65f,2.f),W=C->SizeX,H=C->SizeY,M=W*.5f;
  const FLinearColor Blue=CultUI::Teal,Orange=CultUI::Danger,White=CultUI::Bone,Gold=CultUI::Gold,Ink=CultUI::Panel,Muted=CultUI::Muted;
  auto Text=[&](const FString& T,float X,float Y,float Size,FLinearColor Col) { CultCanvasLabel(C,T,Col,X,Y,Size*S); };
@@ -45,11 +46,11 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
  // Reserve the actual ability/RMB/notice bounds, including on small displays.
  const float Map=FMath::Clamp(HUD->CombatContentTop()-88*S-48*S,80*S,205*S),MX=W-Map-24*S,MY=88*S;
  Panel(M-205*S,12*S,410*S,64*S);
- float Left=State_->Capture?Score(0):CoreHealth(0),Right=State_->Capture?Score(1):CoreHealth(1);
+ float Left=State_->Capture?Score(Ally):CoreHealth(Ally),Right=State_->Capture?Score(Enemy):CoreHealth(Enemy);
  Text(FString::Printf(TEXT("%.0f"),Left),M-175*S,18*S,27,Blue); Text(FString::Printf(TEXT("%.0f"),Right),M+110*S,18*S,27,Orange);
  float Limit=State_->Capture?600:1200; int Remaining=FMath::CeilToInt(FMath::Max(0.f,Limit-Elapsed()));
  Text(Overtime()?TEXT("OVERTIME"):FString::Printf(TEXT("%02d:%02d"),Remaining/60,Remaining%60),M-42*S,17*S,20,White);
- FString Status=State_->Capture?Contested()?TEXT("CONTESTED - SCORING PAUSED"):Holder()==0?TEXT("YOUR SEAL  +1 / SECOND"):Holder()==1?TEXT("ENEMY SEAL  +1 / SECOND"):TEXT("CAPTURE THE CENTRAL SEAL"):FString::Printf(TEXT("TOWERS  %d : %d  |  WAVE IN %.0fs"),TowersAlive(0),TowersAlive(1),FMath::CeilToFloat(State_->NextWave));
+ FString Status=State_->Capture?Contested()?TEXT("CONTESTED - SCORING PAUSED"):Holder()==Ally?TEXT("YOUR SEAL  +1 / SECOND"):Holder()==Enemy?TEXT("ENEMY SEAL  +1 / SECOND"):TEXT("CAPTURE THE CENTRAL SEAL"):FString::Printf(TEXT("TOWERS  %d : %d  |  WAVE IN %.0fs"),TowersAlive(Ally),TowersAlive(Enemy),FMath::CeilToFloat(State_->NextWave));
  Text(Status,M-174*S,51*S,12,Contested()?Gold:Muted);
  const float CopyWidth=FMath::Min(740*S,MX-58*S),CopyX=34*S,Pad=8*S;
  const FString Help=Wrap(Hint(P),CopyWidth,12);
@@ -99,7 +100,7 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
    const auto A=Point(FCultMobaRoute::Knot(Lane,I)),B=Point(FCultMobaRoute::Knot(Lane,I+1));
    HUD->DrawLine(A.X,A.Y,B.X,B.Y,FLinearColor(.19f,.29f,.32f),3*S);
   }
- } else { auto A=Point(Objective()); const auto E=CaptureHalfExtent(); const float RX=E.X/64000.f*Map,RY=E.Y/60000.f*Map; HUD->DrawRect(Holder()==0?Blue:Holder()==1?Orange:Gold,A.X-RX,A.Y-RY,RX*2,RY*2); }
+ } else { auto A=Point(Objective()); const auto E=CaptureHalfExtent(); const float RX=E.X/64000.f*Map,RY=E.Y/60000.f*Map; HUD->DrawRect(Holder()==Ally?Blue:Holder()==Enemy?Orange:Gold,A.X-RX,A.Y-RY,RX*2,RY*2); }
  if(!State_->Moba) {
   // Dashed underground line and portal brackets distinguish this from the seal.
   const FLinearColor Tunnel(.25f,.65f,.68f);
@@ -107,8 +108,8 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
   for(int Side:{-1,1}) for(int X=-14000;X<14000;X+=2200) { const auto A=Point(FVector(X,Side*12500,0)),B=Point(FVector(X+1000,Side*12500,0)); HUD->DrawLine(A.X,A.Y,B.X,B.Y,Tunnel,1.2f*S); }
   for(int Side:{-1,1}) { const auto A=Point(FVector(-3500,Side*24000,0)),B=Point(FVector(3500,Side*24000,0)); HUD->DrawLine(A.X,A.Y,B.X,B.Y,Tunnel,2*S); }
  }
- for(auto& U:State_->Units) if(U.IsValid()&&U->Health>0) { auto A=Point(U->GetActorLocation()); const float Size=U->IsStructure()?6*S:2*S; HUD->DrawRect(U->Team==0?Blue:Orange,A.X-Size*.5f,A.Y-Size*.5f,Size,Size); }
- for(const auto& F:State_->Fighters) if(F.Pawn.IsValid()&&F.Respawn<=0) { auto A=Point(F.Pawn->FeetLocation()); const float Size=F.Pawn.Get()==P?8*S:5*S; HUD->DrawRect(F.Pawn.Get()==P?White:F.Team==0?Blue:Orange,A.X-Size*.5f,A.Y-Size*.5f,Size,Size); }
+ for(auto& U:State_->Units) if(U.IsValid()&&U->Health>0) { auto A=Point(U->GetActorLocation()); const float Size=U->IsStructure()?6*S:2*S; HUD->DrawRect(U->Team==Ally?Blue:Orange,A.X-Size*.5f,A.Y-Size*.5f,Size,Size); }
+ for(const auto& F:State_->Fighters) if(F.Pawn.IsValid()&&F.Respawn<=0) { auto A=Point(F.Pawn->FeetLocation()); const float Size=F.Pawn.Get()==P?8*S:5*S; HUD->DrawRect(F.Pawn.Get()==P?White:F.Team==Ally?Blue:Orange,A.X-Size*.5f,A.Y-Size*.5f,Size,Size); }
  if(State_->Moba) for(const auto& R:State_->Relics) if(R.Claim<0&&State_->Time>=R.Spawn) { auto A=Point(R.Point); HUD->DrawRect(Gold,A.X-3*S,A.Y-3*S,6*S,6*S); }
  if(State_->Moba) for(TActorIterator<ACultJungleCamp> It(GetWorld());It;++It) {
   const auto A=Point(It->GetActorLocation()); const bool Alive=It->Monster()&&!It->Monster()->IsDead();
@@ -127,9 +128,9 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
    const auto& E=State_->Eliminations[State_->Eliminations.Num()-1-I]; const float Y=Compact?MY+Map+5*S:FeedY+I*FeedRow;
    const float Width=Map+16*S,Points=Compact?10:12,Inset=6*S;
    const float NameWidth=(Width-2*Inset-Measure->Measure(TEXT(" > "),CultUI::Font(Points*S)).X)*.5f;
-   const FString A=Fit(E.Attacker.Contains(TEXT("(YOU)"))?TEXT("YOU"):E.Attacker,NameWidth,Points);
-   const FString V=Fit(E.Victim.Contains(TEXT("(YOU)"))?TEXT("YOU"):E.Victim,NameWidth,Points);
-   auto Color=E.Local?Gold:White; Color.A=FMath::Clamp(E.Remaining,0.f,1.f);
+   const FString A=Fit(E.AttackerSlot==LocalSlot?TEXT("YOU"):E.Attacker.Replace(TEXT(" (YOU)"),TEXT("")),NameWidth,Points);
+   const FString V=Fit(E.VictimSlot==LocalSlot?TEXT("YOU"):E.Victim.Replace(TEXT(" (YOU)"),TEXT("")),NameWidth,Points);
+   auto Color=(E.AttackerSlot==LocalSlot||E.VictimSlot==LocalSlot)?Gold:White; Color.A=FMath::Clamp(E.Remaining,0.f,1.f);
    Panel(MX-8*S,Y,Width,FeedRow-2*S); HUD->DrawRect(E.AttackerTeam<0?Muted:E.AttackerTeam==P->GetFaction()?Blue:Orange,MX-8*S,Y,2*S,FeedRow-2*S);
    Text(A+TEXT(" > ")+V,MX-8*S+Inset,Y+4*S,Points,Color);
    HUD->DrawRect(E.VictimTeam==P->GetFaction()?Blue:Orange,MX+Map+6*S,Y,2*S,FeedRow-2*S);
@@ -137,9 +138,9 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
  }
  FBox2D GoalBounds(ForceInit);
  if(auto* PC=HUD->GetOwningPlayerController()) {
-  FVector2D Screen; FVector Goal=State_->PingTime>0?State_->PingPoint:State_->Capture?Objective():Base(1);
+  FVector2D Screen; FVector Goal=State_->PingTime>0?State_->PingPoint:State_->Capture?Objective():Base(Enemy);
   if(CultHUDProjection::Project(C,Goal+FVector(0,0,500),Screen)&&Screen.Y>210*S&&Screen.Y< H-240*S) {
-   const FString Label=State_->PingTime>0?TEXT("RALLY"):State_->Capture?TEXT("CONTROL SEAL"):CoreOpen(1)?TEXT("ENEMY GOD - EXPOSED"):LaneWardsCleared(1)?TEXT("DESTROY NEXUS WARD"):TEXT("PUSH ALL THREE LANES");
+   const FString Label=State_->PingTime>0?TEXT("RALLY"):State_->Capture?TEXT("CONTROL SEAL"):CoreOpen(Enemy)?TEXT("ENEMY GOD - EXPOSED"):LaneWardsCleared(Enemy)?TEXT("DESTROY NEXUS WARD"):TEXT("PUSH ALL THREE LANES");
    const auto Size=Measure->Measure(Label,CultUI::Font(13*S)); const float LabelX=FMath::Clamp(float(Screen.X)-float(Size.X)*.5f,24*S,MX-24*S-float(Size.X));
    float LabelY=Screen.Y;
    if(ObjectiveAlert.bIsValid&&FBox2D(FVector2D(LabelX-6*S,LabelY-4*S),FVector2D(LabelX+Size.X+6*S,LabelY+Size.Y+4*S)).Intersect(ObjectiveAlert.ExpandBy(4*S))) LabelY=ObjectiveAlert.Max.Y+8*S;
@@ -155,24 +156,33 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
   const float PW=760*S,PH=440*S,X=M-PW*.5f,Y=H*.5f-PH*.5f;
   if(IsOver()||IsPaused()) HUD->DrawRect(FLinearColor(.008f,.015f,.025f,.8f),0,0,W,H);
   Panel(X,Y,PW,PH);
-  Text(IsPaused()?TEXT("PAUSED"):IsOver()?Winner()<0?TEXT("DRAW"):Winner()==0?TEXT("VICTORY"):TEXT("DEFEAT"):TEXT("MATCH SCOREBOARD"),X+24*S,Y+18*S,30,IsOver()&&Winner()!=0?Orange:Gold);
+  Text(IsPaused()?TEXT("MATCH MENU"):IsOver()?Winner()<0?TEXT("DRAW"):Winner()==Ally?TEXT("VICTORY"):TEXT("DEFEAT"):TEXT("MATCH SCOREBOARD"),X+24*S,Y+18*S,30,IsOver()&&Winner()!=Ally?Orange:Gold);
+  if(IsPaused()) Text(TEXT("Battle continues. Quit to hand control to a bot."),X+330*S,Y+30*S,12,Muted);
   Text(TEXT("ENTITY"),X+24*S,Y+68*S,14,Muted); Text(TEXT("K / D / A"),X+440*S,Y+68*S,14,Muted); Text(TEXT("LEVEL"),X+600*S,Y+68*S,14,Muted);
   for(int I=0;I<State_->Fighters.Num();++I) {
    const auto& F=State_->Fighters[I]; const float Row=Y+(99+I*25)*S;
-   Text(F.Name.Left(32),X+24*S,Row,13,F.Team==0?Blue:Orange);
+   Text((F.Pawn.Get()==P?TEXT("YOU / "):TEXT(""))+F.Name.Replace(TEXT(" (YOU)"),TEXT("")).Left(32),X+24*S,Row,13,F.Team==Ally?Blue:Orange);
    Text(FString::Printf(TEXT("%d / %d / %d"),F.Kills,F.Deaths,F.Assists),X+440*S,Row,13,White);
    Text(FString::Printf(TEXT("%d%s"),F.Level,F.Respawn>0?TEXT("  REFORMING"):TEXT("")),X+600*S,Row,13,Muted);
   }
+  State_->RoomCopyBounds=FBox2D(ForceInit);
+  if(IsOver()||IsPaused()) if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) {
+   if(!G->RoomCode.IsEmpty()) {
+    Text(Fit(TEXT("ROOM ")+G->RoomCode,560*S,12),X+24*S,Y+346*S,12,Muted);
+    State_->RoomCopyBounds=FBox2D(FVector2D(X+620*S,Y+342*S),FVector2D(X+736*S,Y+366*S));
+    HUD->DrawRect(CultUI::Line,X+620*S,Y+342*S,116*S,24*S); Text(TEXT("COPY CODE"),X+628*S,Y+346*S,12,Gold);
+   } else Text(TEXT("The match continues while this menu is open."),X+24*S,Y+346*S,12,Muted);
+  }
   if(IsOver()||IsPaused()) {
-   State_->ResultButtons.Reset(); const int Count=IsPaused()?3:2; const float BW=IsPaused()?230:330,Stride=IsPaused()?240:355;
+   State_->ResultButtons.Reset(); const int Count=2; const float BW=330,Stride=355;
    for(int I=0;I<Count;++I) {
     FVector2D Min(X+(24+I*Stride)*S,Y+373*S),Max=Min+FVector2D(BW*S,45*S); State_->ResultButtons.Add(FBox2D(Min,Max));
     FVector2D Mouse; const bool Hover=CultHUDSpace::Pointer(HUD->GetOwningPlayerController(),Mouse)&&FBox2D(Min,Max).IsInside(Mouse);
     HUD->DrawRect(Hover?FLinearColor(.05f,.14f,.12f):Ink,Min.X,Min.Y,Max.X-Min.X,Max.Y-Min.Y);
     HUD->DrawRect(Hover?Gold:I==0?Blue:CultUI::Line,Min.X,Min.Y,Max.X-Min.X,1*S);
-    FString Label=IsPaused()?(I==0?TEXT("RESUME [ESC]"):I==1?TEXT("RESTART [ENTER]"):TEXT("MODE SELECT")):(I==0?TEXT("REMATCH [ENTER]"):TEXT("MODE SELECT [ESC]"));
+    FString Label=IsPaused()?(I==0?TEXT("RESUME [ESC]"):TEXT("QUIT MATCH")):(I==0?(HasAuthority()?TEXT("REMATCH [ENTER]"):TEXT("HOST STARTS REMATCH")):TEXT("QUIT MATCH [ESC]"));
     Text(Label,Min.X+18*S,Min.Y+14*S,15,White);
    }
-  } else Text(TEXT("TAB close | G recall | ALT + click rally | ESC pause"),X+24*S,Y+394*S,13,Muted);
+  } else Text(TEXT("TAB close | G recall | ALT + click rally | ESC menu"),X+24*S,Y+394*S,13,Muted);
  }
 }

@@ -7,7 +7,7 @@ class ACultUlhuPlayerPawn;
 class ACultMatchUnit;
 struct FCultMatchElimination {
  FString Attacker,Victim;
- int AttackerTeam=-1,VictimTeam=-1;
+ int AttackerTeam=-1,VictimTeam=-1,AttackerSlot=-1,VictimSlot=-1;
  float Remaining=6.f;
  bool Local=false;
 };
@@ -27,6 +27,9 @@ class CULTULHU_API ACultMatchDirector:public AActor {
 public:
  ACultMatchDirector();
  virtual void BeginPlay() override;
+ bool AddHumanPlayer(class APlayerController* PC,const FString& Character);
+ void RemoveHumanPlayer(class AController* PC);
+ void RefreshRemoteMatch();
  virtual void Tick(float Dt) override;
  virtual void EndPlay(const EEndPlayReason::Type Reason) override;
  static bool IsMatch(UWorld* World);
@@ -69,6 +72,7 @@ public:
  void StartRecall(ACultUlhuPlayerPawn* P);
  void Interact(ACultUlhuPlayerPawn* P);
  void Ping(ACultUlhuPlayerPawn* P);
+ void PingAt(ACultUlhuPlayerPawn* P,FVector Point);
  void Rematch();
  void ClickResult();
  float HurtUnit(ACultMatchUnit* Unit,float Damage,AActor* Source);
@@ -81,6 +85,7 @@ public:
  void Draw(class ACultPlayHUD* HUD,class UCanvas* Canvas,ACultUlhuPlayerPawn* Player);
 private:
  friend struct FCultHUDCoordinateTestAccess;
+ friend struct FCultMatchNetAccess;
  friend struct FCultMatchTestAccess;
  friend struct FCultTacticsTestAccess;
  friend struct FCultMobaMechanicsTestAccess;

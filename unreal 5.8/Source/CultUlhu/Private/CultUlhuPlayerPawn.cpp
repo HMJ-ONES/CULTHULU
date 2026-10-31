@@ -1,5 +1,5 @@
-#include "CultReplicatedBody.h"
 #include "CultUlhuPlayerPawn.h"
+#include "CultReplicatedBody.h"
 #include "ProfilingDebugging/CsvProfiler.h"
 CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 // CULT-ULHU player pawn implementation.
@@ -248,16 +248,18 @@ void ACultUlhuPlayerPawn::SetupPlayerInputComponent(UInputComponent* IC)
 	IC->BindAxisKey(EKeys::MouseY, this, &ACultUlhuPlayerPawn::LookPitch);
 }
 void ACultUlhuPlayerPawn::RoutePlayerInput(ECultPlayerInput Action,bool Down) {
- if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->FreeRoamMenuOpen) return;
+ if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->FreeRoamMenuOpen&&IsLocallyControlled()) return;
  const int32 Index=static_cast<int32>(Action);
  if(Index<0||Index>=static_cast<int32>(ECultPlayerInput::Count)||InputHeld_[Index]==Down) return;
+ if(Action==ECultPlayerInput::Primary&&IsLocallyControlled()) if(auto* M=ACultMatchDirector::Find(GetWorld())) if(M->IsOver()||M->IsPaused()) { InputHeld_[Index]=Down; if(Down) M->ClickResult(); return; }
+ if(Down&&Action!=ECultPlayerInput::Primary&&IsLocallyControlled()) if(auto* M=ACultMatchDirector::Find(GetWorld())) if(M->IsPaused()) return;
  // Cursor interaction belongs to the local HUD, including a co-op guest.
  if(Action==ECultPlayerInput::Primary) if(auto* PC=Cast<APlayerController>(GetController())) if(PC->IsLocalController()) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->FaithVisible()||HUD->RegionMapVisible()||PC->IsInputKeyDown(EKeys::LeftAlt)) {
   InputHeld_[Index]=Down; if(Down) HUD->CommandClick(); else HUD->CommandRelease(); return;
  }
- if(!HasAuthority()&&Action>=ECultPlayerInput::Primary&&Action<=ECultPlayerInput::Interact) {
+ if(!HasAuthority()&&(Action==ECultPlayerInput::Jump||(Action>=ECultPlayerInput::Primary&&Action<=ECultPlayerInput::Interact))) {
   const auto Aim=CameraAim(); FVector O=Camera_->GetComponentLocation(),D=(Aim.ImpactPoint-O).GetSafeNormal();
-  InputHeld_[Index]=Down; ServerCombatInput(uint8(Action),Down,O,D); return;
+  InputHeld_[Index]=Down; if(Action==ECultPlayerInput::Jump) { if(Down) TryJump(); else StopJumping(); } ServerCombatInput(uint8(Action),Down,O,D); return;
  }
  InputHeld_[Index]=Down;
  if(!Down) {
@@ -307,7 +309,7 @@ void ACultUlhuPlayerPawn::ToggleCamera()
 void ACultUlhuPlayerPawn::ReturnToMenu()
 {
  if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->RegionMapVisible()) { HUD->ToggleRegionMap(); return; }
- if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->IsOver()) { M->TogglePause(); return; }
+ if(auto* M=ACultMatchDirector::Find(GetWorld())) { if(!M->IsOver()) M->TogglePause(); else if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->LeaveCompetitiveMatch(); return; }
 	if (UCultUlhuGameInstance* GI = Cast<UCultUlhuGameInstance>(GetGameInstance()))
 		{ if(GI->SelectedMode==ECultPlayMode::FreeRoam) GI->ToggleFreeRoamMenu(); else GI->ReturnToMenu(); }
 }
@@ -315,7 +317,7 @@ void ACultUlhuPlayerPawn::ReturnToMenu()
 void ACultUlhuPlayerPawn::Smash()
 {
  if(auto* M=ACultMatchDirector::Find(GetWorld())) {
-  if(M->IsOver()||M->IsPaused()) { M->ClickResult(); return; }
+  if(M->IsOver()||(M->IsPaused()&&IsLocallyControlled())) { M->ClickResult(); return; }
   if(!M->CanAct(this)) return;
   if(auto* PC=Cast<APlayerController>(GetController())) if(PC->IsInputKeyDown(EKeys::LeftAlt)) { if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) { if(HUD->FaithVisible()) HUD->CommandClick(); else M->Ping(this); } return; }
   M->OnAction(this);
@@ -470,7 +472,7 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
  if(Control_.Stop) GetCharacterMovement()->StopMovementImmediately();
  if(Control_.Stun||Control_.Fear) for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this&&It->Shape==ACultSkillAttack::EShape::Sweep) It->Destroy();
 
-	if(Kit_) { Kit_->Tick(DeltaSeconds); Health_=Kit_->Hp(); }
+	if(Kit_) { if(HasAuthority()) Kit_->Tick(DeltaSeconds); else Kit_->AdvanceCooldowns(DeltaSeconds); Health_=Kit_->Hp(); }
  UpdateRecovery(DeltaSeconds);
  if(HasAuthority()&&!IsBot()&&!IsLocallyControlled()&&GetNetMode()!=NM_Standalone) {
   SetSprinting(Kit_?Kit_->Sprint(NetworkSprinting_,DeltaSeconds):false);
@@ -512,7 +514,7 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
 
 void ACultUlhuPlayerPawn::PollMoveKeys(float DeltaSeconds)
 {
- if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->FreeRoamMenuOpen) return;
+ if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->FreeRoamMenuOpen&&IsLocallyControlled()) return;
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (!PC || !PC->IsLocalController()) return;
 	const bool Shift=EnhancedSprint_||PC->IsInputKeyDown(EKeys::LeftShift)||PC->IsInputKeyDown(EKeys::RightShift);

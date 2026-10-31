@@ -1,5 +1,5 @@
-#include "CultReplicatedBody.h"
 #include "CultDestructible.h"
+#include "CultReplicatedBody.h"
 // CULT-ULHU destructible building implementation.
 #include "CultActorLabels.h"
 

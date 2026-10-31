@@ -169,7 +169,7 @@ public:
    Test->TestFalse(TEXT("The rendered Close button closes beliefs"),H->FaithVisible()); ++Shape; Phase=10; return false;
   }
   if(Phase==30) {
-   if(Now-At<.15) return false; CoordinateKey(PC,EKeys::Escape,IE_Released); Test->TestTrue(TEXT("Real ESC input pauses the match"),M&&M->IsPaused()); Phase=31;
+   if(Now-At<.15) return false; CoordinateKey(PC,EKeys::Escape,IE_Released); Test->TestTrue(TEXT("Real ESC input opens the local match menu"),M&&M->IsPaused()&&!UGameplayStatics::IsGamePaused(W)); Phase=31;
   }
   if(Phase==31) {
    if(!Click(PC,FCultHUDCoordinateTestAccess::Resume(M),false)) return false;

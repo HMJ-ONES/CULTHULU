@@ -11,12 +11,19 @@ class CULTULHU_API ACultMatchUnit:public AActor {
 public:
  ACultMatchUnit();
  virtual void BeginPlay() override;
+ virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
  virtual void Tick(float Dt) override;
  // 0 melee, 1 ranged, 2 siege, 3 lane tower, 4 Great Old One, 5 nexus ward.
- int Team=0,Lane=1,Kind=0,Index=-1,Waypoint=0;
- float Health=120,MaxHealth=120,Dps=8,Range=800,Speed=600,AttackCooldown=0,Life=0;
+ UPROPERTY(Replicated) int Team=0;
+ UPROPERTY(Replicated) int Lane=1;
+ UPROPERTY(Replicated) int Kind=0;
+ UPROPERTY(Replicated) int Index=-1;
+ int Waypoint=0;
+ UPROPERTY(Replicated) float Health=120;
+ UPROPERTY(Replicated) float MaxHealth=120;
+ float Dps=8,Range=800,Speed=600,AttackCooldown=0,Life=0;
  TWeakObjectPtr<AActor> AttackTarget;
- bool IsInTransit() const { return Transit!=ETransit::None; }
+ bool IsInTransit() const { return HasAuthority()?Transit!=ETransit::None:RemoteTransit_!=0; }
  bool IsHeldBy(const ACultUlhuPlayerPawn* Actor) const;
  bool TryLift(class ACultUlhuPlayerPawn* Caster);
  void StartFlight(class ACultSkillAttack* Projectile);
@@ -42,6 +49,7 @@ private:
  UPROPERTY() TArray<class UStaticMeshComponent*> Parts;
  enum class ETransit { None,Held,Thrown };
  ETransit Transit=ETransit::None;
+ UPROPERTY(Replicated) uint8 RemoteTransit_=0;
  TWeakObjectPtr<class ACultUlhuPlayerPawn> Holder;
  TWeakObjectPtr<class ACultSkillAttack> Flight;
  FVector Pickup=FVector::ZeroVector;

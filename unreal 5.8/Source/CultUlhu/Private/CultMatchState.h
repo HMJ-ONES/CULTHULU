@@ -50,10 +50,12 @@ struct ACultMatchDirector::FState {
  TArray<FCultMatchFighter> Fighters;
  TArray<TWeakObjectPtr<ACultMatchUnit>> Units;
  bool NexusDestroyed[2]={false,false};
+ float RemoteScores[2]={},RemoteCore[2]={}; int32 RemoteTowers[2]={},RemoteHolder=-1; bool RemoteContested=false,RemoteOvertime=false,LocalMenu=false,RemoteReady=false;
+ FBox2D RoomCopyBounds;
  bool Over=false,Paused=false; int Winner=-1,Wave=0; float Time=0,Warmup=5,NextWave=0,NoticeTime=0,BrainTime=0;
  FString Notice;
  TArray<FCultMatchElimination> Eliminations;
- FVector PingPoint=FVector::ZeroVector; float PingTime=0;
+ int32 PingTeam=0; FVector PingPoint=FVector::ZeroVector; float PingTime=0;
  struct FRelic { FVector Point; FString Name; int Tier=1; float Amp=.12f,Spawn=0,Channel=0,Need=0; int Claim=-1,ChannelSlot=-1; TWeakObjectPtr<AActor> Visual; };
  TArray<FRelic> Relics;
  TArray<FBox2D> ResultButtons;
