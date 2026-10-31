@@ -1,9 +1,9 @@
 {
-  "checked_utc": "2026-10-31T17:37:46.486876+00:00",
+  "checked_utc": "2026-10-31T17:42:54.040870+00:00",
   "baseline_commit": "57b76ec41d2e849ab36190e197c6fcfe3382ccb0",
   "canonical_target": "CultUlhuEditor Win64 Development",
   "build": "Succeeded",
-  "build_log_sha256": "87295662a1b183b1d31116346716666dea065783189e6f1e6d0fb2fbe521de9d",
+  "build_log_sha256": "c03c21c4b663f478cf43d1170504e3fd980fd5f2135419363d68ef3e838fc239",
   "results": [
     {
       "test": "CultUlhu.FreeRoam.Persistence",
@@ -34,6 +34,13 @@
       "result": "Success",
       "log": "RegionMapFinal.log",
       "log_sha256": "cf839f90eca2ccea85a49165d04baa4a9fcdef6fe5218cedfa9b16fdd89550f9"
+    },
+    {
+      "test": "CultUlhu.FreeRoam.RegionExpeditions",
+      "result": "Success",
+      "log": "RegionAmbushFinal.log",
+      "log_sha256": "f6c23a541264d1e513865f219ede87da43e60db6bb7bac9502b4f7060f13e211",
+      "case": "Isolated real monster ambush outside the distant destination region"
     }
   ],
   "unique_passed_tests": 4,
@@ -44,7 +51,8 @@
     "Separate groups retain Explore and Hunt assignments concurrently",
     "A hunter kills a real nearby monster using the existing attack loop",
     "Raid targets a living enemy city; outside-world orders reject; global retreat recalls",
-    "Full save/load preserves Explore activity and distant command point"
+    "Full save/load preserves Explore activity and distant command point",
+    "A marching hunter defeats an actual nearby ambush outside the destination region"
   ],
   "rendered_map_reviewed": "Saved/Screenshots/RegionExpeditions.png",
   "limitations": [
@@ -59,7 +67,7 @@
     "unreal 5.8/Source/CultUlhu/Private/CultFreeRoamPersistenceTest.cpp": "270f4934e475616d9dc7960b06e2b0a57fc656586e5be6e4b99839f0658b5d66",
     "unreal 5.8/Source/CultUlhu/Private/CultPlayHUD.cpp": "f9d2b816014b9083d5c47d551c90efde2d84a1abe866ea572503da27b12af143",
     "unreal 5.8/Source/CultUlhu/Private/CultPlayerCommands.cpp": "c39a40363bca54038c9e8b4bb053e806c3d3e98326b0bbce1c5b8037ce477b9d",
-    "unreal 5.8/Source/CultUlhu/Private/CultPopulation.cpp": "f8ff0f311ccea910d07439591f6a186a7affd559068c2ea647e3df7081a00194",
+    "unreal 5.8/Source/CultUlhu/Private/CultPopulation.cpp": "c0bd5427d40c4adb9a741b8690e567cd37e4328aeed51818c0a14bf2e2fc6af3",
     "unreal 5.8/Source/CultUlhu/Private/CultPopulationAppearance.cpp": "5ad2c914dda89167b6b20f71598767c0f3a7a8017c7c9efacf74964c11ff800b",
     "unreal 5.8/Source/CultUlhu/Private/CultUlhuPlayerPawn.cpp": "21129d9cfec6ecb7bea859c81fa950c550259c2a10dd42a81bd3597ab9b78afe",
     "unreal 5.8/Source/CultUlhu/Private/CultWorldDirector.cpp": "f76b93dac751c986acc476103f36207549a79f1e685c6fe4c3f21b6fe2189b1d",
@@ -72,6 +80,6 @@
     "unreal 5.8/Source/CultUlhu/Private/CultRegionOrders.cpp": "318a812b4894a582ad27091b5f17d391ed1960fd0a73cc1620a2464136bf015c",
     "unreal 5.8/Source/CultUlhu/Private/CultRegionNavigation.h": "c7cbf429162aaef4a66ab3c87242a6173f3a2abdede0da997d3da588bba9bf1b",
     "unreal 5.8/Source/CultUlhu/Private/CultRegionNavigation.cpp": "9216b8daed6464a1d477672ab12b2906f5b3648afc2e1a212818657686a3bef9",
-    "unreal 5.8/Source/CultUlhu/Private/CultRegionMapTest.cpp": "9b057a52255170745212501bff4ccc0d25c2f3e82f05ea13c0f2a9d8a27a5419"
+    "unreal 5.8/Source/CultUlhu/Private/CultRegionMapTest.cpp": "c46f919c5bf01c301410866ad1bf6def44add9160e8457447c971bb341ebee7b"
   }
 }

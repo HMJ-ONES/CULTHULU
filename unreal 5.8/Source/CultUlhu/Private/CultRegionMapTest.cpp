@@ -82,16 +82,17 @@ public:
    for(TActorIterator<ACultDestructible> It(W);It;++It) if(It->ActorHasTag(TEXT("LivingCity"))&&!It->IsDestroyed()&&It->GetFaction()!=0) { const FString Result=D->Execute(ACultWorldDirector::RaidRegion,nullptr,It->GetActorLocation()); if(Result.Contains(TEXT("dispatched"))) { TestedRaid=Units[2]->GetActivity()==TEXT("Raid"); break; } }
    Test->TestTrue(TEXT("Regional raiding dispatches to an actual living city"),TestedRaid);
    Test->TestTrue(TEXT("Outside-world orders are rejected"),D->Execute(ACultWorldDirector::ExploreRegion,nullptr,FVector(1e9,0,0)).Contains(TEXT("inside")));
+   FVector Refuge; if(ACultLivingLandscape::Surface(W,Units[2]->GetActorLocation()+FVector(6000,6000,0),Refuge)) Units[2]->SetActorLocation(Refuge+FVector(0,0,110));
    FActorSpawnParameters Spawn; Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
    Quarry=W->SpawnActor<ACultFeralBeast>(Units[2]->GetActorLocation()+FVector(180,0,0),FRotator::ZeroRotator,Spawn);
    Quarry->SetMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"))); Quarry->SetBredHealth(10); Quarry->SetActorTickEnabled(false);
-   D->Execute(ACultWorldDirector::HuntRegion,nullptr,Units[2]->GetActorLocation());
+   D->Execute(ACultWorldDirector::HuntRegion,nullptr,Destination);
    Test->TestEqual(TEXT("A hunt is a real persistent combat order"),Units[2]->GetActivity(),FString(TEXT("Hunt")));
    At=Now; Phase=6; return false;
   }
   if(Phase==6) {
    if(Quarry.IsValid()&&!Quarry->IsDead()&&Now-At<8) return false;
-   Test->TestTrue(TEXT("A regional hunter physically kills a nearby monster"),!Quarry.IsValid()||Quarry->IsDead());
+   Test->TestTrue(TEXT("A marching hunter physically defeats an ambush outside its destination region"),!Quarry.IsValid()||Quarry->IsDead());
    if(Quarry.IsValid()) Quarry->Destroy();
    D->Execute(ACultWorldDirector::GlobalRetreat,nullptr,P->FeetLocation()); for(auto& Unit:Units) Test->TestFalse(TEXT("Global retreat releases expedition battle assignments"),Unit->HasPlayerBattle());
    for(auto& Unit:Units) if(Unit.IsValid()) Unit->Destroy(); D->SelectFollowers({}); return true;
