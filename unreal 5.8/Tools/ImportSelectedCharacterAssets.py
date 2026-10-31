@@ -117,6 +117,11 @@ for entity,entry in entries.items():
             if len(found)==1: binding['animation_roles'][role]=found[0].get_path_name()
         if row.get('source_clips'): assert clips,'Source clips were lost during import'
         if entry.get('reference_bounds_sha256')==digest and entry.get('reference_bounds_profile','default')==profile and entry.get('reference_bounds_rotation',[0,0,0])==entry.get('rotation',[0,0,0]) and entry.get('reference_bounds'): binding['reference_bounds']=entry['reference_bounds']
+        if entry.get('gameplay_animation_sets'):
+            sets=entry['gameplay_animation_sets']
+            assert all(assets.does_asset_exist(path) for rig in sets for path in rig['roles'].values()),'Restore generated gameplay motions before reimport'
+            binding['animation_sets']=sets
+            if entity=='mi_go': binding['animation_roles']=sets[0]['roles']
         if 'render_lod' in entry: binding['render_lod']=entry['render_lod']
         row['status']='IMPORTED_ANIMATED' if clips else 'IMPORTED_RIGGED' if skeletal else 'IMPORTED_STATIC'
         binding['status']=row['status']; binding['source_url']=entry['source_url']; binding['author']=entry.get('author',''); binding['license']=entry.get('license','')

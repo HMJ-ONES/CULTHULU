@@ -4,6 +4,8 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 // CULT-ULHU player pawn implementation.
 #include "CultCanonicalKit.h"
 #include "CultMatchDirector.h"
+#include "CultMatchUnit.h"
+#include "Camera/PlayerCameraManager.h"
 #include "CultCombatAudio.h"
 #include "CultCombatCredit.h"
 #include "CultVesselSurface.h"
@@ -92,7 +94,8 @@ void ACultUlhuPlayerPawn::BeginPlay()
 	GetCharacterMovement()->JumpZVelocity = FMath::Sqrt(2.f * FMath::Abs(GetCharacterMovement()->GetGravityZ()) * HeightM * 100.f * 0.4f);
 	HomeLocation_ = LastSafeLocation_ = GetActorLocation();
 	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	bUseControllerRotationYaw = !IsBot();
+ GetCharacterMovement()->bOrientRotationToMovement = IsBot();
 
 	// Camera rig for the scaled body.
 	const float HalfH = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
@@ -374,7 +377,8 @@ void ACultUlhuPlayerPawn::ReceiveDamage(float Amount,AActor* Source)
 {
  if(Amount<=0) return;
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->DamageAllowed(this,Source)) return;
- if(IsEvading()) { ConfirmEvade(); return; }
+ const auto* Ward=Cast<ACultMatchUnit>(Source);
+ if(Ward&&Ward->IsStructure()?IsDashing():IsEvading()) { ConfirmEvade(); return; }
  MarkCombat();
  const float Before=GetHealth();
  Health_=Kit_?Kit_->Damage(Amount):Health_-Amount;
@@ -417,7 +421,10 @@ FHitResult ACultUlhuPlayerPawn::CameraAim(float RangeCm,bool Cursor) const
 {
  FVector Start=Camera_->GetComponentLocation(), Direction=Camera_->GetForwardVector();
  if(IsBot()) { Start=FeetLocation()+FVector(0,0,150); Direction=BotAim_.IsValid()?(BotAim_->GetActorLocation()-Start).GetSafeNormal():GetActorForwardVector(); }
- else if(Cursor) if(auto* PC=Cast<APlayerController>(GetController())) PC->DeprojectMousePositionToWorld(Start,Direction);
+ else if(auto* PC=Cast<APlayerController>(GetController())) {
+  if(Cursor) PC->DeprojectMousePositionToWorld(Start,Direction);
+  else { if(PC->PlayerCameraManager) PC->PlayerCameraManager->UpdateCamera(0.f); int32 Width=0,Height=0; PC->GetViewportSize(Width,Height); if(Width>0&&Height>0) PC->DeprojectScreenPositionToWorld(Width*.5f,Height*.5f,Start,Direction); }
+ }
  FCollisionQueryParams Q(SCENE_QUERY_STAT(CultCameraAim),true,this); FHitResult Hit;
  const FVector Far=Start+Direction*250000.f; GetWorld()->LineTraceSingleByChannel(Hit,Start,Far,ECC_Visibility,Q);
  FVector Point=Hit.bBlockingHit?Hit.ImpactPoint:Far;

@@ -23,34 +23,49 @@
       },
       "rotation": [
         0,
-        0,
+        -90,
         0
       ],
       "bodies": 1,
       "floating": false,
       "status": "ACQUIRED",
       "remaining_art": [
-        "Supplied Prowl transition retained and visually grounded; author seamless idle/run and original-kit attacks",
-        "Refine fungal growth and wings as desired"
+        "Polish the original generated gameplay motions and transitions on the supplied rig; source clips and geometry are preserved."
       ],
       "import_profile": "original_fbx_v1",
       "original_package_sha256": "993e85f686fe3013a3e52870d30d7d90bd064fb4c7d196c323200e902c38a8f3",
       "original_source_sha256": "30e664009204c1ee29d9dc54c8289578d93d9b05599cf66d94619ca7501c8b1e",
       "original_source_file": "Saved/CharacterSources/mi_go/original_blend/source/Bugoid2.blend",
       "reference_bounds": [
-        -558.555419921875,
         -1502.2425537109375,
+        -558.5503540039062,
         477.7336120605469,
-        558.5503540039062,
         -598.7636108398438,
+        558.555419921875,
         1698.2406005859375
       ],
       "reference_bounds_sha256": "8fe329b50a5e47ca6979fb2e4d10b5734aa4d368e692003b9f0089ec31a09ae0",
       "reference_bounds_profile": "original_fbx_v1",
       "reference_bounds_rotation": [
         0,
-        0,
+        -90,
         0
+      ],
+      "gameplay_animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Skeleton.MiGo_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/mi_go/Gameplay20261030_v1/A_MiGo_idle.A_MiGo_idle",
+            "walk": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+            "run": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+            "jump": "/Game/CultUlhu/Characters/mi_go/Gameplay20261030_v1/A_MiGo_jump.A_MiGo_jump",
+            "attack": "/Game/CultUlhu/Characters/mi_go/Gameplay20261030_v1/A_MiGo_attack.A_MiGo_attack",
+            "cast": "/Game/CultUlhu/Characters/mi_go/Gameplay20261030_v1/A_MiGo_cast.A_MiGo_cast",
+            "dash": "/Game/CultUlhu/Characters/mi_go/Gameplay20261030_v1/A_MiGo_dash.A_MiGo_dash",
+            "land": "/Game/CultUlhu/Characters/mi_go/Gameplay20261030_v1/A_MiGo_land.A_MiGo_land",
+            "preview": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim"
+          }
+        }
       ]
     },
     "cthulhu_avatar": {
@@ -249,7 +264,7 @@
       "source_triangles": 76144,
       "rotation": [
         0,
-        0,
+        -90,
         0
       ],
       "bodies": 1,
@@ -260,27 +275,70 @@
         "preview": "Scene"
       },
       "remaining_art": [
-        "Original FBX idle timeline retained; author separate locomotion, attack, hit and death clips",
-        "Review sword placement and silhouette at canonical height"
+        "Polish the original generated gameplay motions and transitions on the supplied rig; source clips and geometry are preserved."
       ],
       "import_profile": "original_fbx_v1",
       "original_package_sha256": "f1136b537145a70d92aa533bf360f724a22265e6cb09546cb181331de03771c4",
       "original_source_sha256": "696b64dccce3dc8fce00a716316eb9744e9676665180c9fd5aec696c396ce388",
       "original_source_file": "Saved/CharacterSources/yig/original_fbx/source/Draconic Cinematic3 Test.fbx",
       "reference_bounds": [
-        -115.80287170410156,
         -808.5872802734375,
+        -525.0864868164062,
         -18.554018020629883,
-        525.0864868164062,
         -96.97927856445312,
+        115.80287170410156,
         557.2256469726562
       ],
       "reference_bounds_sha256": "919aafc98cc40806a0496a2b6f2b1aa3e64843d9ed8c4689da81b21a7c7f6149",
       "reference_bounds_profile": "original_fbx_v1",
       "reference_bounds_rotation": [
         0,
-        0,
+        -90,
         0
+      ],
+      "gameplay_animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Skeleton.Armor_Side_LP_003_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Anim.Armor_Side_LP_003_Anim",
+            "walk": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Armor_Side_LP_003_walk.A_Armor_Side_LP_003_walk",
+            "run": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Armor_Side_LP_003_run.A_Armor_Side_LP_003_run",
+            "jump": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Armor_Side_LP_003_jump.A_Armor_Side_LP_003_jump",
+            "attack": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Armor_Side_LP_003_attack.A_Armor_Side_LP_003_attack",
+            "cast": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Armor_Side_LP_003_cast.A_Armor_Side_LP_003_cast",
+            "dash": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Armor_Side_LP_003_dash.A_Armor_Side_LP_003_dash",
+            "land": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Armor_Side_LP_003_land.A_Armor_Side_LP_003_land",
+            "preview": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Anim.Armor_Side_LP_003_Anim"
+          }
+        },
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Skeleton.Sword_scimitar_LP__005_Skinned_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Anim.Sword_scimitar_LP__005_Skinned_Anim",
+            "walk": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Sword_scimitar_LP__005_Skinned_walk.A_Sword_scimitar_LP__005_Skinned_walk",
+            "run": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Sword_scimitar_LP__005_Skinned_run.A_Sword_scimitar_LP__005_Skinned_run",
+            "jump": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Sword_scimitar_LP__005_Skinned_jump.A_Sword_scimitar_LP__005_Skinned_jump",
+            "attack": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Sword_scimitar_LP__005_Skinned_attack.A_Sword_scimitar_LP__005_Skinned_attack",
+            "cast": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Sword_scimitar_LP__005_Skinned_cast.A_Sword_scimitar_LP__005_Skinned_cast",
+            "dash": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Sword_scimitar_LP__005_Skinned_dash.A_Sword_scimitar_LP__005_Skinned_dash",
+            "land": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Sword_scimitar_LP__005_Skinned_land.A_Sword_scimitar_LP__005_Skinned_land",
+            "preview": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Anim.Sword_scimitar_LP__005_Skinned_Anim"
+          }
+        },
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Skeleton.Tail_3_LP__001_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Anim.Tail_3_LP__001_Anim",
+            "walk": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Tail_3_LP__001_walk.A_Tail_3_LP__001_walk",
+            "run": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Tail_3_LP__001_run.A_Tail_3_LP__001_run",
+            "jump": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Tail_3_LP__001_jump.A_Tail_3_LP__001_jump",
+            "attack": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Tail_3_LP__001_attack.A_Tail_3_LP__001_attack",
+            "cast": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Tail_3_LP__001_cast.A_Tail_3_LP__001_cast",
+            "dash": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Tail_3_LP__001_dash.A_Tail_3_LP__001_dash",
+            "land": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Tail_3_LP__001_land.A_Tail_3_LP__001_land",
+            "preview": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Anim.Tail_3_LP__001_Anim"
+          }
+        }
       ]
     },
     "yog_sothoth": {

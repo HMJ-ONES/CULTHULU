@@ -1,4 +1,6 @@
 #include "CultCharacterModel.h"
+#include "CultFluidAnimInstance.h"
+#include "Animation/AnimSingleNodeInstance.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultCanonicalKit.h"
 #include "Components/CapsuleComponent.h"
@@ -9,6 +11,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "Serialization/JsonReader.h"
@@ -78,8 +81,8 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
   UObject* Asset=StaticLoadObject(UObject::StaticClass(),nullptr,*Value->AsString()); UMeshComponent* Part=nullptr;
   if(auto* Mesh=Cast<USkeletalMesh>(Asset)) {
    auto* S=NewObject<USkeletalMeshComponent>(this); S->SetSkeletalMesh(Mesh);
-   S->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-   if(Preview) S->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+   S->SetAnimationMode(EAnimationMode::AnimationBlueprint); S->SetAnimInstanceClass(UCultFluidAnimInstance::StaticClass());
+   S->VisibilityBasedAnimTickOption=Preview?EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones:EVisibilityBasedAnimTickOption::AlwaysTickPose;
    Part=S;
   } else if(auto* StaticAsset=Cast<UStaticMesh>(Asset)) {
    auto* S=NewObject<UStaticMeshComponent>(this); S->SetStaticMesh(StaticAsset);
@@ -90,13 +93,13 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
   Part->SetupAttachment(RootComponent); Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   Part->SetGenerateOverlapEvents(false); Part->SetCanEverAffectNavigation(false);
   Part->ComponentTags.Add(TEXT("CultCorpseBody"));
-  Part->SetRelativeRotation(Rotation); Part->RegisterComponent(); Part->UpdateBounds();
+  Part->SetRelativeRotation(Rotation); Part->RegisterComponent(); Part->AddTickPrerequisiteActor(this); Part->UpdateBounds();
   // Initialize is called at the origin, before attaching or placing the actor.
   Bounds+=Part->Bounds.GetBox(); Parts_.Add(Part);
  }
  if(Parts_.IsEmpty()||!Bounds.IsValid||Bounds.GetSize().Z<.001f) return false;
  const TSharedPtr<FJsonObject>* Roles=nullptr;
- if(B->TryGetObjectField(TEXT("animation_roles"),Roles)) for(const FString ClipRole:{TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("attack"),TEXT("preview")}) {
+ if(B->TryGetObjectField(TEXT("animation_roles"),Roles)) for(const FString ClipRole:{TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("land"),TEXT("dash"),TEXT("attack"),TEXT("cast"),TEXT("preview")}) {
   FString Path;
   if((*Roles)->TryGetStringField(ClipRole,Path)) if(auto* Clip=LoadObject<UAnimSequence>(nullptr,*Path)) Animations_.Add(ClipRole,Clip);
  }
@@ -104,7 +107,7 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  if(B->TryGetArrayField(TEXT("animation_sets"),Sets)) for(const auto& Value:*Sets) {
   auto Set=Value->AsObject(); FString SkeletonPath;
   if(!Set||!Set->TryGetStringField(TEXT("skeleton"),SkeletonPath)||!Set->TryGetObjectField(TEXT("roles"),Roles)) continue;
-  for(const FString ClipRole:{TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("attack"),TEXT("preview")}) {
+  for(const FString ClipRole:{TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("land"),TEXT("dash"),TEXT("attack"),TEXT("cast"),TEXT("preview")}) {
    FString Path; if((*Roles)->TryGetStringField(ClipRole,Path)) if(auto* Clip=LoadObject<UAnimSequence>(nullptr,*Path)) Animations_.Add(SkeletonPath+TEXT("|")+ClipRole,Clip);
   }
  }
@@ -159,14 +162,21 @@ void ACultCharacterModel::PlayRole(const FString& ClipRole) {
   UAnimSequence* Desired=Animations_.FindRef(Rig->GetPathName()+TEXT("|")+ClipRole);
   if(!Desired) Desired=Animations_.FindRef(ClipRole);
   if(Desired&&Desired->GetSkeleton()!=Rig) Desired=nullptr;
-  if(Desired) S->PlayAnimation(Desired,ClipRole!=TEXT("attack")); else S->Stop();
+  if(auto* Player=S->GetSingleNodeInstance()) {
+   if(Desired) {
+    const bool Loop=ClipRole==TEXT("idle")||ClipRole==TEXT("walk")||ClipRole==TEXT("run")||ClipRole==TEXT("preview");
+    const float Rate=ClipRole==TEXT("run")?1.4f:1.f;
+    if(Player->GetCurrentAsset()!=Desired) Player->SetAnimationAsset(Desired,Loop,Rate); else { Player->SetLooping(Loop); Player->SetPlayRate(Rate); }
+    Player->SetPlaying(true);
+   } else Player->SetPlaying(false);
+  }
  }
 }
 ACultCharacterModel* ACultCharacterModel::AttachToPawn(ACultUlhuPlayerPawn* Pawn,const FString& Id) {
  if(!Pawn||!Binding(Id)) return nullptr;
  auto* Model=Pawn->GetWorld()->SpawnActor<ACultCharacterModel>();
  if(!Model||!Model->Initialize(Id)) { if(Model) Model->Destroy(); return nullptr; }
- Model->Pawn_=Pawn; Model->SetOwner(Pawn);
+ Model->Pawn_=Pawn; Model->WalkSpeed_=Pawn->GetCharacterMovement()->MaxWalkSpeed; Model->SetOwner(Pawn);
  Model->AttachToComponent(Pawn->GetCapsuleComponent(),FAttachmentTransformRules::KeepRelativeTransform);
  Model->SetActorRelativeLocation(FVector(0,0,-Pawn->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
  TArray<UStaticMeshComponent*> Old; Pawn->GetComponents(Old);
@@ -183,7 +193,22 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
  if(Pawn_&&!IsValid(Pawn_)) { Destroy(); return; }
  if(Pawn_) {
   SetActorHiddenInGame(Pawn_->IsHidden()||Pawn_->MatchDead()||(!Pawn_->IsBot()&&!Pawn_->IsThirdPerson()));
-  const bool Moving=Pawn_->GetVelocity().SizeSquared2D()>100;
-  PlayRole(Pawn_->IsSwinging()?TEXT("attack"):Moving?TEXT("walk"):TEXT("idle"));
+  const float Now=GetWorld()->GetTimeSeconds(),Speed=Pawn_->GetVelocity().Size2D();
+  const bool Falling=Pawn_->GetCharacterMovement()->IsFalling();
+  if(WasFalling_&&!Falling) LandingUntil_=Now+.22f; WasFalling_=Falling;
+  if(Pawn_->IsBot()&&Pawn_->GetBotAim()) SetActorRotation(FRotator(0,Pawn_->AimRotation().Yaw,0));
+  const FString MotionRole=Pawn_->IsDashing()?TEXT("dash"):Falling?TEXT("jump"):Now<ActionUntil_?ActionRole_:Pawn_->IsSwinging()?TEXT("attack"):Now<LandingUntil_?TEXT("land"):Speed>WalkSpeed_*1.15f?TEXT("run"):Speed>10?TEXT("walk"):TEXT("idle");
+  PlayRole(MotionRole);
+  if(MotionRole==TEXT("walk")||MotionRole==TEXT("run")) for(const auto& Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part.Get())) if(auto* Player=S->GetSingleNodeInstance()) {
+   const float Sign=FVector::DotProduct(Pawn_->GetVelocity(),Pawn_->AimRotation().Vector())<0?-1.f:1.f;
+   Player->SetPlayRate(Sign*FMath::Clamp(Speed/FMath::Max(1.f,WalkSpeed_),.45f,2.2f));
+  }
  } else if(!bPreview_&&GetOwner()) Destroy();
+}
+
+void ACultCharacterModel::Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds) {
+ if(!Pawn) return; TArray<AActor*> Attached; Pawn->GetAttachedActors(Attached);
+ for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
+  Model->ActionRole_=Role; Model->ActionUntil_=Pawn->GetWorld()->GetTimeSeconds()+Seconds; Model->CurrentRole_.Reset(); Model->PlayRole(Role);
+ }
 }

@@ -153,7 +153,7 @@ bool FCultKitRuntime::Cast(int Slot)
  if(S.effectKind=="heal") return CastHeal(S,Slot);
  Owner->MarkCombat();
  if(S.effectKind=="projectile"||S.effectKind=="aoe_damage"||S.effectKind=="stun"||S.effectKind=="debuff"||S.effectKind=="fear_aura"||S.effectKind=="pull") {
-  const auto Pick=Owner->CameraAim(S.effectKind=="aoe_damage"?6000.f:S.range*100.f); FVector Point=Pick.ImpactPoint;
+  const auto Pick=Owner->CameraAim(S.effectKind=="aoe_damage"?6000.f:25000.f); FVector Point=Pick.ImpactPoint;
   if(S.effectKind=="aoe_damage"&&!Pick.bBlockingHit) { Owner->Notify(TEXT("Aim the warning zone at a solid surface")); return false; }
   if(!LaunchSpatial(S,Slot,Point)) return false; Stamina.value-=S.staminaCost; Cooldowns[Slot]=S.cooldownSec; EmitCast(S,Slot); return true;
  }
@@ -207,7 +207,7 @@ void FCultKitRuntime::Heavy(bool Press)
  }
  if(!Press || HeavyCooldown>0) return;
  cultulhu::SpellDef S; S.id=Def.rmbAbilityId; S.name=Def.rightClick.name; S.effectKind="heavy"; S.effectPower=135.f*Def.rightClick.damageMult; S.range=Def.rightClick.range;
- FVector Aim; Target(S.range*100,Aim); if(LaunchSpatial(S,-1,Aim)) { HeavyCooldown=6; EmitCast(S,-1); }
+ FVector Aim=Owner->CameraAim().ImpactPoint; if(LaunchSpatial(S,-1,Aim)) { HeavyCooldown=6; EmitCast(S,-1); }
 
 }
 bool FCultKitRuntime::LeftClick()

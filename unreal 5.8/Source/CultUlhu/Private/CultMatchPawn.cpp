@@ -52,6 +52,18 @@ void ACultUlhuPlayerPawn::UpdateRecovery(float Dt) {
  const float RecoverSeconds=FMath::Clamp(GetWorld()->GetTimeSeconds()-LastCombatAt_-5.f,0.f,Dt);
  HealMatch(GetMaxHealth()*.005f*RecoverSeconds);
 }
+float ACultUlhuPlayerPawn::BotRangedReach() const {
+ if(!Kit_) return 0;
+ float Reach=0;
+ for(int I=0;I<3;++I) {
+  const auto& S=I==0?Kit_->Def.qAbility:I==1?Kit_->Def.fAbility:Kit_->Def.rAbility;
+  const auto& K=S.effectKind;
+  // Use the authored kit's delivery types, never invent a ranged attack.
+  if(I<2&&(K=="projectile"||K=="damage"||K=="stun"||K=="debuff"||K=="aoe_damage")&&S.id!="crushing_maw"&&S.id!="crusher_claw"&&S.id!="claw_of_the_sphinx") Reach=FMath::Max(Reach,S.range*100.f);
+ }
+ if(Kit_->Def.rightClick.kind!=cultulhu::HeavyAttackKind::MeleeHeavy&&!Kit_->UsesMinionThrow()) Reach=FMath::Max(Reach,Kit_->Def.rightClick.range*100.f);
+ return Reach;
+}
 int ACultUlhuPlayerPawn::HealingAbilitySlot() const {
  if(!Kit_) return -1;
  for(int I=0;I<3;++I) if((I==0?Kit_->Def.qAbility:I==1?Kit_->Def.fAbility:Kit_->Def.rAbility).effectKind=="heal") return I;

@@ -59,7 +59,7 @@ void ACultSkillAttack::Hurt(AActor* A,float D,AActor* S,FVector P) {
  }
 }
 void ACultSkillAttack::BeginPlay() {
- Super::BeginPlay(); BornAt=GetWorld()->GetTimeSeconds(); Origin=Previous=GetActorLocation(); Direction.Normalize(); if(Shape==EShape::Sweep&&GetOwner()) AttachToActor(GetOwner(),FAttachmentTransformRules::KeepWorldTransform);
+ Super::BeginPlay(); BornAt=GetWorld()->GetTimeSeconds(); Origin=Previous=GetActorLocation(); Direction.Normalize(); if(Shape==EShape::Sweep&&GetOwner()) SweepOffset=Origin-GetOwner()->GetActorLocation();
  BuildPresentation();
 }
 
@@ -105,10 +105,21 @@ void ACultSkillAttack::Tick(float Dt) {
  // Spawned during an actor tick, an attack can tick again in that same frame.
  // Its first delta must exclude time before creation, especially on load hitches.
  if(FirstTick) { Dt=FMath::Min(Dt,FMath::Max(0.f,GetWorld()->GetTimeSeconds()-BornAt)); FirstTick=false; }
- if(Shape==EShape::Sweep) Origin=GetActorLocation(); const float Old=Age; Age+=Dt;
+ if(Shape==EShape::Sweep) { Origin=GetOwner()->GetActorLocation()+SweepOffset; SetActorLocation(Origin); } const float Old=Age; Age+=Dt;
  if(Age<Windup) { UpdatePresentation(); return; }
  const float Active=FMath::Min(Age-Windup,Duration);
- if(Shape==EShape::Bolt) {
+ if(Shape==EShape::Bolt&&WardLocked) {
+  auto* Target=WardTarget.Get();
+  if(!Alive(Target)||!Enemy(GetOwner(),Target)) { Destroy(); return; }
+  // A timed dash breaks this shot permanently; jumping and running do not.
+  if(auto* Hero=Cast<ACultUlhuPlayerPawn>(Target)) if(Hero->IsDashing()) { Hero->ConfirmEvade(); Destroy(); return; }
+  FVector Aim=Target->GetActorLocation();
+  if(auto* Capsule=Target->FindComponentByClass<UCapsuleComponent>()) { FVector Closest; if(Capsule->GetClosestPointOnCollision(Previous,Closest)>=0) Aim=Closest; }
+  const float Step=Speed*(Age-FMath::Max(Old,Windup));
+  Direction=(Aim-Previous).GetSafeNormal();
+  if(FVector::Dist(Previous,Aim)<=Step+Radius) { if(Hit) Hit(Target,Aim); if(Finished) Finished(Aim); Destroy(); return; }
+  Previous+=Direction*Step; Visual->SetWorldLocation(Previous);
+ } else if(Shape==EShape::Bolt) {
   float Step=FMath::Min(Speed*(Age-FMath::Max(Old,Windup)),Reach-Travel); FVector Next=Previous+Direction*Step; Sweep(Previous,Next,Radius); Travel+=Step; Previous=Next; Visual->SetWorldLocation(Next); if(Travel>=Reach) { if(Finished) Finished(Next); Destroy(); }
  } else if(Shape==EShape::Sweep) {
   const float Start=FMath::Max(0.f,Old-Windup), End=Active;

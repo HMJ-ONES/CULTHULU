@@ -13,6 +13,9 @@ public:
  EShape Shape=EShape::Bolt;
  float Windup=.18f, Duration=.22f, Radius=35, Reach=2000, Speed=2400, HalfAngle=45;
  FVector Direction=FVector::ForwardVector;
+ // Only ward shots use a target lock; character and minion bolts remain physical skill shots.
+ TWeakObjectPtr<AActor> WardTarget;
+ bool WardLocked=false;
  TFunction<bool(AActor*)> TargetFilter;
  FVector ProjectilePosition() const { return Previous; }
  TFunction<void(AActor*,FVector)> Hit;
@@ -33,7 +36,7 @@ private:
  float Age=0,Travel=0;
  float BornAt=0;
  bool FirstTick=true;
- FVector Origin,Previous;
+ FVector Origin,Previous,SweepOffset;
  TSet<TWeakObjectPtr<AActor>> Struck;
  UPROPERTY() class UStaticMeshComponent* Visual=nullptr;
  UPROPERTY() TArray<class UStaticMeshComponent*> Ring;

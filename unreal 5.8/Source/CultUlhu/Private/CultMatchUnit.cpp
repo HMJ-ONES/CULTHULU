@@ -100,5 +100,6 @@ void ACultMatchUnit::FireAt(AActor* Target) {
  if(!Ranged) { A->Reach=Range; A->HalfAngle=50; }
  TWeakObjectPtr<ACultMatchUnit> Weak(this); const float Damage=Dps;
  A->Hit=[Weak,Damage](AActor* Other,FVector Point) { if(Weak.IsValid()) ACultSkillAttack::Hurt(Other,Damage,Weak.Get(),Point); };
+ if(IsStructure()) { A->WardLocked=true; A->WardTarget=Target; A->Duration=2.f; }
  A->FinishSpawning(T); AttackCooldown=1.f;
 }

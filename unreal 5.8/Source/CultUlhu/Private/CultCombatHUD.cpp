@@ -85,7 +85,8 @@ void DrawCultCombat(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C) {
   Text(States[I],Ready[I]?Blue:Grey,A+CardPad,StateY,.66f);
  }
  const float Mid=W*.5f, CY=H*.5f;
- for(int I:{-1,1}) { HUD->DrawLine(Mid+I*6*S,CY,Mid+I*13*S,CY,White,1.5f*S); HUD->DrawLine(Mid,CY+I*6*S,Mid,CY+I*13*S,White,1.5f*S); }
+ for(int I:{-1,1}) { HUD->DrawLine(Mid+I*6*S,CY,Mid+I*11*S,CY,FLinearColor::White,1.5f*S); HUD->DrawLine(Mid,CY+I*6*S,Mid,CY+I*11*S,FLinearColor::White,1.5f*S); }
+ Rect(FLinearColor::White,Mid-S*.65f,CY-S*.65f,1.3f*S,1.3f*S);
  if(P->HitConfirmTime()>0) for(int I:{-1,1}) for(int J:{-1,1}) HUD->DrawLine(Mid+I*13*S,CY+J*13*S,Mid+I*20*S,CY+J*20*S,Gold,2*S);
  const FString Dash=Data.DashCooldown>0?FString::Printf(TEXT("DASH  %.1fs"),Data.DashCooldown):Data.Stamina<18?TEXT("LOW STAMINA"):TEXT("TAP SHIFT DASH");
  const FString Sprint=TEXT("HOLD SHIFT  SPRINT");

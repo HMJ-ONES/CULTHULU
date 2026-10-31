@@ -56,3 +56,7 @@ License: CC-BY-4.0 â€” https://creativecommons.org/licenses/by/4.0/
 ## Sghllor original light and mist (sghllor)
 
 Original CULT-ULHU procedural art. No third-party model or texture used.
+
+## Gameplay motion adaptations — 2026-10-30
+
+Original CULT-ULHU gameplay motions were authored on the approved Mi-Go (DM-913) and Yig (JoePrimal) rigs. Source meshes, skeletons and supplied clips are unchanged. Generated animation assets under Gameplay20261030_v1 adapt those credited rigs; all original attribution and CC-BY-4.0 terms above continue to apply. Mi-Go Prowl and Yig supplied idle clips remain in use.

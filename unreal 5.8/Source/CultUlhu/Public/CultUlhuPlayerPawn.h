@@ -66,6 +66,8 @@ public:
  void AbilityDash(FVector Direction,float Distance);
  void ResolveSkillHit(const cultulhu::SpellDef& Spell,AActor* Target,FVector Point,int Slot);
  bool IsEvading() const { return EvadeTime_>0; }
+ bool IsDashing() const { return DashTime_>0; }
+ float BotRangedReach() const;
  bool IsSwinging() const { return SwingTime_>0; }
  FCultCombatHUDData CombatHUD() const;
  void StartMelee(float Damage,float Range=0,float Windup=.12f,float Duration=.20f);
@@ -149,6 +151,7 @@ protected:
 private:
  friend struct FCultCombatFeelTestAccess;
  friend struct FCultMatchTestAccess;
+ friend struct FCultTacticsTestAccess;
  friend struct FCultMobaMechanicsTestAccess;
 	bool PlaceOnWalkableGround();
 	void GuardTerrainBoundary();

@@ -14,7 +14,10 @@ bool ProjectedHit(ACultSkillAttack* A,ACultUlhuPlayerPawn* P,float& Time,FVector
  const FVector Bottom=Centre-FVector(0,0,Spine),Top=Centre+FVector(0,0,Spine),Origin=A->GetActorLocation();
  Time=A->TimeUntilActive(); FVector Visible=Origin,Contact=Centre; bool In=false;
  Escape=FVector::CrossProduct(A->Direction,FVector::UpVector).GetSafeNormal2D();
- if(A->Shape==Shape::Bolt||A->Shape==Shape::Beam) {
+ if(A->WardLocked) {
+  if(A->WardTarget.Get()!=P||A->Speed<=0) return false;
+  Visible=A->ProjectilePosition(); Contact=Centre; In=true; Time+=FVector::Dist(Visible,Centre)/A->Speed;
+ } else if(A->Shape==Shape::Bolt||A->Shape==Shape::Beam) {
   if(A->Shape==Shape::Beam&&!A->IsWindingUp()) return false;
   const FVector Start=A->Shape==Shape::Bolt?A->ProjectilePosition():Origin;
   const float Remaining=FMath::Max(0.f,A->Reach-float(FVector::Dist(Start,Origin)));

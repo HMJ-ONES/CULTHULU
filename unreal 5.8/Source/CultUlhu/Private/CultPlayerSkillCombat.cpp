@@ -30,6 +30,7 @@ bool ACultUlhuPlayerPawn::TryDash(FVector Direction) {
  if(IsBot()) GetCharacterMovement()->bRunPhysicsWithNoController=true;
  if(auto* M=ACultMatchDirector::Find(GetWorld())) M->OnAction(this);
  DashDirection_=Direction.GetSafeNormal2D(); DashSpeed_=WalkSpeed_*StandardDashSpeed; DashTime_=StandardDashTime; EvadeTime_=.18f; DashCooldown_=1.15f;
+ if(auto* Match=ACultMatchDirector::Find(GetWorld())) if(Match->Mode()==ECultPlayMode::Dotgoo) DashCooldown_=8.f;
  // Dashing cancels the arm instead of carrying an active swing across the whole dash.
  for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this&&It->Shape==ACultSkillAttack::EShape::Sweep) It->Destroy();
  SwingTime_=0; MeleeBuffer_=0;

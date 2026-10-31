@@ -16,6 +16,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "discovery/RelicNames.h"
+#include "CultBotThreat.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 namespace {
 bool OwnObjectiveBlocksWaypoint(const ACultMatchUnit* Unit,FVector Ground,const TArray<TWeakObjectPtr<ACultMatchUnit>>& Units) {
@@ -129,13 +131,18 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
   if(F.RouteStep==1&&FMath::Abs(P->FeetLocation().X)>11000&&I%5!=0) Goal=FVector(F.Team?10500:-10500,Side*6500,0);
   else F.RouteStep=2;
  }
- AActor* Enemy=nullptr; float Best=5500;
+ AActor* Enemy=nullptr; float Best=7500,TargetScore=1.e9f;
  for(auto& Other:State_->Fighters) if(Other.Team!=F.Team&&Other.Pawn.IsValid()&&Other.Respawn<=0&&Other.Pawn->GetHealth()>0) {
   const FVector At=Other.Pawn->FeetLocation();
   if(State_->Moba&&FCultMobaRoute::Project(F.Team,F.Lane,At).Distance>4200&&FVector::Dist2D(At,Base(F.Team))>6000) continue;
   if(!State_->Moba&&FVector::Dist2D(P->FeetLocation(),Objective())<3200&&FVector::Dist2D(At,Objective())>4800) continue;
   float Dist=FVector::Dist2D(P->FeetLocation(),At);
-  if(Dist<Best&&ACultSkillAttack::Clear(GetWorld(),P->GetActorLocation(),Other.Pawn->GetActorLocation(),P,Other.Pawn.Get())) { Best=Dist; Enemy=Other.Pawn.Get(); }
+  float Support=0;
+  for(const auto& Ally:State_->Fighters) if(Ally.Team==F.Team&&Ally.Pawn.IsValid()&&Ally.Pawn.Get()!=P&&Ally.Respawn<=0) {
+   if(FVector::Dist2D(Ally.Pawn->FeetLocation(),At)<3500) Support+=Ally.Pawn->GetHealth()<Ally.Pawn->GetMaxHealth()*.5f?1200.f:650.f;
+  }
+  const float Score=Dist-FMath::Min(Support,1800.f)+(Other.Pawn->GetHealth()/Other.Pawn->GetMaxHealth())*350.f;
+  if(Dist<7500&&Score<TargetScore&&ACultSkillAttack::Clear(GetWorld(),P->GetActorLocation(),Other.Pawn->GetActorLocation(),P,Other.Pawn.Get())) { TargetScore=Score; Best=Dist; Enemy=Other.Pawn.Get(); }
  }
  if(State_->Moba) {
   if(!Enemy) {
@@ -207,8 +214,45 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
 
  }
  float Stop=Cast<ACultFeralBeast>(Enemy)?1100:Enemy&&State_->Moba&&F.RouteStep>=2?CultMeleeGeometry::ApproachDistance(P,Enemy):400;
+ const float Ranged=P->BotRangedReach();
+ const bool RouteReady=State_->Moba?F.RouteStep>=2:!F.DomPath.IsValidIndex(F.DomPathIndex);
+ if(Enemy&&!F.Retreating&&RouteReady&&!Cast<ACultMatchUnit>(Enemy)&&!Cast<ACultFeralBeast>(Enemy)) {
+  const FVector At=P->FeetLocation(),EnemyFeet=Cast<ACultUlhuPlayerPawn>(Enemy)->FeetLocation();
+  FVector Away=(At-EnemyFeet).GetSafeNormal2D(); if(Away.IsNearlyZero()) Away=FVector(F.Team?1:-1,0,0);
+  const FVector Side=FVector::CrossProduct(Away,FVector::UpVector);
+  const float Preferred=Ranged>900?FMath::Max(950.f,float(Enemy->GetSimpleCollisionRadius()+P->GetSimpleCollisionRadius()*.5f+Ranged*.65f)):CultMeleeGeometry::ApproachDistance(P,Enemy);
+  FVector CombatGoal=EnemyFeet+Away*Preferred+Side*(FMath::Sin(State_->Time*1.15f+I*1.7f)*(Ranged>900?650.f:200.f));
+  bool AllyCapturing=false;
+  for(const auto& Ally:State_->Fighters) if(Ally.Team==F.Team&&Ally.Pawn.IsValid()&&Ally.Pawn.Get()!=P&&Ally.Respawn<=0&&InsideCapture(Ally.Pawn->FeetLocation())) AllyCapturing=true;
+  if(!State_->Moba) {
+   if(Ranged>900&&AllyCapturing) {
+    // Support from the nearest edge only if the authored weapon can reach.
+    const auto E=CaptureHalfExtent(); FVector Edge=EnemyFeet;
+    if(FMath::Abs(EnemyFeet.X)/E.X>FMath::Abs(EnemyFeet.Y)/E.Y) Edge.X=(At.X>=0?1.f:-1.f)*(E.X+650);
+    else Edge.Y=(At.Y>=0?1.f:-1.f)*(E.Y+650);
+    if(FVector::Dist2D(Edge,EnemyFeet)<Preferred+650) CombatGoal=Edge+Side*FMath::Sin(State_->Time+I)*300;
+    else { CombatGoal.X=FMath::Clamp(CombatGoal.X,-E.X+300,E.X-300); CombatGoal.Y=FMath::Clamp(CombatGoal.Y,-E.Y+300,E.Y-300); }
+   } else { const auto E=CaptureHalfExtent(); CombatGoal.X=FMath::Clamp(CombatGoal.X,-E.X+300,E.X-300); CombatGoal.Y=FMath::Clamp(CombatGoal.Y,-E.Y+300,E.Y-300); }
+  }
+  // Spread firing angles instead of stacking every ally at one stop point.
+  FVector Separation=FVector::ZeroVector;
+  for(const auto& Ally:State_->Fighters) if(Ally.Team==F.Team&&Ally.Pawn.IsValid()&&Ally.Pawn.Get()!=P&&Ally.Respawn<=0) {
+   FVector Offset=At-Ally.Pawn->FeetLocation(); float Gap=Offset.Size2D(); if(Gap>1&&Gap<1600) Separation+=Offset.GetSafeNormal2D()*(1600-Gap)*.35f;
+  }
+  Goal=CombatGoal+Separation.GetClampedToMaxSize2D(650); Stop=150;
+ }
  CultBotThreat::Respond(P,State_->BotThreats[I],State_->Time,I);
+ if(((Enemy&&RouteReady)||F.Retreating)&&State_->Time>=F.NextTacticalMove&&!CultBotThreat::Avoiding(State_->BotThreats[I],State_->Time)) {
+  FVector Direction=(Goal-P->FeetLocation()).GetSafeNormal2D();
+  const auto* Hero=Cast<ACultUlhuPlayerPawn>(Enemy);
+  const bool Escape=F.Retreating||(Hero&&Ranged>900&&Best<CultMeleeGeometry::ApproachDistance(P,Enemy)+Ranged*.3f);
+  const bool Ambush=Hero&&!F.Retreating&&Ranged<=900&&Best> CultMeleeGeometry::ApproachDistance(P,Enemy)+600&&Best<3000&&P->GetHealth()>P->GetMaxHealth()*.6f;
+  if((Escape||Ambush)&&CultBotThreat::SafeDash(P,Direction)&&P->TryDash(Direction)) F.NextTacticalMove=State_->Time+5.f+(I%3);
+  else if(Hero&&Best<4000&&P->GetCharacterMovement()->IsMovingOnGround()&&FVector::Dist2D(Goal,P->FeetLocation())>600) { P->TryJump(); F.NextTacticalMove=State_->Time+5.f+(I%4); }
+ }
+
  if(CultBotThreat::Avoiding(State_->BotThreats[I],State_->Time)) { Goal=P->FeetLocation()+State_->BotThreats[I].Escape*1600; Stop=0; }
+ F.TacticalGoal=Goal;
  if(FVector::Dist2D(Goal,P->FeetLocation())>Stop) P->MoveMatchToward(Goal,Dt);
  F.Think-=Dt; if(F.Think>0) return; F.Think=.28f+(I%3)*.04f;
  const int HealSlot=P->HealingAbilitySlot();
@@ -222,9 +266,9 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
   if(Patient) { P->SetBotAim(Patient); if(HealSlot==0) P->AbilityQ(); else if(HealSlot==1) P->AbilityF(); else P->AbilityR(); P->SetBotAim(Enemy); }
  }
  if(Enemy&&!F.Retreating) {
-  if(Best<3300) { if(HealSlot!=0) P->AbilityQ(); if(Best<2400&&HealSlot!=1) P->AbilityF(); if(Best<3500&&HealSlot!=2) P->AbilityR(); }
+  if(Best<FMath::Max(3300.f,Ranged+P->GetSimpleCollisionRadius()+Enemy->GetSimpleCollisionRadius())) { if(HealSlot!=0) P->AbilityQ(); if(HealSlot!=1) P->AbilityF(); if(HealSlot!=2) P->AbilityR(); }
   if(CultMeleeGeometry::InReach(P,Enemy)) P->Smash();
-  if(Best<2700&&I%2) { P->HeavyAttack(); P->ReleaseHeavy(); }
+  if(Best<FMath::Max(2700.f,Ranged)&&I%2) { P->HeavyAttack(); P->ReleaseHeavy(); }
  }
 }
 void ACultMatchDirector::UpdateRelics(float Dt) {

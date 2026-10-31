@@ -14,5 +14,8 @@ for entity in runtime['characters']:
   lines.extend([f"## {entry['title']} ({entity})",'',"Original CULT-ULHU procedural art. No third-party model or texture used.",'']); continue
  assert entry['license_verified'] and entry['rights_cleared']
  lines.extend([f"## {entry['title']} ({entity})",'',f"Author: {entry['author']} â€” {entry.get('author_url','')}",f"Source: {entry['source_url']}",f"License: {entry['license']} â€” {entry['license_url']}",''])
+if any(entry.get('gameplay_animation_sets') for entry in config['characters'].values()):
+ lines.extend(['## Gameplay motion adaptations — 2026-10-30','',
+  'Original CULT-ULHU gameplay motions were authored on the approved Mi-Go (DM-913) and Yig (JoePrimal) rigs. Source meshes, skeletons and supplied clips are unchanged. Generated animation assets under Gameplay20261030_v1 adapt those credited rigs; all original attribution and CC-BY-4.0 terms above continue to apply. Mi-Go Prowl and Yig supplied idle clips remain in use.',''])
 path=project/'Content/CharacterModels/CREDITS.md'; path.write_text('\n'.join(lines),encoding='utf-8')
 print(path)

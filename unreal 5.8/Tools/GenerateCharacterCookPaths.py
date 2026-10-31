@@ -8,6 +8,8 @@ for entity,binding in registry['characters'].items():
  for mesh in binding.get('meshes',[]):
   if '/Imports/' in mesh:
    before,after=mesh.split('/Imports/',1); folders.add(before+'/Imports/'+after.split('/')[0])
+ for animation_set in binding.get('animation_sets',[]):
+  for clip in animation_set.get('roles',{}).values(): folders.add(clip.rsplit('/',1)[0])
  for key in ['core_material','mist_material','portrait']:
   if binding.get(key): folders.add(binding[key].rsplit('/',1)[0])
 path=project/'Config/DefaultGame.ini'; text=path.read_text(encoding='utf-8-sig')

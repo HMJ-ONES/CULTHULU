@@ -1,4 +1,5 @@
 #include "CultKitRuntime.h"
+#include "CultCharacterModel.h"
 #include "CultSkillAttack.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultWorldDirector.h"
@@ -76,6 +77,7 @@ namespace {
  }
 }
 void FCultKitRuntime::EmitCast(const cultulhu::SpellDef& S,int Slot) {
+ ACultCharacterModel::Cue(Owner,Slot<0?TEXT("attack"):TEXT("cast"),Slot==2?.7f:.5f);
  if(auto* D=ACultWorldDirector::Find(Owner->GetWorld())) { D->CombatActivity(Owner->GetFaction()); for(auto Type:{cultulhu::EventType::SpellCast,cultulhu::EventType::AbilityCast}) { cultulhu::GameEvent E(Type); E.sourceId=Caster->id(); E.tag=Type==cultulhu::EventType::SpellCast?S.id:S.name; E.amount=Type==cultulhu::EventType::SpellCast?1.f:float(Slot); E.pos=P(Owner->FeetLocation()); D->Bus(Owner->GetFaction()).publish(E); } }
 }
 bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector Aim) {

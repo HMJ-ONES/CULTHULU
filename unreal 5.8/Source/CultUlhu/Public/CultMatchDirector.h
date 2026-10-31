@@ -17,6 +17,8 @@ struct FCultMatchFighter {
  float Respawn=0,Shield=0,Recall=0,Invoke=0,Think=0,LastHurt=-100,LastAction=-100;
  FVector ChannelOrigin=FVector::ZeroVector; float RelicMult=1,DamageDone=0,DamageTaken=0; bool Retreating=false,LaneEntered=false; float PointSeconds=0;
  TArray<FVector> DomPath; int DomPathIndex=0; bool DomEscape=false,DomTunnelVisited=false,DomFlankCompleted=false;
+ float NextTacticalMove=0;
+ FVector TacticalGoal=FVector::ZeroVector;
  TMap<int,float> RecentAttackers;
 };
 UCLASS()
@@ -80,6 +82,7 @@ public:
 private:
  friend struct FCultHUDCoordinateTestAccess;
  friend struct FCultMatchTestAccess;
+ friend struct FCultTacticsTestAccess;
  friend struct FCultMobaMechanicsTestAccess;
  friend struct FCultJungleTestAccess;
  struct FState; FState* State_=nullptr;

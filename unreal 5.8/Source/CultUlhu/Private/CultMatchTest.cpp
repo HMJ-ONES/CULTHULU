@@ -43,7 +43,7 @@ struct FCultMatchTestAccess {
    Clear(); Bot->RelocateMatch(FVector(0,0,60000)); Enemy->RespawnMatch(FVector(Distance,0,60000));
    Bot->SmashCooldown_=999; Bot->SwingTime_=Bot->DashTime_=Bot->DashCooldown_=0;
    for(int Slot=0;Slot<3;++Slot) Bot->Kit_->SetCooldown(Slot,999);
-   F.RouteStep=2; F.Think=0; F.DomPath.Reset(); F.Retreating=false; M->State_->BotThreats[5]=FCultBotThreatMemory();
+   F.RouteStep=2; F.Think=0; F.DomPath.Reset(); F.Retreating=false; F.NextTacticalMove=999; M->State_->BotThreats[5]=FCultBotThreatMemory();
   };
   auto Swings=[&]() { TArray<ACultSkillAttack*> Out; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Bot&&It->Shape==ACultSkillAttack::EShape::Sweep) Out.Add(*It); return Out; };
   Place(2300); Bot->Kit_->AdvanceCooldowns(10); const float FarHp=Enemy->GetHealth(); M->BotThink(5,.016f); auto Far=Swings();
@@ -158,7 +158,7 @@ struct FCultMatchTestAccess {
    Bot->RelocateMatch(FVector(0,0,60000)); Enemy->RelocateMatch(EnemyFeet);
    Bot->DashTime_=Bot->DashCooldown_=Bot->SmashCooldown_=Bot->SwingTime_=0;
    for(int Slot=0;Slot<3;++Slot) Bot->Kit_->SetCooldown(Slot,999);
-   auto& F=M->State_->Fighters[5]; F.Lane=1; F.RouteStep=2; F.Think=0; F.DomPath.Reset(); F.Retreating=false; M->State_->BotThreats[5]=FCultBotThreatMemory();
+   auto& F=M->State_->Fighters[5]; F.Lane=1; F.RouteStep=2; F.Think=0; F.DomPath.Reset(); F.Retreating=false; F.NextTacticalMove=999; M->State_->BotThreats[5]=FCultBotThreatMemory();
   };
   auto Swings=[&]() { TArray<ACultSkillAttack*> Out; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Bot&&It->Shape==ACultSkillAttack::EShape::Sweep) Out.Add(*It); return Out; };
   Reset(FVector(2900,0,60000)); M->BotThink(5,.016f);
@@ -221,7 +221,7 @@ struct FCultMatchTestAccess {
    Bot->GetCharacterMovement()->SetMovementMode(MOVE_Walking); Bot->DashTime_=Bot->DashCooldown_=Bot->EvadeTime_=0;
    Bot->GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); Bot->SmashCooldown_=10;
    for(int I=0;I<3;++I) Bot->Kit_->SetCooldown(I,999);
-   M->State_->Fighters[1].Think=0; M->State_->Fighters[1].RouteStep=2; M->State_->Time+=1;
+   M->State_->Fighters[1].Think=0; M->State_->Fighters[1].RouteStep=2; M->State_->Fighters[1].NextTacticalMove=999; M->State_->Time+=1;
   };
   auto Attack=[&](ACultSkillAttack::EShape Shape,FVector Origin,FVector Direction,float Windup) {
    FTransform Transform(Origin); auto* A=M->GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),Transform,Caster,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);

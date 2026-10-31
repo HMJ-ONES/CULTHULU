@@ -49,6 +49,30 @@ struct FCultMobaMechanicsTestAccess {
   Reset(); P->ProcessShift(true,FVector::ForwardVector,.04f); P->ProcessShift(true,FVector::ZeroVector,.02f,false); P->ProcessShift(false,FVector::ForwardVector,.02f);
   T->TestEqual(TEXT("Cursor/control cancellation cannot queue a dash"),P->DashTime_,0.f); Reset();
  }
+ static void VerifyWardShots(FAutomationTestBase* T,ACultMatchDirector* M,ACultUlhuPlayerPawn* P,ACultMatchUnit* Tower) {
+  const FVector Origin=Tower->GetActorLocation(); const FVector Feet=Origin+FVector(3000,0,-1253);
+  const float SavedRange=Tower->Range,SavedDps=Tower->Dps,SavedCooldown=Tower->AttackCooldown; Tower->Range=4000; Tower->Dps=20;
+  auto Fire=[&]() { Tower->AttackCooldown=0; Tower->FireAt(P); ACultSkillAttack* Shot=nullptr; for(TActorIterator<ACultSkillAttack> It(M->GetWorld());It;++It) if(It->GetOwner()==Tower) Shot=*It; if(Shot) Shot->Tick(0); return Shot; };
+  auto Clear=[&]() { for(TActorIterator<ACultSkillAttack> It(M->GetWorld());It;++It) if(It->GetOwner()==Tower) It->Destroy(); };
+  Clear(); P->RelocateMatch(Feet); P->EvadeTime_=P->DashTime_=P->DashCooldown_=0;
+  float Before=P->GetHealth(); auto* Shot=Fire(); T->TestNotNull(TEXT("Actual tower creates a ward shot"),Shot);
+  if(Shot) {
+   for(int I=0;I<35&&!Shot->IsActorBeingDestroyed();++I) { const float A=I*.012f; P->RelocateMatch(Origin+FVector(FMath::Cos(A)*3000,FMath::Sin(A)*3000,-1253)); Shot->Tick(.02f); }
+   T->TestTrue(TEXT("Circling an actual tower cannot avoid its locked shot"),P->GetHealth()<Before);
+  }
+  Clear(); P->RelocateMatch(Feet); P->EvadeTime_=.14f; Before=P->GetHealth();
+  P->ReceiveDamage(20,Tower); T->TestTrue(TEXT("Jump evade time does not reject tower damage"),P->GetHealth()<Before);
+  P->EvadeTime_=0; Shot=Fire(); Before=P->GetHealth();
+  if(Shot) {
+   Shot->Tick(.26f); T->TestTrue(TEXT("A real dash is available against an incoming tower shot"),P->TryDash(FVector::RightVector));
+   T->TestEqual(TEXT("DOTGOO dash uses an eight-second cooldown"),P->CombatHUD().DashCooldown,8.f);
+   Shot->Tick(.01f); T->TestTrue(TEXT("Dash permanently breaks the in-flight ward lock"),Shot->IsActorBeingDestroyed());
+   T->TestEqual(TEXT("A dashed tower shot deals no damage"),P->GetHealth(),Before);
+   T->TestFalse(TEXT("Dash cannot be immediately repeated in DOTGOO"),P->CanDash());
+  }
+  Clear(); P->GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); P->DashTime_=P->DashCooldown_=P->EvadeTime_=0;
+  Tower->Range=SavedRange; Tower->Dps=SavedDps; Tower->AttackCooldown=SavedCooldown;
+ }
  static AActor* Target(ACultMatchDirector* M,ACultMatchUnit* Tower) { return M->SelectTowerTarget(Tower); }
  static void Cancel(ACultUlhuPlayerPawn* P) { P->Control_.Set(991,true,false,1,FVector::ZeroVector,true); P->Control_.Tick(.001f); P->Kit_->TickMinionThrow(.1f); P->Control_.Sources.Remove(991); P->Control_.Tick(.001f); }
 };
@@ -85,6 +109,7 @@ public:
    T->TestTrue(TEXT("Cthulhu MOBA uses the explicitly requested RMB variant"),P->CombatHUD().RmbHint.Contains(TEXT("minion")));
    if(!Tower.IsValid()) { T->AddError(TEXT("No exposed outer tower")); return true; }
    Victim=M->Fighters()[5].Pawn; Tower->SetActorLocation(FVector(0,18000,1253)); Tower->Range=3500; Tower->Dps=20; Tower->AttackCooldown=0;
+   FCultMobaMechanicsTestAccess::VerifyWardShots(T,M,P,Tower.Get());
    P->RelocateMatch(FVector(2600,18000,0)); auto* Ally=M->Fighters()[1].Pawn.Get(); Ally->RelocateMatch(FVector(3300,18000,0));
    T->TestEqual(TEXT("Tower acquires the closest hostile hero"),FCultMobaMechanicsTestAccess::Target(M,Tower.Get()),static_cast<AActor*>(P));
    Ally->RelocateMatch(FVector(-1800,18000,0)); T->TestEqual(TEXT("Closer second hero cannot steal existing aggression"),FCultMobaMechanicsTestAccess::Target(M,Tower.Get()),static_cast<AActor*>(P));

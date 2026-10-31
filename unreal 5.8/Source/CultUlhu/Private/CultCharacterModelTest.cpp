@@ -2,6 +2,7 @@
 #include "Misc/AutomationTest.h"
 #include "CultAutomationPIE.h"
 #include "CultCharacterModel.h"
+#include "Animation/AnimSingleNodeInstance.h"
 #include "UI/CultCharacterPreviewWidget.h"
 #include "CultUlhuGameInstance.h"
 #include "CultUlhuPlayerPawn.h"
@@ -37,14 +38,26 @@ struct FCultCharacterModelTestAccess {
  }
 };
 class FCultApprovedModels:public IAutomationLatentCommand {
- FAutomationTestBase* Test; int Index=0,Frames=0,Phase=0; double Started=FPlatformTime::Seconds();
+ FAutomationTestBase* Test; int Index=0,Frames=0,Phase=0,MotionIndex=0; double Started=FPlatformTime::Seconds();
  TStrongObjectPtr<UCultCharacterPreviewWidget> Preview;
+ TArray<FString> Motions={TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("attack"),TEXT("cast"),TEXT("dash"),TEXT("land")};
  TArray<FString> Ids={TEXT("cthulhu_avatar"),TEXT("dagon"),TEXT("mi_go"),TEXT("nyarlathotep"),TEXT("shoggoths"),TEXT("yig"),TEXT("yog_sothoth"),TEXT("nodens"),TEXT("sghllor")};
 public:
  explicit FCultApprovedModels(FAutomationTestBase* T):Test(T) {}
  bool Update() override {
   if(FPlatformTime::Seconds()-Started>240) { Test->AddError(TEXT("Approved model verification timed out")); return true; }
   auto* World=GEditor->PlayWorld.Get(); if(!World||World->bIsTearingDown) return false;
+  if(Phase==4) {
+   auto* Model=FCultCharacterModelTestAccess::Model(Preview.Get()); if(!Model) { Test->AddError(TEXT("Lost motion preview")); return true; }
+   if(++Frames<12) return false;
+   if(Frames==12) {
+    for(UMeshComponent* Part:Model->Parts()) if(auto* S=Cast<USkeletalMeshComponent>(Part)) { S->SetPosition(.2f,false); if(auto* Player=S->GetSingleNodeInstance()) Player->SetPlaying(false); }
+    return false; // Evaluate and render the held pose in a real subsequent frame.
+   }
+   FCultCharacterModelTestAccess::Capture(Preview.Get(),Ids[Index]+TEXT("_")+Motions[MotionIndex],Test);
+   Frames=0; if(++MotionIndex<Motions.Num()) { Model->PreviewMotion(Motions[MotionIndex]); return false; }
+   Phase=0; ++Index; return false;
+  }
   if(Phase==0) {
    if(!World->GetName().Contains(TEXT("L_MainMenu"))) return false;
    if(!Preview.IsValid()) { Preview.Reset(CreateWidget<UCultCharacterPreviewWidget>(World,UCultCharacterPreviewWidget::StaticClass())); Preview->TakeWidget(); }
@@ -66,6 +79,9 @@ public:
      Test->AddInfo(TEXT("MODEL_ACTUAL mi_go ")+Actual.ToString()+TEXT(" part=")+Skel->GetRelativeLocation().ToString());
      Test->TestTrue(TEXT("Supplied Mi-Go motion stays near the pawn and ground"),Actual.Min.Z>-25&&Actual.Max.Z<230&&Actual.GetCenter().Size2D()<125);
     }
+   }
+   if(Model&&(Ids[Index]==TEXT("mi_go")||Ids[Index]==TEXT("yig"))) {
+    MotionIndex=0; Frames=0; Phase=4; Model->PreviewMotion(Motions[MotionIndex]); return false;
    }
    Frames=0;
    if(++Index<Ids.Num()) return false;

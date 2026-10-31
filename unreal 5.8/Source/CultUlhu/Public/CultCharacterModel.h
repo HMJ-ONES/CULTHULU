@@ -21,11 +21,15 @@ public:
  static FString SourceCredit(const FString& Id);
  static bool HasSourceAnimation(const FString& Id);
  virtual void Tick(float DeltaSeconds) override;
+ static void Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds=.55f);
+ FString AnimationRole() const { return CurrentRole_; }
+ void PreviewMotion(const FString& MotionRole) { if(bPreview_) PlayRole(MotionRole); }
  const TArray<TObjectPtr<UMeshComponent>>& Parts() const { return Parts_; }
 private:
  UPROPERTY() TArray<TObjectPtr<UMeshComponent>> Parts_;
  UPROPERTY() TMap<FString,TObjectPtr<UAnimSequence>> Animations_;
- FString CurrentRole_;
+ FString CurrentRole_,ActionRole_;
+ float ActionUntil_=0,LandingUntil_=0,WalkSpeed_=0; bool WasFalling_=false;
  UPROPERTY() ACultUlhuPlayerPawn* Pawn_=nullptr;
  bool bPreview_=false;
  bool bFloating_=false;
