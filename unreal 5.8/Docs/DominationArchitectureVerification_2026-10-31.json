@@ -372,5 +372,10 @@
     "Source/CultUlhu/Private/CultMatchLightingProbe.cpp": "24f09e6eb316f922f20b7d9b337701246649842dbf67547e898ddf5290c80cf0",
     "Tools/AnalyzeMatchLighting.py": "f753fa79ff2ee7dae63cabb7501f5828f3fa822d8faa4b7b7a9d357cbf2b09e6",
     "Tools/RunRoomNetworkProbe.py": "5d8e287adbba9f21929846b51133d42d1bbe9928563adcde4cbf2a11e5ebbf91"
+  },
+  "clearanceFixtureScope": {
+    "reachCm": 12000,
+    "authoredKitProof": false,
+    "note": "Historical synthetic projectile proves physical clearance only. Original 16-25m weapons do not gain useful ground pressure from a 60m-high deck. Lower perches and independent real-kit observations are recorded separately in DominationUpperVerification_2026-10-31.json."
   }
 }

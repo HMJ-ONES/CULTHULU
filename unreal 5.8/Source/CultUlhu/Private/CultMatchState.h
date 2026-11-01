@@ -10,6 +10,7 @@
 #include <memory>
 #include "CultMobaRoute.h"
 #include "CultBotThreat.h"
+#include "CultDominationUpper.h"
 // Retain the source MOBA's objective damage, protection, wave stats and timeout rules.
 // Native movement / collision attacks replace its abstract DPS simulation.
 class FCultNativeMoba:public cultulhu::MobaDefense {
@@ -61,4 +62,5 @@ struct ACultMatchDirector::FState {
  TArray<FBox2D> ResultButtons;
  float LastBotInvoke[10]={};
  FCultBotThreatMemory BotThreats[10];
+ FCultDominationUpperMemory UpperRoutes[10];
 };

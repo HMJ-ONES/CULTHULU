@@ -117,7 +117,8 @@ void CultDominationArt::Build(UWorld* W) {
 FString CultDominationArt::RouteHint(FVector P) {
  const TCHAR* Keep=P.Y>=0?TEXT("CROWN"):TEXT("HOLLOW");
  if(P.Z<-800) return TEXT("CATACOMB | Keep exits return to the fight | Resurface to capture");
- if(P.Z>4800&&FMath::Abs(P.Y)>6200&&FMath::Abs(P.Y)<10800&&FMath::Abs(P.X)<3200) return TEXT("SEAL OVERLOOK | Side cover for ranged pressure | Drop down to contest");
+ if(P.Z>4800&&FMath::Abs(P.Y)>6200&&FMath::Abs(P.Y)<10800&&FMath::Abs(P.X)<3200) return TEXT("SEAL OVERLOOK | Cross above cover | Drop down to contest");
+ if(P.Z>650&&P.Z<1500&&FMath::Abs(P.Y)>4100&&FMath::Abs(P.Y)<5900&&FMath::Abs(P.X)>2100&&FMath::Abs(P.X)<4500) return TEXT("FIRING PERCH | Aim at seal edges | Leave height to capture");
  if(P.Z>4800&&FMath::Abs(P.Y)>9000) return FString::Printf(TEXT("%s HIGH WALK | Cross the bridge to the seal overlook"),Keep);
  if(FMath::Abs(P.Y)>21000&&FMath::Abs(P.X)>7200&&FMath::Abs(P.X)<14000) return FString::Printf(TEXT("%s RAMP | Climb to the high walk and seal overlook"),Keep);
  if(FMath::Abs(P.X)>13000&&FMath::Abs(P.X)<17500&&FMath::Abs(FMath::Abs(P.Y)-12500)<2500) return TEXT("CRYPT ENTRANCE | Sheltered flank through the opposite keep");

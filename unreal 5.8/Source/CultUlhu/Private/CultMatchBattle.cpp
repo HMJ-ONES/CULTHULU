@@ -4,6 +4,7 @@
 #include "CultMatchState.h"
 #include "CultMobaJungle.h"
 #include "CultDominationRoute.h"
+#include "CultDominationUpper.h"
 #include "CultJungleCamp.h"
 #include "CultFeralBeast.h"
 #include "CultMatchUnit.h"
@@ -221,7 +222,9 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
  }
  float Stop=Cast<ACultFeralBeast>(Enemy)?1100:Enemy&&State_->Moba&&F.RouteStep>=2?CultMeleeGeometry::ApproachDistance(P,Enemy):400;
  const float Ranged=P->BotRangedReach();
- const bool RouteReady=State_->Moba?F.RouteStep>=2:!F.DomPath.IsValidIndex(F.DomPathIndex);
+ const bool UpperOwned=!State_->Moba&&CultDominationUpper::Update(this,F,State_->UpperRoutes,I,State_->PingTime>0&&F.Team==State_->PingTeam&&I%5<3,Enemy,Goal,Stop);
+ if(UpperOwned) { P->SetBotAim(Enemy); if(Enemy) Best=FVector::Dist2D(P->FeetLocation(),Enemy->GetActorLocation()); }
+ const bool RouteReady=(State_->Moba?F.RouteStep>=2:!F.DomPath.IsValidIndex(F.DomPathIndex))&&!UpperOwned;
  if(Enemy&&!F.Retreating&&RouteReady&&!Cast<ACultMatchUnit>(Enemy)&&!Cast<ACultFeralBeast>(Enemy)) {
   const FVector At=P->FeetLocation(),EnemyFeet=Cast<ACultUlhuPlayerPawn>(Enemy)->FeetLocation();
   FVector Away=(At-EnemyFeet).GetSafeNormal2D(); if(Away.IsNearlyZero()) Away=FVector(F.Team?1:-1,0,0);
@@ -274,7 +277,7 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
  if(Enemy&&!F.Retreating) {
   if(Best<FMath::Max(3300.f,Ranged+P->GetSimpleCollisionRadius()+Enemy->GetSimpleCollisionRadius())) { if(HealSlot!=0) P->AbilityQ(); if(HealSlot!=1) P->AbilityF(); if(HealSlot!=2) P->AbilityR(); }
   if(CultMeleeGeometry::InReach(P,Enemy)) P->Smash();
-  if(Best<FMath::Max(2700.f,Ranged)&&I%2) { P->HeavyAttack(); P->ReleaseHeavy(); }
+  if(Best<FMath::Max(2700.f,Ranged)&&(I%2||UpperOwned)) { P->HeavyAttack(); P->ReleaseHeavy(); }
  }
 }
 void ACultMatchDirector::UpdateRelics(float Dt) {

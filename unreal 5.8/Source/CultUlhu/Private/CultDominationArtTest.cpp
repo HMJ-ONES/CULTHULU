@@ -2,6 +2,7 @@
 #include "Misc/AutomationTest.h"
 #include "CultAutomationPIE.h"
 #include "CultDominationArt.h"
+#include "CultDominationRoute.h"
 #include "CultUlhuGameInstance.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultMatchDirector.h"
@@ -20,7 +21,7 @@
 #include "Misc/Paths.h"
 #include "HAL/FileManager.h"
 class FCultDominationArtObservation:public IAutomationLatentCommand {
- FAutomationTestBase* Test; int Phase=0,Side=1,Shot=0; float At=0; double Began=FPlatformTime::Seconds();
+ FAutomationTestBase* Test; int Phase=0,Side=1,Shot=0,PerchIndex=0; float At=0; double Began=FPlatformTime::Seconds();
  TWeakObjectPtr<ACultMatchUnit> Target; TWeakObjectPtr<ACameraActor> Camera; bool ShowHUD=true;
  struct FSnapshot { TWeakObjectPtr<UPrimitiveComponent> Mesh; FTransform Transform; ECollisionEnabled::Type Collision; };
  TArray<FSnapshot> Geometry;
@@ -86,19 +87,31 @@ public:
    }
    Test->TestTrue(TEXT("Full-height hero walks beneath the overlook without clipping or jumping to its roof"),P->GetCharacterMovement()->IsMovingOnGround()&&FMath::Abs(P->FeetLocation().Z)<100);
    if(Side>0) { Side=-1; P->RelocateMatch(FVector(0,-12500,6000)); At=W->GetTimeSeconds(); Phase=2; return false; }
+   P->RelocateMatch(FCultDominationRoute::PerchRamp(-1,1)); At=W->GetTimeSeconds(); Phase=8; return false;
+  }
+  if(Phase==8) {
+   const int Home=PerchIndex%2?1:-1,Flank=PerchIndex<2?1:-1;
+   const FVector Goal=FCultDominationRoute::Perch(Home,Flank); P->MoveMatchToward(Goal,.016f);
+   if(FVector::Dist2D(P->FeetLocation(),Goal)>180||FMath::Abs(P->FeetLocation().Z-Goal.Z)>100) {
+    if(W->GetTimeSeconds()-At<10) return false;
+    Test->AddError(FString::Printf(TEXT("Full-height perch ramp %d failed at %s"),PerchIndex,*P->FeetLocation().ToCompactString())); return true;
+   }
+   Test->TestTrue(TEXT("Full-height hero walks onto each low firing perch"),P->GetCharacterMovement()->IsMovingOnGround());
+   Test->TestFalse(TEXT("Low firing perches do not capture the seal"),M->InsideCapture(P->FeetLocation()));
+   if(++PerchIndex<4) { P->RelocateMatch(FCultDominationRoute::PerchRamp(PerchIndex%2?1:-1,PerchIndex<2?1:-1)); At=W->GetTimeSeconds(); return false; }
    P->RelocateMatch(M->Base(0)+FVector(2500,0,0)); Camera=W->SpawnActor<ACameraActor>(); Camera->GetCameraComponent()->SetConstraintAspectRatio(false); Camera->GetCameraComponent()->SetFieldOfView(75); Camera->GetCameraComponent()->PostProcessBlendWeight=0; PC->SetViewTarget(Camera.Get());
    if(auto* HUD=PC->GetHUD()) { ShowHUD=HUD->bShowHUD; HUD->bShowHUD=false; } Phase=4;
   }
   if(Phase==4) {
-   const int View=Shot/2; const FVector Sites[]={FVector(-18000,-7000,11000),FVector(-18000,7000,11000),FVector(-18500,12500,6000),FVector(1500,8500,9500)};
-   const FVector Goals[]={FVector(0,30000,14000),FVector(0,-30000,14000),FVector(0,12500,-3500),FVector(0,0,1600)};
+   const int View=Shot/2; const FVector Sites[]={FVector(-18000,-7000,11000),FVector(-18000,7000,11000),FVector(-18500,12500,6000),FVector(1500,8500,9500),FVector(-9000,2000,6500),FVector(9000,-2000,6500)};
+   const FVector Goals[]={FVector(0,30000,14000),FVector(0,-30000,14000),FVector(0,12500,-3500),FVector(0,0,1600),FVector(-3300,5000,900),FVector(3300,-5000,900)};
    CultDominationArt::Compare(W,Shot%2!=0); Camera->SetActorLocation(Sites[View]); Camera->SetActorRotation((Goals[View]-Sites[View]).Rotation()); PC->PlayerCameraManager->UpdateCamera(0);
    for(const auto& Old:Geometry) if(auto* Mesh=Old.Mesh.Get()) { Test->TestTrue(TEXT("Appearance comparison preserves all geometry transforms"),Mesh->GetComponentTransform().Equals(Old.Transform,.01f)); Test->TestEqual(TEXT("Appearance comparison preserves physical collision"),Mesh->GetCollisionEnabled(),Old.Collision); }
    At=W->GetTimeSeconds(); Phase=5; return false;
   }
   if(Phase==5&&W->GetTimeSeconds()-At>.8f) { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/FString::Printf(TEXT("Screenshots/DominationArt_%d_%s.png"),Shot/2,Shot%2?TEXT("After"):TEXT("Before")),false,false); At=W->GetTimeSeconds(); Phase=6; return false; }
   if(Phase==6&&W->GetTimeSeconds()-At>.3f) {
-   if(++Shot<8) { Phase=4; return false; }
+   if(++Shot<12) { Phase=4; return false; }
    CultDominationArt::Compare(W,true); PC->SetViewTarget(P); if(auto* HUD=PC->GetHUD()) HUD->bShowHUD=ShowHUD; Camera->Destroy(); return true;
   }
   return false;

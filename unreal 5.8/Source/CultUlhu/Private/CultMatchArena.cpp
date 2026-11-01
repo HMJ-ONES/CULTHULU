@@ -148,11 +148,19 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   }
   for(int Side:{-1,1}) {
    auto* Bridge=WalkSurface(FVector(0,Side*12500,5500),FVector(11000,5000,1000)); Bridge->Tags.Add(TEXT("CultDominationOverpass"));
-   // Connected forward balconies bring the upper route into useful range of
-   // the seal's edge, with a sheltered ground approach beneath both decks.
+   // Connected forward balconies provide crossing/drop routes above the seal.
+   // Original ranged kits use the lower perches, not this 60m elevation.
    auto* Overlook=WalkSurface(FVector(0,Side*8500,5500),FVector(6000,4000,1000)); Overlook->Tags.Add(TEXT("CultDominationOverlook"));
    for(int Edge:{-1,1}) Box(FVector(Edge*2800,Side*8400,6650),FVector(600,1800,1300),Trim);
    for(int End:{-1,1}) Box(FVector(End*3500,Side*15500,2500),FVector(1000,1000,5000),Stone);
+  }
+  // Low side perches respect the original 16-25m weapons. The centre gap
+  // remains open, and both teams can reach or counter these via ground ramps.
+  for(int Side:{-1,1}) for(int Home:{-1,1}) {
+   const FVector Perch=FCultDominationRoute::Perch(Home,Side),Start=FCultDominationRoute::PerchRamp(Home,Side),End(Home*4500,Side*5000,900),D=End-Start;
+   auto* Ledge=WalkSurface(Perch-FVector(0,0,150),FVector(2400,1800,300)); Ledge->Tags.Add(TEXT("CultDominationFiringPerch"));
+   const FVector Normal=FVector(-D.Z*D.X,0,D.SizeSquared2D()).GetSafeNormal();
+   auto* Ramp=WalkSurface((Start+End)*.5f-Normal*100,FVector(D.Size(),1800,200)); Ramp->SetActorRotation(D.Rotation()); Ramp->Tags.Add(TEXT("CultDominationPerchRamp"));
   }
   // The catacomb has 47m clear height under the surface slab. Both ends
   // rise at 26.6 degrees, allowing the entire roster to walk out normally.

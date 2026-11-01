@@ -98,6 +98,18 @@ struct FCultTacticsTestAccess {
   T->TestEqual(TEXT("Dash cooldown follows this match mode"),Bot->CombatHUD().DashCooldown,M->Mode()==ECultPlayMode::Dotgoo?8.f:1.15f);
   Bot->GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); Bot->DashTime_=0;
   T->AddInfo(FString::Printf(TEXT("Tactics mode %d: ranged reach %.0f, goal %s, dash cooldown %.2f"),int(M->Mode()),Bot->BotRangedReach(),*F.TacticalGoal.ToCompactString(),Bot->CombatHUD().DashCooldown));
+  if(M->Mode()==ECultPlayMode::Domination) {
+   for(TActorIterator<ACultSkillAttack> It(M->GetWorld());It;++It) It->Destroy();
+   for(auto& A:M->State_->Fighters) if(auto* H=A.Pawn.Get()) { H->bBotControlled_=false; H->RelocateMatch(M->Base(A.Team)+FVector(0,-24000,0)); H->GetCharacterMovement()->DisableMovement(); A.Shield=0; }
+   auto& HeavyF=M->State_->Fighters[8]; auto* Hydra=HeavyF.Pawn.Get(); auto* Victim=M->State_->Fighters[0].Pawn.Get();
+   Hydra->bBotControlled_=true; Hydra->RelocateMatch(FVector(3300,5000,900)); Victim->RelocateMatch(FVector(3300,3300,0)); M->State_->Fighters[5].Pawn->RelocateMatch(FVector::ZeroVector);
+   HeavyF.DomPath.Reset(); HeavyF.RouteStep=2; HeavyF.Think=0; HeavyF.NextTacticalMove=999; HeavyF.Retreating=false;
+   Hydra->Kit_->AdvanceCooldowns(100); for(int S=0;S<3;++S) Hydra->Kit_->SetCooldown(S,999);
+   const float Hp=Victim->GetHealth(); M->BotThink(8,.016f); int HeavyBolts=0;
+   for(TActorIterator<ACultSkillAttack> It(M->GetWorld());It;++It) if(It->GetOwner()==Hydra&&It->Shape==ACultSkillAttack::EShape::Bolt) { ++HeavyBolts; T->TestEqual(TEXT("Even-slot Hydra retains its original twenty-metre acid range"),It->Reach,2000.f); It->Tick(0); It->Tick(1.2f); }
+   T->TestTrue(TEXT("A perch operator uses its authored acid spit regardless of alternating slot gate"),HeavyBolts>0);
+   T->TestTrue(TEXT("The acid-only opportunity causes actual contact damage"),Victim->GetHealth()<Hp);
+  }
  }
 };
 class FCultTacticsObservation:public IAutomationLatentCommand {
