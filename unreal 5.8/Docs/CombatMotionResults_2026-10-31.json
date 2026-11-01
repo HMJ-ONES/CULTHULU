@@ -1,0 +1,111 @@
+{
+  "completed": "2026-10-31",
+  "canonical_project": "unreal 5.8/CultUlhu.uproject",
+  "editor_build": "Succeeded",
+  "binding_validation_failures": 0,
+  "native_checks": {
+    "CultUlhu.Menu.BotAbilityOpportunity.Domination": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.BotAbilityOpportunity.Moba": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.BotHeavyOpportunity.Domination": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.BotHeavyOpportunity.Moba": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.BotMeleeReach.Domination": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.BotMeleeReach.Moba": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.BotThreatDecisions.Domination": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.BotThreatDecisions.Moba": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.CombatTactics.Domination": {
+      "result": "Success",
+      "log": "FluidNativeFinal.log"
+    },
+    "CultUlhu.Menu.CombatTactics.Moba": {
+      "result": "Success",
+      "log": "FluidNativeFinal.log"
+    },
+    "CultUlhu.Menu.DominationMatch": {
+      "result": "Success",
+      "log": "NativeTests.log"
+    },
+    "CultUlhu.Menu.MobaMatch": {
+      "result": "Success",
+      "log": "NativeTests.log"
+    },
+    "CultUlhu.Menu.MobaMechanics": {
+      "result": "Success",
+      "log": "FluidNativeFinal.log"
+    },
+    "CultUlhu.Menu.CameraFraming.DominationCthulhu": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.CameraFraming.DominationMiGo": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.CameraFraming.MobaCthulhu": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.CameraFraming.MobaMiGo": {
+      "result": "Success",
+      "log": "PresentationNative.log"
+    },
+    "CultUlhu.Menu.CrosshairAimAndMotion": {
+      "result": "Success",
+      "log": "FluidNativeFinal.log"
+    },
+    "CultUlhu.Art.RigGeometryAudit": {
+      "result": "Success",
+      "log": "FluidNativeFinal.log"
+    },
+    "CultUlhu.Art.ApprovedCharacterModels": {
+      "result": "Success",
+      "log": "ReviewedPoseCapture.log"
+    },
+    "CultUlhu.Art.FluidMotion": {
+      "result": "Success",
+      "log": "ReviewedPoseCapture.log"
+    }
+  },
+  "numeric_motion_checks": {
+    "samples_checked": 1024,
+    "max_authored_joint_delta_degrees": 34.00000000000011,
+    "max_planted_contact_drift_source_units": 2.8421709430404007e-13,
+    "max_rigid_weapon_follow_error_source_units": 5.422516559388814e-13,
+    "passed": true
+  },
+  "generated_animation_count": 27,
+  "generated_animation_bytes": 1985038,
+  "preserved_inherited_content_files": 564,
+  "motion_recipe_sha256": "a8498693a91596f278b2c9c5f5568634887c256f298c2a1630266b94d1dd8c6a",
+  "source_geometry_modified": false,
+  "core_simulation_modified": false,
+  "asset_authoring_shutdown": "The authoring script saved all 27 clips and its report, but that editor process returned an access-violation status after its shutdown log; fresh rendered native sessions subsequently loaded and tested the saved assets successfully.",
+  "limits": [
+    "Hands-on review is bounded; see HandsOnReview_2026-10-30.md",
+    "Standalone spawn warning and ally-camera obstruction are recorded review backlog items",
+    "Terrain-adaptive IK, cinematic acting and dedicated first-person arms remain further work"
+  ]
+}

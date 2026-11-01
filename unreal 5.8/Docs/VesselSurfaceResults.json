@@ -1,0 +1,761 @@
+{
+  "date": "2026-10-22",
+  "base": "f17051d760801d707fa39f63cf059994221b7541",
+  "build": {
+    "canonical_validation": true,
+    "target": "CultUlhuEditor Win64 Development",
+    "engine": "5.8.3",
+    "success": true,
+    "seconds": 15.12
+  },
+  "inspection": {
+    "/Engine/BasicShapes/BasicShapeMaterial": {
+      "exists": true,
+      "vectors": [
+        "Color"
+      ]
+    },
+    "/Game/CultUlhu/Materials/M_PawnVessel": {
+      "exists": true,
+      "vectors": []
+    },
+    "/Game/CultUlhu/Materials/M_ArenaSurface": {
+      "exists": true,
+      "vectors": [
+        "Color"
+      ]
+    }
+  },
+  "rejected": {
+    "reason": "First green version was visually rejected: saturated bright rubbery bodies and excessive rim/vein contrast.",
+    "native": {
+      "log": "VesselSurfaceReview.log",
+      "sha256": "fbc26543cdfc5f7c51076bb24624ae66fe8ffb8601838358cec2227f301fc95e",
+      "tests": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.HeroPlates.Domination"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.HeroPlates.Moba"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.VesselSurface.Domination"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.VesselSurface.Moba"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CombatFeel"
+        }
+      ],
+      "errors": []
+    },
+    "profiles": {
+      "Domination": {
+        "windows": [
+          {
+            "index": 0,
+            "legacy": true,
+            "sha256": "8799a6c9e237d68c628bb8151c2c52d57f11d77e051e29ef2a9838b6de1c5b59",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 6.265,
+              "GameThreadTime": 11.926300000000001,
+              "RenderThreadTime": 8.2654,
+              "RHI/DrawCalls": 368.0,
+              "RHI/PrimitivesDrawn": 51288.0
+            }
+          },
+          {
+            "index": 1,
+            "legacy": false,
+            "sha256": "8e5fe15b89223c3633f799a1bbb43fb0081052275438e8cac392f81bfaf4ed9f",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 6.2509,
+              "GameThreadTime": 11.9992,
+              "RenderThreadTime": 8.12945,
+              "RHI/DrawCalls": 368.0,
+              "RHI/PrimitivesDrawn": 51288.0
+            }
+          },
+          {
+            "index": 2,
+            "legacy": false,
+            "sha256": "4c515dcb0e6ec9ea4840c4f790e3439162a24fdcd0d15b83a0dc6b8454a431bf",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 7.86075,
+              "GameThreadTime": 15.424,
+              "RenderThreadTime": 9.03715,
+              "RHI/DrawCalls": 368.0,
+              "RHI/PrimitivesDrawn": 51288.0
+            }
+          },
+          {
+            "index": 3,
+            "legacy": true,
+            "sha256": "b30e11aef0cd685149e0b34e853cd374ba83174d5c9506cfeac87d308bcd9975",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 7.005599999999999,
+              "GameThreadTime": 12.584700000000002,
+              "RenderThreadTime": 8.66425,
+              "RHI/DrawCalls": 368.0,
+              "RHI/PrimitivesDrawn": 51288.0
+            }
+          }
+        ],
+        "metrics": {
+          "GPUTime": {
+            "before": 6.4089,
+            "after": 6.34435,
+            "delta": -0.06454999999999966
+          },
+          "GameThreadTime": {
+            "before": 12.194199999999999,
+            "after": 12.32515,
+            "delta": 0.13095000000000212
+          },
+          "RenderThreadTime": {
+            "before": 8.3149,
+            "after": 8.4807,
+            "delta": 0.16580000000000084
+          },
+          "RHI/DrawCalls": {
+            "before": 368.0,
+            "after": 368.0,
+            "delta": 0.0
+          },
+          "RHI/PrimitivesDrawn": {
+            "before": 51288.0,
+            "after": 51288.0,
+            "delta": 0.0
+          }
+        }
+      },
+      "Moba": {
+        "windows": [
+          {
+            "index": 0,
+            "legacy": true,
+            "sha256": "7ec6682962b7c696c2c5606ad61838decd3864e977e95f823ab3009ad4e45637",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 6.9780999999999995,
+              "GameThreadTime": 11.861550000000001,
+              "RenderThreadTime": 8.334800000000001,
+              "RHI/DrawCalls": 555.0,
+              "RHI/PrimitivesDrawn": 196257.0
+            }
+          },
+          {
+            "index": 1,
+            "legacy": false,
+            "sha256": "cd69aea7834185d8631366e534bf84f203271b579e8c17046731e8c7794f50ee",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 6.8342,
+              "GameThreadTime": 12.018699999999999,
+              "RenderThreadTime": 8.3925,
+              "RHI/DrawCalls": 555.0,
+              "RHI/PrimitivesDrawn": 196257.0
+            }
+          },
+          {
+            "index": 2,
+            "legacy": false,
+            "sha256": "42ef2ccfa6607d77b1a987780a3133a16a40dc674744c5e9f1f04fc9597fc336",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 7.0628,
+              "GameThreadTime": 10.39995,
+              "RenderThreadTime": 7.54645,
+              "RHI/DrawCalls": 555.0,
+              "RHI/PrimitivesDrawn": 196257.0
+            }
+          },
+          {
+            "index": 3,
+            "legacy": true,
+            "sha256": "0845df3deaf84ff84197d05035a206129d7472034105f4d7e156a3c865d6acf3",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 7.07305,
+              "GameThreadTime": 11.3361,
+              "RenderThreadTime": 8.0199,
+              "RHI/DrawCalls": 555.0,
+              "RHI/PrimitivesDrawn": 196257.0
+            }
+          }
+        ],
+        "metrics": {
+          "GPUTime": {
+            "before": 7.0349,
+            "after": 6.991099999999999,
+            "delta": -0.04380000000000095
+          },
+          "GameThreadTime": {
+            "before": 11.43855,
+            "after": 11.18795,
+            "delta": -0.2505999999999986
+          },
+          "RenderThreadTime": {
+            "before": 8.10195,
+            "after": 7.962949999999999,
+            "delta": -0.13900000000000112
+          },
+          "RHI/DrawCalls": {
+            "before": 555.0,
+            "after": 555.0,
+            "delta": 0.0
+          },
+          "RHI/PrimitivesDrawn": {
+            "before": 196257.0,
+            "after": 196257.0,
+            "delta": 0.0
+          }
+        }
+      }
+    },
+    "images": [
+      {
+        "name": "VesselSurface_Domination_AfterGroup.png",
+        "sha256": "ec42636d520680bfd03dcf3c47d679ffe2019be888860a6763c2ac3f9675b462",
+        "bytes": 1037319,
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "name": "VesselSurface_Domination_AfterSpawn.png",
+        "sha256": "a1853b21f78c4dbd0f81cdd19eb82269ec8f3680a9d61498ff1d253268c7ac69",
+        "bytes": 989853,
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "name": "VesselSurface_Domination_BeforeGroup.png",
+        "sha256": "cb15d6db84d433d86221712cd4ea0ad51f0d52f15ebc79bd96ab3ce435f6ad4c",
+        "bytes": 1011026,
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "name": "VesselSurface_Domination_BeforeSpawn.png",
+        "sha256": "586ed4c0efc9fd6913973916ed8a2f634815208de06ecdbefe9ca82a8d632323",
+        "bytes": 943695,
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "name": "VesselSurface_Moba_AfterGroup.png",
+        "sha256": "f08211b3d9586d321beb301701e11bd7054e6dbe72fd6f7e27643d1265f59ad8",
+        "bytes": 1017583,
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "name": "VesselSurface_Moba_AfterSpawn.png",
+        "sha256": "d6eab59ade17e98fd02f17824eb092723be2bd361393537ef9425a32b350ef8b",
+        "bytes": 1097674,
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "name": "VesselSurface_Moba_BeforeGroup.png",
+        "sha256": "bfea08ad0ae2e8aaff7e30e4e8b421262c3960c9b981b91adf87815e589d9483",
+        "bytes": 990309,
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "name": "VesselSurface_Moba_BeforeSpawn.png",
+        "sha256": "8bf1ef6506cec9f7a4f7b411d68b6042bb7ce7afdc672d24861e5ec8b8e89d9e",
+        "bytes": 1066494,
+        "width": 1280,
+        "height": 720
+      }
+    ]
+  },
+  "final": {
+    "log": "VesselSurfaceVerified.log",
+    "sha256": "6a4a33401e209b3b4b7d2b548caa613573b3924f6c59c70074947b534b7c0ee0",
+    "tests": [
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.HeroPlates.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.HeroPlates.Moba"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.VesselSurface.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.VesselSurface.Moba"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.CombatFeel"
+      }
+    ],
+    "errors": []
+  },
+  "images": [
+    {
+      "name": "VesselSurface_Domination_AfterGroup.png",
+      "sha256": "75c8aaef6f4deb904dcdbdce6d16831059ee482f9c6ff1612e5df9c278ad1af1",
+      "bytes": 1047937,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "name": "VesselSurface_Domination_AfterSpawn.png",
+      "sha256": "b5b1bb5b7703c2681c6be47cc73c73cf94cda7ca912f51b5762ace0c09eb98dd",
+      "bytes": 970020,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "name": "VesselSurface_Domination_BeforeGroup.png",
+      "sha256": "305296784cae653b6939b39deed2c64f0c8a12e774dcb59f832a50b7500ceeb9",
+      "bytes": 1038198,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "name": "VesselSurface_Domination_BeforeSpawn.png",
+      "sha256": "c5fac3734f5a7a54177d87722e3c91dbdd777e25c89c8262611718039fd22e81",
+      "bytes": 954513,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "name": "VesselSurface_Moba_AfterGroup.png",
+      "sha256": "41abb2592cc87f28a42c25e0330338190ed6aeaac61820c64b151c3343f9b468",
+      "bytes": 1011240,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "name": "VesselSurface_Moba_AfterSpawn.png",
+      "sha256": "dd27fed0d3a2c4b6924eb24da430a7609a6da09de2227672d3682fa6a0c87b51",
+      "bytes": 1080223,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "name": "VesselSurface_Moba_BeforeGroup.png",
+      "sha256": "7dbd077445002c33c94b6be9d99b4ddaf29756ae9efb6225042240629edad005",
+      "bytes": 1001511,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "name": "VesselSurface_Moba_BeforeSpawn.png",
+      "sha256": "c148771873792685f510485e569bc5d57ad744681d3dc0a2526c6b9ce4a189ff",
+      "bytes": 1069043,
+      "width": 1280,
+      "height": 720
+    }
+  ],
+  "backed_up_images": [
+    "unreal 5.8/Docs/Images/VesselSurface_Domination_BeforeGroup.png",
+    "unreal 5.8/Docs/Images/VesselSurface_Domination_AfterGroup.png",
+    "unreal 5.8/Docs/Images/VesselSurface_Moba_BeforeGroup.png",
+    "unreal 5.8/Docs/Images/VesselSurface_Moba_AfterGroup.png"
+  ],
+  "profiles": {
+    "Domination": {
+      "windows": [
+        {
+          "index": 0,
+          "legacy": true,
+          "sha256": "9481e7e2a4db894f1194fc52a47cac57df5b13ee9ea09b0163680e1f723f0fdd",
+          "samples_after_first_ten": 110,
+          "median": {
+            "GPUTime": 6.23775,
+            "GameThreadTime": 11.6381,
+            "RenderThreadTime": 7.9876,
+            "RHI/DrawCalls": 369.0,
+            "RHI/PrimitivesDrawn": 49464.0
+          }
+        },
+        {
+          "index": 1,
+          "legacy": false,
+          "sha256": "7b48ab413a9760b3bf1d5501ee81446590815ff555698ee2c78ef8cbe1787508",
+          "samples_after_first_ten": 110,
+          "median": {
+            "GPUTime": 6.2507,
+            "GameThreadTime": 11.7334,
+            "RenderThreadTime": 7.98445,
+            "RHI/DrawCalls": 369.0,
+            "RHI/PrimitivesDrawn": 49464.0
+          }
+        },
+        {
+          "index": 2,
+          "legacy": false,
+          "sha256": "2e17da46e43c5b99f94271c6ab69821ee33d67a68fab34ed66bcbbde5fca6115",
+          "samples_after_first_ten": 110,
+          "median": {
+            "GPUTime": 7.5817499999999995,
+            "GameThreadTime": 14.82325,
+            "RenderThreadTime": 8.91655,
+            "RHI/DrawCalls": 369.0,
+            "RHI/PrimitivesDrawn": 49464.0
+          }
+        },
+        {
+          "index": 3,
+          "legacy": true,
+          "sha256": "7ac38ec7a88e5500a7ed7eef3e2c5edb8a32cc86c6c3dd13d0c0b064cde4b7d4",
+          "samples_after_first_ten": 110,
+          "median": {
+            "GPUTime": 6.0175,
+            "GameThreadTime": 11.841899999999999,
+            "RenderThreadTime": 8.1458,
+            "RHI/DrawCalls": 369.0,
+            "RHI/PrimitivesDrawn": 49464.0
+          }
+        }
+      ],
+      "metrics": {
+        "GPUTime": {
+          "before": 6.16795,
+          "after": 6.363899999999999,
+          "delta": 0.19594999999999896
+        },
+        "GameThreadTime": {
+          "before": 11.789,
+          "after": 12.062000000000001,
+          "delta": 0.27300000000000146
+        },
+        "RenderThreadTime": {
+          "before": 8.0811,
+          "after": 8.3444,
+          "delta": 0.263300000000001
+        },
+        "RHI/DrawCalls": {
+          "before": 369.0,
+          "after": 369.0,
+          "delta": 0.0
+        },
+        "RHI/PrimitivesDrawn": {
+          "before": 49464.0,
+          "after": 49464.0,
+          "delta": 0.0
+        }
+      }
+    },
+    "Moba": {
+      "windows": [
+        {
+          "index": 0,
+          "legacy": true,
+          "sha256": "880581078e308985a450e80d35e7aa6c0dd5a2e0b39b1af560824e114ebfeb7a",
+          "samples_after_first_ten": 110,
+          "median": {
+            "GPUTime": 6.99905,
+            "GameThreadTime": 10.85605,
+            "RenderThreadTime": 7.9594000000000005,
+            "RHI/DrawCalls": 555.0,
+            "RHI/PrimitivesDrawn": 196257.0
+          }
+        },
+        {
+          "index": 1,
+          "legacy": false,
+          "sha256": "35a16aab78cb8576c00ddb27689c09d55bf4390b6c31f5e5a5da5c0ea116441b",
+          "samples_after_first_ten": 110,
+          "median": {
+            "GPUTime": 7.25275,
+            "GameThreadTime": 12.585999999999999,
+            "RenderThreadTime": 9.3489,
+            "RHI/DrawCalls": 555.0,
+            "RHI/PrimitivesDrawn": 196257.0
+          }
+        },
+        {
+          "index": 2,
+          "legacy": false,
+          "sha256": "0ba3621e01ef1a7988d254a3b31ed618bc2bbe88e0be82c95aa7cb486b20e7c0",
+          "samples_after_first_ten": 110,
+          "median": {
+            "GPUTime": 7.9997,
+            "GameThreadTime": 14.5793,
+            "RenderThreadTime": 9.334499999999998,
+            "RHI/DrawCalls": 555.0,
+            "RHI/PrimitivesDrawn": 196257.0
+          }
+        },
+        {
+          "index": 3,
+          "legacy": true,
+          "sha256": "013280dbffae8a71bba493cadedfeb4c08d47f55a6d7140e1060d7e2e128393b",
+          "samples_after_first_ten": 110,
+          "median": {
+            "GPUTime": 7.05605,
+            "GameThreadTime": 11.1775,
+            "RenderThreadTime": 8.17005,
+            "RHI/DrawCalls": 555.0,
+            "RHI/PrimitivesDrawn": 196257.0
+          }
+        }
+      ],
+      "metrics": {
+        "GPUTime": {
+          "before": 7.015700000000001,
+          "after": 7.6405,
+          "delta": 0.6247999999999996
+        },
+        "GameThreadTime": {
+          "before": 11.04615,
+          "after": 13.21895,
+          "delta": 2.1727999999999987
+        },
+        "RenderThreadTime": {
+          "before": 8.08595,
+          "after": 9.3424,
+          "delta": 1.2564499999999992
+        },
+        "RHI/DrawCalls": {
+          "before": 555.0,
+          "after": 555.0,
+          "delta": 0.0
+        },
+        "RHI/PrimitivesDrawn": {
+          "before": 196257.0,
+          "after": 196257.0,
+          "delta": 0.0
+        }
+      }
+    }
+  },
+  "preservation": {
+    "existing_content_byte_identical": 425,
+    "released_definitions_normalized_identical": [
+      "bokrug",
+      "cthulhu_avatar",
+      "dagon",
+      "ghatanothoa",
+      "hastur",
+      "mi_go",
+      "mother_hydra",
+      "nodens",
+      "nug_and_yeb",
+      "nyarlathotep",
+      "rhan_tegoth",
+      "sghllor",
+      "shoggoths",
+      "shub_niggurath",
+      "yig",
+      "yog_sothoth"
+    ]
+  },
+  "new_asset": {
+    "bytes": 13717,
+    "sha256": "735e500351b7308db55b0d987f7e868eb7fa409404595892339b5f5681c6448d"
+  },
+  "limits": [
+    "Placeholder silhouette/rig/animation remain unfinished; this is a material/readability pass.",
+    "Frozen A-B-B-A editor samples are scoped render cost, not gameplay or low-spec FPS certification.",
+    "Five native checks cover two material scenes, both hero-plate modes and combat feel; no fresh standalone package or full match balance claim.",
+    "Normal project MCP remains enabled; isolated verification disables only its transport."
+  ],
+  "cost_retry": {
+    "native": {
+      "log": "VesselSurfaceCostRetry.log",
+      "sha256": "466fc4713fcb65a823645b65a17b0a6dbb4ddc7715b48c165ac8f9fc9ad5b473",
+      "tests": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.VesselSurface.Domination"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.VesselSurface.Moba"
+        }
+      ],
+      "errors": []
+    },
+    "profiles": {
+      "Domination": {
+        "windows": [
+          {
+            "index": 0,
+            "legacy": true,
+            "sha256": "85e2ccad24919989d1be704e80dfb694a0835024bf83902354f850937ded126a",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 5.608,
+              "GameThreadTime": 13.09805,
+              "RenderThreadTime": 8.5957,
+              "RHI/DrawCalls": 369.0,
+              "RHI/PrimitivesDrawn": 49508.0
+            }
+          },
+          {
+            "index": 1,
+            "legacy": false,
+            "sha256": "45d03194dcd78908ea5a5178608242ef181e8027cf22ecccd7ddb07f8bb76241",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 5.790649999999999,
+              "GameThreadTime": 11.68235,
+              "RenderThreadTime": 7.8130500000000005,
+              "RHI/DrawCalls": 369.0,
+              "RHI/PrimitivesDrawn": 49508.0
+            }
+          },
+          {
+            "index": 2,
+            "legacy": false,
+            "sha256": "1caa0bf0ddb79bad7d80a840d89358b1e2817104474cebd0eaf19f376305d8a3",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 6.1477,
+              "GameThreadTime": 12.049900000000001,
+              "RenderThreadTime": 8.7091,
+              "RHI/DrawCalls": 369.0,
+              "RHI/PrimitivesDrawn": 49508.0
+            }
+          },
+          {
+            "index": 3,
+            "legacy": true,
+            "sha256": "5a5a7284fe96c4a1fa875f47dc1bbebca8925f432191af2b9f5ea2dedab28e06",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 6.0863,
+              "GameThreadTime": 12.6874,
+              "RenderThreadTime": 8.98075,
+              "RHI/DrawCalls": 369.0,
+              "RHI/PrimitivesDrawn": 49508.0
+            }
+          }
+        ],
+        "metrics": {
+          "GPUTime": {
+            "before": 5.75395,
+            "after": 5.910349999999999,
+            "delta": 0.15639999999999965
+          },
+          "GameThreadTime": {
+            "before": 13.0381,
+            "after": 11.7457,
+            "delta": -1.2924000000000007
+          },
+          "RenderThreadTime": {
+            "before": 8.713650000000001,
+            "after": 7.98935,
+            "delta": -0.7243000000000013
+          },
+          "RHI/DrawCalls": {
+            "before": 369.0,
+            "after": 369.0,
+            "delta": 0.0
+          },
+          "RHI/PrimitivesDrawn": {
+            "before": 49508.0,
+            "after": 49508.0,
+            "delta": 0.0
+          }
+        }
+      },
+      "Moba": {
+        "windows": [
+          {
+            "index": 0,
+            "legacy": true,
+            "sha256": "b9128bbdf9101529fd141b730e33d1ed9a1f198068140c5e5924d33e044d81ba",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 6.74005,
+              "GameThreadTime": 11.39865,
+              "RenderThreadTime": 7.99345,
+              "RHI/DrawCalls": 555.0,
+              "RHI/PrimitivesDrawn": 196289.0
+            }
+          },
+          {
+            "index": 1,
+            "legacy": false,
+            "sha256": "9fb41584318687f88a8898bcc848a58c78e472f2bd264fd5e274f3efee72e8ef",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 6.65925,
+              "GameThreadTime": 12.1997,
+              "RenderThreadTime": 8.64305,
+              "RHI/DrawCalls": 555.0,
+              "RHI/PrimitivesDrawn": 196289.0
+            }
+          },
+          {
+            "index": 2,
+            "legacy": false,
+            "sha256": "6a2d08ab6edb3e21bedc3c88043168740db3d720e7250ca91f1a1e22a551d354",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 7.22935,
+              "GameThreadTime": 13.34225,
+              "RenderThreadTime": 9.5928,
+              "RHI/DrawCalls": 555.0,
+              "RHI/PrimitivesDrawn": 196289.0
+            }
+          },
+          {
+            "index": 3,
+            "legacy": true,
+            "sha256": "1dfe396396c20bdb965c6e32b5b04f9530b5eeb26f61929d8598a97606902326",
+            "samples_after_first_ten": 110,
+            "median": {
+              "GPUTime": 6.6242,
+              "GameThreadTime": 11.534199999999998,
+              "RenderThreadTime": 8.40385,
+              "RHI/DrawCalls": 555.0,
+              "RHI/PrimitivesDrawn": 196289.0
+            }
+          }
+        ],
+        "metrics": {
+          "GPUTime": {
+            "before": 6.6823,
+            "after": 6.77935,
+            "delta": 0.0970500000000003
+          },
+          "GameThreadTime": {
+            "before": 11.5058,
+            "after": 12.2994,
+            "delta": 0.7935999999999996
+          },
+          "RenderThreadTime": {
+            "before": 8.224499999999999,
+            "after": 8.8939,
+            "delta": 0.6694000000000013
+          },
+          "RHI/DrawCalls": {
+            "before": 555.0,
+            "after": 555.0,
+            "delta": 0.0
+          },
+          "RHI/PrimitivesDrawn": {
+            "before": 196289.0,
+            "after": 196289.0,
+            "delta": 0.0
+          }
+        }
+      }
+    },
+    "scope": "Unchanged asset and runtime source; new frozen A-B-B-A windows. Original final results/images and their slower cost samples are retained above."
+  }
+}

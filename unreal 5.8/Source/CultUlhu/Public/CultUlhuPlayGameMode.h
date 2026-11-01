@@ -22,9 +22,12 @@ class CULTULHU_API ACultUlhuPlayGameMode : public ACultUlhuGameMode
 
 public:
 	ACultUlhuPlayGameMode();
+	virtual void InitGame(const FString& MapName,const FString& Options,FString& ErrorMessage) override;
 
 	virtual void BeginPlay() override;
-	virtual AActor* ChoosePlayerStart(AController* Player) override;
+ virtual void PreLogin(const FString& Options,const FString& Address,const FUniqueNetIdRepl& UniqueId,FString& ErrorMessage) override;
+ virtual void Logout(AController* Exiting) override;
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
 	// Menu map: UI only — suppress the default pawn so nothing spawns,
 	// falls, or steals the camera behind the menu vista.

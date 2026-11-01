@@ -1,0 +1,167 @@
+{
+  "character": "shoggoths",
+  "revision": "v005",
+  "source": "unreal 5.8/Saved/CharacterSources/shoggoths/source.glb",
+  "sourceSha256": "d736cd045e730072390be58ab7f0a2586813fc7255599e1daf4a937968badce9",
+  "blend": "assets/character_animation/shoggoths/v005/Shoggoths_BasicMotion.blend",
+  "blendSha256": "b02306d481e86b50fd067123b796d674735563dcb14741c34f62381145c2fd67",
+  "skinning": {
+    "method": "surface-geodesic anatomical regions / joint proximity",
+    "regions": [
+      "body",
+      "head",
+      "arm_L",
+      "leg_L",
+      "arm_R",
+      "leg_R",
+      "horn_L",
+      "loop_L",
+      "horn_R",
+      "loop_R"
+    ],
+    "maxInfluences": 4,
+    "vertices": 10894,
+    "disconnectedFallbackVertices": 3639,
+    "surfaceSmoothingIterations": 10,
+    "anatomicalRegionMasks": true,
+    "regionProximityFraction": 0.2,
+    "normalizationMaxError": 2.220446049250313e-16
+  },
+  "boneCount": 44,
+  "sampleRate": 60,
+  "actions": {
+    "idle": {
+      "frames": 229,
+      "seconds": 3.8,
+      "minimumSurfaceZ": 0.0019998233765363693,
+      "worstP995EdgeStretch": 1.165350816292139,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "walk": {
+      "frames": 97,
+      "seconds": 1.6,
+      "minimumSurfaceZ": 0.001999899744987488,
+      "worstP995EdgeStretch": 1.3385603008613578,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "run": {
+      "frames": 61,
+      "seconds": 1.0,
+      "minimumSurfaceZ": 0.0019998252391815186,
+      "worstP995EdgeStretch": 1.8011422417569276,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_1": {
+      "frames": 48,
+      "seconds": 0.7833333333333333,
+      "minimumSurfaceZ": 0.0019999202340841293,
+      "worstP995EdgeStretch": 1.6180059061491032,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_2": {
+      "frames": 55,
+      "seconds": 0.9,
+      "minimumSurfaceZ": 0.0019998662173748016,
+      "worstP995EdgeStretch": 1.341166604084615,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_3": {
+      "frames": 52,
+      "seconds": 0.85,
+      "minimumSurfaceZ": 0.001999802887439728,
+      "worstP995EdgeStretch": 1.4289015961931117,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "jump": {
+      "frames": 67,
+      "seconds": 1.1,
+      "minimumSurfaceZ": 0.0019999146461486816,
+      "worstP995EdgeStretch": 1.6092981330712308,
+      "endpointMaxVertexDistance": 0.2583783268928528
+    },
+    "dash": {
+      "frames": 32,
+      "seconds": 0.5166666666666667,
+      "minimumSurfaceZ": 0.0019999295473098755,
+      "worstP995EdgeStretch": 1.3485598111421382,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "taunt": {
+      "frames": 169,
+      "seconds": 2.8,
+      "minimumSurfaceZ": 0.00199991837143898,
+      "worstP995EdgeStretch": 1.692327348645067,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "land": {
+      "frames": 25,
+      "seconds": 0.4,
+      "minimumSurfaceZ": 0.001999843865633011,
+      "worstP995EdgeStretch": 1.5182090383192433,
+      "endpointMaxVertexDistance": 0.0
+    }
+  },
+  "abilities": false,
+  "sourceArt": {
+    "meshParts": 4,
+    "uvLayersPerPart": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "materialsPerPart": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "seamWeldDistanceMetres": 1e-07,
+    "verticesBeforeWeld": 14175,
+    "verticesAfterWeld": 10894,
+    "uvLayoutSha256": "4bd8d8cd68a20af87e5be78b5ca13fdc6abfefad8b48f21a4879d16d92b5b708",
+    "sourcePolygonsPreserved": 20302,
+    "maximumVertexDisplacementMetres": 0.0,
+    "joinedUVLayers": 1,
+    "joinedMaterials": 4,
+    "lowerAnatomicalRegions": [
+      {
+        "region": "arm_R",
+        "vertices": 1529,
+        "centroid": [
+          -0.7444481045456007,
+          0.5264920740613094,
+          0.17517800327997102
+        ]
+      },
+      {
+        "region": "leg_R",
+        "vertices": 338,
+        "centroid": [
+          -0.12332053473715246,
+          -0.5704952083395783,
+          0.31078991029389513
+        ]
+      },
+      {
+        "region": "leg_L",
+        "vertices": 361,
+        "centroid": [
+          0.40817479873875834,
+          -0.7562823366590484,
+          0.33978768308076834
+        ]
+      },
+      {
+        "region": "arm_L",
+        "vertices": 1049,
+        "centroid": [
+          0.8276643694526702,
+          -0.4111398532276385,
+          0.2666121886331087
+        ]
+      }
+    ]
+  },
+  "status": "anatomical motion study; visual/deformation review required; not game integrated"
+}

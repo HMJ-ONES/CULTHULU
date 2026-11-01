@@ -1,0 +1,248 @@
+{
+  "date": "2026-10-31",
+  "baseline": "1a29543ab792f84ae58b2e1f9ed985056d9527ba",
+  "canonical_project": "unreal 5.8/CultUlhu.uproject",
+  "build": {
+    "target": "CultUlhuEditor Win64 Development",
+    "result": "Succeeded",
+    "log_sha256": "c45d33389effe26f685e56218dd72928a905d86361295d729e1ee12e19f24d95"
+  },
+  "binding_validator": "0 failures",
+  "native_tests": [
+    {
+      "test": "CultUlhu.FreeRoam.Persistence",
+      "result": "Success"
+    },
+    {
+      "test": "CultUlhu.Menu.ConsolidationFlow",
+      "result": "Success"
+    },
+    {
+      "test": "CultUlhu.Menu.MatchHUDCoordinates",
+      "result": "Success"
+    },
+    {
+      "test": "CultUlhu.Network.RoomCodes",
+      "result": "Success"
+    },
+    {
+      "test": "CultUlhu.Network.RoomMenus",
+      "result": "Success"
+    },
+    {
+      "test": "CultUlhu.Menu.ObjectiveCollision.NexusWard",
+      "result": "Success"
+    },
+    {
+      "test": "CultUlhu.Menu.NaturalCreepWaves",
+      "result": "Success"
+    },
+    {
+      "test": "CultUlhu.Menu.CompetitiveMenuEnd",
+      "result": "Success"
+    }
+  ],
+  "native_runs": [
+    {
+      "log": "RadminFinalTests.log",
+      "sha256": "d3d47194505dcf0e880a5d459b63bfe7b88b9fb1918222ba1edc4de35c460e30",
+      "results": [
+        {
+          "test": "CultUlhu.FreeRoam.Persistence",
+          "result": "Success"
+        },
+        {
+          "test": "CultUlhu.Menu.ConsolidationFlow",
+          "result": "Success"
+        },
+        {
+          "test": "CultUlhu.Menu.MatchHUDCoordinates",
+          "result": "Success"
+        },
+        {
+          "test": "CultUlhu.Network.RoomCodes",
+          "result": "Success"
+        },
+        {
+          "test": "CultUlhu.Network.RoomMenus",
+          "result": "Success"
+        }
+      ]
+    },
+    {
+      "log": "RadminRegressionTests.log",
+      "sha256": "bbb965798ea43b171e1e23499f8f65066aa18c8c860a5799499591ed7bdfde01",
+      "results": [
+        {
+          "test": "CultUlhu.Menu.ObjectiveCollision.NexusWard",
+          "result": "Success"
+        },
+        {
+          "test": "CultUlhu.Menu.NaturalCreepWaves",
+          "result": "Success"
+        },
+        {
+          "test": "CultUlhu.Network.RoomMenus",
+          "result": "Success"
+        }
+      ]
+    },
+    {
+      "log": "RadminMenuEndTests.log",
+      "sha256": "b81ecfbb2e78d1aa0c5ccd00e3e98871031e615129695ea9ee5849811e55cb21",
+      "results": [
+        {
+          "test": "CultUlhu.Menu.CompetitiveMenuEnd",
+          "result": "Success"
+        },
+        {
+          "test": "CultUlhu.Menu.ConsolidationFlow",
+          "result": "Success"
+        },
+        {
+          "test": "CultUlhu.Menu.MatchHUDCoordinates",
+          "result": "Success"
+        }
+      ]
+    }
+  ],
+  "standalone_pairs": [
+    {
+      "ok": true,
+      "mode": 0,
+      "role": "host",
+      "phase": 5,
+      "movement": true,
+      "combat": true,
+      "localMenu": true,
+      "reason": "",
+      "proof_sha256": "718aec939d76682c060a36eaec67971db872d29c90c983ded4f7c10a0dc98d6d"
+    },
+    {
+      "ok": true,
+      "mode": 0,
+      "role": "guest",
+      "phase": 8,
+      "movement": true,
+      "combat": true,
+      "localMenu": true,
+      "reason": "",
+      "proof_sha256": "64fd0c0145c72aa84e494f263103af04160d562ec5b51e97780f54d051465a12"
+    },
+    {
+      "ok": true,
+      "mode": 1,
+      "role": "host",
+      "phase": 5,
+      "movement": true,
+      "combat": true,
+      "localMenu": true,
+      "hostReplacedByBot": true,
+      "reason": "",
+      "proof_sha256": "6f41f6c4dc7dddf66dea7a2678b49d7b4b822b7cab55408a32da7c154aef2c3c"
+    },
+    {
+      "ok": true,
+      "mode": 1,
+      "role": "guest",
+      "phase": 8,
+      "movement": true,
+      "combat": true,
+      "localMenu": true,
+      "hostReplacedByBot": true,
+      "reason": "",
+      "proof_sha256": "a6379a53304e526a56e86e6a10500dbb857a4b9049afb0ea25dd092bbd2054c7"
+    },
+    {
+      "ok": true,
+      "mode": 2,
+      "role": "host",
+      "phase": 5,
+      "movement": true,
+      "combat": true,
+      "localMenu": true,
+      "hostReplacedByBot": true,
+      "reason": "",
+      "proof_sha256": "be61e276303b30ace207a1b41cd1ec87b1fd32fac8f47c35b72b855499bae91e"
+    },
+    {
+      "ok": true,
+      "mode": 2,
+      "role": "guest",
+      "phase": 8,
+      "movement": true,
+      "creepsMove": true,
+      "combat": true,
+      "localMenu": true,
+      "hostReplacedByBot": true,
+      "reason": "",
+      "proof_sha256": "aa54c706a97f5f81d98160aca5c1413b0b3a2c583f2d3772718b2b80651b22ab"
+    }
+  ],
+  "network_scope": "Independent game host and guest processes on the same PC, using the active Radmin adapter address. Free Roam uses a public code, Domination uses a private invitation, DOTGOO uses UDP discovery. No second computer/tunnel is certified.",
+  "verified_behavior": [
+    "Four real room menu callbacks for all modes; no-room feedback; public/private invitation codec validation",
+    "Host-authoritative combat and match simulation; guest entity choice and opposing-team assignment",
+    "Guest physical melee kill and dash; shared Free Roam terrain and buildings; client sees moving DOTGOO creeps",
+    "Host and guest Esc menus leave world/match clocks running; guest combat remains possible while host menu is open",
+    "Competitive host quits to a background room with bot replacement; guest remains connected; guest quit also refills its slot",
+    "Competitive menu switches to match results if the battle ends while it is open",
+    "Solo Free Roam persistence and pause behavior; six-route creep-wave and solid nexus collision regressions"
+  ],
+  "provenance": "The three connected pairs ran against RadminMultiplayerBuildRelease. The final match-end menu cleanup was then rebuilt and verified with CompetitiveMenuEnd, ConsolidationFlow and MatchHUDCoordinates.",
+  "limitations": [
+    "No different-PC Radmin tunnel or router/WAN test",
+    "No new packaged release, ten-human load test or host migration",
+    "No dedicated server, central matchmaking, relay or persistent guest accounts",
+    "Free Roam shares the host cult and beliefs; the host saves the world"
+  ],
+  "source_sha256": {
+    "unreal 5.8/Source/CultUlhu/CultUlhu.Build.cs": "608b3ec9f9239495e7d44bf1d4fc8461e93c200d564fd9bc615595c6aabfa623",
+    "unreal 5.8/Source/CultUlhu/Private/CultConsolidationFlowTest.cpp": "0e9768f33264ac65153613f1c741a61a51b557ed8ce908ca85ece924f2b2203d",
+    "unreal 5.8/Source/CultUlhu/Private/CultCorpse.cpp": "0c4d7d3d345cf8a1b164ffa8fa9ead37f3619048d2118da84ca91469e23a16fe",
+    "unreal 5.8/Source/CultUlhu/Private/CultDestructible.cpp": "6672375b346d568d0f8a1a8a00575eef4af887906ff225e526f8866df681e1f0",
+    "unreal 5.8/Source/CultUlhu/Private/CultFeralBeast.cpp": "a22a1ef51889c8dbf2a72429b066fc418a2eda5bdaaa920f978aa579c3c489cb",
+    "unreal 5.8/Source/CultUlhu/Private/CultFreeRoamNetwork.cpp": "10c9f829d1d811e484839817abbb6a69613b55a7dc339d71212b25d51e466885",
+    "unreal 5.8/Source/CultUlhu/Private/CultHUDCoordinatesTest.cpp": "3ace1439c9416a902543356902d8c365d09d466f8b05342137edf58377b1f53e",
+    "unreal 5.8/Source/CultUlhu/Private/CultJungleCamp.cpp": "c0ef60fb9d7b3352ae49583955b22372c2fab541503ec2afd2238a55e7e668b7",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchBattle.cpp": "f7634d67f08edc70983e42a4a5634f0a0a5f2669a12ba63df71e32784cf7b528",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchDirector.cpp": "1a6475df542ce2b39f82996777bf100367a038b1299e64a37ba3eb5404f471a0",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchHUD.cpp": "d074eb4563276c60288c06de70d3bfaa6f9769ded9271c6e14c238deb91f08b0",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchNetwork.cpp": "490865b01315ba53c51c5b16d6d70fc37fc28777f194794d1095736c5ea6c7a0",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchNetwork.h": "4a80c2d2e30911fe376035719c221766f9ddd42297ba0c2aa73ed6cebd3e1bef",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchPawn.cpp": "d74409efd3d3808d212f59dbcef9050cc8f371362ba61b734657f5545e23edbf",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchState.h": "7b1f9e5eae25d0e03619289fe68c969d8322c8ab0016345791359bae6159c83e",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchTest.cpp": "3f4d2702b69c8e4914351d642fd6e72bf0b0800ccecdcadac456069047355c44",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchUnit.cpp": "b6c02eaaf307adf73df3646ced57268a1a8935191ebce8fe7bb3a523061100ea",
+    "unreal 5.8/Source/CultUlhu/Private/CultPlayHUD.cpp": "42e1c63035d646e4ca5bd766b21a9ea2e5344e8fbc3df18f53d7bd8c12a5ba5e",
+    "unreal 5.8/Source/CultUlhu/Private/CultPopulation.cpp": "143c75773215b7267b05a5f3b58604415c899350d82c94047c806e789256b527",
+    "unreal 5.8/Source/CultUlhu/Private/CultReplicatedBody.cpp": "6501c69650b75199b41b9288bce040637d3be62a009056fd8d32ac1995178dae",
+    "unreal 5.8/Source/CultUlhu/Private/CultRoomCode.cpp": "03e325544cabd8eac5e8e03131a799e2afc5b69113f018aefcfa9105cc8e78a7",
+    "unreal 5.8/Source/CultUlhu/Private/CultRoomCodeTest.cpp": "1f63bbdfecbb2fd384bb85b0de57e9602225731ebb3f47b24fbc900b5e29ab05",
+    "unreal 5.8/Source/CultUlhu/Private/CultRoomFlow.cpp": "c5f11689eda112b6e41affaf77c5e525a9de5fe7b505aa320a362b018a95f3da",
+    "unreal 5.8/Source/CultUlhu/Private/CultRoomMenuTest.cpp": "59d229b9e97a74624d90ee39ac2f97b3b2b8a52780e77bc84f28374734a26d89",
+    "unreal 5.8/Source/CultUlhu/Private/CultRoomProbe.cpp": "d4a6effb1a1b78428096466d9d5925241f29e8129e3d96d98bba231116d33a3f",
+    "unreal 5.8/Source/CultUlhu/Private/CultRoomService.cpp": "5907208a471b0974d343465ca4eb1339b376c7db69b1ef04d37c45ddbdc61ea1",
+    "unreal 5.8/Source/CultUlhu/Private/CultRoomService.h": "0bf2e49ac1c2ee23659823c627b457fca3c1477551344c794f3623b7243465c6",
+    "unreal 5.8/Source/CultUlhu/Private/CultSkillAttack.cpp": "1559b9592e41cca65ee177e9f231cb53c0755c54ea128a01fa4e82e9b7b18bf2",
+    "unreal 5.8/Source/CultUlhu/Private/CultUlhuGameInstance.cpp": "54f25d8f19b359dc94b00dae73360b7068e6f2d14add7144400eb71d8b322cf5",
+    "unreal 5.8/Source/CultUlhu/Private/CultUlhuPlayGameMode.cpp": "98f68371feea92e8f9b78d1f10c815090b9f7490afea5c59974104b20d27c6f7",
+    "unreal 5.8/Source/CultUlhu/Private/CultUlhuPlayerPawn.cpp": "688422898e3ac3c0304760fdecf6d5aa81a32a196acf85b2aaab4efbe632289d",
+    "unreal 5.8/Source/CultUlhu/Private/CultWorldDirector.cpp": "f4c37c422acd2baf16fe67fee3d89bb2c2071b1816082105ce846164a1ef9011",
+    "unreal 5.8/Source/CultUlhu/Private/UI/CultCharacterSelectWidget.cpp": "039cb83e3abaac6465922d90794eab9e876f208af34761b54b25b116c8cab489",
+    "unreal 5.8/Source/CultUlhu/Private/UI/CultFreeRoamMenuWidget.cpp": "ce4ce5e058e2a5034fc65d11a4f36bd06bd880bf1716fb3cc5e3f49c1316349a",
+    "unreal 5.8/Source/CultUlhu/Private/UI/CultHomeScreenWidget.cpp": "d9c0d0d8dba5fba7677e13717dad29807a5dc57ab8d3204f61df2bde9e305832",
+    "unreal 5.8/Source/CultUlhu/Private/UI/CultHostedRoomWidget.cpp": "71355486ccce9989ff2d92169edb45f915eeb39e1bee003ce1c4e08ecf07012a",
+    "unreal 5.8/Source/CultUlhu/Private/UI/CultRoomMenuWidget.cpp": "efe5abae6ac91a370e57da5fc870c74cf063c80f5f50a1c7ed1c11e52923ac5a",
+    "unreal 5.8/Source/CultUlhu/Public/CultJungleCamp.h": "049efd29afffb2dfc729242964b72983b17cb4c080e566051788ccea9bec612c",
+    "unreal 5.8/Source/CultUlhu/Public/CultMatchDirector.h": "edd6c58425eea06c80cc09c82c04b356db4b9db6b1c5a228ae3901e3c6a7ff41",
+    "unreal 5.8/Source/CultUlhu/Public/CultMatchUnit.h": "51157ad4dcf5270feecc034ae76d7beefab80feb0076c6202d947885639cd92d",
+    "unreal 5.8/Source/CultUlhu/Public/CultUlhuGameInstance.h": "46b9ab60c0ead41fe44ff2d0621988a8ef357b5805bfbfe65d6a2d6f85b517fd",
+    "unreal 5.8/Source/CultUlhu/Public/CultUlhuPlayGameMode.h": "05bf414d273f06e46bb3499ed9a208beb7137824edea9ab69dd1351105d7dcf7",
+    "unreal 5.8/Source/CultUlhu/Public/CultUlhuPlayerController.h": "68d0735833dec04805b09d33a608a3c76ce6aa877fc603114d8b3eeb8ecc53f1",
+    "unreal 5.8/Source/CultUlhu/Public/CultUlhuPlayerPawn.h": "083b4781d6762c4667c8aacb12d3fdc6ec1dc3b57c7b78482c97edcd3a637ad8",
+    "unreal 5.8/Source/CultUlhu/Public/UI/CultFreeRoamMenuWidget.h": "9ab4e535cf042110eb009c4964afcde51527aa7529c7ca57b400fd828451f8e8",
+    "unreal 5.8/Source/CultUlhu/Public/UI/CultHostedRoomWidget.h": "15a510f35c477ce0393408c7bcbf1439a1af9fcf0685da9ba9e29aeb26117f71",
+    "unreal 5.8/Source/CultUlhu/Public/UI/CultRoomMenuWidget.h": "5ec5d3e08a83179e6b0793fa62a99fd86ad60d31b6aee423b31f6438fbb9a7fa"
+  }
+}

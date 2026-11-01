@@ -1,0 +1,153 @@
+{
+  "date_local": "2026-10-21",
+  "engine": "UE 5.8.3",
+  "target": "CultUlhuEditor Win64 Development",
+  "build_result": "Succeeded",
+  "final_build_seconds": 9.83,
+  "code_build_seconds": 14.49,
+  "execution": "Native Editor automation, RenderOffscreen; no new standalone package",
+  "comparison_checkpoint": "8888706843ef88e9bba7ac4f61eaa045d2f458f8",
+  "baseline": {
+    "log": "BotThreatBefore.log",
+    "sha256": "66e61b02dc0af16189d45d302de6f5e1802350521be95ff351d7e6f41ccf111b",
+    "tests": [
+      {
+        "path": "CultUlhu.Menu.BotThreatDecisions.Domination",
+        "result": "Fail"
+      },
+      {
+        "path": "CultUlhu.Menu.BotThreatDecisions.Moba",
+        "result": "Fail"
+      }
+    ],
+    "assertion_errors": [
+      "Expected 'An aimed-away beam does not waste a defensive dash' to be 0.000000, but it was 0.220000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(55)]",
+      "Expected 'A windup blocked by solid cover does not waste a dash' to be 0.000000, but it was 0.220000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+      "Expected 'An aura outside the actual vertical volume does not waste a dash' to be 0.000000, but it was 0.220000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(61)]",
+      "Expected 'An actual incoming flying projectile can trigger a delayed defensive dash' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(65)]",
+      "Expected 'An aimed-away beam does not waste a defensive dash' to be 0.000000, but it was 0.220000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(55)]",
+      "Expected 'A windup blocked by solid cover does not waste a dash' to be 0.000000, but it was 0.220000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+      "Expected 'An aura outside the actual vertical volume does not waste a dash' to be 0.000000, but it was 0.220000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(61)]",
+      "Expected 'An actual incoming flying projectile can trigger a delayed defensive dash' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(65)]"
+    ]
+  },
+  "focused": {
+    "log": "BotThreatAfter.log",
+    "sha256": "970c31b6dc9e3df16cf5564509e767dbd737fc317c14e310f7de7b64a9ca398a",
+    "tests": [
+      {
+        "path": "CultUlhu.Menu.BotThreatDecisions.Domination",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.BotThreatDecisions.Moba",
+        "result": "Success"
+      }
+    ],
+    "assertion_errors": []
+  },
+  "initial_regression": {
+    "log": "BotThreatRegressions.log",
+    "sha256": "dd2821a0bd7fe182c4e8b681b56ec8eebb0fdef42b9284bc28b2af585e32798c",
+    "tests": [
+      {
+        "path": "CultUlhu.Menu.CombatFeel",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.DominationMatch",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.EditorInputSafety",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.MobaMatch",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.MobaMechanics",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.SkillCombat",
+        "result": "Fail"
+      }
+    ],
+    "assertion_errors": [
+      "Expected 'The same low attack actually contacts a standing hero' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultSkillCombatTest.cpp(52)]"
+    ]
+  },
+  "skill_fixture_rerun": {
+    "log": "BotThreatSkillCombatFinal.log",
+    "sha256": "d370ebba3ee735313d230eb047c99d182a2610b81b92fabfe8ad691f89b302cd",
+    "tests": [
+      {
+        "path": "CultUlhu.Menu.SkillCombat",
+        "result": "Success"
+      }
+    ],
+    "assertion_errors": []
+  },
+  "latest_distinct_checks": {
+    "CultUlhu.Menu.BotThreatDecisions.Domination": "Success",
+    "CultUlhu.Menu.BotThreatDecisions.Moba": "Success",
+    "CultUlhu.Menu.CombatFeel": "Success",
+    "CultUlhu.Menu.DominationMatch": "Success",
+    "CultUlhu.Menu.EditorInputSafety": "Success",
+    "CultUlhu.Menu.MobaMatch": "Success",
+    "CultUlhu.Menu.MobaMechanics": "Success",
+    "CultUlhu.Menu.SkillCombat": "Success"
+  },
+  "physical_dodges": [
+    {
+      "mode": 1,
+      "lateral_cm": -1963.3,
+      "projectile_contact": false,
+      "health": 100.0
+    },
+    {
+      "mode": 2,
+      "lateral_cm": -2078.1,
+      "projectile_contact": false,
+      "health": 100.0
+    }
+  ],
+  "stationary_controls": [
+    {
+      "mode": 1,
+      "projectile_contact": true,
+      "damage": 20.0
+    },
+    {
+      "mode": 2,
+      "projectile_contact": true,
+      "damage": 20.0
+    }
+  ],
+  "unchanged_inputs": {
+    "unreal_content_files_byte_identical": 423,
+    "character_source_files_byte_identical": 5,
+    "character_source_files_line_endings_only": 110,
+    "substantive_character_source_changes": 0
+  },
+  "source_sha256": {
+    "Private/CultBotThreat.h": "82e104dcd22cc4078d272b7736e29cf8ee6483cedeba93a509565afba1f45db8",
+    "Private/CultBotThreat.cpp": "5163bf5b057913dbd63cf8ff6ff0ff968d222219a80804d0d327cd1005e7e024",
+    "Private/CultMatchState.h": "6314ef7b9419006bfd0e44a7b3d7b7e24142c34b5742ddb1c1706b1cc68832ac",
+    "Private/CultMatchDirector.cpp": "d040e2ae80683923bcd61acdf6caab0e6b63f24e9d2f8e2cf68a0d2e7970f096",
+    "Private/CultMatchBattle.cpp": "4d0f832c5110b13e6cd67910bae21ee96f5915de78d3041102649a072de34a95",
+    "Public/CultUlhuPlayerPawn.h": "d5eb390fa75e4d8f07d53b584af64a0a6603918aedd9cd460170811507b9b352",
+    "Private/CultPlayerSkillCombat.cpp": "8161cabbeaca5ae63d05925d9a4c4c9bf7fb1be70215b402010df207a1e1caf6",
+    "Private/CultMatchTest.cpp": "c1c1cf42e73bd53c29a99935ec572695ed2e18217c44749d0faa9b157ae241ed",
+    "Private/CultSkillCombatTest.cpp": "0cfa91bdbd4ac4b7e383d9754d0852bcb1e70813a9d888b4d264df5c2c9e2893"
+  },
+  "limitations": [
+    "Focused physical fixtures isolate a Dagon capsule on a flat platform; other fighters and objective navigation are held.",
+    "No field-of-view constraint; forecasting uses existing attack data.",
+    "Sweeping-arm prediction is sampled, and moving obstacles can invalidate forecasts.",
+    "Special thrown-minion transit and broader tactical AI are outside this observer.",
+    "No live-battle performance, human fun, all-kit or all-terrain proof."
+  ]
+}

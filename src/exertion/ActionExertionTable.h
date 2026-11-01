@@ -54,6 +54,8 @@ inline constexpr ExertionFeed ACTION_EXERTION_TABLE[] = {
     // Reconstruction (wave 10 / R2: 2.0/200 ticks + 1.0/60 ticks = 0.027/s
     // could never beat the 0.05/s decay, so Reconstruction never warmed)
     {EventType::BuildingRebuilt,    Belief::Reconstruction, 8.0f},
+    // Native society: completing a real construction reinforces Reconstruction.
+    {EventType::BuildCompleted,     Belief::Reconstruction, 2.0f},
     {EventType::HealPerformed,      Belief::Reconstruction, 2.0f},
     // Trickery
     {EventType::MimicKill,          Belief::Trickery,  8.0f},

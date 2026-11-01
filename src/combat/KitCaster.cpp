@@ -1,4 +1,5 @@
 #include "combat/KitCaster.h"
+#include "beliefs/BeliefSystem.h"
 
 #include "characters/CharacterDef.h"
 #include "combat/Attacks.h"
@@ -143,7 +144,9 @@ static KitCastResult castKitSpellImpl(const SpellDef& spell, Entity& caster,
 
     if (kind == "heal") {
         Entity& patient = (target && target->alive()) ? *target : caster;
-        patient.heal(power);
+        const float before = patient.hp();
+        patient.heal(power * beliefs.healMultiplier());
+        if (patient.hp() > before) { GameEvent healed(EventType::HealPerformed); healed.sourceId=caster.id(); healed.targetId=patient.id(); healed.amount=patient.hp()-before; bus.publish(healed); }
         r.ok = true;
         r.message = spell.name + " knits flesh: +" + fmtDmg(power) + " HP.";
         return r;
@@ -210,6 +213,7 @@ KitCastResult castKitSpell(const SpellDef& spell, Entity& caster,
         castKitSpellImpl(spell, caster, target, foes, beliefs, bus, fx,
                          powerMult);
     if (r.ok) {
+        GameEvent spellEvent(EventType::SpellCast); spellEvent.sourceId=caster.id(); spellEvent.tag=spell.id; spellEvent.pos=caster.position(); spellEvent.amount=1.0f; bus.publish(spellEvent);
         // Micro-dev (2026-10-15): the free-roam cast path published no
         // AbilityCast, so the engine's cast-FX pipeline got nothing here
         // while match casts publish theirs. Same convention as

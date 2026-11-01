@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <random>
+#include <sstream>
+#include <string>
 
 namespace cultulhu {
 
@@ -18,6 +20,8 @@ public:
     // Uniform int in [a, b] (inclusive).
     int intRange(int a, int b);
 
+    std::string state() const { std::ostringstream s; s << eng_; return s.str(); }
+    bool restoreState(const std::string& text) { std::istringstream s(text); std::mt19937_64 next; if (!(s >> next)) return false; eng_ = next; return true; }
 private:
     std::mt19937_64 eng_;
 };

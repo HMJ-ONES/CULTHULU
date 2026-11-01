@@ -1,0 +1,78 @@
+#pragma once
+#include "CoreMinimal.h"
+#include "GameFramework/HUD.h"
+#include "CultPlayHUD.generated.h"
+
+class ACultPopulation;
+class ACultUlhuPlayerPawn;
+struct FCultInspectionCard {
+ TWeakObjectPtr<ACultPopulation> Person;
+ FBox2D Bounds;
+ FVector2D Anchor;
+ FString Activity,Identity,Contribution;
+ float Health=0,MaxHealth=1,Opacity=1;
+ bool Selected=false,Hovered=false;
+ FLinearColor Accent;
+};
+
+// One card, after a continuous hover. Changing targets never transfers dwell time.
+struct FCultInspectionHover {
+ TWeakObjectPtr<ACultPopulation> Candidate,Visible;
+ float Dwell=0,Opacity=0;
+ void Update(ACultPopulation* Hit,float Dt);
+ void Reset() { Candidate.Reset(); Visible.Reset(); Dwell=Opacity=0; }
+};
+
+UCLASS()
+class CULTULHU_API ACultPlayHUD : public AHUD
+{
+	GENERATED_BODY()
+public:
+	virtual void DrawHUD() override;
+	void CommandClick();
+ void ToggleFaith();
+ void ToggleRegionMap();
+ bool RegionMapVisible() const { return bRegionMap_; }
+ bool FaithVisible() const { return bFaith_; }
+ void ScrollFaith(int Lines) { FaithScroll_=FMath::Max(0,FaithScroll_+Lines); }
+	void CloseCommands() { bCommands_=false; bSelecting_=false; }
+ void CommandRelease();
+ void DrawSelection();
+ const TArray<FCultInspectionCard>& InspectionCards() const { return InspectionCards_; }
+ float CombatContentTop() const { return CombatBottomTop_; }
+private:
+ friend void DrawCultCombat(ACultPlayHUD*,ACultUlhuPlayerPawn*,UCanvas*);
+ friend struct FCultHUDCoordinateTestAccess;
+ friend struct FCultRegionMapTestAccess;
+ bool bRegionMap_=false;
+ int32 MapRegion_=INDEX_NONE;
+ FBox2D RegionMapBounds_,RegionMapHint_;
+ TArray<FBox2D> RegionMapButtons_;
+ void DrawRegionMap();
+ void RegionMapClick(FVector2D Pointer);
+ float CombatBottomTop_=MAX_flt;
+ TArray<FCultInspectionCard> InspectionCards_;
+ FCultInspectionHover InspectionHover_;
+ void DrawPopulationInspection();
+	bool bCommands_=false;
+ bool bSelecting_=false;
+ FVector2D SelectionStart_;
+ void OpenCommands(float X,float Y,AActor* SelectedEnemy=nullptr);
+	FVector CommandPoint_;
+ FVector2D CommandScreen_;
+	TWeakObjectPtr<AActor> CommandTarget_;
+	TArray<int32> Actions_;
+	TArray<FBox2D> Buttons_;
+	TArray<FString> Labels_;
+	TArray<bool> Enabled_;
+ bool bFaith_=false;
+ bool bFaithOutcomes_=false;
+ bool bFaithDetails_=false;
+ int32 SelectedBelief_=11,FaithScroll_=0;
+ TArray<FBox2D> FaithButtons_;
+ TArray<FString> FaithActions_;
+ TArray<int32> FaithGaugeBeliefs_;
+ void DrawFaith();
+ void DrawSociety();
+ void FaithClick(float X,float Y);
+};

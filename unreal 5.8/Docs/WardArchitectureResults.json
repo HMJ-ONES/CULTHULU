@@ -1,0 +1,429 @@
+{
+  "date": "2026-10-21 America/Los_Angeles",
+  "base": "473f97da76142c83e5c1d7305d802c618d3d5ecf",
+  "build": {
+    "target": "CultUlhuEditor Win64 Development",
+    "engine": "5.8.3",
+    "success": true,
+    "seconds": 16.97,
+    "canonical_validation": true
+  },
+  "tests": [
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.ObjectiveCollision.GreatOldOne"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.ObjectiveCollision.LaneWard"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.ObjectiveCollision.NexusWard"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.MobaMatch"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.MobaMechanics"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.WardArchitecture"
+    }
+  ],
+  "automation_errors": 0,
+  "log_sha256": "b8adff989daa00193c589d050e07549ee2314a7e272a2cd2016add1e514031fb",
+  "geometry": [
+    {
+      "asset": "/Game/CultUlhu/World/Wards/SM_LaneWard",
+      "source_parts": 36,
+      "triangles": 3692,
+      "min": [
+        -340.0,
+        -340.0,
+        -1250.0
+      ],
+      "max": [
+        340.0,
+        340.0,
+        920.0
+      ],
+      "materials": [
+        "/Game/CultUlhu/Materials/M_MatchStone.M_MatchStone",
+        "/Game/CultUlhu/Materials/M_ArenaSurface.M_ArenaSurface",
+        "/Game/CultUlhu/Materials/M_AttackSignal.M_AttackSignal"
+      ]
+    },
+    {
+      "asset": "/Game/CultUlhu/World/Wards/SM_NexusWard",
+      "source_parts": 48,
+      "triangles": 4380,
+      "min": [
+        -380.0,
+        -380.0,
+        -1250.0
+      ],
+      "max": [
+        380.0,
+        380.0,
+        1020.0
+      ],
+      "materials": [
+        "/Game/CultUlhu/Materials/M_MatchStone.M_MatchStone",
+        "/Game/CultUlhu/Materials/M_ArenaSurface.M_ArenaSurface",
+        "/Game/CultUlhu/Materials/M_AttackSignal.M_AttackSignal"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "asset": "/Game/CultUlhu/World/Wards/SM_LaneWard",
+      "dependencies": [
+        "/Game/CultUlhu/Materials/M_ArenaSurface",
+        "/Game/CultUlhu/Materials/M_AttackSignal",
+        "/Game/CultUlhu/Materials/M_MatchStone",
+        "/Script/NavigationSystem"
+      ],
+      "materials": [
+        "/Game/CultUlhu/Materials/M_MatchStone.M_MatchStone",
+        "/Game/CultUlhu/Materials/M_ArenaSurface.M_ArenaSurface",
+        "/Game/CultUlhu/Materials/M_AttackSignal.M_AttackSignal"
+      ]
+    },
+    {
+      "asset": "/Game/CultUlhu/World/Wards/SM_NexusWard",
+      "dependencies": [
+        "/Game/CultUlhu/Materials/M_ArenaSurface",
+        "/Game/CultUlhu/Materials/M_AttackSignal",
+        "/Game/CultUlhu/Materials/M_MatchStone",
+        "/Script/NavigationSystem"
+      ],
+      "materials": [
+        "/Game/CultUlhu/Materials/M_MatchStone.M_MatchStone",
+        "/Game/CultUlhu/Materials/M_ArenaSurface.M_ArenaSurface",
+        "/Game/CultUlhu/Materials/M_AttackSignal.M_AttackSignal"
+      ]
+    }
+  ],
+  "original_inputs": {
+    "base": "473f97da76142c83e5c1d7305d802c618d3d5ecf",
+    "counts": {
+      "content_byte_identical": 423,
+      "character_byte_identical": 5,
+      "character_line_endings_only": 110
+    },
+    "substantive_differences": [],
+    "new_uassets": [
+      "unreal 5.8/Content/CultUlhu/World/Wards/SM_LaneWard.uasset",
+      "unreal 5.8/Content/CultUlhu/World/Wards/SM_NexusWard.uasset"
+    ]
+  },
+  "asset_bytes": 192664,
+  "files": [
+    {
+      "path": "unreal 5.8/Content/CultUlhu/World/Wards/SM_LaneWard.uasset",
+      "bytes": 89119,
+      "sha256": "01e8de1876156929e52f74e0439b69a97d016849da8b7fbbe7857a2e4b6c54d4"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/World/Wards/SM_NexusWard.uasset",
+      "bytes": 103545,
+      "sha256": "2f256f0cc2b68dc1259d7308ad0840a65b97c89906ce67d62f4538d8161c5fe1"
+    },
+    {
+      "path": "unreal 5.8/Tools/BuildWardArchitecture.py",
+      "bytes": 10144,
+      "sha256": "5ebf70756113b611070f8be218679d4ddf125e83ea98b6bcde88d7df561a2a24"
+    },
+    {
+      "path": "unreal 5.8/Tools/SummarizeRuntimeProfile.py",
+      "bytes": 3881,
+      "sha256": "753605f23a55cee37b6f9571d6a9ab13f5044e3df5a8484d25af3ef710a7ce66"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultWardArchitecture.h",
+      "bytes": 323,
+      "sha256": "6c6e6935e6b3067d66da89e5d67ed3313264c185ece72bd3187114367b6699c0"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultWardArchitecture.cpp",
+      "bytes": 2830,
+      "sha256": "298143f5789df4c3aa44d42947ac2c37fb5bc67a096fb3b1cd90478a2c222267"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultWardArchitectureTest.cpp",
+      "bytes": 13200,
+      "sha256": "5fb21d645e4f782f1b39e26b6db3863f73d2224a1c6387a399dd75168d87e3aa"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultMatchUnit.cpp",
+      "bytes": 7375,
+      "sha256": "1b6c3970ff5648b622f5a27c47342ec71e9dc5b1a1c9dd3266ca5c7eba2eb2f9"
+    }
+  ],
+  "captures": [
+    {
+      "capture": "LegacyWard",
+      "width": 1280,
+      "height": 720,
+      "bytes": 1096728,
+      "sha256": "bf2ec2831106a8699b2bf0b93f951c87d36dcf3e8fe1da7ec067f37c11613d0b",
+      "review_file": "unreal 5.8/Docs/Images/WardArchitecture_LaneBefore_20261021.png"
+    },
+    {
+      "capture": "StoneWard",
+      "width": 1280,
+      "height": 720,
+      "bytes": 1103359,
+      "sha256": "db4c8fedcf7adaa50deb0da57b99a7e576c54867fe020e23a962e5633d73b168",
+      "review_file": "unreal 5.8/Docs/Images/WardArchitecture_LaneAfter_20261021.png"
+    },
+    {
+      "capture": "LegacyNexus",
+      "width": 1280,
+      "height": 720,
+      "bytes": 904492,
+      "sha256": "329fa8074d8cb8be7d68ddf0770467e43c4431752c975075c635a3f2d94a58c1",
+      "review_file": "unreal 5.8/Docs/Images/WardArchitecture_NexusBefore_20261021.png"
+    },
+    {
+      "capture": "StoneNexus",
+      "width": 1280,
+      "height": 720,
+      "bytes": 916517,
+      "sha256": "409ad6f9994982a5718956104950826f9a70e40dac8b5926f55f04dbbd3d9621",
+      "review_file": "unreal 5.8/Docs/Images/WardArchitecture_NexusAfter_20261021.png"
+    },
+    {
+      "capture": "LegacyOverview",
+      "width": 1280,
+      "height": 720,
+      "bytes": 1006920,
+      "sha256": "a8cbca5938bb131559fc7b9fb0c028f24c630db4fba5a5288b11d499d25603cc"
+    },
+    {
+      "capture": "StoneOverview",
+      "width": 1280,
+      "height": 720,
+      "bytes": 1003961,
+      "sha256": "988d8b145273c7dbaf83bde6d13be9dedd97bcc44ce7cf26ceb222ff20a3f073"
+    }
+  ],
+  "profile": {
+    "order": "legacy-stone-stone-legacy",
+    "frames_per_window": 120,
+    "timings": [
+      {
+        "capture": "Ward_0.csv",
+        "stat": "Exclusive/GameThread/EndOfFrameUpdates",
+        "frame_samples": 120,
+        "mean_ms": 0.0026875,
+        "p95_ms": 0.0034
+      },
+      {
+        "capture": "Ward_0.csv",
+        "stat": "FrameTime",
+        "frame_samples": 120,
+        "mean_ms": 20.5117,
+        "p95_ms": 29.5347
+      },
+      {
+        "capture": "Ward_0.csv",
+        "stat": "GameThreadTime",
+        "frame_samples": 120,
+        "mean_ms": 9.224249166666667,
+        "p95_ms": 10.9769
+      },
+      {
+        "capture": "Ward_0.csv",
+        "stat": "GPUTime",
+        "frame_samples": 120,
+        "mean_ms": 3.3417708333333334,
+        "p95_ms": 3.4775
+      },
+      {
+        "capture": "Ward_1.csv",
+        "stat": "Exclusive/GameThread/EndOfFrameUpdates",
+        "frame_samples": 120,
+        "mean_ms": 0.0027716666666666666,
+        "p95_ms": 0.0036
+      },
+      {
+        "capture": "Ward_1.csv",
+        "stat": "FrameTime",
+        "frame_samples": 120,
+        "mean_ms": 20.870266666666666,
+        "p95_ms": 29.8271
+      },
+      {
+        "capture": "Ward_1.csv",
+        "stat": "GameThreadTime",
+        "frame_samples": 120,
+        "mean_ms": 9.226706666666667,
+        "p95_ms": 10.7418
+      },
+      {
+        "capture": "Ward_1.csv",
+        "stat": "GPUTime",
+        "frame_samples": 120,
+        "mean_ms": 3.3421866666666666,
+        "p95_ms": 3.4813
+      },
+      {
+        "capture": "Ward_2.csv",
+        "stat": "Exclusive/GameThread/EndOfFrameUpdates",
+        "frame_samples": 120,
+        "mean_ms": 0.0026866666666666666,
+        "p95_ms": 0.0036
+      },
+      {
+        "capture": "Ward_2.csv",
+        "stat": "FrameTime",
+        "frame_samples": 120,
+        "mean_ms": 20.849288333333334,
+        "p95_ms": 29.6799
+      },
+      {
+        "capture": "Ward_2.csv",
+        "stat": "GameThreadTime",
+        "frame_samples": 120,
+        "mean_ms": 9.307293333333334,
+        "p95_ms": 10.909
+      },
+      {
+        "capture": "Ward_2.csv",
+        "stat": "GPUTime",
+        "frame_samples": 120,
+        "mean_ms": 3.3218391666666665,
+        "p95_ms": 3.4431
+      },
+      {
+        "capture": "Ward_3.csv",
+        "stat": "Exclusive/GameThread/EndOfFrameUpdates",
+        "frame_samples": 120,
+        "mean_ms": 0.0026449999999999998,
+        "p95_ms": 0.0033
+      },
+      {
+        "capture": "Ward_3.csv",
+        "stat": "FrameTime",
+        "frame_samples": 120,
+        "mean_ms": 20.862915833333332,
+        "p95_ms": 29.7274
+      },
+      {
+        "capture": "Ward_3.csv",
+        "stat": "GameThreadTime",
+        "frame_samples": 120,
+        "mean_ms": 9.21761,
+        "p95_ms": 11.1474
+      },
+      {
+        "capture": "Ward_3.csv",
+        "stat": "GPUTime",
+        "frame_samples": 120,
+        "mean_ms": 3.3471391666666666,
+        "p95_ms": 3.468
+      }
+    ],
+    "counters": [
+      {
+        "capture": "Ward_0.csv",
+        "stat": "CultRuntime/WardArtEnabled",
+        "frame_samples": 120,
+        "mean_count": 0.0,
+        "p95_count": 0.0
+      },
+      {
+        "capture": "Ward_0.csv",
+        "stat": "CultRuntime/WardVisibleMeshes",
+        "frame_samples": 120,
+        "mean_count": 98.0,
+        "p95_count": 98.0
+      },
+      {
+        "capture": "Ward_1.csv",
+        "stat": "CultRuntime/WardArtEnabled",
+        "frame_samples": 120,
+        "mean_count": 1.0,
+        "p95_count": 1.0
+      },
+      {
+        "capture": "Ward_1.csv",
+        "stat": "CultRuntime/WardVisibleMeshes",
+        "frame_samples": 120,
+        "mean_count": 14.0,
+        "p95_count": 14.0
+      },
+      {
+        "capture": "Ward_2.csv",
+        "stat": "CultRuntime/WardArtEnabled",
+        "frame_samples": 120,
+        "mean_count": 1.0,
+        "p95_count": 1.0
+      },
+      {
+        "capture": "Ward_2.csv",
+        "stat": "CultRuntime/WardVisibleMeshes",
+        "frame_samples": 120,
+        "mean_count": 14.0,
+        "p95_count": 14.0
+      },
+      {
+        "capture": "Ward_3.csv",
+        "stat": "CultRuntime/WardArtEnabled",
+        "frame_samples": 120,
+        "mean_count": 0.0,
+        "p95_count": 0.0
+      },
+      {
+        "capture": "Ward_3.csv",
+        "stat": "CultRuntime/WardVisibleMeshes",
+        "frame_samples": 120,
+        "mean_count": 98.0,
+        "p95_count": 98.0
+      }
+    ],
+    "paired_means_ms": {
+      "FrameTime": {
+        "legacy": 20.68730791666667,
+        "stone": 20.8597775
+      },
+      "GameThreadTime": {
+        "legacy": 9.220929583333334,
+        "stone": 9.267
+      },
+      "GPUTime": {
+        "legacy": 3.344455,
+        "stone": 3.3320129166666668
+      }
+    },
+    "scope": "Frozen offscreen Editor overview; hidden comparison components retained. Not live battle FPS, memory savings, foreground input latency or low-spec certification. Screenshot resolution is exact 1280x720; CSV framebuffer resolution is not separately certified."
+  },
+  "native_checks": [
+    "14 real objective subjects retain transforms, health, range, damage, capsule dimensions and pawn blocking",
+    "98 legacy versus 14 refined visible components; fresh production ward has one body mesh",
+    "All three material slots and actual glowing section vertices checked",
+    "WardMuzzle socket and real lane/nexus projectile spawn match existing firing origin",
+    "Normal death retains assembled noncolliding grounded remains and extinguishes only its own signal",
+    "Three objective collision/physical detour regressions, MOBA mechanics and full match test pass"
+  ],
+  "rejected_evidence": [
+    "Initial commandlet merge unavailable; corrected full-Editor workflow",
+    "Automatic asset naming and read-only direct socket property setter corrected",
+    "Positional rotator generated oversized nexus bounds; explicit axes and bounds guards correct accepted assets",
+    "Test pointer compilation error corrected before successful 16.97 second build",
+    "Earlier launch on old binary matched zero tests and is not counted as verification",
+    "Initial nexus review obstructed; same revised camera used for both final comparison images"
+  ],
+  "limits": [
+    "No new standalone cook/package verification for this phase",
+    "Merging emitted nearly-zero tangent warnings; no tangent-space normal maps used in these sections",
+    "Modular architecture, coarse capsule collision; no destruction animation or progressive fracture",
+    "Placeholder entity bodies, crude large temple/background forms and sparse biome dressing remain",
+    "No claim of all-kit animation, sustained performance, multiplayer readiness, human fun/balance or reference-game production quality"
+  ]
+}

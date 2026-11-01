@@ -1,0 +1,80 @@
+{
+  "checkedAt": "2026-10-16",
+  "repository": "HMJ-ONES/CULTHULU",
+  "branch": "game-core",
+  "note": "Compared complete local source contents against live GitHub before this integration. SHA values are Git blob SHAs, not commit SHAs. Local integration hooks and fixes are documented in BeliefsReview.md.",
+  "files": [
+    {
+      "path": "src/beliefs/BeliefSystem.cpp",
+      "sha": "912ac5ce5c176ab72a6938a6495aa36b83b2e1b5",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/beliefs/BeliefSystem.cpp"
+    },
+    {
+      "path": "src/beliefs/BeliefSystem.h",
+      "sha": "2dc350aea6c67749b76dcd73fae812dc8ff45969",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/beliefs/BeliefSystem.h"
+    },
+    {
+      "path": "src/beliefs/Belief.h",
+      "sha": "3ef19c39ea82b83370cb7e52aeae3b6b376390fe",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/beliefs/Belief.h"
+    },
+    {
+      "path": "src/exertion/ActionExertionTable.h",
+      "sha": "94d25697e54b7aa5eb055fba9015acf932e5b162",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/exertion/ActionExertionTable.h"
+    },
+    {
+      "path": "src/exertion/ExertionSystem.cpp",
+      "sha": "f558bb6c4cb8073218ee96405053b3a399ee96f4",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/exertion/ExertionSystem.cpp"
+    },
+    {
+      "path": "src/ai/AmbientBehavior.cpp",
+      "sha": "8caa2a4bffab6b75150dec09491522a4e0163a79",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/ai/AmbientBehavior.cpp"
+    },
+    {
+      "path": "src/dreams/DreamSystem.cpp",
+      "sha": "a89eb7e65f74b4660e39e1e30d6c00c3b3febced",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/dreams/DreamSystem.cpp"
+    },
+    {
+      "path": "src/breeding/BreedingSystem.cpp",
+      "sha": "3f9df087fd38f3f71ce3184a7f43218fbf312463",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/breeding/BreedingSystem.cpp"
+    },
+    {
+      "path": "src/rituals/Ritual.cpp",
+      "sha": "42c64613aca847b8902f112e031f89f9741de338",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/rituals/Ritual.cpp"
+    },
+    {
+      "path": "src/traps/TrapSystem.cpp",
+      "sha": "7507f805524ab53dfe315c81b62c6890f829d8a6",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/traps/TrapSystem.cpp"
+    },
+    {
+      "path": "src/ai/BuilderAI.cpp",
+      "sha": "5d5ae8660ed7f5c46b403d50057af46f720d2760",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/ai/BuilderAI.cpp"
+    },
+    {
+      "path": "src/commands/CommandSystem.cpp",
+      "sha": "98a8b71c1eac840e9f7fd797cbbb0b0a301011b9",
+      "matchesLocal": true,
+      "url": "https://github.com/HMJ-ONES/CULTHULU/blob/game-core/src/commands/CommandSystem.cpp"
+    }
+  ]
+}

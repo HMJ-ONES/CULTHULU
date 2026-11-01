@@ -1,0 +1,199 @@
+{
+  "date": "2026-10-22",
+  "base": "08506d08f7875527027383ac19cf9e837467c099",
+  "build": {
+    "engine": "5.8.3",
+    "target": "CultUlhuEditor Win64 Development",
+    "canonical_validation": true,
+    "success": true,
+    "seconds": 10.38
+  },
+  "tests": [
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.MatchBackdrop.Domination"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.MatchBackdrop.Moba"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.DominationMatch"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.MobaJungleReturns"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.MobaLaneClearance"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.MobaMatch"
+    }
+  ],
+  "automation_errors": 0,
+  "log_sha256": "71287ed6aeb11f1ff55c715eb2cfc45bc0f7020e39277099e601d0a3ed582684",
+  "rejected_runs": [
+    {
+      "log": "MatchBackdropReview.log",
+      "sha256": "0ce7d5f574df323c7d7d91feb1d8e28b5184a9cfa6b6dd69b4df936780992790",
+      "outcomes": [
+        {
+          "result": "Fail",
+          "path": "CultUlhu.Menu.MatchBackdrop.Domination"
+        },
+        {
+          "result": "Fail",
+          "path": "CultUlhu.Menu.MatchBackdrop.Moba"
+        }
+      ],
+      "cause": "Snapshot included the test-owned camera proxy deliberately moved by the comparison. Diagnostics named CameraActor_0.CameraProxyMeshComponent_0; only that camera is excluded in final fixture."
+    },
+    {
+      "log": "MatchBackdropDiagnostics.log",
+      "sha256": "056cb8a02c0e584be28b9d6ae13063175015b9829585784a14472fc5ea513fb2",
+      "outcomes": [
+        {
+          "result": "Fail",
+          "path": "CultUlhu.Menu.MatchBackdrop.Domination"
+        },
+        {
+          "result": "Fail",
+          "path": "CultUlhu.Menu.MatchBackdrop.Moba"
+        }
+      ],
+      "cause": "Snapshot included the test-owned camera proxy deliberately moved by the comparison. Diagnostics named CameraActor_0.CameraProxyMeshComponent_0; only that camera is excluded in final fixture."
+    }
+  ],
+  "corrected_geometry": "Initial inner faces had reversed winding. Corrected winding is checked with actual inward/upward normals in both mode fixtures.",
+  "production": {
+    "actors": 1,
+    "mesh_components": 1,
+    "sections": 5,
+    "triangles": 960,
+    "collision": false,
+    "casts_shadows": false,
+    "inner_ellipse_half_axes_cm": {
+      "Moba": [
+        58000,
+        40000
+      ],
+      "Domination": [
+        50000,
+        48000
+      ]
+    },
+    "materials": "Five dynamic instances of the existing natural-stone material; no added material assets",
+    "legacy_cone_actors": 24
+  },
+  "inputs": {
+    "base": "08506d08f7875527027383ac19cf9e837467c099",
+    "content_byte_identical": 425,
+    "differences": [],
+    "new_authored_content": [],
+    "generated_runtime_copies_byte_identical_to_originals": 64
+  },
+  "sources": [
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultMatchArena.cpp",
+      "bytes": 14898,
+      "sha256": "93dfb6b9ee4517e839939cdda45697bdfc1479c8125ddbcb817bb24af0dcaed6"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultMatchBackdrop.cpp",
+      "bytes": 4766,
+      "sha256": "1f8b77fe86ac07f311b61b98187e8be93178aa76b15973167d33752231de756a"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultMatchBackdrop.h",
+      "bytes": 186,
+      "sha256": "1e047e9a8ebe2b3e8bdf09550bf4b97906eb9914a3a56e3288a00113d43a57a6"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultMatchBackdropTest.cpp",
+      "bytes": 8885,
+      "sha256": "ecd614cf6a9833b09d02be9e132c91c0159554026a22da434958b11a2bee9ed7"
+    }
+  ],
+  "captures": [
+    {
+      "mode": "Moba",
+      "view": "LegacySpawn",
+      "bytes": 905183,
+      "width": 1280,
+      "height": 720,
+      "sha256": "3b497aa41cca00d6250cf1b9960608df0123916d9a43426d12086d9228c0c973"
+    },
+    {
+      "mode": "Moba",
+      "view": "LegacyOverview",
+      "bytes": 924531,
+      "width": 1280,
+      "height": 720,
+      "sha256": "6c7b1be6cfedf39e8e0822e92f0ede6181aad8d6a17d1f772dcc94e2ecdc7b47",
+      "review_file": "unreal 5.8/Docs/Images/MatchBackdrop_MobaBefore_20261022.png"
+    },
+    {
+      "mode": "Moba",
+      "view": "RangeSpawn",
+      "bytes": 970785,
+      "width": 1280,
+      "height": 720,
+      "sha256": "997d6a2636a7d77b339a06476817b038c88963be85a594fe19349f4108834a13"
+    },
+    {
+      "mode": "Moba",
+      "view": "RangeOverview",
+      "bytes": 1003717,
+      "width": 1280,
+      "height": 720,
+      "sha256": "f86fde1589abc31c3dcdcfeff51a3fe18afab4c91a0592e4f1baec540b5c648c",
+      "review_file": "unreal 5.8/Docs/Images/MatchBackdrop_MobaAfter_20261022.png"
+    },
+    {
+      "mode": "Domination",
+      "view": "LegacySpawn",
+      "bytes": 864881,
+      "width": 1280,
+      "height": 720,
+      "sha256": "c797ca1ba7cda124b466312431a4d0d421151238645b82755179d14f65c673e5"
+    },
+    {
+      "mode": "Domination",
+      "view": "LegacyOverview",
+      "bytes": 1027787,
+      "width": 1280,
+      "height": 720,
+      "sha256": "f5d105e3f17303a7af783b2050a500e82b4f43f5f9a2104fe7eb1ed2d7adacde",
+      "review_file": "unreal 5.8/Docs/Images/MatchBackdrop_DominationBefore_20261022.png"
+    },
+    {
+      "mode": "Domination",
+      "view": "RangeSpawn",
+      "bytes": 878718,
+      "width": 1280,
+      "height": 720,
+      "sha256": "ff3d6898315dc3fd67681d7e6f7959101c1b0837e4917d647b2443b9dbf288f5"
+    },
+    {
+      "mode": "Domination",
+      "view": "RangeOverview",
+      "bytes": 1090503,
+      "width": 1280,
+      "height": 720,
+      "sha256": "7c1d5b9afec814ccfe2e58f78579b7efe3d127e1c50afb61c6f4d8ca52e51046",
+      "review_file": "unreal 5.8/Docs/Images/MatchBackdrop_DominationAfter_20261022.png"
+    }
+  ],
+  "scope": "Matched paused-world spawn/overview captures in both modes. Every real arena, hero and objective mesh retains transform/collision/visibility. Test-owned comparison camera alone excluded.",
+  "limits": [
+    "Distant decorative geometry is not explorable; existing playable geometry and rules unchanged",
+    "No live frame-time, memory, low-spec or input-latency measurement in this pass",
+    "No new independent standalone cook/package verification",
+    "Coarse facets and unfinished temples, walls, ground dressing, entity bodies/animation and VFX remain",
+    "No all-camera, multiplayer, long-session, human balance/fun or reference-level production-quality claim"
+  ]
+}

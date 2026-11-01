@@ -1,0 +1,724 @@
+{
+  "date": "2026-10-21",
+  "scope": "Native UE 5.8 Editor procedural-cliff geometry/collision, paired rendering, physical traversal/encounter/HUD regressions; no independent executable or human balance result",
+  "build": {
+    "canonical_validator": "Passed",
+    "final_build": "Succeeded, 11.49 seconds"
+  },
+  "runs": {
+    "initial_geometry": {
+      "log": "unreal 5.8/Saved/Logs/JungleCliffGeometryInitial.log",
+      "sha256": "4a144ff7b1665316f28733f4dd2931418cf70a347343ea2ea56be40f9ff4227e",
+      "results": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.JungleCliffGeometry"
+        }
+      ],
+      "errors": [],
+      "observations": [
+        "Jungle cliffs: 1440/1440 visual triangles match collision; 20/20 full-height supports; 24/24 mirrored contour rays"
+      ],
+      "generation_cook_ms": [
+        {
+          "camp": 0,
+          "ms": 15.3
+        },
+        {
+          "camp": 1,
+          "ms": 3.06
+        },
+        {
+          "camp": 2,
+          "ms": 2.98
+        },
+        {
+          "camp": 3,
+          "ms": 3.7
+        }
+      ]
+    },
+    "initial_broad": {
+      "log": "unreal 5.8/Saved/Logs/JungleCliffGeometryFinal.log",
+      "sha256": "a7006f8e64972e92f739ac0375d1cc9bd8b404b2370d35a82092a956fa9c7a31",
+      "results": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MatchSurfaces.Moba"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.JungleCamps"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.JungleCliffGeometry"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaJungleReturns"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaLaneClearance"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaLiftTextRendering"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaMatch"
+        }
+      ],
+      "errors": [],
+      "observations": [
+        "Match surface Moba: 225 tagged surfaces, 285 arena meshes, 349 actors; four exact captures and A-B-B-A render windows in one frozen world",
+        "Jungle cliffs: 1440/1440 visual triangles match collision; 20/20 full-height supports; 24/24 mirrored contour rays",
+        "Verified jungle-to-lane returns: 12 / 12",
+        "Jungle ramp arrival feet V(X=-11500.00, Y=6097.68, Z=3502.15)",
+        "Assigned-lane entries observed: 9 / 9 bots",
+        "Live MOBA: 28 advanced minions, 14 combined hero kills/deaths after 70.0s"
+      ],
+      "generation_cook_ms": [
+        {
+          "camp": 0,
+          "ms": 15.67
+        },
+        {
+          "camp": 1,
+          "ms": 4.18
+        },
+        {
+          "camp": 2,
+          "ms": 3.77
+        },
+        {
+          "camp": 3,
+          "ms": 3.61
+        },
+        {
+          "camp": 0,
+          "ms": 3.75
+        },
+        {
+          "camp": 1,
+          "ms": 3.21
+        },
+        {
+          "camp": 2,
+          "ms": 3.26
+        },
+        {
+          "camp": 3,
+          "ms": 3.12
+        },
+        {
+          "camp": 0,
+          "ms": 3.32
+        },
+        {
+          "camp": 1,
+          "ms": 3.08
+        },
+        {
+          "camp": 2,
+          "ms": 3.09
+        },
+        {
+          "camp": 3,
+          "ms": 3.12
+        },
+        {
+          "camp": 0,
+          "ms": 3.33
+        },
+        {
+          "camp": 1,
+          "ms": 2.95
+        },
+        {
+          "camp": 2,
+          "ms": 3.59
+        },
+        {
+          "camp": 3,
+          "ms": 2.91
+        },
+        {
+          "camp": 0,
+          "ms": 3.36
+        },
+        {
+          "camp": 1,
+          "ms": 3.05
+        },
+        {
+          "camp": 2,
+          "ms": 3.03
+        },
+        {
+          "camp": 3,
+          "ms": 3.52
+        },
+        {
+          "camp": 0,
+          "ms": 3.34
+        },
+        {
+          "camp": 1,
+          "ms": 3.39
+        },
+        {
+          "camp": 2,
+          "ms": 3.22
+        },
+        {
+          "camp": 3,
+          "ms": 3.24
+        },
+        {
+          "camp": 0,
+          "ms": 3.52
+        },
+        {
+          "camp": 1,
+          "ms": 3.17
+        },
+        {
+          "camp": 2,
+          "ms": 3.43
+        },
+        {
+          "camp": 3,
+          "ms": 3.07
+        },
+        {
+          "camp": 0,
+          "ms": 3.55
+        },
+        {
+          "camp": 1,
+          "ms": 3.11
+        },
+        {
+          "camp": 2,
+          "ms": 2.93
+        },
+        {
+          "camp": 3,
+          "ms": 3.44
+        }
+      ]
+    },
+    "final": {
+      "log": "unreal 5.8/Saved/Logs/JungleCliffContoursFinal.log",
+      "sha256": "6a837d28153715e54b4eb6b27287f74c1270d9468720c585e320fbe07608f2e1",
+      "results": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MatchSurfaces.Moba"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.JungleCamps"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.JungleCliffGeometry"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaJungleReturns"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaLaneClearance"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaLiftTextRendering"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaMatch"
+        }
+      ],
+      "errors": [],
+      "observations": [
+        "Match surface Moba: 225 tagged surfaces, 285 arena meshes, 349 actors; four exact captures and A-B-B-A render windows in one frozen world",
+        "Jungle cliffs: 1440/1440 visual triangles match collision; 20/20 full-height supports; 24/24 mirrored contour rays",
+        "Verified jungle-to-lane returns: 12 / 12",
+        "Jungle ramp arrival feet V(X=-11500.00, Y=6053.44, Z=3502.15)",
+        "Assigned-lane entries observed: 9 / 9 bots",
+        "Live MOBA: 30 advanced minions, 16 combined hero kills/deaths after 70.0s"
+      ],
+      "generation_cook_ms": [
+        {
+          "camp": 0,
+          "ms": 15.19
+        },
+        {
+          "camp": 1,
+          "ms": 3.62
+        },
+        {
+          "camp": 2,
+          "ms": 3.36
+        },
+        {
+          "camp": 3,
+          "ms": 3.09
+        },
+        {
+          "camp": 0,
+          "ms": 3.48
+        },
+        {
+          "camp": 1,
+          "ms": 3.89
+        },
+        {
+          "camp": 2,
+          "ms": 3.46
+        },
+        {
+          "camp": 3,
+          "ms": 3.47
+        },
+        {
+          "camp": 0,
+          "ms": 3.46
+        },
+        {
+          "camp": 1,
+          "ms": 3.37
+        },
+        {
+          "camp": 2,
+          "ms": 3.64
+        },
+        {
+          "camp": 3,
+          "ms": 3.16
+        },
+        {
+          "camp": 0,
+          "ms": 3.56
+        },
+        {
+          "camp": 1,
+          "ms": 3.15
+        },
+        {
+          "camp": 2,
+          "ms": 3.96
+        },
+        {
+          "camp": 3,
+          "ms": 2.9
+        },
+        {
+          "camp": 0,
+          "ms": 3.1
+        },
+        {
+          "camp": 1,
+          "ms": 3.3
+        },
+        {
+          "camp": 2,
+          "ms": 2.99
+        },
+        {
+          "camp": 3,
+          "ms": 3.34
+        },
+        {
+          "camp": 0,
+          "ms": 3.33
+        },
+        {
+          "camp": 1,
+          "ms": 3.43
+        },
+        {
+          "camp": 2,
+          "ms": 3.38
+        },
+        {
+          "camp": 3,
+          "ms": 3.07
+        },
+        {
+          "camp": 0,
+          "ms": 3.79
+        },
+        {
+          "camp": 1,
+          "ms": 4.17
+        },
+        {
+          "camp": 2,
+          "ms": 3.36
+        },
+        {
+          "camp": 3,
+          "ms": 3.23
+        },
+        {
+          "camp": 0,
+          "ms": 4.11
+        },
+        {
+          "camp": 1,
+          "ms": 4.11
+        },
+        {
+          "camp": 2,
+          "ms": 4.23
+        },
+        {
+          "camp": 3,
+          "ms": 3.04
+        }
+      ]
+    }
+  },
+  "initial_rejected_contour": {
+    "scope": "Initial conservative contour: physical checks passed but visually too close to faceted cylinders; revised before final acceptance",
+    "profile": [
+      {
+        "file": "JungleCliffs_0.csv",
+        "sha256": "a03aabb2f938d2bcf9e26876a8d2897199f2027088995224d30f726a5353368b",
+        "metrics": [
+          [
+            "JungleCliffs_0.csv",
+            "FrameTime",
+            120,
+            20.856833333333334,
+            29.7133
+          ],
+          [
+            "JungleCliffs_0.csv",
+            "GameThreadTime",
+            120,
+            9.323146666666666,
+            10.9747
+          ],
+          [
+            "JungleCliffs_0.csv",
+            "GPUTime",
+            120,
+            3.1943608333333335,
+            3.3051
+          ]
+        ]
+      },
+      {
+        "file": "JungleCliffs_1.csv",
+        "sha256": "1d848e569553ad3a8ea39a5895906cb4f67908ea401e834839e9f1c023dc317a",
+        "metrics": [
+          [
+            "JungleCliffs_1.csv",
+            "FrameTime",
+            120,
+            20.645639166666665,
+            29.7292
+          ],
+          [
+            "JungleCliffs_1.csv",
+            "GameThreadTime",
+            120,
+            9.355495833333332,
+            11.3428
+          ],
+          [
+            "JungleCliffs_1.csv",
+            "GPUTime",
+            120,
+            3.2133883333333335,
+            3.3222
+          ]
+        ]
+      },
+      {
+        "file": "JungleCliffs_2.csv",
+        "sha256": "6f702e2a6dff5876a0dbf71dbaecfbc1b1af106e445285e992b2834c9a97ac82",
+        "metrics": [
+          [
+            "JungleCliffs_2.csv",
+            "FrameTime",
+            120,
+            20.926196666666666,
+            29.7076
+          ],
+          [
+            "JungleCliffs_2.csv",
+            "GameThreadTime",
+            120,
+            9.38735,
+            11.2703
+          ],
+          [
+            "JungleCliffs_2.csv",
+            "GPUTime",
+            120,
+            3.2069558333333332,
+            3.3011
+          ]
+        ]
+      },
+      {
+        "file": "JungleCliffs_3.csv",
+        "sha256": "64707005a8c3194a4990a2e0fd99901a839804f721bcc3f1b5b33246d33e093e",
+        "metrics": [
+          [
+            "JungleCliffs_3.csv",
+            "FrameTime",
+            120,
+            20.6620825,
+            29.5693
+          ],
+          [
+            "JungleCliffs_3.csv",
+            "GameThreadTime",
+            120,
+            9.05289,
+            10.8617
+          ],
+          [
+            "JungleCliffs_3.csv",
+            "GPUTime",
+            120,
+            3.188658333333333,
+            3.3069
+          ]
+        ]
+      }
+    ],
+    "captures": {
+      "JungleGeology_CliffsNear.png": "962f4d75f47f10dfae0dc5ec2686922f2b265d28534fd0edfa6a4d6aacc97e28",
+      "JungleGeology_CliffsOverview.png": "2426f2d5aa99727ae6c5028090ff8d83bfb6879c443f1d63e2164144a01707e4",
+      "JungleGeology_CylinderNear.png": "1cfcab1c1104d32981d32e2aabfb1d5c901606b748fd43402960cee6b2f7a5d5",
+      "JungleGeology_CylinderOverview.png": "38edaa9c045eccfe2f6c4f592bb9fb1c87bf2532cf8309d8a82aec0e1ec0aabf"
+    }
+  },
+  "profile": {
+    "scope": "One frozen 1288x680 Editor overview, A-B-B-A 120-frame windows; not live battle, memory or low-spec benchmark",
+    "windows": [
+      {
+        "path": "unreal 5.8/Saved/Reports/Captures/JungleCliffs/JungleCliffs_0.csv",
+        "sha256": "daa75ef3e65bb240d2aef7d6b3db16eae807af216ffaa103fb9e8a098b4f2443",
+        "cliffs": false,
+        "timings": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean_ms": 20.858450833333332,
+            "p95_ms": 29.6705
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean_ms": 9.2925625,
+            "p95_ms": 10.9864
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean_ms": 3.2158166666666665,
+            "p95_ms": 3.331
+          }
+        ],
+        "counts": [
+          {
+            "stat": "CultRuntime/JungleCliffStyle",
+            "samples": 120,
+            "mean_count": 0.0
+          }
+        ]
+      },
+      {
+        "path": "unreal 5.8/Saved/Reports/Captures/JungleCliffs/JungleCliffs_1.csv",
+        "sha256": "cc6af6238d5a5653a752a33a8db06174b83e7ea586393d03f136060d623d9248",
+        "cliffs": true,
+        "timings": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean_ms": 20.721498333333333,
+            "p95_ms": 29.5493
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean_ms": 9.460553333333333,
+            "p95_ms": 11.2286
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean_ms": 3.2277808333333335,
+            "p95_ms": 3.3216
+          }
+        ],
+        "counts": [
+          {
+            "stat": "CultRuntime/JungleCliffStyle",
+            "samples": 120,
+            "mean_count": 1.0
+          }
+        ]
+      },
+      {
+        "path": "unreal 5.8/Saved/Reports/Captures/JungleCliffs/JungleCliffs_2.csv",
+        "sha256": "ed9017524531d6706a432fcd19df05b78e5db95afbed2961793a328d99d02bbc",
+        "cliffs": true,
+        "timings": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean_ms": 20.966763333333333,
+            "p95_ms": 29.64
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean_ms": 9.478725,
+            "p95_ms": 11.0625
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean_ms": 3.22737,
+            "p95_ms": 3.3239
+          }
+        ],
+        "counts": [
+          {
+            "stat": "CultRuntime/JungleCliffStyle",
+            "samples": 120,
+            "mean_count": 1.0
+          }
+        ]
+      },
+      {
+        "path": "unreal 5.8/Saved/Reports/Captures/JungleCliffs/JungleCliffs_3.csv",
+        "sha256": "50abea2d21cd53b0f604b49543f7fab92d203d0c4ca5fcfca02b2be8ed16664c",
+        "cliffs": false,
+        "timings": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean_ms": 21.17063,
+            "p95_ms": 29.7077
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean_ms": 9.4604375,
+            "p95_ms": 10.9449
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean_ms": 3.218078333333333,
+            "p95_ms": 3.3568
+          }
+        ],
+        "counts": [
+          {
+            "stat": "CultRuntime/JungleCliffStyle",
+            "samples": 120,
+            "mean_count": 0.0
+          }
+        ]
+      }
+    ],
+    "cylinder_mean_ms": {
+      "FrameTime": 21.014540416666666,
+      "GameThreadTime": 9.3765,
+      "GPUTime": 3.2169475
+    },
+    "cliffs_mean_ms": {
+      "FrameTime": 20.84413083333333,
+      "GameThreadTime": 9.469639166666667,
+      "GPUTime": 3.227575416666667
+    },
+    "delta_ms": {
+      "FrameTime": -0.17040958333333478,
+      "GameThreadTime": 0.093139166666667,
+      "GPUTime": 0.010627916666666959
+    }
+  },
+  "captures": [
+    {
+      "path": "unreal 5.8/Saved/Screenshots/JungleGeology_CliffsNear.png",
+      "sha256": "35613123b0a54fa8719c9d7a0a4305ac7b55307ec633d54e857f045d50ea8f9a",
+      "bytes": 1009084,
+      "size": [
+        1280,
+        720
+      ],
+      "reviewed": true
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/JungleGeology_CliffsOverview.png",
+      "sha256": "e4e6a9d353c4a098da51e8eba22f0ae94ff98bceab753d2266536bc6ef2385a9",
+      "bytes": 1039363,
+      "size": [
+        1280,
+        720
+      ],
+      "reviewed": true
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/JungleGeology_CylinderNear.png",
+      "sha256": "0470ca56b8d8fc140b293bab73377c1498f0184d9414c145c118b3e7309a3c25",
+      "bytes": 1004382,
+      "size": [
+        1280,
+        720
+      ],
+      "reviewed": true
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/JungleGeology_CylinderOverview.png",
+      "sha256": "38edaa9c045eccfe2f6c4f592bb9fb1c87bf2532cf8309d8a82aec0e1ec0aabf",
+      "bytes": 1035918,
+      "size": [
+        1280,
+        720
+      ],
+      "reviewed": false
+    }
+  ],
+  "unchanged_content": {
+    "checkpoint": "47026f2992473805ae1be95936e2823578a3fa8c",
+    "checked": 422,
+    "changed": []
+  },
+  "source_sha256": {
+    "unreal 5.8/Source/CultUlhu/Private/CultJungleCliffs.h": "419347570108ed49ae983bf441c330a60b82b22f2948ae65bed0bda9f504f958",
+    "unreal 5.8/Source/CultUlhu/Private/CultJungleCliffs.cpp": "db61a5aaaccaad95a9662027a72650b499fd9fa001b6b8f4290a1fc264dfe21a",
+    "unreal 5.8/Source/CultUlhu/Private/CultJungleCliffsTest.cpp": "c9721bbae2509e66a493d235aaf63dbc21624b9ea2c7849e2f56aa52aca6d788",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchArena.cpp": "ffba2c73e180596b369e353ab92e1a073944e83f58e6c7db67785c1f0f8c7aff",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchSurfaces.cpp": "056b6532a22e225a939fd3d54419f1246addfefd95903bb7a0ca738ccc4985d1",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchSurfaceTest.cpp": "9311ad797c8ee1a0c8caa37c26a722887c81acad813ff2eb1975bcf49e351f0a",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchHUD.cpp": "83a71af705a91138fbf2cf3f701f67c39a0b6ac78fb059a9976ec616dea45df0",
+    "unreal 5.8/Tools/SummarizeRuntimeProfile.py": "560d4b4005813e628c9cc8fbd595f3b2457d80402981201bc0952b2a38905d7f"
+  },
+  "limitations": [
+    "Only one 30m character in the support fixture; not all roster/ramp combinations",
+    "Twenty support samples and twelve minion route cases do not exhaust landing/edge cases",
+    "Comparison cylinder recreated in the same new world, not an old-build performance measurement",
+    "Initial near-view camera changed before final captures; only within-run pairs are matched",
+    "Newer code not run in a cooked executable",
+    "Generated crowns/ramps, dressing and hero art remain unfinished"
+  ],
+  "storage": {
+    "new_assets_downloads_or_packages": false,
+    "review_pngs": 2
+  }
+}
