@@ -37,6 +37,18 @@ camera_extents = np.zeros(2)
 report = {'blend': source.relative_to(ROOT).as_posix(), 'sourceSha256': before,
           'requiredRoles': required, 'actions': {}, 'abilitiesAuthored': False,
           'status': 'independent sampling and native rendered review; artistic acceptance pending'}
+
+def skinned_points():
+    graph = bpy.context.evaluated_depsgraph_get()
+    surfaces = []
+    for obj in meshes:
+        vertices = obj.evaluated_get(graph).data.vertices
+        local = np.empty(len(vertices)*3, dtype=np.float32)
+        vertices.foreach_get('co', local)
+        matrix = obj.matrix_world
+        surfaces.append(np.einsum('ij,nj->ni', np.array(matrix.to_3x3()), local.reshape(-1,3),
+            optimize=False) + np.array(matrix.translation))
+    return np.concatenate(surfaces)
 for mesh in meshes:
     assert all(1 <= len(v.groups) <= 4 for v in mesh.data.vertices), 'Unweighted vertex or excess influences'
     assert max(abs(sum(g.weight for g in v.groups)-1) for v in mesh.data.vertices) < 1e-5
@@ -51,16 +63,7 @@ for role in required + (['land'] if 'land' in actions else []):
     first = previous = last = None
     for frame in np.arange(start, end + .25, .5):
         scene.frame_set(int(frame), subframe=float(frame % 1))
-        graph = bpy.context.evaluated_depsgraph_get()
-        surfaces = []
-        for obj in meshes:
-            vertices = obj.evaluated_get(graph).data.vertices
-            local = np.empty(len(vertices)*3, dtype=np.float32)
-            vertices.foreach_get('co', local)
-            matrix = obj.matrix_world
-            surfaces.append(np.einsum('ij,nj->ni', np.array(matrix.to_3x3()), local.reshape(-1,3),
-                optimize=False) + np.array(matrix.translation))
-        points = np.concatenate(surfaces)
+        points = skinned_points()
         assert np.isfinite(points).all(), (role, frame)
         projected = np.einsum('ij,nj->ni', camera_rotation, points, optimize=False) + camera_offset
         camera_extents = np.maximum(camera_extents, np.abs(projected[:, :2]).max(axis=0))
@@ -80,6 +83,30 @@ for role in required + (['land'] if 'land' in actions else []):
     if loop:
         assert closure < .001, (role, 'loop closure', closure)
     print('REOPENED_MOTION_CHECK', role, report['actions'][role], flush=True)
+
+# Compare actual deformed surfaces at matched normalized phases. Different
+# action names or key counts alone do not prove three different physical moves.
+strike_samples = {}
+for role in ['melee_1', 'melee_2', 'melee_3']:
+    action = actions[role]
+    rig.animation_data.action = action
+    if action.slots:
+        rig.animation_data.action_slot = action.slots[0]
+    samples = []
+    for phase in [.25, .5, .75]:
+        frame = float(action.frame_range[0]+phase*(action.frame_range[1]-action.frame_range[0]))
+        scene.frame_set(int(frame), subframe=frame % 1)
+        samples.append(skinned_points())
+    strike_samples[role] = np.stack(samples)
+distinct = {}
+for a,b in [('melee_1','melee_2'),('melee_1','melee_3'),('melee_2','melee_3')]:
+    delta = strike_samples[a]-strike_samples[b]
+    rms = float(np.sqrt(np.mean(np.sum(delta*delta, axis=2))))
+    distinct[a+' / '+b] = rms
+    assert rms > .005, ('Combo surfaces are too similar at matched phases', a,b,rms)
+report['meleeDistinctness'] = {'samplePhases': [.25,.5,.75],
+    'pairwiseSurfaceRmsMetres': distinct, 'scope': 'physical pose difference, not artistic acceptance'}
+print('DISTINCT_MELEE_SURFACES', distinct, flush=True)
 
 # Actual Blender animation rendering, with the source actions and skinning.
 # In-place review exposes stance travel; the floor makes penetration visible.

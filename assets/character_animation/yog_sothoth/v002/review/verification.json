@@ -1,0 +1,146 @@
+{
+  "blend": "assets/character_animation/yog_sothoth/v002/YogSothoth_BasicMotion.blend",
+  "sourceSha256": "e5ff9671e604367eacdb8f09bd1c4ed6862b445d6a78ab70561c017ea9fd358e",
+  "requiredRoles": [
+    "idle",
+    "walk",
+    "run",
+    "melee_1",
+    "melee_2",
+    "melee_3",
+    "jump",
+    "dash",
+    "taunt"
+  ],
+  "actions": {
+    "idle": {
+      "sampleStepFrames": 0.5,
+      "samples": 529,
+      "minimumSurfaceZ": 0.014125440269708633,
+      "maximumVertexHalfFrameTravel": 0.0013256738893687725,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 4.4,
+      "reviewMovie": "assets/character_animation/yog_sothoth/v002/review/idle.mp4"
+    },
+    "walk": {
+      "sampleStepFrames": 0.5,
+      "samples": 217,
+      "minimumSurfaceZ": 0.029405005276203156,
+      "maximumVertexHalfFrameTravel": 0.0036318679340183735,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 1.8,
+      "reviewMovie": "assets/character_animation/yog_sothoth/v002/review/walk.mp4"
+    },
+    "run": {
+      "sampleStepFrames": 0.5,
+      "samples": 133,
+      "minimumSurfaceZ": 0.10250589996576309,
+      "maximumVertexHalfFrameTravel": 0.007658838760107756,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 1.1,
+      "reviewMovie": "assets/character_animation/yog_sothoth/v002/review/run.mp4"
+    },
+    "melee_1": {
+      "sampleStepFrames": 0.5,
+      "samples": 91,
+      "minimumSurfaceZ": 0.030354656279087067,
+      "maximumVertexHalfFrameTravel": 0.06590636074542999,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.75,
+      "reviewMovie": "assets/character_animation/yog_sothoth/v002/review/melee_1.mp4"
+    },
+    "melee_2": {
+      "sampleStepFrames": 0.5,
+      "samples": 103,
+      "minimumSurfaceZ": 0.021468590945005417,
+      "maximumVertexHalfFrameTravel": 0.08128515630960464,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.85,
+      "reviewMovie": "assets/character_animation/yog_sothoth/v002/review/melee_2.mp4"
+    },
+    "melee_3": {
+      "sampleStepFrames": 0.5,
+      "samples": 121,
+      "minimumSurfaceZ": 0.02661842107772827,
+      "maximumVertexHalfFrameTravel": 0.0487418994307518,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 1.0,
+      "reviewMovie": "assets/character_animation/yog_sothoth/v002/review/melee_3.mp4"
+    },
+    "jump": {
+      "sampleStepFrames": 0.5,
+      "samples": 133,
+      "minimumSurfaceZ": 0.039623912423849106,
+      "maximumVertexHalfFrameTravel": 0.021319778636097908,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.21522241830825806,
+      "loopClosurePass": null,
+      "durationSeconds": 1.1,
+      "reviewMovie": "assets/character_animation/yog_sothoth/v002/review/jump.mp4"
+    },
+    "dash": {
+      "sampleStepFrames": 0.5,
+      "samples": 63,
+      "minimumSurfaceZ": 0.02290201187133789,
+      "maximumVertexHalfFrameTravel": 0.0395221933722496,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.5166666666666667,
+      "reviewMovie": "assets/character_animation/yog_sothoth/v002/review/dash.mp4"
+    },
+    "taunt": {
+      "sampleStepFrames": 0.5,
+      "samples": 409,
+      "minimumSurfaceZ": 0.003286065300926566,
+      "maximumVertexHalfFrameTravel": 0.008370298892259598,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 3.4,
+      "reviewMovie": "assets/character_animation/yog_sothoth/v002/review/taunt.mp4"
+    },
+    "land": {
+      "sampleStepFrames": 0.5,
+      "samples": 51,
+      "minimumSurfaceZ": 0.0015238188207149506,
+      "maximumVertexHalfFrameTravel": 0.018793197348713875,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.4166666666666667,
+      "reviewMovie": "assets/character_animation/yog_sothoth/v002/review/land.mp4"
+    }
+  },
+  "abilitiesAuthored": false,
+  "status": "independent sampling and native rendered review; artistic acceptance pending",
+  "meleeDistinctness": {
+    "samplePhases": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "pairwiseSurfaceRmsMetres": {
+      "melee_1 / melee_2": 0.10994204878807068,
+      "melee_1 / melee_3": 0.07070440798997879,
+      "melee_2 / melee_3": 0.0789080262184143
+    },
+    "scope": "physical pose difference, not artistic acceptance"
+  },
+  "reviewCamera": {
+    "orthographicScale": 3.0,
+    "fit": "all sampled skinned geometry across every required role"
+  }
+}

@@ -16,7 +16,7 @@ its dash. Each creature needs movement and attacks suited to its own anatomy.
 | Dagon | Anatomical 39-bone rig, ten actions, v005 independently reopened and rendered | Fix subframe floor contact; review fast claw travel and shoulder deformation; material/UV transfer; game integration |
 | Nyarlathotep | Tripod rig and ten-action study, v005; evaluated sole correction and normalized skin weights | Inspect all three supporting feet and head-whip in motion; refine transitions/weights; material/UV transfer; integration |
 | Cthulhu | Anatomical 51-bone rig and ten-action study, v007; folded wing fans and facial tendrils, 60 fps keys, independent sole correction | Refine shoulder/finger deformation and attack transitions; complete visual review, material/UV transfer and integration |
-| Yog-Sothoth | Reviewed retopology | Orb/tendril skeleton, non-humanoid locomotion and three physical strikes, review and integration |
+| Yog-Sothoth | Floating 52-bone rig and ten-action study, v002; eight blended lower columns, upper-mass follow-through and eye-facing calibration | Refine woven-tendril contacts and attack transitions; material/UV transfer, runtime timing and integration |
 | Shoggoths | Lightweight source available | Anatomical rig, knuckle-supported movement and distinct attacks, review and integration |
 | Mi-Go | Existing supplied skeleton and animation available | New locomotion/basic combo/taunt; preserve original Prowl for dash; review and integration |
 | Yig | Existing body, tail and weapon rigs available | Coordinated four-arm attacks, weapon grips, slithering locomotion and remaining basic motions; review and integration |
@@ -63,7 +63,9 @@ their own path and check immutable source hashes.
 - `unreal 5.8/Tools/AuthorDagonMotion.py -- vNNN`
 - `unreal 5.8/Tools/AuthorNyarlathotepMotion.py -- vNNN`
 - `unreal 5.8/Tools/AuthorCthulhuMotion.py -- vNNN`
+- `unreal 5.8/Tools/AuthorYogMotion.py -- vNNN`
 - `unreal 5.8/Tools/ReviewCharacterMotion.py -- <repo-relative .blend>`
+- `unreal 5.8/Tools/CaptureMotionAngles.py -- <repo-relative .blend> <comma-separated roles> <phase>`
 - `unreal 5.8/Tools/DiagnoseMotionTwists.py -- <repo-relative .blend>`
 - `unreal 5.8/Tools/InspectSkinDeformation.py -- <repo-relative .blend> <role> <phase>`
 - `unreal 5.8/Tools/MeasureMotionFootContacts.py -- <repo-relative .blend>`
@@ -89,3 +91,19 @@ about 3 mm walking and 6.3 mm running. These figures describe the authoring
 study only; in-game playback must be calibrated to its stance-speed metadata.
 See its `review/foot_contacts.json`. The sole check found and corrected a
 roughly two-centimetre hover in the earlier left-foot contact.
+
+Yog-Sothoth retains floating locomotion. Its lower sculpture contains woven,
+connected appendages, so `MeasureYogAnatomy.py` measures eight continuous spatial
+columns as deformation guides. These are not eight invented humanoid limbs.
+The rig blends their motion through the connected surface and adds eight local
+upper-mass anchors. Native multi-angle review identified the main eye face on
+source +X; v002 rotates that face to +Y authoring forward. This calibration is
+stored in `CharacterAnatomicalFrames.json` and has not changed the game binding.
+
+The Yog-Sothoth combo uses a side lash, a forward thrust and a paired inward
+curl. The taunt fans the hanging tendrils outward. Jump/dash/landing are body
+motions; no projectile, spell, cast or ability clip is added. Its `angles/`
+folder contains native front, side and back captures. The v002 independent
+review additionally compares actual deformed surfaces at matched normalized
+phases to establish that the three attacks differ physically. This check does
+not establish final artistic quality, hitbox timing or game readiness.
