@@ -1,6 +1,6 @@
-# Retopology model credits
+# Character motion study credits
 
-These are derivatives of four exact owner-approved CC-BY-4.0 models.
+These are derivatives of the exact owner-approved CC-BY-4.0 models below.
 License: https://creativecommons.org/licenses/by/4.0/
 
 Changes: geometry-only conversion, seam welding, surface reconstruction where required, automatic quad retopology, closure of solver gaps, removal of collapsed/isolated solver geometry, smooth shading. Original source meshes, textures and existing game assets are preserved. No endorsement by the original artists is implied.
@@ -41,9 +41,25 @@ Author page: https://sketchfab.com/CMBC
 Original source: https://sketchfab.com/3d-models/yog-sothoth-lovecraft-lore-bdf73725a4494ff8b7981685d52f73ab
 License: https://creativecommons.org/licenses/by/4.0/
 
+## shoggoths
+
+LOVECRAFTIAN HORROR
+
+Author: alexalbinyana
+
+Author page: https://sketchfab.com/alexalbinyana
+Original source: https://sketchfab.com/3d-models/lovecraftian-horror-6093cbb205444e9aa7b36d7be4ed9b58
+License: https://creativecommons.org/licenses/by/4.0/
+
 ## Animation-study modifications
 
-Dagon, Cthulhu, Nyarlathotep and Yog-Sothoth studies add original anatomical skeletons, skin weights,
+Dagon, Cthulhu, Nyarlathotep, Yog-Sothoth and Shoggoths studies add original anatomical skeletons, skin weights,
 in-place basic movement and melee keyframes, and temporary clay review shading.
 These studies do not include ability animations. They are unfinished derivatives,
 not endorsed by the source artists.
+
+Shoggoths retains its original lightweight geometry, UV faces and four material
+assignments. Coincident UV-seam vertices share deformation weights in the
+working copy; all original polygons and per-corner UV coordinates are retained.
+Its textured previews use the original packed source textures and native
+Blender rendering. No original source file is overwritten.

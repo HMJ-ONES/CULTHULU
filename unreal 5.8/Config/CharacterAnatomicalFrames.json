@@ -939,5 +939,104 @@
       ]
     ],
     "guideMethod": "eight continuous spatial columns through the woven lower surface; anatomical review required"
+  },
+  "shoggoths": {
+    "sourceSha256": "d736cd045e730072390be58ab7f0a2586813fc7255599e1daf4a937968badce9",
+    "yawDegrees": 180.0,
+    "originAfterRotation": [
+      -3.494417190551758,
+      2.117554187774658,
+      -0.6130008697509766
+    ],
+    "scale": 0.06526104298943992,
+    "frame": "source -Y mouth face rotated to +Y authoring forward; +Z up; height 2m; lowest point Z=0",
+    "sourceGeometry": "lightweight original GLB, retain source UVs and materials",
+    "forelimbSurfaceGuides": {
+      "L": [
+        {
+          "z": 0.12,
+          "centroid": [
+            0.825268181678829,
+            -0.45539942560033253,
+            0.13773207991613812
+          ],
+          "count": 390
+        },
+        {
+          "z": 0.4,
+          "centroid": [
+            0.840525812672103,
+            -0.3814242548419418,
+            0.38518319652718824
+          ],
+          "count": 308
+        },
+        {
+          "z": 0.7,
+          "centroid": [
+            0.9190998285362801,
+            -0.2013395671482909,
+            0.7042208248005398
+          ],
+          "count": 82
+        },
+        {
+          "z": 1.0,
+          "centroid": [
+            0.6465311882064566,
+            -0.08774788919303932,
+            1.0104652961997291
+          ],
+          "count": 432
+        },
+        {
+          "z": 1.2,
+          "centroid": [
+            0.6753772376488829,
+            -0.04226703657726669,
+            1.2163150950509944
+          ],
+          "count": 1592
+        }
+      ],
+      "R": [
+        {
+          "z": 0.12,
+          "centroid": [
+            -0.7909922972377276,
+            0.6143518003780265,
+            0.10985039402582612
+          ],
+          "count": 948
+        },
+        {
+          "z": 0.4,
+          "centroid": [
+            -0.7702476330554568,
+            0.2948511811914684,
+            0.37925215672596396
+          ],
+          "count": 202
+        },
+        {
+          "z": 0.7,
+          "centroid": [
+            -0.7328427972543307,
+            -0.13160160092088927,
+            0.6978582211767035
+          ],
+          "count": 64
+        },
+        {
+          "z": 1.0,
+          "centroid": [
+            -0.6089891229727884,
+            -0.22850955009828067,
+            0.9690004195448786
+          ],
+          "count": 15
+        }
+      ]
+    }
   }
 }

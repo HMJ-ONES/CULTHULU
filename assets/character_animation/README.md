@@ -17,7 +17,7 @@ its dash. Each creature needs movement and attacks suited to its own anatomy.
 | Nyarlathotep | Tripod rig and ten-action study, v005; evaluated sole correction and normalized skin weights | Inspect all three supporting feet and head-whip in motion; refine transitions/weights; material/UV transfer; integration |
 | Cthulhu | Anatomical 51-bone rig and ten-action study, v007; folded wing fans and facial tendrils, 60 fps keys, independent sole correction | Refine shoulder/finger deformation and attack transitions; complete visual review, material/UV transfer and integration |
 | Yog-Sothoth | Floating 52-bone rig and ten-action study, v002; eight blended lower columns, upper-mass follow-through and eye-facing calibration | Refine woven-tendril contacts and attack transitions; material/UV transfer, runtime timing and integration |
-| Shoggoths | Lightweight source available | Anatomical rig, knuckle-supported movement and distinct attacks, review and integration |
+| Shoggoths | 44-bone rig and ten-action study, v005; curved forelimbs, four contact regions, original UVs/materials retained | Refine fast knuckle contact and interpolation; runtime timing, blending and integration |
 | Mi-Go | Existing supplied skeleton and animation available | New locomotion/basic combo/taunt; preserve original Prowl for dash; review and integration |
 | Yig | Existing body, tail and weapon rigs available | Coordinated four-arm attacks, weapon grips, slithering locomotion and remaining basic motions; review and integration |
 | Sghllor | Existing original orb/mist presentation | Inspect native presentation; original form-appropriate basic motions and review without humanoid anatomy |
@@ -36,8 +36,9 @@ Nodens is excluded. Characters lacking usable approved models are excluded.
    verification report. This review checks actual reopened skinned geometry at
    half-frame intervals; closed loops alone do not prove good animation.
 
-The static studies currently use clay colors. Their original UVs and texture
-detail must be transferred/baked before replacing textured game characters.
+The four retopology-based studies currently use clay colors. Their original UVs
+and texture detail must be transferred/baked before replacing textured game characters.
+Shoggoths retains its original UVs and source materials.
 Rigging, surface weights, deformations, interpolation, looping, combo contact
 timing and runtime animation blending all require verification. None of the
 studies is certified as final artwork or already installed in Unreal.
@@ -64,11 +65,14 @@ their own path and check immutable source hashes.
 - `unreal 5.8/Tools/AuthorNyarlathotepMotion.py -- vNNN`
 - `unreal 5.8/Tools/AuthorCthulhuMotion.py -- vNNN`
 - `unreal 5.8/Tools/AuthorYogMotion.py -- vNNN`
+- `unreal 5.8/Tools/AuthorShoggMotion.py -- vNNN`
 - `unreal 5.8/Tools/ReviewCharacterMotion.py -- <repo-relative .blend>`
 - `unreal 5.8/Tools/CaptureMotionAngles.py -- <repo-relative .blend> <comma-separated roles> <phase>`
 - `unreal 5.8/Tools/DiagnoseMotionTwists.py -- <repo-relative .blend>`
 - `unreal 5.8/Tools/InspectSkinDeformation.py -- <repo-relative .blend> <role> <phase>`
 - `unreal 5.8/Tools/MeasureMotionFootContacts.py -- <repo-relative .blend>`
+- `unreal 5.8/Tools/MeasureMotionFootContacts.py -- <repo-relative .blend> --quadruped`
+- `unreal 5.8/Tools/RenderMotionMaterialPreview.py -- <repo-relative .blend> <role> <phase>`
 
 Pass script arguments after Blender's `--`, and the script path after
 `--python`. Measured source frames are in
@@ -107,3 +111,30 @@ folder contains native front, side and back captures. The v002 independent
 review additionally compares actual deformed surfaces at matched normalized
 phases to establish that the three attacks differ physically. This check does
 not establish final artistic quality, hitbox timing or game readiness.
+
+Shoggoths uses the original lightweight GLB and keeps its source UVs, four
+materials and packed textures. Its mouth face is rotated from source -Y to
+authoring +Y. Native topology measurements separate both forelimbs and both
+hind limbs below the trunk. This prevents the curled paw from pulling the
+nearby hind leg. Six shorter bones spread bending along each massive forelimb;
+released paws follow the forearm instead of twisting against a locked wrist.
+
+An explicit seam-vertex remap joins 3,281 coincident vertices without moving
+any source position or deleting any of the 20,302 original polygons. The
+per-face UV/material fingerprint is checked before and after. A conventional
+merge operation removed overlapping source faces and was rejected. The
+accepted remap preserves those faces and all original per-corner UVs.
+
+Its combo is a hooked forelimb rake, a raised forelimb hammer and a body shove
+braced on both forepaws. The taunt raises the forepaws and rears the three-mouthed
+upper body. `material_review/` contains a native textured preview, and `review/`
+contains ten compact motion clips. The source-art fingerprint and rig checks
+are in `report.json` and `review/verification.json`.
+
+Contact measurements are provisional: the rounded knuckle can roll across its
+support patch, so patch-centre travel also includes soft deformation. The v005
+fast gait still has roughly 1.4 mm of subframe penetration and about 3.9 cm of
+travel in the left knuckle patch at normalized two-metre scale. These are open
+polish items, not passing ground-contact certification. Runtime playback has
+not been calibrated or integrated. Older rejected Shoggoths blend caches may
+be pruned after hash checks; their reports/captures remain as iteration evidence.

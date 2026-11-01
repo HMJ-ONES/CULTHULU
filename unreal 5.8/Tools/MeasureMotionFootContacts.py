@@ -1,4 +1,4 @@
-"""Read-only skinned sole contact and stance-slide measurements for biped studies."""
+"""Read-only skinned contact and stance-slide measurements; --quadruped adds paws."""
 from pathlib import Path
 import json
 import sys
@@ -12,9 +12,16 @@ bpy.ops.wm.open_mainfile(filepath=str(source),use_scripts=False)
 rig=next(o for o in bpy.context.scene.objects if o.type=='ARMATURE')
 mesh=next(o for o in bpy.context.scene.objects if o.type=='MESH')
 rest=np.array([tuple(v.co) for v in mesh.data.vertices])
-ankles=np.array([tuple(rig.data.bones['foot_'+side].head_local) for side in ['L','R']])
+quadruped='--quadruped' in sys.argv
+limbs=[('hand_L','hand_L',0),('hand_R','hand_R',.5),('foot_L','foot_L',.5),('foot_R','foot_R',0)] if quadruped else [('L','foot_L',0),('R','foot_R',.5)]
+ankles=np.array([tuple(rig.data.bones[bone].head_local) for _,bone,_ in limbs])
 assignment=np.linalg.norm(rest[:,None,:2]-ankles[None,:,:2],axis=2).argmin(axis=1)
-soles={side:np.where((rest[:,2]<.14)&(assignment==i))[0] for i,side in enumerate(['L','R'])}
+soles={}
+for i,(name,_,_) in enumerate(limbs):
+    # Measure the support patch, not the lower half of a leg. The asymmetric
+    # quadruped has differently shaped knuckles and rounded hind-foot caps.
+    height=float(rest[assignment==i,2].min())+.06 if quadruped else .14
+    soles[name]=np.where((rest[:,2]<height)&(assignment==i))[0]
 report={}
 for role in ['walk','run']:
     action=next(a for a in bpy.data.actions if a.get('CultUlhu.MotionRole')==role)
@@ -30,7 +37,7 @@ for role in ['walk','run']:
         bpy.context.scene.frame_set(int(frame),subframe=float(frame%1))
         vertices=mesh.evaluated_get(bpy.context.evaluated_depsgraph_get()).data.vertices
         p=np.empty(len(vertices)*3,dtype=np.float32);vertices.foreach_get('co',p);p=p.reshape(-1,3)
-        for side,offset in [('L',0),('R',.5)]:
+        for side,_,offset in limbs:
             u=(phase+offset)%1
             if .20*duty<u<.75*duty:
                 contact=p[soles[side]]
