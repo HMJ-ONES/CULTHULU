@@ -43,7 +43,7 @@ License: https://creativecommons.org/licenses/by/4.0/
 
 ## Animation-study modifications
 
-Dagon and Nyarlathotep studies add original anatomical skeletons, skin weights,
+Dagon, Cthulhu and Nyarlathotep studies add original anatomical skeletons, skin weights,
 in-place basic movement and melee keyframes, and temporary clay review shading.
 These studies do not include ability animations. They are unfinished derivatives,
 not endorsed by the source artists.

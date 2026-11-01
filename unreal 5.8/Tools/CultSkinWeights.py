@@ -10,7 +10,7 @@ import numpy as np
 from mathutils.kdtree import KDTree
 
 
-def bind(mesh, rig, groups, seeds, blend_width=.075):
+def bind(mesh, rig, groups, seeds, blend_width=.075, region_masks=None, region_proximity=0.):
     p = np.array([tuple(v.co) for v in mesh.data.vertices])
     count = len(p)
     edges = np.array([tuple(e.vertices) for e in mesh.data.edges], dtype=np.int32)
@@ -58,8 +58,17 @@ def bind(mesh, rig, groups, seeds, blend_width=.075):
     for j, name in enumerate(regions):
         indices = [bone_names.index(b) for b in groups[name]]
         distances[disconnected, j] = proximity[disconnected][:, indices].min(axis=1)
+        if region_proximity:
+            assert 0 <= region_proximity <= 1
+            distances[:, j] = (1-region_proximity)*distances[:, j]+region_proximity*proximity[:,indices].min(axis=1)
     nearest = distances.min(axis=1)
     region_weights = np.exp(-np.minimum(80, (distances-nearest[:, None])/blend_width))
+    if region_masks is not None:
+        for j, name in enumerate(regions):
+            mask = np.asarray(region_masks.get(name, np.ones(count)))
+            assert mask.shape == (count,) and np.isfinite(mask).all() and (mask >= 0).all()
+            region_weights[:, j] *= mask
+        assert (region_weights.sum(axis=1)>0).all(), 'Every vertex needs an anatomical region'
     region_weights /= region_weights.sum(axis=1)[:, None]
     weights = np.zeros_like(proximity)
     for j, name in enumerate(regions):
@@ -78,6 +87,13 @@ def bind(mesh, rig, groups, seeds, blend_width=.075):
             total = np.bincount(a, weights=conductance*previous[b, j], minlength=count)+np.bincount(b, weights=conductance*previous[a, j], minlength=count)
             weights[:, j] = .45*previous[:, j]+.55*total/np.maximum(degree, 1e-12)
         weights /= np.maximum(weights.sum(axis=1)[:, None], 1e-12)
+    if region_masks is not None:
+        # Smoothing must not reintroduce forbidden cross-limb influences across
+        # close or welded source surfaces such as resting hands against thighs.
+        for name in regions:
+            indices = [bone_names.index(b) for b in groups[name]]
+            weights[:, indices] *= np.asarray(region_masks.get(name, np.ones(count)))[:, None]
+        weights /= np.maximum(weights.sum(axis=1)[:, None], 1e-12)
     strongest = np.argsort(weights, axis=1)[:, -4:]
     selected = np.take_along_axis(weights, strongest, axis=1)
     selected /= selected.sum(axis=1)[:, None]
@@ -94,5 +110,6 @@ def bind(mesh, rig, groups, seeds, blend_width=.075):
     assert np.isfinite(selected).all() and np.allclose(selected.sum(axis=1), 1)
     return {'method': 'surface-geodesic anatomical regions / joint proximity', 'regions': regions,
             'maxInfluences': 4, 'vertices': count, 'disconnectedFallbackVertices': int(disconnected.sum()),
-            'surfaceSmoothingIterations': 10,
+            'surfaceSmoothingIterations': 10, 'anatomicalRegionMasks': region_masks is not None,
+            'regionProximityFraction': region_proximity,
             'normalizationMaxError': float(np.max(np.abs(selected.sum(axis=1)-1)))}

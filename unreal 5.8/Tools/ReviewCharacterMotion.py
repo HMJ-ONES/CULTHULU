@@ -29,6 +29,11 @@ actions = {a.get('CultUlhu.MotionRole'): a for a in bpy.data.actions if a.get('C
 required = ['idle', 'walk', 'run', 'melee_1', 'melee_2', 'melee_3', 'jump', 'dash', 'taunt']
 assert all(k in actions for k in required), list(actions)
 rig = rigs[0]
+assert scene.camera and scene.camera.data.type == 'ORTHO', 'Review expects an orthographic source camera'
+camera_inverse = scene.camera.matrix_world.inverted()
+camera_rotation = np.array(camera_inverse.to_3x3())
+camera_offset = np.array(camera_inverse.translation)
+camera_extents = np.zeros(2)
 report = {'blend': source.relative_to(ROOT).as_posix(), 'sourceSha256': before,
           'requiredRoles': required, 'actions': {}, 'abilitiesAuthored': False,
           'status': 'independent sampling and native rendered review; artistic acceptance pending'}
@@ -47,8 +52,18 @@ for role in required + (['land'] if 'land' in actions else []):
     for frame in np.arange(start, end + .25, .5):
         scene.frame_set(int(frame), subframe=float(frame % 1))
         graph = bpy.context.evaluated_depsgraph_get()
-        points = np.concatenate([np.array([tuple(o.matrix_world @ v.co) for v in o.evaluated_get(graph).data.vertices]) for o in meshes])
+        surfaces = []
+        for obj in meshes:
+            vertices = obj.evaluated_get(graph).data.vertices
+            local = np.empty(len(vertices)*3, dtype=np.float32)
+            vertices.foreach_get('co', local)
+            matrix = obj.matrix_world
+            surfaces.append(np.einsum('ij,nj->ni', np.array(matrix.to_3x3()), local.reshape(-1,3),
+                optimize=False) + np.array(matrix.translation))
+        points = np.concatenate(surfaces)
         assert np.isfinite(points).all(), (role, frame)
+        projected = np.einsum('ij,nj->ni', camera_rotation, points, optimize=False) + camera_offset
+        camera_extents = np.maximum(camera_extents, np.abs(projected[:, :2]).max(axis=0))
         if first is None:
             first = points.copy()
         if previous is not None:
@@ -75,6 +90,13 @@ floor.name = 'Review only ground; never saved to artist file'
 floor.color = (.075, .085, .10, 1)
 scene.render.resolution_x, scene.render.resolution_y = 480, 600
 scene.render.resolution_percentage = 100
+# Fit the whole sampled motion envelope, including outstretched claws. Preserve
+# orientation and enlarge only the review camera; the source blend stays intact.
+aspect = scene.render.resolution_x / scene.render.resolution_y
+scene.camera.data.ortho_scale = max(scene.camera.data.ortho_scale,
+    2*camera_extents[1]*1.08, 2*camera_extents[0]/aspect*1.08)
+report['reviewCamera'] = {'orthographicScale': scene.camera.data.ortho_scale,
+    'fit': 'all sampled skinned geometry across every required role'}
 if hasattr(scene.render.image_settings, 'media_type'):
     scene.render.image_settings.media_type = 'VIDEO'
 scene.render.image_settings.file_format = 'FFMPEG'

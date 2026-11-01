@@ -15,7 +15,7 @@ its dash. Each creature needs movement and attacks suited to its own anatomy.
 | --- | --- | --- |
 | Dagon | Anatomical 39-bone rig, ten actions, v005 independently reopened and rendered | Fix subframe floor contact; review fast claw travel and shoulder deformation; material/UV transfer; game integration |
 | Nyarlathotep | Tripod rig and ten-action study, v005; evaluated sole correction and normalized skin weights | Inspect all three supporting feet and head-whip in motion; refine transitions/weights; material/UV transfer; integration |
-| Cthulhu | Reviewed retopology and measured anatomical coordinate frame | Skeleton, wing/tendril weighting, heavy movement and unique three-hit set, review and integration |
+| Cthulhu | Anatomical 51-bone rig and ten-action study, v007; folded wing fans and facial tendrils, 60 fps keys, independent sole correction | Refine shoulder/finger deformation and attack transitions; complete visual review, material/UV transfer and integration |
 | Yog-Sothoth | Reviewed retopology | Orb/tendril skeleton, non-humanoid locomotion and three physical strikes, review and integration |
 | Shoggoths | Lightweight source available | Anatomical rig, knuckle-supported movement and distinct attacks, review and integration |
 | Mi-Go | Existing supplied skeleton and animation available | New locomotion/basic combo/taunt; preserve original Prowl for dash; review and integration |
@@ -32,7 +32,7 @@ Nodens is excluded. Characters lacking usable approved models are excluded.
 3. Set the timeline to the action range and play. Walk/run are in place: actual
    game speed still needs to match the authored stance travel and clip timing.
 4. Use **Save As** for your own edits. Never overwrite another artist revision.
-5. Dagon v005's `review/` folder contains ten compact MP4 clips and an independent
+5. The selected studies' `review/` folders contain ten compact MP4 clips and an independent
    verification report. This review checks actual reopened skinned geometry at
    half-frame intervals; closed loops alone do not prove good animation.
 
@@ -62,10 +62,30 @@ their own path and check immutable source hashes.
 
 - `unreal 5.8/Tools/AuthorDagonMotion.py -- vNNN`
 - `unreal 5.8/Tools/AuthorNyarlathotepMotion.py -- vNNN`
+- `unreal 5.8/Tools/AuthorCthulhuMotion.py -- vNNN`
 - `unreal 5.8/Tools/ReviewCharacterMotion.py -- <repo-relative .blend>`
 - `unreal 5.8/Tools/DiagnoseMotionTwists.py -- <repo-relative .blend>`
+- `unreal 5.8/Tools/InspectSkinDeformation.py -- <repo-relative .blend> <role> <phase>`
+- `unreal 5.8/Tools/MeasureMotionFootContacts.py -- <repo-relative .blend>`
 
 Pass script arguments after Blender's `--`, and the script path after
 `--python`. Measured source frames are in
 `unreal 5.8/Config/CharacterAnatomicalFrames.json`. No UE gameplay code changed
 for these studies, and no heavy software download was required.
+
+Cthulhu's first passes pulled thigh and lower wing geometry with the arms.
+Those rejected candidates remain local iteration evidence. The v007 working
+copy adds front/side torso anchors, separate anatomical region masks, calibrated
+asymmetric hand landmarks, and wing-tip seeds. `CultMotionStudy.py` supplies
+versioned authoring and evaluated-surface checks; character-specific recipes
+still define every joint and motion. This change does not regenerate Dagon or
+Nyarlathotep's previously archived working files.
+
+Independent Cthulhu v007 sole measurements sample the evaluated feet through
+the middle of each planted phase. Both soles stay approximately 1.8–2.2 mm
+above the reference floor at the normalized two-metre authoring scale. Maximum
+measured stance travel after compensating for the authored forward speed is
+about 3 mm walking and 6.3 mm running. These figures describe the authoring
+study only; in-game playback must be calibrated to its stance-speed metadata.
+See its `review/foot_contacts.json`. The sole check found and corrected a
+roughly two-centimetre hover in the earlier left-foot contact.
