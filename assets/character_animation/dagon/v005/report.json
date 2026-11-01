@@ -1,0 +1,91 @@
+{
+  "character": "dagon",
+  "revision": "v005",
+  "source": "assets/retopology/dagon_retopology.obj",
+  "sourceSha256": "6b440b62477d9dfcfc1a462992c0aca1c3cd82aa6247f58a91d4f67869d54da3",
+  "skinning": {
+    "method": "surface-geodesic anatomical regions / joint proximity",
+    "regions": [
+      "body",
+      "head",
+      "tail",
+      "arm_L",
+      "leg_L",
+      "arm_R",
+      "leg_R"
+    ],
+    "maxInfluences": 4,
+    "vertices": 26498,
+    "disconnectedFallbackVertices": 0,
+    "surfaceSmoothingIterations": 10,
+    "normalizationMaxError": 2.220446049250313e-16
+  },
+  "boneCount": 39,
+  "unweightedVertices": 0,
+  "actions": {
+    "idle": {
+      "frames": 97,
+      "seconds": 3.2,
+      "minimumSkinnedZ": -2.3515895009040833e-07,
+      "worstP995EdgeStretch": 1.0388421038269657
+    },
+    "walk": {
+      "frames": 35,
+      "seconds": 1.1333333333333333,
+      "minimumSkinnedZ": -3.0547380447387695e-07,
+      "worstP995EdgeStretch": 1.5111218466474563
+    },
+    "run": {
+      "frames": 23,
+      "seconds": 0.7333333333333333,
+      "minimumSkinnedZ": -0.00010944809764623642,
+      "worstP995EdgeStretch": 2.5227216887128474
+    },
+    "melee_1": {
+      "frames": 18,
+      "seconds": 0.5666666666666667,
+      "minimumSkinnedZ": -1.6053704143814684e-07,
+      "worstP995EdgeStretch": 1.5561231876453172
+    },
+    "melee_2": {
+      "frames": 18,
+      "seconds": 0.5666666666666667,
+      "minimumSkinnedZ": -9.845979320743936e-08,
+      "worstP995EdgeStretch": 1.6250321285468645
+    },
+    "melee_3": {
+      "frames": 23,
+      "seconds": 0.7333333333333333,
+      "minimumSkinnedZ": -2.681184560060501e-05,
+      "worstP995EdgeStretch": 2.3404328865089337
+    },
+    "jump": {
+      "frames": 28,
+      "seconds": 0.9,
+      "minimumSkinnedZ": -3.6304816603660583e-05,
+      "worstP995EdgeStretch": 2.4062862545820174
+    },
+    "land": {
+      "frames": 10,
+      "seconds": 0.3,
+      "minimumSkinnedZ": -1.713540405035019e-05,
+      "worstP995EdgeStretch": 1.3204621553535612
+    },
+    "dash": {
+      "frames": 12,
+      "seconds": 0.36666666666666664,
+      "minimumSkinnedZ": -3.6211684346199036e-05,
+      "worstP995EdgeStretch": 2.0205274809708245
+    },
+    "taunt": {
+      "frames": 73,
+      "seconds": 2.4,
+      "minimumSkinnedZ": -1.5087425708770752e-07,
+      "worstP995EdgeStretch": 2.31677659204852
+    }
+  },
+  "blend": "assets/character_animation/dagon/v005/Dagon_BasicMotion.blend",
+  "blendSha256": "5ee2f8c2b1e7db742dbf49ea300cb051740259d275dd000fba7b8e3bbc7d3463",
+  "status": "motion study; visual/deformation review required; not imported to game",
+  "abilities": false
+}

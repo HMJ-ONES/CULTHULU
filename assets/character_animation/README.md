@@ -1,0 +1,71 @@
+# Character motion authoring — work in progress
+
+The goal covers every available working character except Nodens. These files
+are original motion studies, not a finished or integrated animation release.
+Original game assets, source rigs and the artist's working Blender files are
+preserved. No ability animation is being authored.
+
+## Required set for each character
+
+Idle, walk, run, three distinct combo melee strikes, jump, dash and intimidation
+taunt. A landing clip supplements jump. Mi-Go must retain the supplied Prowl as
+its dash. Each creature needs movement and attacks suited to its own anatomy.
+
+| Character | Current work | Required follow-up |
+| --- | --- | --- |
+| Dagon | Anatomical 39-bone rig, ten actions, v005 independently reopened and rendered | Fix subframe floor contact; review fast claw travel and shoulder deformation; material/UV transfer; game integration |
+| Nyarlathotep | Tripod rig and ten-action study, v005; evaluated sole correction and normalized skin weights | Inspect all three supporting feet and head-whip in motion; refine transitions/weights; material/UV transfer; integration |
+| Cthulhu | Reviewed retopology and measured anatomical coordinate frame | Skeleton, wing/tendril weighting, heavy movement and unique three-hit set, review and integration |
+| Yog-Sothoth | Reviewed retopology | Orb/tendril skeleton, non-humanoid locomotion and three physical strikes, review and integration |
+| Shoggoths | Lightweight source available | Anatomical rig, knuckle-supported movement and distinct attacks, review and integration |
+| Mi-Go | Existing supplied skeleton and animation available | New locomotion/basic combo/taunt; preserve original Prowl for dash; review and integration |
+| Yig | Existing body, tail and weapon rigs available | Coordinated four-arm attacks, weapon grips, slithering locomotion and remaining basic motions; review and integration |
+| Sghllor | Existing original orb/mist presentation | Inspect native presentation; original form-appropriate basic motions and review without humanoid anatomy |
+
+Nodens is excluded. Characters lacking usable approved models are excluded.
+
+## Inspecting the studies
+
+1. Open a versioned `*_BasicMotion.blend` in Blender, using **File > Open**.
+2. Select the armature and open **Dope Sheet > Action Editor**. Choose a named
+   action. Each role is also stored in the action's `CultUlhu.MotionRole` property.
+3. Set the timeline to the action range and play. Walk/run are in place: actual
+   game speed still needs to match the authored stance travel and clip timing.
+4. Use **Save As** for your own edits. Never overwrite another artist revision.
+5. Dagon v005's `review/` folder contains ten compact MP4 clips and an independent
+   verification report. This review checks actual reopened skinned geometry at
+   half-frame intervals; closed loops alone do not prove good animation.
+
+The static studies currently use clay colors. Their original UVs and texture
+detail must be transferred/baked before replacing textured game characters.
+Rigging, surface weights, deformations, interpolation, looping, combo contact
+timing and runtime animation blending all require verification. None of the
+studies is certified as final artwork or already installed in Unreal.
+
+The original models retain their attribution in [CREDITS.md](CREDITS.md).
+Current modifications add anatomical skeletons, surface-connected skin weights,
+original movement keyframes and temporary review shading.
+
+## Working-copy backup
+
+Only selected studies are archived under `archive/` as `.blend.b64`, following
+the repository's binary-asset convention. Decode them with
+`python assets/decode_assets.py` after cloning. Decoded copies remain separate
+from the version folders and artist files. Review movies remain local to keep
+the repository small. Earlier rejected studies are not release assets.
+
+## Tools
+
+All authoring scripts run only in a separate background Blender process and
+refuse to overwrite an existing revision. They resolve the repository from
+their own path and check immutable source hashes.
+
+- `unreal 5.8/Tools/AuthorDagonMotion.py -- vNNN`
+- `unreal 5.8/Tools/AuthorNyarlathotepMotion.py -- vNNN`
+- `unreal 5.8/Tools/ReviewCharacterMotion.py -- <repo-relative .blend>`
+- `unreal 5.8/Tools/DiagnoseMotionTwists.py -- <repo-relative .blend>`
+
+Pass script arguments after Blender's `--`, and the script path after
+`--python`. Measured source frames are in
+`unreal 5.8/Config/CharacterAnatomicalFrames.json`. No UE gameplay code changed
+for these studies, and no heavy software download was required.
