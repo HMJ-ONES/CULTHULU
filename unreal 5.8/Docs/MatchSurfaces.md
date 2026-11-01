@@ -1,5 +1,7 @@
 # Competitive arena surfaces
 
+The measurements below describe the original 2026-10-21 stone pass. Domination now has a separate versioned material and original relief; see [Domination finish](DominationFinish.md) for its controlled comparison, physical pedestal change and current verification. The original `M_MatchStone` asset is preserved and remains the MOBA material. Do not treat the historical timing table below as a measurement of the new finish.
+
 The competitive renders exposed broad flat-tint walls, floors and ramps. Their
 plain surfaces reinforced the primitive geometry and provided little sense of
 scale. This pass adds an original world-aligned stone material to tagged arena

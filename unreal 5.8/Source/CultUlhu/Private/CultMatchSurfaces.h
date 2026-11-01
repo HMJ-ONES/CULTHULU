@@ -1,6 +1,9 @@
 #pragma once
 class UWorld;
+class UMaterialInterface;
 namespace CultMatchSurfaces {
  bool Enabled();
- int Apply(UWorld* World,bool Stone);
+ bool RefinedDomination();
+ UMaterialInterface* StoneMaterial(bool Domination);
+ int Apply(UWorld* World,bool Stone,bool Domination=false);
 }

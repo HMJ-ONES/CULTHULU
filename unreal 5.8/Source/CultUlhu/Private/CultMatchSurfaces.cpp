@@ -6,10 +6,16 @@
 #include "Materials/MaterialInstanceDynamic.h"
 namespace {
 TAutoConsoleVariable<int32> StoneEnabled(TEXT("cult.Match.Stone"),1,TEXT("Procedural world-aligned stone on tagged arena surfaces. Zero uses the original flat material."));
+TAutoConsoleVariable<int32> DominationFinish(TEXT("cult.Domination.Refinement"),1,TEXT("Original broad Domination stone and architectural relief. Zero retains the previous presentation."));
 }
 bool CultMatchSurfaces::Enabled() { return StoneEnabled.GetValueOnGameThread()!=0; }
-int CultMatchSurfaces::Apply(UWorld* World,bool Stone) {
- auto* Base=LoadObject<UMaterialInterface>(nullptr,Stone?TEXT("/Game/CultUlhu/Materials/M_MatchStone"):TEXT("/Game/CultUlhu/Materials/M_ArenaSurface"));
+bool CultMatchSurfaces::RefinedDomination() { return DominationFinish.GetValueOnGameThread()!=0; }
+UMaterialInterface* CultMatchSurfaces::StoneMaterial(bool Domination) {
+ if(Domination&&RefinedDomination()) if(auto* New=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_DominationStone_v1"))) return New;
+ return LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_MatchStone"));
+}
+int CultMatchSurfaces::Apply(UWorld* World,bool Stone,bool Domination) {
+ auto* Base=Stone?StoneMaterial(Domination):LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_ArenaSurface"));
  if(!World||!Base) return 0;
  int Count=0;
  for(TActorIterator<AActor> It(World);It;++It) if(It->ActorHasTag(TEXT("CultMatchStoneSurface"))) {

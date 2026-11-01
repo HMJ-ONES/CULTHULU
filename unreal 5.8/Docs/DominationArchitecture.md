@@ -1,5 +1,7 @@
 # Domination: route identity and seal overlooks
 
+The subsequent [Domination finish](DominationFinish.md) adds a versioned stone material and closed architectural relief, and grounds the lower-perch pedestals. The original identity geometry and its earlier measurements below remain separate from that newer finish and its verification.
+
 ## Gameplay change
 
 Two mirrored balconies connect the existing side overpasses to forward seal overlooks. Each is 60m wide and 40m deep, with its floor at the existing 60m upper-route elevation. These are crossing and drop positions: their height puts ground-level targets beyond most original 16–25m ranged kits. The forward edge remains open for dropping toward the fight. The solid slab provides sheltered ground space beneath it. Neither overlook scores capture points. The original scoring rectangle, keeps, outer ramps, underground junctions and four crypt branches remain in place.

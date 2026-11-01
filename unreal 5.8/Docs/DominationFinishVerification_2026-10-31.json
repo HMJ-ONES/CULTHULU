@@ -1,0 +1,225 @@
+{
+  "dateLocal": "2026-10-31",
+  "project": "unreal 5.8/CultUlhu.uproject",
+  "baselinePublishedHead": "6a40329181a379272c95634211b3f45bd6a95b5c",
+  "canonicalValidation": "Passed",
+  "build": {
+    "target": "CultUlhuEditor Win64 Development",
+    "result": "Succeeded",
+    "log": "Saved/DominationFinishVerificationBuild.log"
+  },
+  "nativeChecks": [
+    {
+      "test": "CultUlhu.Menu.DominationArchitecture",
+      "result": "Success",
+      "log": "Saved/DominationFinishReview.log",
+      "logSha256": "09869358e68e6425aebb35ab075c05d1fc0665f4edade21b973aa7ab54fe4650"
+    },
+    {
+      "test": "CultUlhu.Menu.DominationFinish",
+      "result": "Success",
+      "log": "Saved/DominationFinishReview.log",
+      "logSha256": "09869358e68e6425aebb35ab075c05d1fc0665f4edade21b973aa7ab54fe4650"
+    },
+    {
+      "test": "CultUlhu.Menu.DominationUpperCombat",
+      "result": "Success",
+      "log": "Saved/DominationFinishReview.log",
+      "logSha256": "09869358e68e6425aebb35ab075c05d1fc0665f4edade21b973aa7ab54fe4650"
+    },
+    {
+      "test": "CultUlhu.Menu.CombatTactics.Domination",
+      "result": "Success",
+      "log": "Saved/DominationFinishRegression.log",
+      "logSha256": "7a63f86f9a5ab3a84f3c658433e0cea3d7b00c670299a5a8d01a9d2cf0f3ffc8"
+    },
+    {
+      "test": "CultUlhu.Menu.CombatTactics.Moba",
+      "result": "Success",
+      "log": "Saved/DominationFinishRegression.log",
+      "logSha256": "7a63f86f9a5ab3a84f3c658433e0cea3d7b00c670299a5a8d01a9d2cf0f3ffc8"
+    },
+    {
+      "test": "CultUlhu.Menu.MatchSurfaces.Moba",
+      "result": "Success",
+      "log": "Saved/DominationFinishRegression.log",
+      "logSha256": "7a63f86f9a5ab3a84f3c658433e0cea3d7b00c670299a5a8d01a9d2cf0f3ffc8"
+    },
+    {
+      "test": "CultUlhu.Menu.DominationMatch",
+      "result": "Success",
+      "log": "Saved/DominationFinishRegression.log",
+      "logSha256": "7a63f86f9a5ab3a84f3c658433e0cea3d7b00c670299a5a8d01a9d2cf0f3ffc8"
+    }
+  ],
+  "material": {
+    "asset": "/Game/CultUlhu/Materials/M_DominationStone_v1",
+    "bytes": 12696,
+    "builderReceipt": {
+      "asset": "/Game/CultUlhu/Materials/M_DominationStone_v1",
+      "shaderSha256": "69cda440ccfaf6e54b67557be64b735ad677ac6910d1f63bb175e2bb0fb2d9e0",
+      "originalMaterialUnchangedSha256": "d815ad154f4d8e253edf185ca355cd389be15df906791c454382336b47389509",
+      "outputSha256": "8ff16d3231c7fc73f95e086745a0ae22ae2d11247d6b19bcc221013581e6019d"
+    },
+    "nativeCompiledShaderMapWithoutErrors": true,
+    "originalMaterialsByteIdenticalToPublishedHead": true,
+    "newDownloadedTextures": 0,
+    "scope": "Versioned Domination-only original material. MOBA retains the original stone."
+  },
+  "geometry": {
+    "newReliefComponents": 1,
+    "newReliefMaterialSections": 3,
+    "newReliefTriangles": 5568,
+    "reliefCollision": "NoCollision; actor collision also disabled",
+    "boundedGameplayChange": "The four 9m firing pedestals now extend to ground instead of leaving a 6m void. Top heights, ramp positions and capture rectangle are unchanged.",
+    "oldKeepSkinPolicy": "Preserved and hidden in the refined presentation; restored in the legacy comparison."
+  },
+  "frozenComparison": {
+    "captures": 8,
+    "exportPixels": [
+      1280,
+      720
+    ],
+    "taggedSurfaces": 149,
+    "arenaMeshes": 214,
+    "actors": 267,
+    "coverage": [
+      "Compiled material resource with shader map and no compile errors",
+      "Player transform/height, actor count, component visibility, static mesh assets, transforms, collision and procedural vertices/indices preserved across the presentation switch",
+      "Grounded pedestals present in both states; comparison isolates materials/relief, not a rollback of earlier map collision"
+    ],
+    "inspectedViews": [
+      "LegacyPerch",
+      "RefinedPerch",
+      "RefinedCrypt"
+    ],
+    "publishedExactPairs": [
+      {
+        "path": "Docs/Images/DominationFinish_LegacyPerch_20261031.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "64f6e2661b0452c8da7297001c43aafcadb5e9cd2076757bc47e06bcec2a7837"
+      },
+      {
+        "path": "Docs/Images/DominationFinish_RefinedPerch_20261031.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "e575511ece68e4d2128e5aa98a3cc9435c1cc2a644b6d8f208ef4bf4f5a4a882"
+      }
+    ]
+  },
+  "performance": {
+    "scope": "Combined material/relief in one frozen editor world and player view; A-B-B-A order; CSV footers excluded; counts are not milliseconds.",
+    "taggedSurfaces": 149,
+    "windows": [
+      {
+        "window": 0,
+        "refined": false,
+        "frames": 120,
+        "gpuMeanMs": 4.67061,
+        "frameMeanMs": 16.703431666666667,
+        "sha256": "c995f152203454583181b64f1607ef89ca5a9bf3854fbcecf48cb2e27c34b9c8"
+      },
+      {
+        "window": 1,
+        "refined": true,
+        "frames": 120,
+        "gpuMeanMs": 4.633775833333333,
+        "frameMeanMs": 16.667213333333333,
+        "sha256": "bd743591b96d55f97cb40f2cd1e4813bb8b375485cdacd8240ae3704ce3c8593"
+      },
+      {
+        "window": 2,
+        "refined": true,
+        "frames": 120,
+        "gpuMeanMs": 4.6366225,
+        "frameMeanMs": 16.667210833333332,
+        "sha256": "201396b858809736b42d05ab9d2c938bf4f561138501ef7e27ed1dbf5f603085"
+      },
+      {
+        "window": 3,
+        "refined": false,
+        "frames": 120,
+        "gpuMeanMs": 4.701105833333333,
+        "frameMeanMs": 16.666968333333333,
+        "sha256": "2b488efc48d2186abe5f292aa08153e759f31014e386b30d9b181506b2644e8d"
+      }
+    ],
+    "legacyGpuMeanMs": 4.6858579166666665,
+    "refinedGpuMeanMs": 4.635199166666666,
+    "observedGpuDifferenceMs": -0.0506587500000002,
+    "limits": "One-host frozen-view sample. No statistical performance gain, live-match FPS, fixed exported-image-resolution cost or low-spec certification."
+  },
+  "autonomousPerchScenarios": [
+    {
+      "scenario": 0,
+      "arrivalSeconds": 7.6,
+      "maximumFeetHeightCm": 902.1
+    },
+    {
+      "scenario": 1,
+      "arrivalSeconds": 7.61,
+      "maximumFeetHeightCm": 902.0
+    },
+    {
+      "scenario": 2,
+      "arrivalSeconds": 25.76,
+      "maximumFeetHeightCm": 6002.1
+    }
+  ],
+  "fullMatch": {
+    "alliedCaptureParticipants": 4,
+    "enemyCaptureParticipants": 5,
+    "actualDamage": 2477.1,
+    "observationSeconds": 65
+  },
+  "network": {
+    "command": "Tools/RunRoomNetworkProbe.py --mode 1 --lighting",
+    "result": "Passed",
+    "roles": [
+      {
+        "ok": true,
+        "mode": 1,
+        "role": "host",
+        "movement": true,
+        "combat": true,
+        "localMenu": true,
+        "hostReplacedByBot": true
+      },
+      {
+        "ok": true,
+        "mode": 1,
+        "role": "guest",
+        "movement": true,
+        "combat": true,
+        "localMenu": true,
+        "hostReplacedByBot": true
+      }
+    ],
+    "referenceDifferencesSrgb255": [
+      0.222,
+      0.232,
+      0.279,
+      0.253
+    ],
+    "maxDifferenceGate": 4,
+    "minimumMedianGate": 15,
+    "allReferenceRaysClear": true,
+    "scope": "Two local standalone processes; no different-PC/adverse-network/packaged certification."
+  },
+  "criticalAssessment": "Broader stone and original relief reduce repetitive small-grid clutter and establish a clearer seal. Large rectangular masses, sparse exterior composition and unfinished character/HUD presentation remain. This is not Overwatch-level art or a human Onslaught-fun verdict.",
+  "sourceSha256": {
+    "unreal 5.8/Source/CultUlhu/Private/CultStoneAssembly.h": "70c25e74e4a629857540fe095d91a3ce1296ed857a6f2885e23ebaa2bb722524",
+    "unreal 5.8/Source/CultUlhu/Private/CultDominationFinish.h": "1a6d11045d3bdb1b6d3e0834f73869e877d9806c8d16a1b83bce08bc21d661c3",
+    "unreal 5.8/Source/CultUlhu/Private/CultDominationFinish.cpp": "8d946726a8643ce0c0d57c85870a62aea937a6c6e048a3ad101cfc37542788ce",
+    "unreal 5.8/Source/CultUlhu/Private/CultDominationArt.cpp": "6363b3cb8a52a21993e3a1dca2d7130d1600db8c1a40e1f5d25aa8f15e21e729",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchSurfaces.h": "b664535f3025652faf28a1abf3c93353901fa68e8a597241c76f2918c701e73d",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchSurfaces.cpp": "bd3eb8d14f9c8b0d462fd0677f28228076a8c413b7a337a64b17eca4c22a086d",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchArena.cpp": "a1b4e7003a2c448df73306971b10b3560a6b2b637392dbfa90e6768219c33539",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchSurfaceTest.cpp": "3eb8eee12a74c3040901920e2c315591383886ba7f6366132815884f2b591d01",
+    "unreal 5.8/Tools/BuildDominationStone.py": "cf887a546fbb3788fa5756fc65dfe400bb0e4aac70b878e6bc99f86843feac1a",
+    "unreal 5.8/Tools/DominationStone.hlsl": "69cda440ccfaf6e54b67557be64b735ad677ac6910d1f63bb175e2bb0fb2d9e0",
+    "unreal 5.8/Tools/AnalyzeDominationFinish.py": "af5252fa1c3671b9e42a951f33b00cb268fb52be6ab13b1762ca0dfc50dac8da",
+    "unreal 5.8/Content/CultUlhu/Materials/M_DominationStone_v1.uasset": "8ff16d3231c7fc73f95e086745a0ae22ae2d11247d6b19bcc221013581e6019d"
+  }
+}

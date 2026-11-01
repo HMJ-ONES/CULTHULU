@@ -7,6 +7,7 @@
 #include "CultMobaJungle.h"
 #include "CultDominationRoute.h"
 #include "CultDominationArt.h"
+#include "CultDominationFinish.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/PointLight.h"
 #include "Components/PointLightComponent.h"
@@ -158,7 +159,7 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   // remains open, and both teams can reach or counter these via ground ramps.
   for(int Side:{-1,1}) for(int Home:{-1,1}) {
    const FVector Perch=FCultDominationRoute::Perch(Home,Side),Start=FCultDominationRoute::PerchRamp(Home,Side),End(Home*4500,Side*5000,900),D=End-Start;
-   auto* Ledge=WalkSurface(Perch-FVector(0,0,150),FVector(2400,1800,300)); Ledge->Tags.Add(TEXT("CultDominationFiringPerch"));
+   auto* Ledge=WalkSurface(Perch-FVector(0,0,450),FVector(2400,1800,900)); Ledge->Tags.Add(TEXT("CultDominationFiringPerch"));
    const FVector Normal=FVector(-D.Z*D.X,0,D.SizeSquared2D()).GetSafeNormal();
    auto* Ramp=WalkSurface((Start+End)*.5f-Normal*100,FVector(D.Size(),1800,200)); Ramp->SetActorRotation(D.Rotation()); Ramp->Tags.Add(TEXT("CultDominationPerchRamp"));
   }
@@ -235,7 +236,7 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
  }
  for(float X:{-14000.f,14000.f}) for(int Side:{-1,1}) Art(TEXT("ruined-column-b"),FVector(X,Side*19500,0),FVector(900,900,6500),0);
  CultMatchBackdrop::Build(W,Moba);
- CultMatchSurfaces::Apply(W,CultMatchSurfaces::Enabled());
- if(!Moba) CultDominationArt::Build(W);
+ CultMatchSurfaces::Apply(W,CultMatchSurfaces::Enabled(),!Moba);
+ if(!Moba) { CultDominationArt::Build(W); CultDominationFinish::Build(W); }
 }
 
