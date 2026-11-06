@@ -1,0 +1,8 @@
+{
+  "mi_go": {
+    "decodedFile": "MiGo.fbx",
+    "sha256": "8fe329b50a5e47ca6979fb2e4d10b5734aa4d368e692003b9f0089ec31a09ae0",
+    "source": "Exact approved prepared_v2 FBX; DM-913, CC-BY-4.0; see ../CREDITS.md",
+    "provenance": "Original Bugoid2.blend PoseLib converted to prepared Prowl with floor-anchor adjustment by existing PrepareOriginalMiGoFBX.py; new studies preserve that prepared animation."
+  }
+}

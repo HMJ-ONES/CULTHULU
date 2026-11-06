@@ -58,6 +58,7 @@ shader.inputs['Roughness'].default_value=.8;floor.data.materials.append(material
 rig.hide_render=True
 vertices=mesh.evaluated_get(bpy.context.evaluated_depsgraph_get()).data.vertices
 p=np.empty(len(vertices)*3,dtype=np.float32);vertices.foreach_get('co',p);p=p.reshape(-1,3)
+p=np.einsum('ij,nj->ni',np.array(mesh.matrix_world.to_3x3()),p,optimize=False)+np.array(mesh.matrix_world.translation)
 camera=scene.camera;inverse=camera.matrix_world.inverted()
 projected=np.einsum('ij,nj->ni',np.array(inverse.to_3x3()),p,optimize=False)+np.array(inverse.translation)
 extent=np.abs(projected[:,:2]).max(axis=0)

@@ -15,10 +15,10 @@ its dash. Each creature needs movement and attacks suited to its own anatomy.
 | --- | --- | --- |
 | Dagon | Anatomical 39-bone rig, ten actions, v005 independently reopened and rendered | Fix subframe floor contact; review fast claw travel and shoulder deformation; material/UV transfer; game integration |
 | Nyarlathotep | Tripod rig and ten-action study, v005; evaluated sole correction and normalized skin weights | Inspect all three supporting feet and head-whip in motion; refine transitions/weights; material/UV transfer; integration |
-| Cthulhu | Anatomical 51-bone rig and ten-action study, v007; folded wing fans and facial tendrils, 60 fps keys, independent sole correction | Refine shoulder/finger deformation and attack transitions; complete visual review, material/UV transfer and integration |
+| Cthulhu | Anatomical 51-bone rig; v008 has thirteen actions including faster forward stepping attacks and three wing-assisted backward strike variants; independent 60 fps review | Refine shoulder/finger deformation and attack transitions; verify capsule travel/contact timing, material/UV transfer and integration |
 | Yog-Sothoth | Floating 52-bone rig and ten-action study, v002; eight blended lower columns, upper-mass follow-through and eye-facing calibration | Refine woven-tendril contacts and attack transitions; material/UV transfer, runtime timing and integration |
 | Shoggoths | 44-bone rig and ten-action study, v005; curved forelimbs, four contact regions, original UVs/materials retained | Refine fast knuckle contact and interpolation; runtime timing, blending and integration |
-| Mi-Go | Existing supplied skeleton and animation available | New locomotion/basic combo/taunt; preserve original Prowl for dash; review and integration |
+| Mi-Go | v003 supplied 84-bone rig, nine new actions and original Prowl retained as dash; independent source-preservation and rendered-motion checks passed | Refine stance and scythe transitions, textured visual review, original-skeleton export and game integration |
 | Yig | Existing body, tail and weapon rigs available | Coordinated four-arm attacks, weapon grips, slithering locomotion and remaining basic motions; review and integration |
 | Sghllor | Existing original orb/mist presentation | Inspect native presentation; original form-appropriate basic motions and review without humanoid anatomy |
 
@@ -32,13 +32,28 @@ Nodens is excluded. Characters lacking usable approved models are excluded.
 3. Set the timeline to the action range and play. Walk/run are in place: actual
    game speed still needs to match the authored stance travel and clip timing.
 4. Use **Save As** for your own edits. Never overwrite another artist revision.
-5. The selected studies' `review/` folders contain ten compact MP4 clips and an independent
+5. The selected studies' `review/` folders contain compact MP4 clips and an independent
    verification report. This review checks actual reopened skinned geometry at
    half-frame intervals; closed loops alone do not prove good animation.
 
 The four retopology-based studies currently use clay colors. Their original UVs
 and texture detail must be transferred/baked before replacing textured game characters.
 Shoggoths retains its original UVs and source materials.
+Mi-Go retains the supplied mesh, UVs, material slots, rest skeleton, raw skin
+weights and original Prowl keys/handles. Independent source reimport measured
+less than 0.000001 of source height in evaluated Prowl deviation. Its original
+24 fps timebase is preserved; new clips are sampled at 60 Hz on fractional
+source frames. Source weights include more than four influences and imperfect
+normalization; these are preserved source properties, not a new-rig quality pass.
+Its authoring normalization is a parent Empty; remove that normalization during
+animation-only export to the original Unreal skeleton. The supplied Prowl has
+some inherited ground penetration, so retaining it does not certify foot contact.
+
+Cthulhu v008 attack clips include authoring-root translation in normalized
+metres. They are not safe drop-in gameplay root motion: runtime must sweep the
+capsule, preserve camera-directed aiming and align slash contact/FX to the
+authored strike phase. Their presence does not mean those gameplay changes or
+all eight characters' animation sets are finished.
 Rigging, surface weights, deformations, interpolation, looping, combo contact
 timing and runtime animation blending all require verification. None of the
 studies is certified as final artwork or already installed in Unreal.
@@ -66,6 +81,9 @@ their own path and check immutable source hashes.
 - `unreal 5.8/Tools/AuthorCthulhuMotion.py -- vNNN`
 - `unreal 5.8/Tools/AuthorYogMotion.py -- vNNN`
 - `unreal 5.8/Tools/AuthorShoggMotion.py -- vNNN`
+- `unreal 5.8/Tools/AuthorMiGoMotion.py -- vNNN`
+- `unreal 5.8/Tools/InspectSuppliedMotionRig.py -- mi_go`
+- `unreal 5.8/Tools/VerifySuppliedRigPreservation.py -- <repo-relative .blend>`
 - `unreal 5.8/Tools/ReviewCharacterMotion.py -- <repo-relative .blend>`
 - `unreal 5.8/Tools/CaptureMotionAngles.py -- <repo-relative .blend> <comma-separated roles> <phase>`
 - `unreal 5.8/Tools/DiagnoseMotionTwists.py -- <repo-relative .blend>`

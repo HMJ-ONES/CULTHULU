@@ -8,6 +8,7 @@ from pathlib import Path
 import hashlib
 import json
 import sys
+import runpy
 import bpy
 import numpy as np
 
@@ -28,6 +29,7 @@ assert rigs and meshes
 actions = {a.get('CultUlhu.MotionRole'): a for a in bpy.data.actions if a.get('CultUlhu.MotionRole')}
 required = ['idle', 'walk', 'run', 'melee_1', 'melee_2', 'melee_3', 'jump', 'dash', 'taunt']
 assert all(k in actions for k in required), list(actions)
+required += sorted(k for k in actions if k.startswith('melee_back_'))
 rig = rigs[0]
 assert scene.camera and scene.camera.data.type == 'ORTHO', 'Review expects an orthographic source camera'
 camera_inverse = scene.camera.matrix_world.inverted()
@@ -37,6 +39,18 @@ camera_extents = np.zeros(2)
 report = {'blend': source.relative_to(ROOT).as_posix(), 'sourceSha256': before,
           'requiredRoles': required, 'actions': {}, 'abilitiesAuthored': False,
           'status': 'independent sampling and native rendered review; artistic acceptance pending'}
+source_rate=scene.render.fps/scene.render.fps_base
+preserved=None
+preservation_file=source.parent/'source_preservation.json'
+if preservation_file.exists():
+    preserved=json.loads(preservation_file.read_text())
+    assert preserved['blendSha256']==before and preserved['character'] in ['mi_go','yig']
+    supplied=runpy.run_path(str(ROOT/'unreal 5.8/Tools/CultSuppliedRigMotion.py'))
+    assert sha(supplied['approved_source'](preserved['character']))==preserved['sourceSha256']
+    assert preserved['geometryUVsMaterialSlotsAndRawWeightsUnchanged'] and preserved['allSuppliedKeysAndHandlesUnchanged']
+    assert preserved['restSkeletonsUnchanged'] and preserved['maximumErrorFractionOfSourceHeight']<.00001
+    assert all(supplied['mesh_signature'](mesh)==preserved['meshSignatures'][mesh.name] for mesh in meshes)
+    report['preservedSourceRig']=preserved
 
 def skinned_points():
     graph = bpy.context.evaluated_depsgraph_get()
@@ -50,8 +64,10 @@ def skinned_points():
             optimize=False) + np.array(matrix.translation))
     return np.concatenate(surfaces)
 for mesh in meshes:
-    assert all(1 <= len(v.groups) <= 4 for v in mesh.data.vertices), 'Unweighted vertex or excess influences'
-    assert max(abs(sum(g.weight for g in v.groups)-1) for v in mesh.data.vertices) < 1e-5
+    assert all(len(v.groups)>0 for v in mesh.data.vertices),'Unweighted vertex'
+    if preserved is None:
+        assert all(len(v.groups)<=4 for v in mesh.data.vertices), 'New rig exceeds four influences'
+        assert max(abs(sum(g.weight for g in v.groups)-1) for v in mesh.data.vertices) < 1e-5
 for role in required + (['land'] if 'land' in actions else []):
     action = actions[role]
     rig.animation_data.action = action
@@ -61,7 +77,10 @@ for role in required + (['land'] if 'land' in actions else []):
     lows = []
     largest_step = 0.
     first = previous = last = None
-    for frame in np.arange(start, end + .25, .5):
+    curves=[c for layer in action.layers for strip in layer.strips for bag in strip.channelbags for c in bag.fcurves]
+    keys=max(len(c.keyframe_points) for c in curves)
+    intervals=max(2,2*(keys-1))
+    for frame in np.linspace(float(start),float(end),intervals+1):
         scene.frame_set(int(frame), subframe=float(frame % 1))
         points = skinned_points()
         assert np.isfinite(points).all(), (role, frame)
@@ -75,11 +94,11 @@ for role in required + (['land'] if 'land' in actions else []):
         lows.append(float(points[:, 2].min()))
     closure = float(np.linalg.norm(last-first, axis=1).max())
     loop = role in ['idle', 'walk', 'run']
-    report['actions'][role] = {'sampleStepFrames': .5, 'samples': len(lows),
-        'minimumSurfaceZ': min(lows), 'maximumVertexHalfFrameTravel': largest_step,
+    report['actions'][role] = {'sampleStepFrames': float((end-start)/intervals), 'samples': len(lows),
+        'minimumSurfaceZ': min(lows), 'maximumVertexSampleTravel': largest_step,
         'loop': loop, 'endpointMaxVertexDistance': closure,
         'loopClosurePass': closure < .001 if loop else None,
-        'durationSeconds': float((end-start)/scene.render.fps)}
+        'durationSeconds': float((end-start)/source_rate)}
     if loop:
         assert closure < .001, (role, 'loop closure', closure)
     print('REOPENED_MOTION_CHECK', role, report['actions'][role], flush=True)
@@ -131,6 +150,10 @@ scene.render.ffmpeg.format = 'MPEG4'
 scene.render.ffmpeg.codec = 'H264'
 scene.render.ffmpeg.constant_rate_factor = 'MEDIUM'
 scene.render.ffmpeg.ffmpeg_preset = 'GOOD'
+scene.render.fps=60
+scene.render.fps_base=1.
+report['reviewTimeBase']={'sourceFramesPerSecond':source_rate,'movieFramesPerSecond':60,
+    'method':'temporary NLA time scaling; source keys and study file unchanged'}
 for role in required + (['land'] if 'land' in actions else []):
     output = dest / (role + '.mp4')
     assert not output.exists(), 'Preserve existing review movies'
@@ -141,8 +164,9 @@ for role in required + (['land'] if 'land' in actions else []):
     if action.slots:
         strip.action_slot = action.slots[0]
     strip.extrapolation = 'NOTHING'
+    strip.scale=60/source_rate
     strip.repeat = 2 if role in ['walk', 'run'] else 1
-    scene.frame_start, scene.frame_end = 1, int(strip.frame_end)-1
+    scene.frame_start, scene.frame_end = 1, max(1,round(float(strip.frame_end))-1)
     scene.render.filepath = str(output)
     bpy.ops.render.render(animation=True)
     rig.animation_data.nla_tracks.remove(track)

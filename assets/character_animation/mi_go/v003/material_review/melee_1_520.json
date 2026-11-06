@@ -1,0 +1,14 @@
+{
+  "blendSha256": "948d84e430e2111bd33ba2e5e3862d1cf69b65dbdde770df34afa995b3e931a1",
+  "role": "melee_1",
+  "phase": 0.52,
+  "renderer": "Cycles CPU 16 samples; original source materials",
+  "packedImages": [
+    {
+      "name": "RUFFNESS",
+      "packedBytes": 527329,
+      "sha256": "0dc68783a05c43cb9c015251cc831160ff9cf36b8a1cb6c0e3dd6f44ea1560f8"
+    }
+  ],
+  "preview": "assets/character_animation/mi_go/v003/material_review/melee_1_520.png"
+}

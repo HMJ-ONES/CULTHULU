@@ -51,6 +51,23 @@ Author page: https://sketchfab.com/alexalbinyana
 Original source: https://sketchfab.com/3d-models/lovecraftian-horror-6093cbb205444e9aa7b36d7be4ed9b58
 License: https://creativecommons.org/licenses/by/4.0/
 
+## mi_go
+
+Insectoid Monster Rig
+
+Author: DM-913
+Author page: https://sketchfab.com/SuperKapoo913
+Original source: https://sketchfab.com/3d-models/insectoid-monster-rig-01323e4b2563430f9da85cd255b6e176
+License: https://creativecommons.org/licenses/by/4.0/
+
+The study uses the existing approved prepared FBX. It preserves the supplied
+mesh, UVs/material slots, raw skin weights, 84-bone rest rig and prepared Prowl
+dash keys. Original locomotion, three scythe strikes, jump, landing and taunt
+keyframes are added on that rig. The prepared Prowl came from the original
+PoseLib conversion and floor-anchor adjustment; this study does not claim that
+conversion was untouched raw source animation. Authoring normalization is a
+separate parent transform, and original scene timebase is retained.
+
 ## Animation-study modifications
 
 Dagon, Cthulhu, Nyarlathotep, Yog-Sothoth and Shoggoths studies add original anatomical skeletons, skin weights,

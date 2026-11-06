@@ -85,6 +85,9 @@ masks['tail']=(1-ramp(y,-.18,-.08))*(1-ramp(z,.73,.9))
 study.bind(groups,seeds,masks,region_proximity=.25)
 
 def pose(role,t,sole_corrections=None):
+    retreat=role.startswith('melee_back_')
+    if retreat:
+        role='melee_'+role.rsplit('_',1)[1]
     phase=math.tau*t
     q={};shift=Vector((0,0,0))
     feet={s:study.heads['foot_'+s].copy() for s in ['L','R']}
@@ -113,6 +116,21 @@ def pose(role,t,sole_corrections=None):
             q['forearm_'+side]=rot(x=(16 if running else 4))
     if role.startswith('melee_'):
         kind=int(role[-1])
+        # A real leading-foot step precedes the claw contact. The rear foot
+        # gathers afterwards instead of keeping both legs pinned under a lunge.
+        # Authoring root travel is normalized metres; runtime must sweep the
+        # capsule with the same curve before enabling root-motion export.
+        direction=-1 if retreat else 1
+        lead='R' if kind==2 else 'L'
+        trail='L' if lead=='R' else 'R'
+        advance=envelope(t,[(0,0),(.14,-.10),(.43,1),(.62,.92),(1,0)])
+        shift.y+=direction*(.23 if kind==3 else .28)*advance
+        lead_step=envelope(t,[(0,0),(.10,0),(.37,1),(.66,1),(1,0)])
+        gather=envelope(t,[(0,0),(.48,0),(.75,1),(1,0)])
+        feet[lead].y+=direction*.35*lead_step
+        feet[lead].z+=.075*envelope(t,[(0,0),(.1,0),(.23,1),(.38,0),(1,0)])
+        feet[trail].y+=direction*.27*gather
+        feet[trail].z+=.055*envelope(t,[(0,0),(.52,0),(.70,1),(.86,0),(1,0)])
         hit=envelope(t,[(0,0),(.27,-.25),(.52,1),(.7,.72),(1,0)])
         load=envelope(t,[(0,0),(.27,1),(.52,0),(.7,0),(1,0)])
         strike=max(0,hit)
@@ -174,6 +192,12 @@ def pose(role,t,sole_corrections=None):
         flare=envelope(t,[(0,0),(.25,1),(.77,.9),(1,0)]) if role=='taunt' else 0
         q['wingbase_'+side]=rot(y=sign*(math.sin(phase-.5)*amplitude+12*flare),z=sign*3*flare)
         q['wingspar_'+side]=rot(y=sign*(math.sin(phase-.9)*amplitude*.6+4*flare))
+        if retreat:
+            # Small purposeful wing beats assist the backward step while
+            # leaving the claws free to strike toward the facing direction.
+            beat=envelope(t,[(0,0),(.14,-.3),(.35,1),(.57,-.2),(.8,.2),(1,0)])
+            q['wingbase_'+side]=rot(y=sign*10*beat,z=sign*4*beat)
+            q['wingspar_'+side]=rot(y=sign*6*beat)
         for i in range(3):
             q['wingray%d_'%i+side]=rot(x=math.sin(phase-1-i*.25)*.7,y=sign*flare*(i+1))
         for kind in ['inner','outer']:
@@ -188,9 +212,16 @@ def pose(role,t,sole_corrections=None):
         study.leg(world,side,feet[side])
     return world
 
-roles={'idle':4.0,'walk':1.6,'run':.90,'melee_1':.72,'melee_2':.85,'melee_3':.95,'jump':1.05,'dash':.48,'taunt':3.2,'land':.38}
+roles={'idle':4.0,'walk':1.6,'run':.90,'melee_1':.44,'melee_2':.50,'melee_3':.60,
+       'melee_back_1':.48,'melee_back_2':.54,'melee_back_3':.64,
+       'jump':1.05,'dash':.48,'taunt':3.2,'land':.38}
 study.bake(roles,pose,stance_fractions={'walk':.65,'run':.55})
 for role in ['walk','run']:
     study.actions[role]['CultUlhu.StanceFraction']=.65 if role=='walk' else .55
     study.actions[role]['CultUlhu.StanceTravelMetres']=.40 if role=='walk' else .60
+for role in roles:
+    if role.startswith('melee_'):
+        study.actions[role]['CultUlhu.AttackDirection']='backward' if role.startswith('melee_back_') else 'forward'
+        study.actions[role]['CultUlhu.ContactPhase']=.52
+        study.actions[role]['CultUlhu.RequiresSweptCapsuleTravel']=True
 study.save(center=(.06,.0,1.0),scale=2.8)
