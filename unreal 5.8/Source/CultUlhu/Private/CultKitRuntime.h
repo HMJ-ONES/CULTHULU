@@ -26,6 +26,7 @@ public:
  void Heavy(bool bPress);
  bool LeftClick(); // consumes LMB when the original RMB state machine owns it
  float BeginMelee();
+ int32 MeleeStage() const { return Combo.currentStage(); }
  void MeleeContact(AActor* Actor);
  bool SpendStamina(float Amount) { if(Stamina.value<Amount) return false; Stamina.value-=Amount; return true; }
  float StaminaValue() const { return Stamina.value; }

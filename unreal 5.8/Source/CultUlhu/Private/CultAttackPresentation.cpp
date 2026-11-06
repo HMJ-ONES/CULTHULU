@@ -1,5 +1,6 @@
 #include "CultSkillAttack.h"
 #include "CultUlhuPlayerPawn.h"
+#include "CultCharacterModel.h"
 #include "CultMatchUnit.h"
 #include "CultPopulation.h"
 #include "Components/StaticMeshComponent.h"
@@ -100,7 +101,12 @@ void ACultSkillAttack::BuildWarningGeometry(bool Trail) {
   } else {
    const float T=FMath::Clamp((Age-Windup)/FMath::Max(.001f,Duration),0.f,1.f);
    FVector Last=D.RotateAngleAxis(FMath::Lerp(-HalfAngle,HalfAngle,FMath::Max(0.f,T-.24f)),FVector::UpVector)*Reach;
-   for(int I=1;I<=16;++I) { const float Sample=FMath::Lerp(FMath::Max(0.f,T-.24f),T,I/16.f); const FVector Tip=D.RotateAngleAxis(FMath::Lerp(-HalfAngle,HalfAngle,Sample),FVector::UpVector)*Reach; Lines.Line(Last,Tip,FMath::Max(4.f,Radius*.25f)*I/16.f); Last=Tip; }
+   const bool Claws=ACultCharacterModel::UsesMeleeStep(Cast<ACultUlhuPlayerPawn>(GetOwner()));
+   for(int I=1;I<=16;++I) { const float Sample=FMath::Lerp(FMath::Max(0.f,T-.24f),T,I/16.f); const FVector Tip=D.RotateAngleAxis(FMath::Lerp(-HalfAngle,HalfAngle,Sample),FVector::UpVector)*Reach;
+    if(Claws) for(int Claw=-1;Claw<=1;++Claw) { const FVector Offset=Up*(Claw*Radius*.5f); Lines.Line(Last+Offset,Tip+Offset,FMath::Max(3.f,Radius*.14f)*I/16.f); }
+    else Lines.Line(Last,Tip,FMath::Max(4.f,Radius*.25f)*I/16.f);
+    Last=Tip;
+   }
   }
  } else if(Shape==EShape::Bolt) {
   if(Trail) {

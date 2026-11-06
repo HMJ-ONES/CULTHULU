@@ -55,6 +55,8 @@ bool ACultCharacterModel::HasSourceAnimation(const FString& Id) {
 }
 bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  auto B=Binding(Id); if(!B) return false;
+ B->TryGetBoolField(TEXT("melee_step_motion"),bMeleeStep_);
+ double Contact=.5; if(B->TryGetNumberField(TEXT("melee_contact_phase"),Contact)) MeleeContactPhase_=FMath::Clamp(float(Contact),.2f,.8f);
  FString Procedural;
  if(B->TryGetStringField(TEXT("procedural"),Procedural)&&Id==TEXT("sghllor")&&Procedural==TEXT("sghllor_light_and_mist")) {
   FString CorePath,MistPath; B->TryGetStringField(TEXT("core_material"),CorePath); B->TryGetStringField(TEXT("mist_material"),MistPath);
@@ -68,7 +70,7 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
    if(I) Part->SetRelativeRotation(FRotator(90,I==1?0:90,0));
    Part->RegisterComponent(); Parts_.Add(Part);
   }
-  bPreview_=Preview; bFloating_=true; return true;
+  bPreview_=Preview; bFloating_=true; bOriginalOrb_=true; PlayRole(TEXT("idle")); return true;
  }
  const TArray<TSharedPtr<FJsonValue>>* Meshes=nullptr;
  if(!B->TryGetArrayField(TEXT("meshes"),Meshes)) return false;
@@ -99,7 +101,7 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  }
  if(Parts_.IsEmpty()||!Bounds.IsValid||Bounds.GetSize().Z<.001f) return false;
  const TSharedPtr<FJsonObject>* Roles=nullptr;
- if(B->TryGetObjectField(TEXT("animation_roles"),Roles)) for(const FString ClipRole:{TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("land"),TEXT("dash"),TEXT("attack"),TEXT("cast"),TEXT("preview")}) {
+ if(B->TryGetObjectField(TEXT("animation_roles"),Roles)) for(const FString ClipRole:{TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("land"),TEXT("dash"),TEXT("attack"),TEXT("cast"),TEXT("preview"),TEXT("melee_1"),TEXT("melee_2"),TEXT("melee_3"),TEXT("melee_back_1"),TEXT("melee_back_2"),TEXT("melee_back_3"),TEXT("taunt")}) {
   FString Path;
   if((*Roles)->TryGetStringField(ClipRole,Path)) if(auto* Clip=LoadObject<UAnimSequence>(nullptr,*Path)) Animations_.Add(ClipRole,Clip);
  }
@@ -107,7 +109,7 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  if(B->TryGetArrayField(TEXT("animation_sets"),Sets)) for(const auto& Value:*Sets) {
   auto Set=Value->AsObject(); FString SkeletonPath;
   if(!Set||!Set->TryGetStringField(TEXT("skeleton"),SkeletonPath)||!Set->TryGetObjectField(TEXT("roles"),Roles)) continue;
-  for(const FString ClipRole:{TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("land"),TEXT("dash"),TEXT("attack"),TEXT("cast"),TEXT("preview")}) {
+  for(const FString ClipRole:{TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("land"),TEXT("dash"),TEXT("attack"),TEXT("cast"),TEXT("preview"),TEXT("melee_1"),TEXT("melee_2"),TEXT("melee_3"),TEXT("melee_back_1"),TEXT("melee_back_2"),TEXT("melee_back_3"),TEXT("taunt")}) {
    FString Path; if((*Roles)->TryGetStringField(ClipRole,Path)) if(auto* Clip=LoadObject<UAnimSequence>(nullptr,*Path)) Animations_.Add(SkeletonPath+TEXT("|")+ClipRole,Clip);
   }
  }
@@ -156,16 +158,24 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
 }
 void ACultCharacterModel::PlayRole(const FString& ClipRole) {
  // Missing clips remain visibly unanimated; never substitute unrelated attacks.
- if(ClipRole==CurrentRole_) return; CurrentRole_=ClipRole;
+ if(ClipRole==CurrentRole_) return; CurrentRole_=ClipRole; RoleBegan_=Elapsed_;
  for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) {
   auto* Rig=S->GetSkeletalMeshAsset()->GetSkeleton();
   UAnimSequence* Desired=Animations_.FindRef(Rig->GetPathName()+TEXT("|")+ClipRole);
   if(!Desired) Desired=Animations_.FindRef(ClipRole);
+  if(!Desired&&ClipRole.StartsWith(TEXT("melee_"))) {
+   const FString Forward=TEXT("melee_")+ClipRole.Right(1);
+   Desired=Animations_.FindRef(Rig->GetPathName()+TEXT("|")+Forward);
+   if(!Desired) Desired=Animations_.FindRef(Forward);
+   if(!Desired) Desired=Animations_.FindRef(Rig->GetPathName()+TEXT("|attack"));
+   if(!Desired) Desired=Animations_.FindRef(TEXT("attack"));
+  }
   if(Desired&&Desired->GetSkeleton()!=Rig) Desired=nullptr;
   if(auto* Player=S->GetSingleNodeInstance()) {
    if(Desired) {
     const bool Loop=ClipRole==TEXT("idle")||ClipRole==TEXT("walk")||ClipRole==TEXT("run")||ClipRole==TEXT("preview");
-    const float Rate=ClipRole==TEXT("run")?1.4f:1.f;
+    const float Seconds=ClipRole==TEXT("land")?.22f:ActionSeconds_;
+    const float Rate=!Loop&&(ClipRole==ActionRole_||ClipRole==TEXT("land"))&&Seconds>.01f?FMath::Clamp(Desired->GetPlayLength()/Seconds,.1f,8.f):1.f;
     if(Player->GetCurrentAsset()!=Desired) Player->SetAnimationAsset(Desired,Loop,Rate); else { Player->SetLooping(Loop); Player->SetPlayRate(Rate); }
     Player->SetPlaying(true);
    } else Player->SetPlaying(false);
@@ -195,20 +205,57 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
   SetActorHiddenInGame(Pawn_->IsHidden()||Pawn_->MatchDead()||(!Pawn_->IsBot()&&!Pawn_->IsThirdPerson()));
   const float Now=GetWorld()->GetTimeSeconds(),Speed=Pawn_->GetVelocity().Size2D();
   const bool Falling=Pawn_->GetCharacterMovement()->IsFalling();
+  if(ActionRole_==TEXT("taunt")&&(Speed>10||Falling||Pawn_->IsSwinging()||Pawn_->IsDashing())) ActionUntil_=Now;
   if(WasFalling_&&!Falling) LandingUntil_=Now+.22f; WasFalling_=Falling;
   if(Pawn_->IsBot()&&Pawn_->GetBotAim()) SetActorRotation(FRotator(0,Pawn_->AimRotation().Yaw,0));
   const FString MotionRole=Pawn_->IsDashing()?TEXT("dash"):Falling?TEXT("jump"):Now<ActionUntil_?ActionRole_:Pawn_->IsSwinging()?TEXT("attack"):Now<LandingUntil_?TEXT("land"):Speed>WalkSpeed_*1.15f?TEXT("run"):Speed>10?TEXT("walk"):TEXT("idle");
   PlayRole(MotionRole);
+  if(MotionRole.StartsWith(TEXT("melee_"))&&Now<ActionUntil_&&ActionSeconds_>.01f) {
+   const float Progress=FMath::Clamp(1-(ActionUntil_-Now)/ActionSeconds_,0.f,1.f);
+   for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) if(auto* Player=S->GetSingleNodeInstance()) if(auto* Clip=Cast<UAnimSequence>(Player->GetCurrentAsset())) {
+    Player->SetPosition(Clip->GetPlayLength()*AuthoredMeleePhase(Progress),false);Player->SetPlaying(false);
+   }
+  }
+  if(bMeleeStep_) {
+   float Offset=0;
+   if(MotionRole.StartsWith(TEXT("melee_"))&&Now<ActionUntil_&&ActionSeconds_>.01f) {
+    const float T=AuthoredMeleePhase(FMath::Clamp(1-(ActionUntil_-Now)/ActionSeconds_,0.f,1.f));
+    const float Times[]={0,.14f,.43f,.62f,1},Values[]={0,-.1f,1,.92f,0};
+    float Advance=0;
+    for(int I=0;I<4;++I) if(T<=Times[I+1]) { const float A=FMath::Clamp((T-Times[I])/(Times[I+1]-Times[I]),0.f,1.f); const float E=A*A*A*(10+A*(-15+6*A)); Advance=FMath::Lerp(Values[I],Values[I+1],E); break; }
+    const float Amplitude=MotionRole.EndsWith(TEXT("3"))?.23f:.28f;
+    // Capsule movement owns world travel. Remove the authored global pelvis
+    // offset from the visual actor so that translation is not applied twice.
+    Offset=-90*Amplitude*Advance*(MotionRole.StartsWith(TEXT("melee_back_"))?-1.f:1.f);
+   }
+   FVector LocalOffset=Pawn_->GetActorQuat().UnrotateVector(GetActorForwardVector()*Offset);
+   LocalOffset.Z=-Pawn_->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();SetActorRelativeLocation(LocalOffset);
+  }
   if(MotionRole==TEXT("walk")||MotionRole==TEXT("run")) for(const auto& Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part.Get())) if(auto* Player=S->GetSingleNodeInstance()) {
    const float Sign=FVector::DotProduct(Pawn_->GetVelocity(),Pawn_->AimRotation().Vector())<0?-1.f:1.f;
    Player->SetPlayRate(Sign*FMath::Clamp(Speed/FMath::Max(1.f,WalkSpeed_),.45f,2.2f));
   }
  } else if(!bPreview_&&GetOwner()) Destroy();
+ if(bOriginalOrb_) UpdateOriginalOrb();
+}
+
+bool ACultCharacterModel::UsesMeleeStep(ACultUlhuPlayerPawn* Pawn) {
+ if(!Pawn) return false; TArray<AActor*> Attached; Pawn->GetAttachedActors(Attached);
+ for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) if(Model->bMeleeStep_) return true;
+ return false;
+}
+
+float ACultCharacterModel::AuthoredMeleePhase(float Progress) const {
+ // Default primary collision window is .12s windup + .20s sweep: its centre
+ // crosses the crosshair at .22/.32 of the action. Align each creature's
+ // authored contact pose there, retaining anticipation and a fast recovery.
+ constexpr float ContactTime=.6875f;
+ return Progress<=ContactTime?MeleeContactPhase_*Progress/ContactTime:MeleeContactPhase_+(1-MeleeContactPhase_)*(Progress-ContactTime)/(1-ContactTime);
 }
 
 void ACultCharacterModel::Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds) {
  if(!Pawn) return; TArray<AActor*> Attached; Pawn->GetAttachedActors(Attached);
  for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
-  Model->ActionRole_=Role; Model->ActionUntil_=Pawn->GetWorld()->GetTimeSeconds()+Seconds; Model->CurrentRole_.Reset(); Model->PlayRole(Role);
+  Model->ActionRole_=Role; Model->ActionSeconds_=Seconds; Model->ActionUntil_=Pawn->GetWorld()->GetTimeSeconds()+Seconds; Model->CurrentRole_.Reset(); Model->PlayRole(Role);
  }
 }

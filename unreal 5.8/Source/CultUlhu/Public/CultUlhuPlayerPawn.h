@@ -21,7 +21,7 @@ class USpringArmComponent;
 class UCameraComponent;
 
 struct FCultImpactText { FVector Point; float Amount=0,Age=0; bool Killed=false; uint32 TargetId=0; };
-enum class ECultPlayerInput : uint8 { Jump, Primary, Heavy, Q, F, R, Interact, Stats, Command, Count };
+enum class ECultPlayerInput : uint8 { Jump, Primary, Heavy, Q, F, R, Interact, Stats, Command, Taunt, Count };
 struct FCultCombatHUDData {
  FString Name,AbilityNames[3],RmbHint; float Health=0,MaxHealth=1,Stamina=0,MaxStamina=100,Cooldowns[3]={},DashCooldown=0; bool Swinging=false;
 };
@@ -36,6 +36,7 @@ public:
  UFUNCTION(Server,Reliable) void ServerCombatInput(uint8 Action,bool Down,FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction);
  UFUNCTION(Server,Reliable) void ServerDash(FVector_NetQuantizeNormal Direction);
  UFUNCTION(Server,Reliable) void ServerSprint(bool Sprint);
+ UFUNCTION(NetMulticast,Unreliable) void MulticastMotionCue(uint8 Kind,uint8 Combo,bool Retreat,float Seconds);
 	ACultUlhuPlayerPawn();
  // Optional Enhanced Input and zero-asset keys share one physical press/release.
  void RoutePlayerInput(ECultPlayerInput Action,bool Down);
@@ -190,6 +191,7 @@ private:
 	FVector HomeLocation_ = FVector::ZeroVector;
 	float WalkSpeed_ = 600.f;
  float LastCombatAt_=-100.f;
+ float NextTauntAt_=0;
 	float Health_ = 1000.f;
 	class FCultKitRuntime* Kit_ = nullptr;
 	UPROPERTY(Replicated) int32 Faction_ = 0;

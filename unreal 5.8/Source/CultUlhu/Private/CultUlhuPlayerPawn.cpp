@@ -237,7 +237,7 @@ void ACultUlhuPlayerPawn::SetupPlayerInputComponent(UInputComponent* IC)
   {EKeys::SpaceBar,ECultPlayerInput::Jump},{EKeys::LeftMouseButton,ECultPlayerInput::Primary},
   {EKeys::RightMouseButton,ECultPlayerInput::Heavy},{EKeys::LeftAlt,ECultPlayerInput::Command},
   {EKeys::Q,ECultPlayerInput::Q},{EKeys::F,ECultPlayerInput::F},{EKeys::R,ECultPlayerInput::R},
-  {EKeys::E,ECultPlayerInput::Interact},{EKeys::Tab,ECultPlayerInput::Stats}};
+  {EKeys::E,ECultPlayerInput::Interact},{EKeys::Tab,ECultPlayerInput::Stats},{EKeys::T,ECultPlayerInput::Taunt}};
  for(const auto& Entry:Actions) for(bool Down:{true,false}) {
   FInputKeyBinding Binding(FInputChord(Entry.Key),Down?IE_Pressed:IE_Released);
   Binding.bExecuteWhenPaused=!Down||Entry.Value==ECultPlayerInput::Primary;
@@ -257,11 +257,18 @@ void ACultUlhuPlayerPawn::RoutePlayerInput(ECultPlayerInput Action,bool Down) {
  if(Action==ECultPlayerInput::Primary) if(auto* PC=Cast<APlayerController>(GetController())) if(PC->IsLocalController()) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->FaithVisible()||HUD->RegionMapVisible()||PC->IsInputKeyDown(EKeys::LeftAlt)) {
   InputHeld_[Index]=Down; if(Down) HUD->CommandClick(); else HUD->CommandRelease(); return;
  }
- if(!HasAuthority()&&(Action==ECultPlayerInput::Jump||(Action>=ECultPlayerInput::Primary&&Action<=ECultPlayerInput::Interact))) {
+ if(!HasAuthority()&&(Action==ECultPlayerInput::Taunt||Action==ECultPlayerInput::Jump||(Action>=ECultPlayerInput::Primary&&Action<=ECultPlayerInput::Interact))) {
   const auto Aim=CameraAim(); FVector O=Camera_->GetComponentLocation(),D=(Aim.ImpactPoint-O).GetSafeNormal();
   InputHeld_[Index]=Down; if(Action==ECultPlayerInput::Jump) { if(Down) TryJump(); else StopJumping(); } ServerCombatInput(uint8(Action),Down,O,D); return;
  }
  InputHeld_[Index]=Down;
+ if(Action==ECultPlayerInput::Taunt) {
+  if(Down&&!IsSwinging()&&!IsDashing()&&!Control_.Stop&&!Control_.Fear&&!Control_.Stun&&GetVelocity().Size2D()<10&&!GetCharacterMovement()->IsFalling()&&GetWorld()->GetTimeSeconds()>=NextTauntAt_) {
+   if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->CanAct(this)) return;
+   NextTauntAt_=GetWorld()->GetTimeSeconds()+3; MulticastMotionCue(2,0,false,2.6f);
+  }
+  return;
+ }
  if(!Down) {
   if(Action==ECultPlayerInput::Jump) StopJumping();
   else if(Action==ECultPlayerInput::Primary) CommandReleased();
@@ -411,7 +418,7 @@ void ACultUlhuPlayerPawn::ReceiveDamage(float Amount,AActor* Source)
   if(!IsBot()&&PlayHurtCue) PlayCultCombatCue(GetWorld(),ECultCombatCue::Hurt,.32f);
  }
  if(Health_<=0) {
-  GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); DashTime_=0; MeleeBuffer_=0; SwingTime_=0;
+  GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultMeleeStep")); DashTime_=0; MeleeBuffer_=0; SwingTime_=0;
   for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this) It->Destroy();
   ACultCorpse::Leave(this);
   if(auto* M=ACultMatchDirector::Find(GetWorld())) { M->HeroDied(this,Source); return; }
@@ -470,6 +477,7 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
  if(IsBot()) GetCharacterMovement()->bRunPhysicsWithNoController=true;
  if(DashTime_>0) { DashTime_=FMath::Max(0.f,DashTime_-DeltaSeconds); if(Control_.Stop) { GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); DashTime_=0; } }
  if(Control_.Stop) GetCharacterMovement()->StopMovementImmediately();
+ if(Control_.Stop||Control_.Stun||Control_.Fear) GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultMeleeStep"));
  if(Control_.Stun||Control_.Fear) for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this&&It->Shape==ACultSkillAttack::EShape::Sweep) It->Destroy();
 
 	if(Kit_) { if(HasAuthority()) Kit_->Tick(DeltaSeconds); else Kit_->AdvanceCooldowns(DeltaSeconds); Health_=Kit_->Hp(); }

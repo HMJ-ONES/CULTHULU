@@ -20,6 +20,7 @@ public:
  static FString PortraitPath(const FString& Id);
  static FString SourceCredit(const FString& Id);
  static bool HasSourceAnimation(const FString& Id);
+ static bool UsesMeleeStep(ACultUlhuPlayerPawn* Pawn);
  virtual void Tick(float DeltaSeconds) override;
  static void Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds=.55f);
  FString AnimationRole() const { return CurrentRole_; }
@@ -30,9 +31,16 @@ private:
  UPROPERTY() TMap<FString,TObjectPtr<UAnimSequence>> Animations_;
  FString CurrentRole_,ActionRole_;
  float ActionUntil_=0,LandingUntil_=0,WalkSpeed_=0; bool WasFalling_=false;
+ float ActionSeconds_=0;
+ float MeleeContactPhase_=.5f;
  UPROPERTY() ACultUlhuPlayerPawn* Pawn_=nullptr;
  bool bPreview_=false;
  bool bFloating_=false;
+ bool bMeleeStep_=false;
+ bool bOriginalOrb_=false;
+ float RoleBegan_=0;
  float Elapsed_=0,Hover_=0;
  void PlayRole(const FString& Role);
+ void UpdateOriginalOrb();
+ float AuthoredMeleePhase(float Progress) const;
 };

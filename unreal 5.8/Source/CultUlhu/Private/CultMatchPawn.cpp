@@ -10,7 +10,7 @@
 void ACultUlhuPlayerPawn::SetMatchDead() {
  PreviousShift_=false; ShiftHeldSeconds_=.18f; ShiftDirection_=FVector::ZeroVector;
  bMatchDead_=true; MeleeBuffer_=SwingTime_=DashTime_=0; bRmbHeld_=false;
- GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); GetCharacterMovement()->DisableMovement();
+ GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultMeleeStep")); GetCharacterMovement()->DisableMovement();
  SetActorHiddenInGame(true); SetActorEnableCollision(false);
 }
 void ACultUlhuPlayerPawn::RelocateMatch(FVector Feet) {
@@ -30,7 +30,7 @@ void ACultUlhuPlayerPawn::RespawnMatch(FVector Feet) {
  bMatchDead_=false; Control_=FCultControlProjection(); MeleeBuffer_=SwingTime_=DashTime_=DashCooldown_=SmashCooldown_=0; EvadeTime_=0; bRmbHeld_=false;
  Tags.Remove(TEXT("CorpseRecorded")); SetActorHiddenInGame(false); SetActorEnableCollision(true);
  GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
- GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); RelocateMatch(Feet);
+ GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultMeleeStep")); RelocateMatch(Feet);
 }
 void ACultUlhuPlayerPawn::MoveMatchToward(FVector Goal,float Dt) {
  if(bMatchDead_||DashTime_>0||Control_.Stop||Control_.Stun) return;

@@ -3,6 +3,8 @@
 #include "Blueprint/WidgetTree.h"
 #include "Components/Image.h"
 #include "Components/MeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimSingleNodeInstance.h"
 #include "Components/TextBlock.h"
 #include "Components/Overlay.h"
 #include "Components/OverlaySlot.h"
@@ -57,7 +59,10 @@ void UCultCharacterPreviewWidget::ShowCharacter(const FString& Id) {
  Capture_->PostProcessSettings.bOverride_AutoExposureBias=true; Capture_->PostProcessSettings.AutoExposureBias=8;
  Image_->SetBrushFromTextureDynamic(nullptr); FSlateBrush Brush; Brush.SetResourceObject(Target_); Brush.ImageSize=FVector2D(512,256); Image_->SetBrush(Brush);
  Image_->SetVisibility(ESlateVisibility::HitTestInvisible);
- Status_->SetText(FText::FromString(ACultCharacterModel::HasSourceAnimation(Id)?TEXT("ORIGINAL SOURCE ANIMATION"):TEXT("STATIC SOURCE / RIGGING PENDING")));
+ bool Animated=false;
+ for(UMeshComponent* Part:Model_->Parts()) if(auto* S=Cast<USkeletalMeshComponent>(Part))
+  if(auto* Player=S->GetSingleNodeInstance()) Animated|=Player->GetCurrentAsset()!=nullptr;
+ Status_->SetText(FText::FromString(Animated?TEXT("ANIMATED MODEL"):TEXT("STATIC MODEL")));
  if(Id==TEXT("sghllor")) Status_->SetText(FText::FromString(TEXT("ORIGINAL LIGHT / ANIMATED MIST")));
  Status_->SetToolTipText(FText::FromString(ACultCharacterModel::SourceCredit(Id)));
  Capture_->CaptureScene(); CaptureTime_=0;

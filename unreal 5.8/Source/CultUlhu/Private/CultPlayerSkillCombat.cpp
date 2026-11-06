@@ -4,6 +4,7 @@
 #include "CultSkillAttack.h"
 #include "CultMeleeGeometry.h"
 #include "CultKitRuntime.h"
+#include "CultCharacterModel.h"
 #include "CultBlastFX.h"
 #include "CultFeralBeast.h"
 #include "CultPopulation.h"
@@ -16,7 +17,7 @@
 namespace {
 constexpr float StandardDashTime=.22f,StandardDashSpeed=3.5f;
 void DriveDash(ACultUlhuPlayerPawn* Pawn,FVector Direction,float Speed,float Duration,float ExitSpeed) {
- auto* Movement=Pawn->GetCharacterMovement(); Movement->RemoveRootMotionSource(TEXT("CultDash"));
+ auto* Movement=Pawn->GetCharacterMovement(); Movement->RemoveRootMotionSource(TEXT("CultDash")); Movement->RemoveRootMotionSource(TEXT("CultMeleeStep"));
  auto Motion=MakeShared<FRootMotionSource_ConstantForce>(); Motion->InstanceName=TEXT("CultDash"); Motion->Priority=500; Motion->AccumulateMode=ERootMotionAccumulateMode::Override; Motion->Force=Direction*Speed; Motion->Duration=Duration; Motion->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate); Motion->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::ClampVelocity; Motion->FinishVelocityParams.ClampVelocity=ExitSpeed; Movement->ApplyRootMotionSource(Motion);
 }
 }
@@ -36,6 +37,7 @@ bool ACultUlhuPlayerPawn::TryDash(FVector Direction) {
  for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this&&It->Shape==ACultSkillAttack::EShape::Sweep) It->Destroy();
  SwingTime_=0; MeleeBuffer_=0;
  if(!IsBot()) PlayCultCombatCue(GetWorld(),ECultCombatCue::Dash,.18f);
+ if(HasAuthority()) MulticastMotionCue(1,0,false,StandardDashTime);
  DriveDash(this,DashDirection_,DashSpeed_,DashTime_,WalkSpeed_); return true;
 }
 FCultCombatHUDData ACultUlhuPlayerPawn::CombatHUD() const {
@@ -51,7 +53,23 @@ void ACultUlhuPlayerPawn::StartMelee(float Damage,float Range,float Windup,float
  if(!A) return; A->Shape=ACultSkillAttack::EShape::Sweep; A->Direction=Direction; A->Reach=Profile.Reach; A->Radius=Profile.Radius; A->Windup=Windup; A->Duration=Duration; A->HalfAngle=bNextMeleeLeft_?-52.f:52.f; bNextMeleeLeft_=!bNextMeleeLeft_;
  TWeakObjectPtr<ACultUlhuPlayerPawn> Weak(this); A->Hit=[Weak,Damage](AActor* Target,FVector Point) { if(!Weak.IsValid()) return; if(auto* Pawn=Cast<ACultUlhuPlayerPawn>(Target)) if(Pawn->IsEvading()) { Pawn->ConfirmEvade(); return; } float D=Cast<ACultUlhuPlayerPawn>(Target)?Damage*(10.f/135.f):Damage;
  if(auto* M=ACultMatchDirector::Find(Weak->GetWorld())) { D=Damage*(Cast<ACultUlhuPlayerPawn>(Target)?15.f/135.f:Cast<ACultMatchUnit>(Target)&&!Cast<ACultMatchUnit>(Target)->IsStructure()?30.f/135.f:15.f/135.f)*M->DamageMultiplier(Weak.Get()); } if(auto* P=Cast<ACultPopulation>(Target)) if(!P->IsCultist()&&!P->IsSummoned()) D=FMath::Max(D,P->GetHealth()); ACultSkillAttack::Hurt(Target,D,Weak.Get(),Point); if(Weak->Kit_) Weak->Kit_->MeleeContact(Target); };
- SwingTime_=Windup+Duration; A->FinishSpawning(T);
+ SwingTime_=Windup+Duration;
+ const bool Retreat=FVector::DotProduct(GetVelocity().GetSafeNormal2D(),AimRotation().Vector().GetSafeNormal2D())<-.25f;
+ if(HasAuthority()) MulticastMotionCue(0,uint8(Kit_?FMath::Max(1,Kit_->MeleeStage()):1),Retreat,SwingTime_);
+ if(HasAuthority()&&ACultCharacterModel::UsesMeleeStep(this)&&!GetCharacterMovement()->IsFalling()) {
+  auto* Movement=GetCharacterMovement(); Movement->RemoveRootMotionSource(TEXT("CultMeleeStep"));
+  const bool Finisher=Kit_&&Kit_->MeleeStage()==3;
+  const float Distance=(Finisher?.23f:.28f)*GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+  auto Motion=MakeShared<FRootMotionSource_ConstantForce>(); Motion->InstanceName=TEXT("CultMeleeStep");
+  Motion->Priority=400; Motion->AccumulateMode=ERootMotionAccumulateMode::Additive;
+  Motion->Duration=FMath::Max(.05f,SwingTime_*.43f);
+  Motion->Force=AimRotation().Vector().GetSafeNormal2D()*(Retreat?-1:1)*Distance/Motion->Duration;
+  Motion->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
+  Motion->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::ClampVelocity;
+  Motion->FinishVelocityParams.ClampVelocity=WalkSpeed_*1.85f;
+  Movement->ApplyRootMotionSource(Motion); // swept CharacterMovement; this is not an evasion dash
+ }
+ A->FinishSpawning(T);
 }
 
 void ACultUlhuPlayerPawn::ResolveSkillHit(const cultulhu::SpellDef& S,AActor* T,FVector Point,int Slot) { if(Kit_) Kit_->ResolveSpatial(S,T,Point,Slot); }

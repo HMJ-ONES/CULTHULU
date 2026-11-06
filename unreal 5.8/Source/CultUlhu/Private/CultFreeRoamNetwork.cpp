@@ -19,7 +19,7 @@ void ACultUlhuPlayerPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
  Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(ACultUlhuPlayerPawn,CharacterId_); DOREPLIFETIME(ACultUlhuPlayerPawn,bBotControlled_); DOREPLIFETIME(ACultUlhuPlayerPawn,Faction_); DOREPLIFETIME(ACultUlhuPlayerPawn,bMatchDead_);
 }
 void ACultUlhuPlayerPawn::ServerCombatInput_Implementation(uint8 Action,bool Down,FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction) {
- if((Action!=uint8(ECultPlayerInput::Jump)&&(Action<uint8(ECultPlayerInput::Primary)||Action>uint8(ECultPlayerInput::Interact)))||IsBot()) return;
+ if((Action!=uint8(ECultPlayerInput::Jump)&&Action!=uint8(ECultPlayerInput::Taunt)&&(Action<uint8(ECultPlayerInput::Primary)||Action>uint8(ECultPlayerInput::Interact)))||IsBot()) return;
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->CanAct(this)) return;
  if(Origin.ContainsNaN()||Direction.ContainsNaN()||Direction.IsNearlyZero()||FVector::Dist(Origin,GetActorLocation())>GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*5) return;
  NetworkAimOrigin_=Origin; NetworkAimDirection_=FVector(Direction).GetSafeNormal(); NetworkAimAt_=GetWorld()->GetTimeSeconds();

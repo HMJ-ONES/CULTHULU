@@ -67,6 +67,13 @@ def pose(role,t,corrections=None):
                 targets[side].z+=(.14 if fast else .075)*math.sin(math.pi*f)**2
             hands[side].y+=math.sin(phase+offset*math.tau)*(.065 if fast else .035)
     if role.startswith('melee_'):
+        lead='r' if role=='melee_2' else 'l';trail='l' if lead=='r' else 'r'
+        plant=envelope(t,[(0,0),(.08,0),(.34,1),(.66,1),(1,0)])
+        gather=envelope(t,[(0,0),(.5,0),(.76,1),(1,0)])
+        targets[lead].y+=.12*plant
+        targets[lead].z+=.05*envelope(t,[(0,0),(.08,0),(.21,1),(.35,0),(1,0)])
+        targets[trail].y+=.07*gather
+        targets[trail].z+=.03*envelope(t,[(0,0),(.51,0),(.68,1),(.84,0),(1,0)])
         hit=envelope(t,[(0,0),(.22,-.20),(.48,1),(.68,.7),(1,0)])
         strike=max(0,hit)
         if role=='melee_1':

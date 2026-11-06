@@ -1,0 +1,151 @@
+{
+  "blend": "assets/character_animation/dagon/v006/Dagon_BasicMotion.blend",
+  "sourceSha256": "0f72b09f2c33b3ce1ffff27d6397140cc5ea27b142b5211cfdac7acb223e3356",
+  "requiredRoles": [
+    "idle",
+    "walk",
+    "run",
+    "melee_1",
+    "melee_2",
+    "melee_3",
+    "jump",
+    "dash",
+    "taunt"
+  ],
+  "actions": {
+    "idle": {
+      "sampleStepFrames": 0.5,
+      "samples": 193,
+      "minimumSurfaceZ": -2.936390046670567e-07,
+      "maximumVertexSampleTravel": 0.0009630944114178419,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 3.2,
+      "reviewMovie": "assets/character_animation/dagon/v006/review/idle.mp4"
+    },
+    "walk": {
+      "sampleStepFrames": 0.5,
+      "samples": 69,
+      "minimumSurfaceZ": -0.0016255128430202603,
+      "maximumVertexSampleTravel": 0.0383000448346138,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 1.1333333333333333,
+      "reviewMovie": "assets/character_animation/dagon/v006/review/walk.mp4"
+    },
+    "run": {
+      "sampleStepFrames": 0.5,
+      "samples": 45,
+      "minimumSurfaceZ": -0.003412398509681225,
+      "maximumVertexSampleTravel": 0.07033107429742813,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 0.7333333333333333,
+      "reviewMovie": "assets/character_animation/dagon/v006/review/run.mp4"
+    },
+    "melee_1": {
+      "sampleStepFrames": 0.5,
+      "samples": 35,
+      "minimumSurfaceZ": -0.0020648553036153316,
+      "maximumVertexSampleTravel": 0.39681652188301086,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.5666666666666667,
+      "reviewMovie": "assets/character_animation/dagon/v006/review/melee_1.mp4"
+    },
+    "melee_2": {
+      "sampleStepFrames": 0.5,
+      "samples": 35,
+      "minimumSurfaceZ": -0.001177499652840197,
+      "maximumVertexSampleTravel": 0.3672657012939453,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.5666666666666667,
+      "reviewMovie": "assets/character_animation/dagon/v006/review/melee_2.mp4"
+    },
+    "melee_3": {
+      "sampleStepFrames": 0.5,
+      "samples": 45,
+      "minimumSurfaceZ": -0.004470820538699627,
+      "maximumVertexSampleTravel": 0.20492929220199585,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.7333333333333333,
+      "reviewMovie": "assets/character_animation/dagon/v006/review/melee_3.mp4"
+    },
+    "jump": {
+      "sampleStepFrames": 0.5,
+      "samples": 55,
+      "minimumSurfaceZ": -0.007387198507785797,
+      "maximumVertexSampleTravel": 0.06221925839781761,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.19842055439949036,
+      "loopClosurePass": null,
+      "durationSeconds": 0.9,
+      "reviewMovie": "assets/character_animation/dagon/v006/review/jump.mp4"
+    },
+    "dash": {
+      "sampleStepFrames": 0.5,
+      "samples": 23,
+      "minimumSurfaceZ": -0.0019303434528410435,
+      "maximumVertexSampleTravel": 0.11178714036941528,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.36666666666666664,
+      "reviewMovie": "assets/character_animation/dagon/v006/review/dash.mp4"
+    },
+    "taunt": {
+      "sampleStepFrames": 0.5,
+      "samples": 145,
+      "minimumSurfaceZ": -2.1280720829963684e-07,
+      "maximumVertexSampleTravel": 0.02820068597793579,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 2.4,
+      "reviewMovie": "assets/character_animation/dagon/v006/review/taunt.mp4"
+    },
+    "land": {
+      "sampleStepFrames": 0.5,
+      "samples": 19,
+      "minimumSurfaceZ": -0.0003771018236875534,
+      "maximumVertexSampleTravel": 0.023228373378515244,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.14439606666564941,
+      "loopClosurePass": null,
+      "durationSeconds": 0.3,
+      "reviewMovie": "assets/character_animation/dagon/v006/review/land.mp4"
+    }
+  },
+  "abilitiesAuthored": false,
+  "status": "independent sampling and native rendered review; artistic acceptance pending",
+  "meleeDistinctness": {
+    "samplePhases": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "pairwiseSurfaceRmsMetres": {
+      "melee_1 / melee_2": 0.23496709764003754,
+      "melee_1 / melee_3": 0.21586833894252777,
+      "melee_2 / melee_3": 0.2242727130651474
+    },
+    "scope": "physical pose difference, not artistic acceptance"
+  },
+  "reviewCamera": {
+    "orthographicScale": 2.799999952316284,
+    "fit": "all sampled skinned geometry across every required role"
+  },
+  "reviewTimeBase": {
+    "sourceFramesPerSecond": 30.0,
+    "movieFramesPerSecond": 60,
+    "method": "temporary NLA time scaling; source keys and study file unchanged"
+  }
+}

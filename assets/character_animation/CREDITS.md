@@ -68,6 +68,20 @@ PoseLib conversion and floor-anchor adjustment; this study does not claim that
 conversion was untouched raw source animation. Authoring normalization is a
 separate parent transform, and original scene timebase is retained.
 
+## Yig — supplied rig and new basic motion
+
+Title: Naga Dragon Serpent. stylized fantasy monster
+
+Author: JoePrimal — https://sketchfab.com/JoePrimal
+
+Source: https://sketchfab.com/3d-models/naga-dragon-serpent-stylized-fantasy-monster-2fb96bd7a3c543eeabfb3868107ed4a4
+
+License: https://creativecommons.org/licenses/by/4.0/
+
+New basic animation keys use the original armor, sword and tail skeletons.
+Four sword transforms follow their respective hands. Original source geometry,
+materials and supplied clips are preserved. No endorsement is implied.
+
 ## Animation-study modifications
 
 Dagon, Cthulhu, Nyarlathotep, Yog-Sothoth and Shoggoths studies add original anatomical skeletons, skin weights,

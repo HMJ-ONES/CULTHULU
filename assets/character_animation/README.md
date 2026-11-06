@@ -1,9 +1,18 @@
 # Character motion authoring — work in progress
 
-The goal covers every available working character except Nodens. These files
-are original motion studies, not a finished or integrated animation release.
-Original game assets, source rigs and the artist's working Blender files are
-preserved. No ability animation is being authored.
+The goal covers every available working character except Nodens. The selected
+studies now have native gameplay bindings in the canonical UE project. Original
+game assets, source rigs and the artist's working Blender files are preserved.
+No new ability animation is authored. These are initial gameplay motions with
+remaining artistic polish, not final cinematic animation.
+
+Current runtime selection (November 7): Dagon v006, Cthulhu v008, Nyarlathotep
+v005, Yog-Sothoth v002, Shoggoths v005, Mi-Go v004, Yig v003 and original
+Sghllor core/mist motion. See
+`unreal 5.8/Docs/AnimationIntegration.md` for the update/artist workflow and
+`unreal 5.8/Docs/ReviewedMotionIntegration.json` for measured integration evidence.
+The desktop shortcut uses the same project. The older study notes below record
+the authoring stages and their unresolved polish findings.
 
 ## Required set for each character
 

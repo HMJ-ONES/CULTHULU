@@ -3,6 +3,7 @@
 #include "CultAutomationPIE.h"
 #include "CultCharacterModel.h"
 #include "Animation/AnimSingleNodeInstance.h"
+#include "Animation/AnimSequence.h"
 #include "UI/CultCharacterPreviewWidget.h"
 #include "CultUlhuGameInstance.h"
 #include "CultUlhuPlayerPawn.h"
@@ -118,4 +119,66 @@ public:
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultApprovedModelTest,"CultUlhu.Art.ApprovedCharacterModels",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultApprovedModelTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultApprovedModels(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+
+class FReviewedMotionCheck:public IAutomationLatentCommand {
+ FAutomationTestBase* Test; int Character=0,Role=0,Phase=0,Wait=0;
+ double Began=FPlatformTime::Seconds();
+ TStrongObjectPtr<UCultCharacterPreviewWidget> Preview;
+ TArray<FString> Ids={TEXT("mi_go"),TEXT("shoggoths"),TEXT("dagon"),TEXT("nyarlathotep"),TEXT("yog_sothoth"),TEXT("cthulhu_avatar"),TEXT("yig"),TEXT("sghllor")};
+ TArray<FString> Roles={TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("melee_1"),TEXT("melee_2"),TEXT("melee_3"),TEXT("jump"),TEXT("dash"),TEXT("taunt"),TEXT("land")};
+ TArray<FVector> Before;TSet<FString> MeleeAssets;
+ void Position(ACultCharacterModel* Model,float Fraction) {
+  for(UMeshComponent* Part:Model->Parts()) if(auto* S=Cast<USkeletalMeshComponent>(Part)) if(auto* P=S->GetSingleNodeInstance()) if(auto* Clip=Cast<UAnimSequence>(P->GetCurrentAsset())) {
+   P->SetPosition(Clip->GetPlayLength()*Fraction,false);P->SetPlaying(false);S->TickAnimation(0,false);S->RefreshBoneTransforms();
+  }
+ }
+ TArray<FVector> Pose(ACultCharacterModel* Model) {
+  TArray<FVector> Values;
+  for(UMeshComponent* Part:Model->Parts()) if(auto* S=Cast<USkeletalMeshComponent>(Part)) for(int I=0;I<S->GetNumBones();++I) Values.Add(S->GetBoneTransform(I).GetLocation());
+  else { Values.Add(Part->GetRelativeLocation());Values.Add(Part->GetRelativeScale3D()*100);Values.Add(Part->GetRelativeRotation().Euler()); }
+  return Values;
+ }
+public:
+ explicit FReviewedMotionCheck(FAutomationTestBase* T):Test(T) {}
+ bool Update() override {
+  if(FPlatformTime::Seconds()-Began>360) { Test->AddError(TEXT("Reviewed motion test timed out"));return true; }
+  auto* W=GEditor->PlayWorld.Get();if(!W||W->bIsTearingDown||!W->GetName().Contains(TEXT("L_MainMenu"))) return false;
+  if(!Preview.IsValid()) {Preview.Reset(CreateWidget<UCultCharacterPreviewWidget>(W,UCultCharacterPreviewWidget::StaticClass()));Preview->TakeWidget();}
+  if(Phase==0) {
+   Roles.SetNum(10);if(Ids[Character]==TEXT("cthulhu_avatar")) for(int I=1;I<=3;++I) Roles.Add(FString::Printf(TEXT("melee_back_%d"),I));
+   Preview->ShowCharacter(Ids[Character]);Role=0;Wait=0;MeleeAssets.Reset();Phase=1;return false;
+  }
+  auto* Model=FCultCharacterModelTestAccess::Model(Preview.Get());if(!Model) {Test->AddError(TEXT("Missing reviewed model: ")+Ids[Character]);return true;}
+  if(Phase==1) {
+   Model->SetActorTickEnabled(false);Model->PreviewMotion(Roles[Role]);Wait=0;Phase=2;return false;
+  }
+  if(Phase==2) {
+   if(++Wait<3)return false;
+   for(UMeshComponent* Part:Model->Parts()) {
+    Test->TestTrue(TEXT("Source materials remain assigned"),Part->GetNumMaterials()>0&&Part->GetMaterial(0)!=nullptr);
+    if(auto* S=Cast<USkeletalMeshComponent>(Part)) {
+     auto* P=S->GetSingleNodeInstance();auto* Clip=P?Cast<UAnimSequence>(P->GetCurrentAsset()):nullptr;
+     Test->TestNotNull(TEXT("Actual motion asset plays: ")+Ids[Character]+TEXT("/")+Roles[Role],Clip);
+     if(Clip&&Roles[Role].StartsWith(TEXT("melee_"))) { Test->TestTrue(TEXT("Correct combo clip selected"),Clip->GetName().Contains(Roles[Role]));MeleeAssets.Add(Clip->GetPathName()); }
+     if(Clip&&Ids[Character]==TEXT("mi_go")&&Roles[Role]==TEXT("dash")) Test->TestEqual(TEXT("Mi-Go keeps supplied Prowl"),Clip->GetName(),FString(TEXT("MiGo_Anim")));
+    }
+   }
+   Position(Model,.18f);if(Ids[Character]==TEXT("sghllor")) Model->Tick(.04f);Wait=0;Phase=3;return false;
+  }
+  if(Phase==3) {
+   Before=Pose(Model);Position(Model,.63f);if(Ids[Character]==TEXT("sghllor")) Model->Tick(.10f);Wait=0;Phase=4;return false;
+  }
+  if(++Wait<2)return false;
+  const auto After=Pose(Model);float Travel=0;
+  if(After.Num()==Before.Num())for(int I=0;I<After.Num();++I)Travel=FMath::Max(Travel,float(FVector::Dist(After[I],Before[I])));
+  Test->TestTrue(TEXT("Pose visibly changes: ")+Ids[Character]+TEXT("/")+Roles[Role],Travel>.005f);
+  FCultCharacterModelTestAccess::Capture(Preview.Get(),TEXT("reviewed_")+Ids[Character]+TEXT("_")+Roles[Role],Test);
+  if(++Role<Roles.Num()) {Phase=1;return false;}
+  if(Ids[Character]!=TEXT("sghllor")) Test->TestTrue(TEXT("Three distinct combo assets are installed"),MeleeAssets.Num()>=3);
+  if(++Character==Ids.Num())return true;
+  Phase=0;return false;
+ }
+};
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultReviewedMotionTest,"CultUlhu.Art.ReviewedCharacterMotion",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultReviewedMotionTest::RunTest(const FString&) {ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE());ADD_LATENT_AUTOMATION_COMMAND(FReviewedMotionCheck(this));ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true;}
 #endif

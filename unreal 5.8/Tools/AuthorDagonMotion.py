@@ -217,6 +217,13 @@ def pose(role, t, foot_correction=None):
         hit = envelope(t, [(0, 0), (.25, -.3), (.44, 1), (.65, .78), (1, 0)])
         strike = max(0, hit)
         kind = int(role[-1])
+        lead='R' if kind==2 else 'L';trail='L' if lead=='R' else 'R'
+        plant=envelope(t,[(0,0),(.10,0),(.35,1),(.68,1),(1,0)])
+        gather=envelope(t,[(0,0),(.48,0),(.76,1),(1,0)])
+        feet[lead].y+=.18*plant
+        feet[lead].z+=.065*envelope(t,[(0,0),(.10,0),(.23,1),(.36,0),(1,0)])
+        feet[trail].y+=.09*gather
+        feet[trail].z+=.035*envelope(t,[(0,0),(.50,0),(.66,1),(.82,0),(1,0)])
         q['pelvis'] = rot(z=hit*(7 if kind == 1 else -7 if kind == 2 else 0))
         q['chest'] = rot(x=hit*(8 if kind == 3 else -3), z=hit*(12 if kind == 1 else -14 if kind == 2 else 0))
         delta.y = strike*.035

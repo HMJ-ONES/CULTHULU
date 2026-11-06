@@ -1,0 +1,136 @@
+{
+  "character": "mi_go",
+  "revision": "v004",
+  "source": "unreal 5.8/Saved/CharacterSources/mi_go/original_blend/prepared_v2/MiGo.fbx",
+  "sourceSha256": "8fe329b50a5e47ca6979fb2e4d10b5734aa4d368e692003b9f0089ec31a09ae0",
+  "blend": "assets/character_animation/mi_go/v004/MiGo_BasicMotion.blend",
+  "blendSha256": "bc97d5845c719c77c1a1220897599b7d70498783239caf95d60c9218489cc035",
+  "boneCount": 84,
+  "sourceFPS": 24,
+  "sourceFPSBase": 1.0,
+  "sourceAction": "BUG Armature|Scene",
+  "sourceActionSha256": "4570e392e0907588ea694599dc13ed57281c1790d1fdef4bca3682defc57f542",
+  "sourceRigSha256": "95574fc52d3014b98a6f40fae7e2af3ea30f58b66694f38696d86cd9d8676d58",
+  "sourceMeshesSha256": {
+    "BOOG": "6d8166f1cbc9809598860a651536730b4af511841c5648e695d96c761c9a310c"
+  },
+  "normalizationObject": "MiGo_AuthorFrame",
+  "normalizationMatrix": [
+    [
+      -0.16386662423610687,
+      -2.4743172843955108e-08,
+      0.0,
+      -4.414779596118024e-06
+    ],
+    [
+      2.4743172843955108e-08,
+      -0.16386662423610687,
+      0.0,
+      1.7214243412017822
+    ],
+    [
+      0.0,
+      0.0,
+      0.16386662423610687,
+      -0.7828490138053894
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "authoringFrame": {
+    "sourceSha256": "8fe329b50a5e47ca6979fb2e4d10b5734aa4d368e692003b9f0089ec31a09ae0",
+    "yawDegrees": 180.0,
+    "originAfterRotation": [
+      2.6941299438476562e-05,
+      -10.505033493041992,
+      4.777354717254639
+    ],
+    "scale": 0.16386662423610687,
+    "referenceFrame": 2.0,
+    "sourceFPS": 24,
+    "sourceFPSBase": 1.0,
+    "sourceAction": "BUG Armature|Scene",
+    "frame": "supplied motion first pose; source face rotated to +Y authoring forward; height 2m; lowest surface Z=0"
+  },
+  "actions": {
+    "idle": {
+      "samples": 193,
+      "sampleRateHz": 60,
+      "seconds": 3.2,
+      "minimumSurfaceZ": 0.0020000338554382324,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "walk": {
+      "samples": 73,
+      "sampleRateHz": 60,
+      "seconds": 1.2,
+      "minimumSurfaceZ": 0.0019996166229248047,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "run": {
+      "samples": 43,
+      "sampleRateHz": 60,
+      "seconds": 0.7,
+      "minimumSurfaceZ": 0.0019996166229248047,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_1": {
+      "samples": 29,
+      "sampleRateHz": 60,
+      "seconds": 0.4666666666666667,
+      "minimumSurfaceZ": 0.001999795436859131,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_2": {
+      "samples": 32,
+      "sampleRateHz": 60,
+      "seconds": 0.5166666666666667,
+      "minimumSurfaceZ": 0.001999795436859131,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_3": {
+      "samples": 39,
+      "sampleRateHz": 60,
+      "seconds": 0.6333333333333333,
+      "minimumSurfaceZ": 0.001999795436859131,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "jump": {
+      "samples": 55,
+      "sampleRateHz": 60,
+      "seconds": 0.9,
+      "minimumSurfaceZ": 0.001999795436859131,
+      "endpointMaxVertexDistance": 0.09263315796852112
+    },
+    "taunt": {
+      "samples": 157,
+      "sampleRateHz": 60,
+      "seconds": 2.6,
+      "minimumSurfaceZ": 0.0020000338554382324,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "land": {
+      "samples": 19,
+      "sampleRateHz": 60,
+      "seconds": 0.3,
+      "minimumSurfaceZ": 0.001999795436859131,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "dash": {
+      "sourceMotion": "Prowl",
+      "frames": [
+        2.0,
+        36.0
+      ],
+      "seconds": 1.4166666666666667,
+      "minimumSurfaceZ": -0.03577899932861328,
+      "sourceKeysPreserved": true
+    }
+  },
+  "abilities": false,
+  "status": "supplied-rig motion study; independent preservation and visual review required; not game integrated"
+}
