@@ -11,14 +11,14 @@ public class CultUlhu : ModuleRules
 		// UI translation units contain file-local helpers with shared names.
 		bUseUnity = false;
  if (Target.bBuildEditor) PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd", "RHI", "RenderCore" });
- PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "Json", "Sockets", "Networking", "ApplicationCore" });
+ PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "Sockets", "Networking", "ApplicationCore" });
  RuntimeDependencies.Add("$(ProjectDir)/Content/CharacterModels/registry.json",StagedFileType.NonUFS);
  RuntimeDependencies.Add("$(ProjectDir)/Content/CharacterModels/CREDITS.md",StagedFileType.NonUFS);
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core", "CoreUObject", "Engine", "InputCore",
-			"EnhancedInput", "UMG", "SlateCore", "CultUlhuCore", "ProceduralMeshComponent"
+			"EnhancedInput", "UMG", "SlateCore", "CultUlhuCore", "ProceduralMeshComponent", "HTTP", "Json", "JsonUtilities"
 		});
 
   // Runtime Slate font data is explicitly staged, including its redistribution license.

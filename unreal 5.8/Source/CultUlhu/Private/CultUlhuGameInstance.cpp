@@ -1,5 +1,6 @@
 #include "CultUlhuGameInstance.h"
 #include "CultRoomService.h"
+#include "CultLobbySubsystem.h"
 #include "CultFreeRoamSave.h"
 #include "UI/CultFreeRoamMenuWidget.h"
 #include "TimerManager.h"
@@ -116,6 +117,7 @@ void UCultUlhuGameInstance::ShowHomeScreen()
 			return; // only auto-show on the menu map
 	}
  if(Rooms_) Rooms_->StopSearch(); RoomAction=ECultRoomAction::None;
+ if(auto* Lobby=GetSubsystem<UCultLobbySubsystem>()) if(Lobby->State!=ECultLobbyState::Idle&&Lobby->State!=ECultLobbyState::Error) Lobby->Cancel();
 	if (UCultHomeScreenWidget* Widget =
 		CreateWidget<UCultHomeScreenWidget>(this, UCultHomeScreenWidget::StaticClass()))
 	{
@@ -172,6 +174,7 @@ void UCultUlhuGameInstance::OpenBeliefSelect()
 void UCultUlhuGameInstance::StartPlay()
 {
  if(!CultCanonicalKit::IsReleased(SelectedCharacterId)) { OpenCharacterSelect(SelectedMode); return; }
+ if(StartOnlineRoom()) return;
  if(CompleteRoomJoin()) return;
  if(SelectedMode==ECultPlayMode::FreeRoam&&InitialBeliefs_.Num()!=3) { OpenBeliefSelect(); return; }
  if(SelectedMode!=ECultPlayMode::FreeRoam) InitialBeliefs_.Reset();
@@ -191,6 +194,7 @@ void UCultUlhuGameInstance::StartPlay()
 
 void UCultUlhuGameInstance::ReturnToMenu()
 {
+ PendingWebRoom=false; if(auto* Lobby=GetSubsystem<UCultLobbySubsystem>()) Lobby->LeaveLobby();
  HostedRoomLobby=false; RoomHosting=false; RoomPrivate=false; RoomAction=ECultRoomAction::None; RoomCode.Empty(); RoomKey.Empty(); if(Rooms_) Rooms_->StopSearch();
 	bPlayChosen = false; FreeRoamReady=false; FreeRoamMenuOpen=false;
  UGameplayStatics::SetGamePaused(this,false);
@@ -270,6 +274,7 @@ void StartCultCoopProbe(UCultUlhuGameInstance* Game);
 void StartCultPresentationProbe(UCultUlhuGameInstance* Game);
 void StartCultCreepWaveProbe(UCultUlhuGameInstance* Game);
 void StartCultRoomProbe(UCultUlhuGameInstance* Game);
+void StartCultCloudLobbyProbe(UCultUlhuGameInstance* Game);
 #endif
 void UCultUlhuGameInstance::Init() { Super::Init(); Rooms_=new FCultRoomService(this);
 #if WITH_DEV_AUTOMATION_TESTS
@@ -277,6 +282,7 @@ void UCultUlhuGameInstance::Init() { Super::Init(); Rooms_=new FCultRoomService(
  StartCultPresentationProbe(this);
  StartCultCreepWaveProbe(this);
  StartCultRoomProbe(this);
+ StartCultCloudLobbyProbe(this);
 #endif
  if(GEngine) GEngine->OnNetworkFailure().AddUObject(this,&UCultUlhuGameInstance::NetworkFailure); }
 void UCultUlhuGameInstance::Shutdown() { delete Rooms_; Rooms_=nullptr; if(GEngine) GEngine->OnNetworkFailure().RemoveAll(this); Super::Shutdown(); }

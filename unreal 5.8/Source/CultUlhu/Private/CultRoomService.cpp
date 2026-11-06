@@ -1,5 +1,6 @@
 #include "CultRoomService.h"
 #include "CultUlhuGameInstance.h"
+#include "CultLobbySubsystem.h"
 #include "SocketSubsystem.h"
 #include "Sockets.h"
 #include "IPAddress.h"
@@ -22,6 +23,7 @@ void FCultRoomService::Find() {
  Nonce=FGuid::NewGuid().A; SearchEnds=FPlatformTime::Seconds()+3; NextQuery=0; Game->RoomStatus=TEXT("Looking for an open room on your Radmin / LAN network...");
 }
 bool FCultRoomService::Tick(float) {
+ if(auto* Lobby=Game->GetSubsystem<UCultLobbySubsystem>()) if(Lobby->HasActiveLobby()) { Close(HostSocket); Close(SearchSocket); return true; }
  auto* World=Game->GetWorld(); const double Now=FPlatformTime::Seconds();
  const bool Hosting=Game->RoomHosting&&!Game->RoomPrivate&&World&&World->GetNetMode()==NM_ListenServer;
  if(Game->RoomHosting&&World&&World->GetNetMode()==NM_ListenServer) {

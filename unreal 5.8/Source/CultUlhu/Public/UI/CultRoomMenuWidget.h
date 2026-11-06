@@ -9,5 +9,10 @@ class CULTULHU_API UCultRoomMenuWidget:public UUserWidget {
  virtual void NativeTick(const FGeometry&,float) override;
  UPROPERTY() class UTextBlock* Status_=nullptr;
  UPROPERTY() class UEditableTextBox* Code_=nullptr;
+ UPROPERTY() class UEditableTextBox* Network_=nullptr;
+ UPROPERTY() class UEditableTextBox* Password_=nullptr;
+ UPROPERTY() class UTextBlock* Connection_=nullptr;
+ UPROPERTY() class UButton* Connect_=nullptr;
+ UFUNCTION() void Connect();
  UFUNCTION() void Find(); UFUNCTION() void Host(); UFUNCTION() void Private(); UFUNCTION() void Join(); UFUNCTION() void Offline(); UFUNCTION() void Continue(); UFUNCTION() void Back();
 };

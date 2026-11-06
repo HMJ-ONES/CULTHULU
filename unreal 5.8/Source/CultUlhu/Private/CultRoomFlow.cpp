@@ -2,6 +2,7 @@
 #include "CultMatchDirector.h"
 #include "CultUlhuGameInstance.h"
 #include "CultRoomService.h"
+#include "CultLobbySubsystem.h"
 #include "UI/CultRoomMenuWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "HAL/PlatformApplicationMisc.h"
@@ -9,11 +10,24 @@
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
 void UCultUlhuGameInstance::OpenModeEntry(ECultPlayMode Mode) {
+ if(auto* Lobby=GetSubsystem<UCultLobbySubsystem>()) if(Lobby->State!=ECultLobbyState::Hosting&&Lobby->State!=ECultLobbyState::Joined&&Lobby->State!=ECultLobbyState::Idle&&Lobby->State!=ECultLobbyState::Error) Lobby->Cancel();
+ PendingWebRoom=false;
  SelectedMode=Mode; RoomAction=ECultRoomAction::None; if(GetWorld()&&GetWorld()->GetName().Contains(TEXT("L_MainMenu"))) { RoomHosting=false; RoomPrivate=false; RoomCode.Empty(); RoomKey.Empty(); } if(Rooms_) Rooms_->StopSearch();
  if(auto* Widget=CreateWidget<UCultRoomMenuWidget>(this,UCultRoomMenuWidget::StaticClass())) ShowWidget(Widget,true);
 }
 void UCultUlhuGameInstance::BeginRoomAction(ECultRoomAction Action,const FString& Code) {
  if(Rooms_) Rooms_->StopSearch(); RoomAction=Action;
+ // Keep explicit LAN automation/offline diagnostics available; normal menus use the production registry.
+ FString ProbeRole;
+ if(!FParse::Param(FCommandLine::Get(),TEXT("CultOfflineNetworking"))&&!FParse::Value(FCommandLine::Get(),TEXT("CultRoomProbe="),ProbeRole)) {
+  if(auto* Lobby=GetSubsystem<UCultLobbySubsystem>()) Lobby->Cancel();
+  if(Action!=ECultRoomAction::None) {
+   if(Action==ECultRoomAction::Join) { FString Id,Invite; if(!UCultLobbySubsystem::ParseLobbyInput(Code,Id,Invite)) { RoomAction=ECultRoomAction::None; RoomStatus=TEXT("Paste a valid CULT-ULHU join link or invitation code."); return; } }
+   PendingWebRoom=true; PendingLobbyInput=Code; RoomHosting=false; RoomPrivate=false;
+   OpenCharacterSelect(SelectedMode); return;
+  }
+  PendingWebRoom=false;
+ }
  if(Action==ECultRoomAction::Find) { if(Rooms_) Rooms_->Find(); return; }
  if(Action==ECultRoomAction::Join) {
   FCultRoomAddress R; FString Error; if(!CultRoomCode::Decode(Code,R,Error)) { RoomStatus=Error; RoomAction=ECultRoomAction::None; return; }
@@ -23,6 +37,20 @@ void UCultUlhuGameInstance::BeginRoomAction(ECultRoomAction Action,const FString
  RoomHosting=Action==ECultRoomAction::Host||Action==ECultRoomAction::Private; RoomPrivate=Action==ECultRoomAction::Private;
  RoomKey=RoomPrivate?FString::Printf(TEXT("%08X%08X"),FGuid::NewGuid().A,FGuid::NewGuid().C):FString(); RoomHost=CultRoomCode::LocalAddress(); RoomPort=7777; FParse::Value(FCommandLine::Get(),TEXT("port="),RoomPort); RoomPort=FMath::Clamp(RoomPort,1024,65535);
  RoomCode.Empty(); RoomStatus.Empty(); OpenCharacterSelect(SelectedMode);
+}
+bool UCultUlhuGameInstance::StartOnlineRoom() {
+ if(!PendingWebRoom) return false;
+ if(SelectedMode==ECultPlayMode::FreeRoam&&RoomAction!=ECultRoomAction::Join&&InitialBeliefs_.Num()!=3) { OpenBeliefSelect(); return true; }
+ if(SelectedMode!=ECultPlayMode::FreeRoam) InitialBeliefs_.Reset();
+ auto* Lobby=GetSubsystem<UCultLobbySubsystem>(); if(!Lobby) return true;
+ const auto Action=RoomAction; const FString Input=PendingLobbyInput;
+ PendingWebRoom=false; RoomAction=ECultRoomAction::None; FreeRoamReady=false; FreeRoamMenuOpen=false; PendingFreeRoam_.Reset();
+ if(SelectedMode==ECultPlayMode::FreeRoam) FreeRoamSeed=FMath::Rand();
+ if(auto* Widget=CreateWidget<UCultRoomMenuWidget>(this,UCultRoomMenuWidget::StaticClass())) ShowWidget(Widget,true);
+ if(Action==ECultRoomAction::Find) Lobby->QuickPlay(SelectedMode);
+ else if(Action==ECultRoomAction::Join) Lobby->JoinByCode(Input,SelectedMode);
+ else Lobby->HostGame(SelectedMode,Action==ECultRoomAction::Private);
+ return true;
 }
 void UCultUlhuGameInstance::PublicRoomFound(const FString& Host,int Port) {
  FCultRoomAddress R{Host,FString(),uint16(Port),SelectedMode,false}; BeginRoomAction(ECultRoomAction::Join,CultRoomCode::Encode(R));

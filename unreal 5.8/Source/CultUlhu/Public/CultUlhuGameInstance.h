@@ -107,6 +107,9 @@ public:
 	static FString ModeStartLabel(ECultPlayMode Mode);
 
 private:
+ bool PendingWebRoom=false;
+ FString PendingLobbyInput;
+ bool StartOnlineRoom();
  class FCultRoomService* Rooms_=nullptr;
  void NetworkFailure(UWorld* World,UNetDriver* Driver,ENetworkFailure::Type Failure,const FString& Reason);
  TArray<uint8> PendingFreeRoam_;

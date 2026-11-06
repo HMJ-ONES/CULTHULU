@@ -9,6 +9,7 @@
 #include "GameFramework/PlayerStart.h"
 
 #include "CultUlhuGameInstance.h"
+#include "CultLobbySubsystem.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultUlhuPlayerController.h"
 #include "CultPlayHUD.h"
@@ -138,8 +139,10 @@ APawn* ACultUlhuPlayGameMode::SpawnDefaultPawnFor_Implementation(
 void ACultUlhuPlayGameMode::PreLogin(const FString& Options,const FString& Address,const FUniqueNetIdRepl& Id,FString& Error) {
  Super::PreLogin(Options,Address,Id,Error); if(!Error.IsEmpty()) return;
  if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) {
-  G->ValidateRoomLogin(Options,Error); int Players=0; for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It) if(It->Get()&&It->Get()->GetPawn()) ++Players;
-  if(Players>=(G->SelectedMode==ECultPlayMode::FreeRoam?8:10)) Error=TEXT("This room is full. Ask the host for another match.");
+  G->ValidateRoomLogin(Options,Error); int Players=0; for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It) if(It->Get()) ++Players;
+  const auto* Lobby=G->GetSubsystem<UCultLobbySubsystem>();
+  const int Limit=Lobby&&Lobby->HasActiveLobby()?10:(G->SelectedMode==ECultPlayMode::FreeRoam?8:10);
+  if(Players>=Limit) Error=TEXT("This room is full. Ask the host for another match.");
  }
 }
 void ACultUlhuPlayGameMode::Logout(AController* Exiting) { if(auto* M=ACultMatchDirector::Find(GetWorld())) M->RemoveHumanPlayer(Exiting); Super::Logout(Exiting); }
