@@ -60,6 +60,9 @@ ACultUlhuPlayerPawn::ACultUlhuPlayerPawn()
 void ACultUlhuPlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
+ // Legacy starts can carry a rolled marker transform. Grounded vessels
+ // preserve that marker's heading while standing upright.
+ if(HasAuthority()) SetActorRotation(FRotator(0,GetActorRotation().Yaw,0),ETeleportType::TeleportPhysics);
 
 	// Scale to the selected entity's canonical height (baseline: 1.8 m human).
 	float HeightM = 30.0f;
@@ -323,6 +326,7 @@ void ACultUlhuPlayerPawn::ReturnToMenu()
 
 void ACultUlhuPlayerPawn::Smash()
 {
+ if(!HasAuthority()) return;
  if(auto* M=ACultMatchDirector::Find(GetWorld())) {
   if(M->IsOver()||(M->IsPaused()&&IsLocallyControlled())) { M->ClickResult(); return; }
   if(!M->CanAct(this)) return;
@@ -331,12 +335,17 @@ void ACultUlhuPlayerPawn::Smash()
  }
  if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->FaithVisible()||HUD->RegionMapVisible()||PC->IsInputKeyDown(EKeys::LeftAlt)) { HUD->CommandClick(); return; }
  if(Kit_ && Kit_->LeftClick()) return;
-	if(Control_.Stun || Control_.Fear) return;
+	if(Control_.Stun || Control_.Fear || Control_.Stop || IsDashing()) return;
+ const auto Primary=Kit_?Kit_->Primary:CultPrimary::FProfile{};
+ if(Primary.Ranged()) {
+  if(SmashCooldown_<=0&&Kit_->LaunchPrimary()) SmashCooldown_=Primary.Recovery;
+  return;
+ }
  if (SmashCooldown_ > 0.0f || IsSwinging()) { if(!IsBot()&&SmashCooldown_<=.18f) MeleeBuffer_=.18f; return; }
- MeleeBuffer_=0; SmashCooldown_ = .62f;
+ MeleeBuffer_=0; SmashCooldown_ = Primary.Recovery;
  const float ComboMult=Kit_?Kit_->BeginMelee():1.f;
 
- StartMelee(135.f*ComboMult);
+ StartMelee(Primary.Damage*9.f*ComboMult);
 
 }
 
@@ -452,6 +461,7 @@ FHitResult ACultUlhuPlayerPawn::CameraAim(float RangeCm,bool Cursor) const
   else { if(PC->PlayerCameraManager) PC->PlayerCameraManager->UpdateCamera(0.f); int32 Width=0,Height=0; PC->GetViewportSize(Width,Height); if(Width>0&&Height>0) PC->DeprojectScreenPositionToWorld(Width*.5f,Height*.5f,Start,Direction); }
  }
  FCollisionQueryParams Q(SCENE_QUERY_STAT(CultCameraAim),true,this); FHitResult Hit;
+ Q.AddIgnoredActor(ActiveRock_);
  const FVector Far=Start+Direction*250000.f; GetWorld()->LineTraceSingleByChannel(Hit,Start,Far,ECC_Visibility,Q);
  FVector Point=Hit.bBlockingHit?Hit.ImpactPoint:Far;
  const float Reach=RangeCm+GetCapsuleComponent()->GetScaledCapsuleRadius();
@@ -471,6 +481,7 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
 {
  CSV_SCOPED_TIMING_STAT(CultRuntime, HeroTick);
 	Super::Tick(DeltaSeconds);
+ if(GetNetMode()!=NM_DedicatedServer) UpdateVesselMotion(DeltaSeconds);
  if(bMatchDead_) { if(Kit_) Kit_->AdvanceCooldowns(DeltaSeconds); return; }
  Control_.Tick(DeltaSeconds); NoticeTime_=FMath::Max(0.f,NoticeTime_-DeltaSeconds);
  DashCooldown_=FMath::Max(0.f,DashCooldown_-DeltaSeconds); EvadeTime_=FMath::Max(0.f,EvadeTime_-DeltaSeconds); SwingTime_=FMath::Max(0.f,SwingTime_-DeltaSeconds); HitConfirmTime_=FMath::Max(0.f,HitConfirmTime_-DeltaSeconds);

@@ -34,6 +34,10 @@ public:
  virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
  void ConfigurePlayer(const FString& Id,int32 Team=0) { CharacterId_=Id; Faction_=Team; bBotControlled_=false; }
  UFUNCTION(Server,Reliable) void ServerCombatInput(uint8 Action,bool Down,FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction);
+ bool HoldingRock() const;
+ bool RecentlyInCombat() const;
+ bool PrimaryInReach(AActor* Target) const;
+ void ApplyPrimaryCorrosion(AActor* Target);
  UFUNCTION(Server,Reliable) void ServerDash(FVector_NetQuantizeNormal Direction);
  UFUNCTION(Server,Reliable) void ServerSprint(bool Sprint);
  UFUNCTION(NetMulticast,Unreliable) void MulticastMotionCue(uint8 Kind,uint8 Combo,bool Retreat,float Seconds);
@@ -156,6 +160,7 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
 private:
+ friend class FCultKitRuntime;
  friend struct FCultSaveAccess;
  friend struct FCultCombatFeelTestAccess;
  friend struct FCultMatchTestAccess;
@@ -172,6 +177,10 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "CultUlhu|Camera")
 	UCameraComponent* Camera_ = nullptr;
 	UPROPERTY() class UStaticMeshComponent* VesselBody_ = nullptr;
+ TArray<TPair<TWeakObjectPtr<UStaticMeshComponent>,FTransform>> VesselRest_;
+ float VesselCueAt_=-10.f,VesselCueDuration_=0;
+ uint8 VesselCue_=0;
+ void UpdateVesselMotion(float DeltaSeconds);
 
 	float DashSpeed_=0;
  TArray<FCultImpactText> ImpactTexts_;
@@ -199,6 +208,7 @@ private:
  UPROPERTY(ReplicatedUsing=OnRep_MatchDead) bool bMatchDead_=false;
  UFUNCTION() void OnRep_MatchDead();
 	UPROPERTY(Replicated) FString CharacterId_;
+ UPROPERTY(Replicated) TObjectPtr<class ACultSkillAttack> ActiveRock_;
  FVector NetworkAimOrigin_=FVector::ZeroVector,NetworkAimDirection_=FVector::ForwardVector;
  float NetworkAimAt_=-100;
  bool NetworkSprinting_=false;

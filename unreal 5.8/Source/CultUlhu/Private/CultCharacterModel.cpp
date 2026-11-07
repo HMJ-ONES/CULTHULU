@@ -54,6 +54,7 @@ bool ACultCharacterModel::HasSourceAnimation(const FString& Id) {
  return B&&B->TryGetArrayField(TEXT("clips"),Clips)&&Clips->Num()>0;
 }
 bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
+ CharacterId_=Id;
  auto B=Binding(Id); if(!B) return false;
  B->TryGetBoolField(TEXT("melee_step_motion"),bMeleeStep_);
  double Contact=.5; if(B->TryGetNumberField(TEXT("melee_contact_phase"),Contact)) MeleeContactPhase_=FMath::Clamp(float(Contact),.2f,.8f);
@@ -208,7 +209,9 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
   if(ActionRole_==TEXT("taunt")&&(Speed>10||Falling||Pawn_->IsSwinging()||Pawn_->IsDashing())) ActionUntil_=Now;
   if(WasFalling_&&!Falling) LandingUntil_=Now+.22f; WasFalling_=Falling;
   if(Pawn_->IsBot()&&Pawn_->GetBotAim()) SetActorRotation(FRotator(0,Pawn_->AimRotation().Yaw,0));
-  const FString MotionRole=Pawn_->IsDashing()?TEXT("dash"):Falling?TEXT("jump"):Now<ActionUntil_?ActionRole_:Pawn_->IsSwinging()?TEXT("attack"):Now<LandingUntil_?TEXT("land"):Speed>WalkSpeed_*1.15f?TEXT("run"):Speed>10?TEXT("walk"):TEXT("idle");
+  const bool Overlay=ActionRole_==TEXT("primary_fire")||ActionRole_==TEXT("rock_lift")||ActionRole_==TEXT("rock_throw")||ActionRole_.StartsWith(TEXT("cast_"));
+  bRunning_=Speed>WalkSpeed_*(bRunning_?1.14f:1.27f);
+  const FString MotionRole=Pawn_->IsDashing()?TEXT("dash"):Falling?TEXT("jump"):Now<ActionUntil_&&!Overlay?ActionRole_:Pawn_->IsSwinging()?TEXT("attack"):Now<LandingUntil_?TEXT("land"):bRunning_?TEXT("run"):Speed>10?TEXT("walk"):TEXT("idle");
   PlayRole(MotionRole);
   if(MotionRole.StartsWith(TEXT("melee_"))&&Now<ActionUntil_&&ActionSeconds_>.01f) {
    const float Progress=FMath::Clamp(1-(ActionUntil_-Now)/ActionSeconds_,0.f,1.f);
@@ -231,12 +234,16 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
    FVector LocalOffset=Pawn_->GetActorQuat().UnrotateVector(GetActorForwardVector()*Offset);
    LocalOffset.Z=-Pawn_->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();SetActorRelativeLocation(LocalOffset);
   }
-  if(MotionRole==TEXT("walk")||MotionRole==TEXT("run")) for(const auto& Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part.Get())) if(auto* Player=S->GetSingleNodeInstance()) {
-   const float Sign=FVector::DotProduct(Pawn_->GetVelocity(),Pawn_->AimRotation().Vector())<0?-1.f:1.f;
-   Player->SetPlayRate(Sign*FMath::Clamp(Speed/FMath::Max(1.f,WalkSpeed_),.45f,2.2f));
+  if(MotionRole==TEXT("walk")||MotionRole==TEXT("run")) {
+   const float Alignment=FVector::DotProduct(Pawn_->GetVelocity().GetSafeNormal2D(),Pawn_->AimRotation().Vector().GetSafeNormal2D());
+   const float Nominal=WalkSpeed_*(bRunning_?1.65f:1.f);
+   const float Goal=(Alignment<-.35f?-1.f:1.f)*FMath::Clamp(Speed/FMath::Max(1.f,Nominal),.4f,1.45f);
+   GaitRate_=FMath::FInterpTo(GaitRate_,Goal,DeltaSeconds,12.f);
+   for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) if(auto* Player=S->GetSingleNodeInstance()) Player->SetPlayRate(GaitRate_);
   }
  } else if(!bPreview_&&GetOwner()) Destroy();
  if(bOriginalOrb_) UpdateOriginalOrb();
+ if(Pawn_) UpdateCombatGesture(DeltaSeconds);
 }
 
 bool ACultCharacterModel::UsesMeleeStep(ACultUlhuPlayerPawn* Pawn) {
@@ -256,6 +263,7 @@ float ACultCharacterModel::AuthoredMeleePhase(float Progress) const {
 void ACultCharacterModel::Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds) {
  if(!Pawn) return; TArray<AActor*> Attached; Pawn->GetAttachedActors(Attached);
  for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
-  Model->ActionRole_=Role; Model->ActionSeconds_=Seconds; Model->ActionUntil_=Pawn->GetWorld()->GetTimeSeconds()+Seconds; Model->CurrentRole_.Reset(); Model->PlayRole(Role);
+  Model->ActionRole_=Role; Model->ActionSeconds_=Seconds; Model->ActionUntil_=Pawn->GetWorld()->GetTimeSeconds()+Seconds;
+  if(Role!=TEXT("primary_fire")&&Role!=TEXT("rock_lift")&&Role!=TEXT("rock_throw")&&!Role.StartsWith(TEXT("cast_"))) { Model->CurrentRole_.Reset(); Model->PlayRole(Role); }
  }
 }

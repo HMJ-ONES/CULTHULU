@@ -40,6 +40,11 @@ private:
  bool bOriginalOrb_=false;
  float RoleBegan_=0;
  float Elapsed_=0,Hover_=0;
+ FString CharacterId_;
+ float GuardWeight_=0, GaitRate_=1;
+ bool bRunning_=false;
+ TArray<FTransform> StaticRest_;
+ void UpdateCombatGesture(float DeltaSeconds);
  void PlayRole(const FString& Role);
  void UpdateOriginalOrb();
  float AuthoredMeleePhase(float Progress) const;

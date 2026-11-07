@@ -2,12 +2,14 @@
 #include "CultUlhuPlayerPawn.h"
 #include "CultMatchDirector.h"
 #include "CultKitRuntime.h"
+#include "CultMeleeGeometry.h"
 #include "CultSkillAttack.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 void ACultUlhuPlayerPawn::SetMatchDead() {
+ if(HasAuthority()&&IsValid(ActiveRock_)) { ActiveRock_->Destroy(); ActiveRock_=nullptr; }
  PreviousShift_=false; ShiftHeldSeconds_=.18f; ShiftDirection_=FVector::ZeroVector;
  bMatchDead_=true; MeleeBuffer_=SwingTime_=DashTime_=0; bRmbHeld_=false;
  GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultMeleeStep")); GetCharacterMovement()->DisableMovement();
@@ -52,6 +54,18 @@ void ACultUlhuPlayerPawn::RecallMatch() { if(!HasAuthority()) { if(auto* PC=Cast
 void ACultUlhuPlayerPawn::RematchConfirm() { if(auto* M=ACultMatchDirector::Find(GetWorld())) M->Rematch(); }
 
 void ACultUlhuPlayerPawn::MarkCombat() { LastCombatAt_=GetWorld()->GetTimeSeconds(); }
+bool ACultUlhuPlayerPawn::RecentlyInCombat() const { return GetWorld()->GetTimeSeconds()-LastCombatAt_<5.f; }
+bool ACultUlhuPlayerPawn::HoldingRock() const { return IsValid(ActiveRock_); }
+void ACultUlhuPlayerPawn::ApplyPrimaryCorrosion(AActor* Target) { if(HasAuthority()&&Kit_) Kit_->ApplyCorrosion(Target); }
+bool ACultUlhuPlayerPawn::PrimaryInReach(AActor* Target) const {
+ if(!Target) return false;
+ if(!Kit_||!Kit_->Primary.Ranged()) return CultMeleeGeometry::InReach(this,Target);
+ const FVector Origin=GetActorLocation();
+ FVector Closest=Target->GetActorLocation();
+ if(auto* Body=Cast<UPrimitiveComponent>(Target->GetRootComponent())) Body->GetClosestPointOnCollision(Origin,Closest);
+ return FVector::DistSquared(Origin,Closest)<FMath::Square(Kit_->Primary.Reach*.9f)
+        &&ACultSkillAttack::Clear(GetWorld(),Origin,Closest,const_cast<ACultUlhuPlayerPawn*>(this),Target);
+}
 void ACultUlhuPlayerPawn::UpdateRecovery(float Dt) {
  if(bMatchDead_||GetHealth()<=0) return;
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->CanAct(this)) return;
@@ -60,7 +74,7 @@ void ACultUlhuPlayerPawn::UpdateRecovery(float Dt) {
 }
 float ACultUlhuPlayerPawn::BotRangedReach() const {
  if(!Kit_) return 0;
- float Reach=0;
+ float Reach=Kit_->Primary.Reach;
  for(int I=0;I<3;++I) {
   const auto& S=I==0?Kit_->Def.qAbility:I==1?Kit_->Def.fAbility:Kit_->Def.rAbility;
   const auto& K=S.effectKind;

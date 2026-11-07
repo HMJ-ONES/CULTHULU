@@ -74,7 +74,7 @@ void UCultCharacterSelectWidget::BuildLayout() {
  }
  Col->AddChildToVerticalBox(RosterSize)->SetPadding(FMargin(0,0,0,12));
  auto* Hints=NewObject<UHorizontalBox>(this); ModeHint_=MakeText(TEXT(""),11,CultUI::Gold); ModeHint_->SetAutoWrapText(true); Hints->AddChildToHorizontalBox(ModeHint_)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
- Hints->AddChildToHorizontalBox(MakeText(TEXT("LMB melee / V view / Tap Shift dash / Hold Shift sprint"),10,CultUI::Muted))->SetPadding(FMargin(16,0,0,0)); Col->AddChildToVerticalBox(Hints)->SetPadding(FMargin(0,0,0,8));
+ Hints->AddChildToHorizontalBox(MakeText(TEXT("LMB primary / V view / Tap Shift dash / Hold Shift sprint"),10,CultUI::Muted))->SetPadding(FMargin(16,0,0,0)); Col->AddChildToVerticalBox(Hints)->SetPadding(FMargin(0,0,0,8));
  auto* Row=NewObject<UHorizontalBox>(this); BackButton_=MakeButton(TEXT("BACK"),18); BackButton_->OnClicked.AddDynamic(this,&UCultCharacterSelectWidget::OnBackClicked); Row->AddChildToHorizontalBox(BackButton_);
  auto* Space=NewObject<USizeBox>(this); Row->AddChildToHorizontalBox(Space)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
  PlayButton_=MakeButton((Mode_==ECultPlayMode::FreeRoam&&Cast<UCultUlhuGameInstance>(GetGameInstance())->RoomAction!=ECultRoomAction::Join)?TEXT("CHOOSE INITIAL BELIEFS"):TEXT("ENTER BATTLE"),22,true); PlayButton_->OnClicked.AddDynamic(this,&UCultCharacterSelectWidget::OnPlayClicked); Row->AddChildToHorizontalBox(PlayButton_); Col->AddChildToVerticalBox(Row);

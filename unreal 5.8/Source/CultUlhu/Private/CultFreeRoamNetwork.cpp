@@ -8,6 +8,7 @@
 #include "CultLivingLandscape.h"
 #include "CultMatchDirector.h"
 #include "CultCanonicalKit.h"
+#include "CultSkillAttack.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -16,7 +17,7 @@
 
 void PopulateCultWilds(UWorld* World);
 void ACultUlhuPlayerPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
- Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(ACultUlhuPlayerPawn,CharacterId_); DOREPLIFETIME(ACultUlhuPlayerPawn,bBotControlled_); DOREPLIFETIME(ACultUlhuPlayerPawn,Faction_); DOREPLIFETIME(ACultUlhuPlayerPawn,bMatchDead_);
+ Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(ACultUlhuPlayerPawn,CharacterId_); DOREPLIFETIME(ACultUlhuPlayerPawn,bBotControlled_); DOREPLIFETIME(ACultUlhuPlayerPawn,Faction_); DOREPLIFETIME(ACultUlhuPlayerPawn,bMatchDead_); DOREPLIFETIME(ACultUlhuPlayerPawn,ActiveRock_);
 }
 void ACultUlhuPlayerPawn::ServerCombatInput_Implementation(uint8 Action,bool Down,FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction) {
  if((Action!=uint8(ECultPlayerInput::Jump)&&Action!=uint8(ECultPlayerInput::Taunt)&&(Action<uint8(ECultPlayerInput::Primary)||Action>uint8(ECultPlayerInput::Interact)))||IsBot()) return;

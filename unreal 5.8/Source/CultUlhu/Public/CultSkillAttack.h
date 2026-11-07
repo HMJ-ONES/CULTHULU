@@ -12,6 +12,14 @@ public:
  enum class EShape { Bolt, Sweep, Sphere, GroundDisk, Cone, Beam };
  EShape Shape=EShape::Bolt;
  float Windup=.18f, Duration=.22f, Radius=35, Reach=2000, Speed=2400, HalfAngle=45;
+ FVector PrimaryAim=FVector::ZeroVector;
+ float Gravity=0.f;
+ UPROPERTY(ReplicatedUsing=OnRep_Style) uint8 SignalStyle=0;
+ UPROPERTY(Replicated) bool bTrackMuzzle=false;
+ UPROPERTY(ReplicatedUsing=OnRep_RockGuard) bool bRockGuard=false;
+ UPROPERTY(Replicated) FVector RockExtents=FVector::ZeroVector;
+ void ReleaseGuard(FVector Aim);
+ bool IsGuarding() const { return bRockGuard; }
  FVector Direction=FVector::ForwardVector;
  // Only ward shots use a target lock; character and minion bolts remain physical skill shots.
  UPROPERTY(Replicated) TWeakObjectPtr<AActor> WardTarget;
@@ -40,6 +48,12 @@ private:
  friend struct FCultSaveAccess;
  friend struct FCultAttackPresentationTestAccess;
  UFUNCTION() void OnRep_WardCountdown();
+ UFUNCTION() void OnRep_Style();
+ UFUNCTION() void OnRep_RockGuard();
+ void PositionGuard();
+ void ApplySignalStyle();
+ FVector LaunchVelocity=FVector::ZeroVector;
+ UPROPERTY() TObjectPtr<class UBoxComponent> GuardCollision;
  float WardCountdownReceivedAt=0;
  float Age=0,Travel=0;
  float BornAt=0;

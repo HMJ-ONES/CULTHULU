@@ -6,6 +6,7 @@
 #include "EngineUtils.h"
 #include "CultUlhuGameInstance.h"
 #include "CultUlhuPlayerPawn.h"
+#include "CultCharacterModel.h"
 #include "CultPopulation.h"
 #include "CultFeralBeast.h"
 #include "CultCorpse.h"
@@ -13,6 +14,7 @@
 #include "Engine/StaticMeshActor.h"
 #include "Engine/StaticMesh.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -32,13 +34,35 @@ public:
   if(Phase==0) {
    P=Cast<ACultUlhuPlayerPawn>(W->GetFirstPlayerController()->GetPawn()); if(!P) return false;
    P->AltReleased(); if(auto* Arm=P->FindComponentByClass<USpringArmComponent>()) Arm->SetComponentTickEnabled(false); auto* Camera=P->FindComponentByClass<UCameraComponent>();
-   FTransform T(P->FeetLocation()+FVector(1800,0,200)); auto* B=W->SpawnActorDeferred<ACultFeralBeast>(ACultFeralBeast::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); B->SetSpecies(TEXT("skittering_ghoul")); B->FinishSpawning(T); B->Capture(); Beast=B;
+   Camera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+   FTransform T(P->FeetLocation()+FVector(1750,0,200)); auto* B=W->SpawnActorDeferred<ACultFeralBeast>(ACultFeralBeast::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); B->SetSpecies(TEXT("skittering_ghoul")); B->FinishSpawning(T); B->SetActorTickEnabled(false); Beast=B;
    const FVector Look=B->GetActorLocation(); Camera->SetWorldLocation(P->FeetLocation()+FVector(6000,-4000,3500)); Camera->SetWorldRotation((Look-Camera->GetComponentLocation()).Rotation());
    Test->TestTrue(TEXT("The actual rendered camera aims directly at the test creature"),P->CameraAim().GetActor()==B);
    Before=B->GetHealth(); P->Smash(); Test->TestEqual(TEXT("Actual LMB has a windup"),B->GetHealth(),Before); Phase=1; Time=0;
   } else if(Phase==1) {
-   if(Time>.18f&&!SwingShot) { Shot(TEXT("SkillCombatSwing.png")); SwingShot=true; }
-   if(Time>.65f) { Test->TestTrue(TEXT("Actual aimed LMB makes creature contact"),Beast.IsValid()&&Beast->GetHealth()<Before); Before=Beast.IsValid()?Beast->GetHealth():0; P->AbilityQ(); if(Beast.IsValid()) Test->TestEqual(TEXT("Native Q warns instead of instantly detonating"),Beast->GetHealth(),Before); Phase=2; Time=0; }
+   if(Time>.18f&&!SwingShot) {
+    TArray<AActor*> Attached;
+    P->GetAttachedActors(Attached);
+    for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
+     for(UMeshComponent* Part:Model->Parts()) if(auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
+      const float Head=Skin->GetBoneLocation(TEXT("head")).Z;
+      const float Foot=Skin->GetBoneLocation(TEXT("foot_l")).Z;
+      Test->AddInfo(FString::Printf(TEXT("Live Cthulhu pose head %.1f foot %.1f relative to pawn ground %.1f"),Head,Foot,P->FeetLocation().Z));
+      Test->TestTrue(TEXT("Cthulhu's live attack pose stays upright"),Head>Foot);
+     }
+    }
+    Shot(TEXT("SkillCombatSwing.png")); SwingShot=true;
+   }
+   if(Time>.65f) {
+    Test->TestTrue(TEXT("Actual aimed LMB makes creature contact"),!Beast.IsValid()||Beast->GetHealth()<Before);
+    if(Beast.IsValid()&&!Beast->IsDead()) {
+     auto* Camera=P->FindComponentByClass<UCameraComponent>();
+     Camera->SetWorldRotation((Beast->GetActorLocation()-Camera->GetComponentLocation()).Rotation());
+     Before=Beast->GetHealth(); P->AbilityQ();
+     Test->TestEqual(TEXT("Native Q warns instead of instantly detonating"),Beast->GetHealth(),Before);
+    }
+    Phase=2; Time=0;
+   }
   } else if(Phase==2&&Time>.9f) {
    Test->TestTrue(TEXT("The native delayed ability damages its current occupant"),!Beast.IsValid()||Beast->IsDead()||Beast->GetHealth()<Before);
    if(Beast.IsValid()&&!Beast->IsDead()) Beast->ApplyDamage(10000); Shot(TEXT("SkillCombatHUD.png"));

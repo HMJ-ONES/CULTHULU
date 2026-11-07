@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "CultCanonicalKit.h"
+#include "CultPrimaryProfile.h"
 #include "combat/Combos.h"
 #include "combat/CrowdControl.h"
 #include "input/InputManager.h"
@@ -25,6 +26,12 @@ public:
  bool CastHeal(const cultulhu::SpellDef& Spell,int Slot);
  void Heavy(bool bPress);
  bool LeftClick(); // consumes LMB when the original RMB state machine owns it
+ CultPrimary::FProfile Primary;
+ bool LaunchPrimary();
+ void ApplyCorrosion(AActor* Target);
+ bool RockInput(bool Press);
+ void ReleaseRock();
+ void TickRock();
  float BeginMelee();
  int32 MeleeStage() const { return Combo.currentStage(); }
  void MeleeContact(AActor* Actor);
@@ -62,10 +69,13 @@ private:
  float BuffMult = 1;
  TWeakObjectPtr<class ACultMatchUnit> HeldMinion;
  float HoldTime=0; bool ThrowOnReady=false;
- void MinionThrowInput(bool Press);
+ bool MinionThrowInput(bool Press);
  void TickMinionThrow(float Dt);
  void LaunchMinion();
  void CancelMinionThrow();
+ struct FCorrosion { int Ticks=0; float UntilTick=.75f; };
+ TMap<TWeakObjectPtr<AActor>,FCorrosion> Corrosion;
+ void TickCorrosion(float Delta);
  bool MeleeRewarded=false;
  void Snapshot();
  void Apply();

@@ -14,11 +14,13 @@
 #include "EngineUtils.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInterface.h"
 
 namespace {
 bool FriendlyBody(AActor* Source,AActor* Other) {
+ if(auto* Attack=Cast<ACultSkillAttack>(Other)) return Attack->IsGuarding()&&Attack->GetOwner()==Source;
  const auto* Unit=Cast<ACultMatchUnit>(Other);
  const bool Body=Cast<ACultUlhuPlayerPawn>(Other)||Cast<ACultPopulation>(Other)||(Unit&&!Unit->IsStructure());
  return Body&&ACultSkillAttack::Alive(Other)&&!ACultSkillAttack::Enemy(Source,Other);
@@ -65,13 +67,19 @@ void ACultSkillAttack::Hurt(AActor* A,float D,AActor* S,FVector P) {
 }
 void ACultSkillAttack::BeginPlay() {
  Super::BeginPlay(); BornAt=GetWorld()->GetTimeSeconds(); Origin=Previous=GetActorLocation(); Direction.Normalize(); if(Shape==EShape::Sweep&&GetOwner()) SweepOffset=Origin-GetOwner()->GetActorLocation();
+ if((Shape==EShape::Sweep||bTrackMuzzle)&&GetOwner()) SweepOffset=Origin-GetOwner()->GetActorLocation();
  if(HasAuthority()&&WardLocked) WardChargeRemaining=Windup;
  BuildPresentation();
+ OnRep_RockGuard();
 }
 
 void ACultSkillAttack::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
  Super::GetLifetimeReplicatedProps(OutLifetimeProps);
  DOREPLIFETIME(ACultSkillAttack,WardTarget); DOREPLIFETIME(ACultSkillAttack,WardLocked); DOREPLIFETIME(ACultSkillAttack,WardChargeRemaining);
+ DOREPLIFETIME_CONDITION(ACultSkillAttack,SignalStyle,COND_InitialOnly);
+ DOREPLIFETIME_CONDITION(ACultSkillAttack,bTrackMuzzle,COND_InitialOnly);
+ DOREPLIFETIME_CONDITION(ACultSkillAttack,RockExtents,COND_InitialOnly);
+ DOREPLIFETIME(ACultSkillAttack,bRockGuard);
 }
 void ACultSkillAttack::OnRep_WardCountdown() { WardCountdownReceivedAt=GetWorld()->GetTimeSeconds(); }
 float ACultSkillAttack::WardReleaseRemaining() const {
@@ -88,7 +96,25 @@ void ACultSkillAttack::Sweep(FVector A,FVector B,float R) {
  TArray<FHitResult> Hits; GetWorld()->SweepMultiByChannel(Hits,A,B,FQuat::Identity,ECC_Visibility,FCollisionShape::MakeSphere(R),Q);
  // Tip chords can lie beyond a wall even when every radial trace is blocked.
  // A melee contact must also remain connected to the actual arm origin.
- for(const auto& H:Hits) { auto* Other=H.GetActor(); if(Enemy(GetOwner(),Other)&&!Struck.Contains(Other)&&(Shape!=EShape::Sweep||Clear(GetWorld(),Origin,H.ImpactPoint,GetOwner(),Other))) { Struck.Add(Other); if(Hit) Hit(Other,H.ImpactPoint); } if(H.bBlockingHit) { if(Shape==EShape::Bolt) { if(Finished) Finished(H.ImpactPoint); Destroy(); } break; } }
+ for(const auto& H:Hits) {
+  auto* Other=H.GetActor();
+  if(Enemy(GetOwner(),Other)&&!Struck.Contains(Other)&&(Shape!=EShape::Sweep||Clear(GetWorld(),Origin,H.ImpactPoint,GetOwner(),Other))) {
+   Struck.Add(Other);
+   if(Hit) Hit(Other,H.ImpactPoint);
+  }
+  if(!H.bBlockingHit) continue;
+  if(Shape==EShape::Bolt) {
+   if(RockExtents.X>0&&!Hit) {
+    SetActorLocation(H.Location);
+    SetActorTickEnabled(false);
+    SetLifeSpan(.65f);
+    return;
+   }
+   if(Finished) Finished(H.ImpactPoint);
+   Destroy();
+  }
+  break;
+ }
 }
 bool ACultSkillAttack::AreaContact(EShape Shape,FVector Origin,FVector Direction,float Reach,float Radius,float HalfAngle,AActor* Target,FVector& Point) {
   Point=Target->GetActorLocation(); float Body=0; if(auto* C=Target->FindComponentByClass<UCapsuleComponent>()) {
@@ -119,11 +145,35 @@ void ACultSkillAttack::Area() {
  }
 }
 void ACultSkillAttack::Tick(float Dt) {
- Super::Tick(Dt); if(!HasAuthority()) { Age+=Dt; UpdatePresentation(); return; } if(!Alive(GetOwner())) { Destroy(); return; }
+ Super::Tick(Dt);
+ if(!HasAuthority()) {
+  Age+=Dt;
+  if(bTrackMuzzle&&Shape==EShape::Bolt) Visual->SetWorldLocation(GetActorLocation());
+  UpdatePresentation();
+  return;
+ }
+ if(!Alive(GetOwner())) { Destroy(); return; }
+ if(bRockGuard) { Age+=Dt; PositionGuard(); return; }
+ if(Shape==EShape::Bolt&&bTrackMuzzle&&IsWindingUp()) {
+  if(auto* Pawn=Cast<ACultUlhuPlayerPawn>(GetOwner()); Pawn&&(Pawn->IsIncapacitated()||Pawn->IsDashing())) { Destroy(); return; }
+  Origin=Previous=GetOwner()->GetActorLocation()+SweepOffset;
+  Direction=(PrimaryAim-Origin).GetSafeNormal();
+  SetActorLocation(Origin);
+ }
  // Spawned during an actor tick, an attack can tick again in that same frame.
  // Its first delta must exclude time before creation, especially on load hitches.
  if(FirstTick) { Dt=FMath::Min(Dt,FMath::Max(0.f,GetWorld()->GetTimeSeconds()-BornAt)); FirstTick=false; }
- if(Shape==EShape::Sweep) { Origin=GetOwner()->GetActorLocation()+SweepOffset; SetActorLocation(Origin); } const float Old=Age; Age+=Dt;
+ if(Shape==EShape::Sweep) {
+  Origin=GetOwner()->GetActorLocation()+SweepOffset;
+  // Keep a step-assisted strike aligned to the committed world point as the
+  // root advances. The point is fixed at input time, so opponents can evade.
+  if(bTrackMuzzle) {
+   const FVector Committed=(PrimaryAim-Origin).GetSafeNormal();
+   if(!Committed.IsNearlyZero()) Direction=Committed;
+  }
+  SetActorLocation(Origin);
+ }
+ const float Old=Age; Age+=Dt;
  if(WardLocked) WardChargeRemaining=FMath::Max(0.f,Windup-Age);
  if(Age<Windup) { UpdatePresentation(); return; }
  const float Active=FMath::Min(Age-Windup,Duration);
@@ -139,7 +189,26 @@ void ACultSkillAttack::Tick(float Dt) {
   if(FVector::Dist(Previous,Aim)<=Step+Radius) { if(Hit) Hit(Target,Aim); if(Finished) Finished(Aim); Destroy(); return; }
   Previous+=Direction*Step; Visual->SetWorldLocation(Previous);
  } else if(Shape==EShape::Bolt) {
-  float Step=FMath::Min(Speed*(Age-FMath::Max(Old,Windup)),Reach-Travel); FVector Next=Previous+Direction*Step; Sweep(Previous,Next,Radius); Travel+=Step; Previous=Next; Visual->SetWorldLocation(Next); if(Travel>=Reach) { if(Finished) Finished(Next); Destroy(); }
+  FVector Segment;
+  if(Gravity>0) {
+   const float Start=FMath::Max(0.f,Old-Windup);
+   if(LaunchVelocity.IsNearlyZero()) {
+    const float Flight=FMath::Max(.05f,FMath::Min(float(FVector::Dist(PrimaryAim,Origin)),Reach*.93f)/Speed);
+    LaunchVelocity=Direction*Speed+FVector(0,0,.5f*Gravity*Flight);
+   }
+   Segment=(LaunchVelocity-FVector(0,0,Gravity*(Active+Start)*.5f))*FMath::Max(0.f,Active-Start);
+  } else {
+   Segment=Direction*(Speed*FMath::Max(0.f,Active-FMath::Max(0.f,Old-Windup)));
+  }
+  Segment=Segment.GetClampedToMaxSize(FMath::Max(0.f,Reach-Travel));
+  const FVector Next=Previous+Segment;
+  Sweep(Previous,Next,Radius);
+  if(IsActorBeingDestroyed()||!IsActorTickEnabled()) return;
+  Travel+=Segment.Size();
+  Previous=Next;
+  if(bTrackMuzzle||RockExtents.X>0) SetActorLocation(Next);
+  if(RockExtents.X<=0) Visual->SetWorldLocation(Next);
+  if(Travel>=Reach-.01f||Active>=Duration) { if(Finished) Finished(Next); Destroy(); return; }
  } else if(Shape==EShape::Sweep) {
   const float Start=FMath::Max(0.f,Old-Windup), End=Active;
   const int Steps=FMath::Max(1,FMath::CeilToInt((End-Start)/.012f));

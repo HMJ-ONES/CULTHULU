@@ -1,4 +1,5 @@
 #include "CultCanonicalKit.h"
+#include "CultPrimaryProfile.h"
 #include "Misc/Paths.h"
 #include "Misc/FileHelper.h"
 #include "characters/CharacterDefParser.h"
@@ -38,5 +39,6 @@ FString CultCanonicalKit::Summary(const FString& Id)
   return FString::Printf(TEXT("%s: %s (%s, %.0fs cooldown)"),Key,UTF8_TO_TCHAR(S.name.c_str()),*Kind,S.cooldownSec);
  };
  return Spell(TEXT("Q"), D.qAbility) + TEXT("\n") + Spell(TEXT("F"), D.fAbility) + TEXT("\n") + Spell(TEXT("R"), D.rAbility)
-  + FString::Printf(TEXT("\nRMB: %s | LMB: melee combo\nHP %.0f | Stamina %.0f"), UTF8_TO_TCHAR(D.rightClick.name.c_str()), D.maxHp, D.maxStamina);
+  + FString::Printf(TEXT("\nRMB: %s | LMB: %s\nHP %.0f | Stamina %.0f"),
+    Id==TEXT("cthulhu_avatar")?TEXT("Rock Guard / Domination"):UTF8_TO_TCHAR(D.rightClick.name.c_str()),CultPrimary::Find(Id).Name,D.maxHp,D.maxStamina);
 }

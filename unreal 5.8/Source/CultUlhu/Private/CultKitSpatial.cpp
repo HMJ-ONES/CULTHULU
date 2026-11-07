@@ -77,7 +77,7 @@ namespace {
  }
 }
 void FCultKitRuntime::EmitCast(const cultulhu::SpellDef& S,int Slot) {
- ACultCharacterModel::Cue(Owner,Slot<0?TEXT("attack"):TEXT("cast"),Slot==2?.7f:.5f);
+ Owner->MulticastMotionCue(6,uint8(Slot+1),false,Slot==2?.82f:.54f);
  if(auto* D=ACultWorldDirector::Find(Owner->GetWorld())) { D->CombatActivity(Owner->GetFaction()); for(auto Type:{cultulhu::EventType::SpellCast,cultulhu::EventType::AbilityCast}) { cultulhu::GameEvent E(Type); E.sourceId=Caster->id(); E.tag=Type==cultulhu::EventType::SpellCast?S.id:S.name; E.amount=Type==cultulhu::EventType::SpellCast?1.f:float(Slot); E.pos=P(Owner->FeetLocation()); D->Bus(Owner->GetFaction()).publish(E); } }
 }
 bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector Aim) {
@@ -149,8 +149,9 @@ void FCultKitRuntime::ResolveSpatial(cultulhu::SpellDef S,AActor* Target,FVector
  else if(K=="pull") { FVector Delta=(Owner->FeetLocation()-Target->GetActorLocation()).GetSafeNormal2D()*FMath::Min(S.effectPower*100.f,FVector::Dist2D(Owner->FeetLocation(),Target->GetActorLocation())); Target->SetActorLocation(Target->GetActorLocation()+Delta,true); T.setPosition(P(Target->GetActorLocation())); Found->BeforePosition=Target->GetActorLocation(); }
  else {
   float Base=S.effectPower;
-  if(auto* M=ACultMatchDirector::Find(Owner->GetWorld())) Base*=K=="domination_summon"?15.f:K=="heavy"?15.f/135.f:.2f;
+  if(ACultMatchDirector::IsMatch(Owner->GetWorld())) Base*=K=="domination_summon"?9.f:K=="heavy"?10.f/135.f:.12f;
   else if(K=="heavy"&&::Cast<ACultUlhuPlayerPawn>(Target)) Base*=10.f/135.f;
+  if(auto* Hero=::Cast<ACultUlhuPlayerPawn>(Target)) Base=FMath::Min(Base,Hero->GetMaxHealth()*.16f);
   if(auto* M=ACultMatchDirector::Find(Owner->GetWorld())) Base*=M->DamageMultiplier(Owner);
   cultulhu::CCType CC=cultulhu::CCType::Count; float Seconds=0;
   if(K=="heavy") { Seconds=Def.rightClick.ccSeconds; for(int I=0;I<4;++I) if(Def.rightClick.ccType==cultulhu::ccTypeName(static_cast<cultulhu::CCType>(I))) CC=static_cast<cultulhu::CCType>(I); }

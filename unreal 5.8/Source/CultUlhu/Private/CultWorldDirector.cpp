@@ -255,7 +255,7 @@ void ACultWorldDirector::Tick(float Dt)
    for(TActorIterator<ACultUlhuPlayerPawn> It(GetWorld());It;++It) if(AtWar(F,It->GetFaction())) { float D=FVector::Dist2D(It->GetActorLocation(),Bot->GetActorLocation()); if(D<Best) { Best=D; Enemy=*It; } }
    for(TActorIterator<ACultPopulation> It(GetWorld());It;++It) if(AtWar(F,It->GetFaction())) { float D=FVector::Dist2D(It->GetActorLocation(),Bot->GetActorLocation()); if(D<Best) { Best=D; Enemy=*It; } }
    for(TActorIterator<ACultFeralBeast> It(GetWorld());It;++It) if(!It->IsDead()) { float D=FVector::Dist2D(It->GetActorLocation(),Bot->GetActorLocation()); if(D<Best&&D<12000) { Best=D; Enemy=*It; } }
-   if(Enemy) { if(Bot->GetBotAim()!=Enemy) FactionOrder(F,TEXT("Attack"),Enemy->GetActorLocation(),Enemy); Bot->SetBotAim(Enemy); if(Best<9000) { Bot->AbilityQ(); Bot->AbilityF(); Bot->AbilityR(); if(Best<2500) Bot->Smash(); } }
+   if(Enemy) { if(Bot->GetBotAim()!=Enemy) FactionOrder(F,TEXT("Attack"),Enemy->GetActorLocation(),Enemy); Bot->SetBotAim(Enemy); if(Best<9000) { Bot->AbilityQ(); Bot->AbilityF(); Bot->AbilityR(); if(Bot->PrimaryInReach(Enemy)) Bot->Smash(); } }
    if(Timer<=0) {
     Timer=State_->Random.FRandRange(18.f,35.f); int Choice=State_->Random.RandRange(0,4); FVector Home=State_->Temples[F];
     if(Choice==0) {

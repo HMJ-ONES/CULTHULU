@@ -129,11 +129,25 @@ public:
    At=Now; Phase=3; return false;
   }
   if(Phase==3&&Now-At>.8f) {
-   FCultCombatFeelTestAccess::VerifyHeroCorpse(Test,P);
-   const FVector OriginalScale=P->GetActorScale3D(); const FRotator OriginalRotation=P->GetActorRotation();
-   for(int I=0;I<3;++I) { const float Height=I==0?20.f:I==1?28.f:30.f; P->SetActorScale3D(FVector(Height/1.8f)); P->SetActorRotation(FRotator(0,45+I*75,0)); FCultCombatFeelTestAccess::VerifyHeroCorpse(Test,P); }
-   P->SetActorScale3D(OriginalScale); P->SetActorRotation(OriginalRotation);
-   P->ToggleCamera(); FCultCombatFeelTestAccess::VerifyHeroCorpse(Test,P); P->ToggleCamera();
+   // This fixture measures ellipsoid support. Use a character whose rendered
+   // body is the procedural vessel, since Cthulhu now uses a skeletal model.
+   const FTransform Fixture(P->GetActorLocation());
+   auto* Vessel=W->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),Fixture,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+   if(!Vessel) { Test->AddError(TEXT("Could not spawn the vessel corpse fixture")); return true; }
+   Vessel->ConfigureBot(TEXT("rhan_tegoth"),P->GetFaction());
+   Vessel->FinishSpawning(Fixture);
+   FCultCombatFeelTestAccess::VerifyHeroCorpse(Test,Vessel);
+   const FVector Feet=Vessel->FeetLocation();
+   for(int I=0;I<3;++I) {
+    const float Height=I==0?20.f:I==1?28.f:30.f;
+    Vessel->SetActorScale3D(FVector(Height/1.8f));
+    Vessel->SetActorLocation(Feet+FVector(0,0,Vessel->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+    Vessel->SetActorRotation(FRotator(0,45+I*75,0));
+    FCultCombatFeelTestAccess::VerifyHeroCorpse(Test,Vessel);
+   }
+   Vessel->ToggleCamera();
+   FCultCombatFeelTestAccess::VerifyHeroCorpse(Test,Vessel);
+   Vessel->Destroy();
    FCultCombatFeelTestAccess::MeasureProjectileDelivery(Test,P);
    Test->TestEqual(TEXT("Repeated clicks do not create an infinite auto-attack queue"),P->MeleeRecovery(),0.f);
    const FVector Arena=P->FeetLocation()+FVector(15000,-15000,50000);

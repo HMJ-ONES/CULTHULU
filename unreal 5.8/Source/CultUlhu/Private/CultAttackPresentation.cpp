@@ -1,6 +1,7 @@
 #include "CultSkillAttack.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultCharacterModel.h"
+#include "CultPrimaryProfile.h"
 #include "CultMatchUnit.h"
 #include "CultPopulation.h"
 #include "Components/StaticMeshComponent.h"
@@ -66,7 +67,37 @@ void ACultSkillAttack::BuildPresentation() {
    C->SetCollisionEnabled(ECollisionEnabled::NoCollision); C->SetCastShadow(false); C->RegisterComponent(); Ring.Add(C);
   }
  }
+ ApplySignalStyle();
  BuildWarningGeometry(); UpdatePresentation();
+}
+
+void ACultSkillAttack::OnRep_Style() { if(SignalMaterial) ApplySignalStyle(); }
+
+void ACultSkillAttack::ApplySignalStyle() {
+ using Signal=CultPrimary::ESignal;
+ const auto Style=Signal(SignalStyle);
+ if(Style==Signal::Stone) {
+  auto* Rock=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/CultUlhu/World/cave-wall-rock/StaticMeshes/cave-wall-rock"));
+  if(Rock) {
+   Visual->SetStaticMesh(Rock);
+   Visual->SetMaterial(0,Rock->GetMaterial(0));
+   const FVector Extent=Rock->GetBounds().BoxExtent.ComponentMax(FVector(1));
+   Visual->SetRelativeScale3D(RockExtents/Extent);
+   Visual->SetRelativeLocation(-Rock->GetBounds().Origin*(RockExtents/Extent));
+  }
+  Telegraph->SetVisibility(false);
+  return;
+ }
+ FLinearColor Color;
+ switch(Style) {
+  case Signal::Brine: Color=FLinearColor(.06f,.84f,.58f); break;
+  case Signal::Acid: Color=FLinearColor(.68f,1.f,.09f); break;
+  case Signal::Gold: Color=FLinearColor(1.f,.69f,.08f); break;
+  case Signal::Violet: Color=FLinearColor(.61f,.29f,1.f); break;
+  case Signal::Ember: Color=FLinearColor(1.f,.16f,.045f); break;
+  default: return;
+ }
+ SignalMaterial->SetVectorParameterValue(TEXT("Color"),Color);
 }
 
 void ACultSkillAttack::BuildWarningGeometry(bool Trail) {
@@ -122,6 +153,7 @@ void ACultSkillAttack::BuildWarningGeometry(bool Trail) {
 
 void ACultSkillAttack::UpdatePresentation() {
  if(!Telegraph||!SignalMaterial) return;
+ if(SignalStyle==uint8(CultPrimary::ESignal::Stone)) return;
  const bool Charging=Age<Windup; const float Progress=WindupProgress();
  SignalMaterial->SetScalarParameterValue(TEXT("Intensity"),Charging?.35f+.85f*Progress:1.7f);
  Telegraph->SetWorldLocation(Origin);

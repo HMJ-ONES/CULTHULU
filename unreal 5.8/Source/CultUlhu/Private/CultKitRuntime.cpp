@@ -30,6 +30,7 @@ FCultKitRuntime::FCultKitRuntime(ACultUlhuPlayerPawn* InOwner):Owner(InOwner) {}
 bool FCultKitRuntime::Initialize(const FString& Id)
 {
  if(!CultCanonicalKit::Load(Id,Def)) return false;
+ Primary=CultPrimary::Find(Id);
  if(ACultMatchDirector::IsMatch(Owner->GetWorld())) { Def.maxHp=100; if(auto* G=::Cast<UCultUlhuGameInstance>(Owner->GetGameInstance())) if(G->SelectedMode==ECultPlayMode::Domination) Cooldowns[2]=Def.rAbility.cooldownSec+5; }
  WorldImpact=std::make_unique<cultulhu::Entity>(cultulhu::EntityType::Building,-1,cultulhu::Vec3{},1000000000.f);
  Caster=std::make_unique<cultulhu::Entity>(cultulhu::EntityType::EldritchAvatar,Owner->GetFaction(),CorePos(Owner->FeetLocation()),Def.maxHp);
@@ -129,10 +130,10 @@ void FCultKitRuntime::Tick(float Dt)
  // Check before advancing timers: the last active frame must still publish
  // cleared control state. Cast/input/contact paths take fresh snapshots themselves.
  // Keep the original RMB state machine synchronized, including its cooldown.
- const bool StatefulRmb=Rmb&&!UsesMinionThrow();
+ const bool StatefulRmb=Rmb&&!UsesMinionThrow()&&!Owner->HoldingRock();
  const bool Synchronize=StatefulRmb||Effects.activeCount()>0;
  if(Synchronize) Snapshot();
- Effects.tick(Dt); TickMinionThrow(Dt);
+ Effects.tick(Dt); TickMinionThrow(Dt); TickRock(); TickCorrosion(Dt);
  if(StatefulRmb) { auto C=Context(); float Remaining=Dt; while(Remaining>0) { const float Step=FMath::Min(.016f,Remaining); Rmb->update(C,Step); Remaining-=Step; } }
  if(Synchronize) Apply();
 }
@@ -141,7 +142,6 @@ bool FCultKitRuntime::Cast(int Slot)
  if(auto* M=ACultMatchDirector::Find(Owner->GetWorld())) if(!M->AbilityAvailable(Owner,Slot,false)) return false;
  if(!ACultWorldDirector::Find(Owner->GetWorld()) || !Caster || Slot<0 || Slot>2 || Cooldowns[Slot]>0) return false;
  cultulhu::SpellDef S=Slot==0?Def.qAbility:Slot==1?Def.fAbility:Def.rAbility;
- if(ACultMatchDirector::IsMatch(Owner->GetWorld())&&S.effectKind=="heal") S.effectPower*=.4f;
  if(Stamina.value<S.staminaCost) { Owner->Notify(TEXT("Not enough stamina")); return false; }
  if(auto* M=ACultMatchDirector::Find(Owner->GetWorld())) {
   M->OnAction(Owner);
@@ -196,7 +196,8 @@ bool FCultKitRuntime::Cast(int Slot)
 }
 void FCultKitRuntime::Heavy(bool Press)
 {
- if(UsesMinionThrow()) { MinionThrowInput(Press); return; }
+ if(UsesMinionThrow()&&MinionThrowInput(Press)) return;
+ if(RockInput(Press)||UsesMinionThrow()) return;
  if(!Caster || !ACultWorldDirector::Find(Owner->GetWorld())) return; if(Press) Owner->MarkCombat(); Snapshot(); auto C=Context();
  if(Rmb) {
   if(!Press) { Rmb->onRelease(C); Apply(); return; }
@@ -212,10 +213,11 @@ void FCultKitRuntime::Heavy(bool Press)
 }
 bool FCultKitRuntime::LeftClick()
 {
+ if(Owner->HoldingRock()) { ReleaseRock(); return true; }
  if(UsesMinionThrow()) { if(HeldMinion.IsValid()&&HeldMinion->IsHeldBy(Owner)) { ThrowOnReady=true; if(HoldTime>=.3f) LaunchMinion(); return true; } return false; }
  if(!Rmb || !Owner->IsRmbHeld() || !ACultWorldDirector::Find(Owner->GetWorld())) return false; Snapshot(); auto C=Context(); Rmb->onLeftClick(C); Apply(); return true;
 }
-void FCultKitRuntime::Mouse(float X,float Y) { if(Rmb && !UsesMinionThrow() && Caster && ACultWorldDirector::Find(Owner->GetWorld())) { auto C=Context(); Rmb->onMouseMove(C,X,Y); } }
+void FCultKitRuntime::Mouse(float X,float Y) { if(Rmb && !UsesMinionThrow() && !Owner->HoldingRock() && Caster && ACultWorldDirector::Find(Owner->GetWorld())) { auto C=Context(); Rmb->onMouseMove(C,X,Y); } }
 float FCultKitRuntime::Damage(float Amount) { if(Caster) Caster->takeDamage(Amount); return Hp(); }
 void FCultKitRuntime::Heal(float Amount) { if(Caster) Caster->heal(Amount); }
 FString FCultKitRuntime::Status() const
@@ -256,8 +258,12 @@ bool FCultKitRuntime::CastHeal(const cultulhu::SpellDef& Spell,int Slot) {
   if(FVector::Dist2D(Owner->GetActorLocation(),Closest)>Spell.range*100.f+Owner->GetSimpleCollisionRadius()||!ACultSkillAttack::Clear(Owner->GetWorld(),Owner->GetActorLocation(),Patient->GetActorLocation(),Owner,Patient)) { Owner->Notify(TEXT("Healing target is out of reach or behind cover.")); return false; }
  }
  const float Before=ActorHp(Patient);
- const float Power=Spell.effectPower*ACultWorldDirector::Find(Owner->GetWorld())->Beliefs(Owner->GetFaction()).healMultiplier();
- if(auto* Hero=::Cast<ACultUlhuPlayerPawn>(Patient)) Hero->HealMatch(Power);
+ auto* Hero=::Cast<ACultUlhuPlayerPawn>(Patient);
+ const bool UnderPressure=Owner->RecentlyInCombat()||(Hero&&Hero->RecentlyInCombat());
+ const float Capacity=Hero?Hero->GetMaxHealth():100.f;
+ const float Power=FMath::Min(Spell.effectPower*ACultWorldDirector::Find(Owner->GetWorld())->Beliefs(Owner->GetFaction()).healMultiplier(),
+                             Capacity*(UnderPressure?.045f:.105f));
+ if(Hero) Hero->HealMatch(Power);
  if(auto* Person=::Cast<ACultPopulation>(Patient)) Person->Heal(Power);
  const float Actual=ActorHp(Patient)-Before;
  if(Actual<=0) { Owner->Notify(TEXT("Target is already at full health.")); return false; }

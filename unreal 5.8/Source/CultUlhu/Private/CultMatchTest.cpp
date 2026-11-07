@@ -317,10 +317,10 @@ struct FCultMatchTestAccess {
   M->GrantXP(3,100); H->Kit_->SetCooldown(1,0); Patient->Kit_->Damage(60); H->SetBotAim(Patient);
   const float Before=Patient->GetHealth();
   T->TestTrue(TEXT("Original Brine Blessing casts onto an aimed allied hero"),H->Kit_->Cast(1));
-  T->TestTrue(TEXT("An already wounded native hero actually receives healing"),Patient->GetHealth()>Before+30);
+  T->TestTrue(TEXT("Healing restores a limited share of a wounded hero's health"),Patient->GetHealth()>Before&&Patient->GetHealth()<=Before+10.51f);
   T->TestTrue(TEXT("Successful healing consumes its original cooldown"),H->Kit_->Cooldown(1)>0);
   H->Kit_->SetCooldown(1,0); Patient->Kit_->Damage(45); const float BotBefore=Patient->GetHealth(); H->SetBotAim(nullptr); M->State_->Fighters[3].Think=0; M->BotThink(3,.35f);
-  T->TestTrue(TEXT("Support bot proactively heals an injured allied hero"),Patient->GetHealth()>BotBefore+30);
+  T->TestTrue(TEXT("Support bot proactively heals an injured allied hero"),Patient->GetHealth()>BotBefore&&Patient->GetHealth()<=BotBefore+10.51f);
   T->TestFalse(TEXT("Healing rejects opposing heroes"),H->CanHealActor(Enemy));
   for(auto& U:M->State_->Units) if(U.IsValid()) T->TestFalse(TEXT("MOBA minions, towers, and gods cannot receive hero healing"),H->CanHealActor(U.Get()));
   FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;

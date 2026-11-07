@@ -276,7 +276,7 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
  }
  if(Enemy&&!F.Retreating) {
   if(Best<FMath::Max(3300.f,Ranged+P->GetSimpleCollisionRadius()+Enemy->GetSimpleCollisionRadius())) { if(HealSlot!=0) P->AbilityQ(); if(HealSlot!=1) P->AbilityF(); if(HealSlot!=2) P->AbilityR(); }
-  if(CultMeleeGeometry::InReach(P,Enemy)) P->Smash();
+  if(P->PrimaryInReach(Enemy)) P->Smash();
   if(Best<FMath::Max(2700.f,Ranged)&&(I%2||UpperOwned)) { P->HeavyAttack(); P->ReleaseHeavy(); }
  }
 }

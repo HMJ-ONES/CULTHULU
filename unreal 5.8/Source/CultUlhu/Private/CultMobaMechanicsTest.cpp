@@ -33,6 +33,9 @@ struct FCultMobaMechanicsTestAccess {
  }
  static void Ready(ACultUlhuPlayerPawn* P) { P->Kit_->HeavyCooldown=0; }
  static float Cooldown(ACultUlhuPlayerPawn* P) { return P->Kit_->HeavyCooldown; }
+ static void SubstituteOpponent(ACultMatchDirector* Match,ACultUlhuPlayerPawn* From,ACultUlhuPlayerPawn* To) {
+  for(auto& Fighter:Match->State_->Fighters) if(Fighter.Pawn.Get()==From) { Fighter.Pawn=To; return; }
+ }
  static ACultMatchUnit* Spawn(ACultMatchDirector* M,int Team,FVector At) { return M->AddUnit(Team,2,0,-1,At,120,0,0,600); }
  static void Shift(FAutomationTestBase* T,ACultUlhuPlayerPawn* P) {
   auto Reset=[&] { P->GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); P->DashTime_=0; P->DashCooldown_=0; P->Kit_->Stamina.value=P->Kit_->Def.maxStamina; };
@@ -79,7 +82,10 @@ struct FCultMobaMechanicsTestAccess {
 
 class FCultMobaMechanicsObservation:public IAutomationLatentCommand {
  FAutomationTestBase* T; int Phase=0; double Began=FPlatformTime::Seconds(); float At=0,Before=0; FVector Pickup,Land;
- TWeakObjectPtr<ACultMatchUnit> Minion,Tower; TWeakObjectPtr<ACultUlhuPlayerPawn> Victim;
+ TWeakObjectPtr<ACultMatchUnit> Minion,Tower;
+ TWeakObjectPtr<ACultUlhuPlayerPawn> Victim,AcidCaster;
+ TWeakObjectPtr<ACultSkillAttack> TestRock;
+ float DirectHealth=0;
 public:
  explicit FCultMobaMechanicsObservation(FAutomationTestBase* Test):T(Test) {}
  bool Update() override {
@@ -183,6 +189,78 @@ public:
    P->ReleaseHeavy(); Minion->SetActorLocation(FVector(-30000,-17000,153)); FCultMobaMechanicsTestAccess::Ready(P);
    auto* Friendly=FCultMobaMechanicsTestAccess::Spawn(M,0,FVector(2500,18000,0)); Friendly->Speed=0; FCultMobaMechanicsTestAccess::Aim(P,Friendly->GetActorLocation()); P->HeavyAttack();
    T->TestFalse(TEXT("RMB cannot steal a friendly wave"),Friendly->IsInTransit()); T->TestEqual(TEXT("Refused pickup spends no cooldown"),FCultMobaMechanicsTestAccess::Cooldown(P),0.f); P->ReleaseHeavy();
+   Friendly->Destroy();
+   FCultMobaMechanicsTestAccess::Aim(P,P->FeetLocation()+FVector(4700,0,0));
+   P->HeavyAttack();
+   T->TestTrue(TEXT("RMB lifts a rock when aiming off living targets"),P->HoldingRock());
+   for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==P&&It->IsGuarding()) TestRock=*It;
+   if(!TestRock.IsValid()) return true;
+   At=W->GetTimeSeconds(); Phase=10; return false;
+  }
+  if(Phase==10&&W->GetTimeSeconds()-At>.4f) {
+   if(!TestRock.IsValid()) { T->AddError(TEXT("The lifted rock disappeared before its guard window")); return true; }
+   const FVector Chest=TestRock->GetActorLocation();
+   FHitResult Cover;
+   FCollisionQueryParams CoverQuery(SCENE_QUERY_STAT(RockGuardFixture),false,P);
+   W->LineTraceSingleByChannel(Cover,Chest+FVector(3600,0,0),Chest-FVector(2500,0,0),ECC_Visibility,CoverQuery);
+   T->TestTrue(TEXT("The held boulder is the actual collider at chest height"),Cover.GetActor()==TestRock.Get());
+   const FVector Old=TestRock->GetActorLocation();
+   P->ReleaseHeavy();
+   T->TestFalse(TEXT("Releasing RMB removes the guard"),P->HoldingRock());
+   T->TestTrue(TEXT("RMB release disarms the falling rock"),TestRock.IsValid()&&!TestRock->Hit);
+   Pickup=Old; At=W->GetTimeSeconds(); Phase=11; return false;
+  }
+  if(Phase==11&&W->GetTimeSeconds()-At>.22f) {
+   T->TestTrue(TEXT("Dropped rock moves downward without throwing forward"),
+    TestRock.IsValid()&&TestRock->GetActorLocation().Z<Pickup.Z-40.f&&FVector::Dist2D(TestRock->GetActorLocation(),Pickup)<10);
+   FCultMobaMechanicsTestAccess::Ready(P);
+   FCultMobaMechanicsTestAccess::Aim(P,P->FeetLocation()+FVector(4700,0,0));
+   P->HeavyAttack();
+   At=W->GetTimeSeconds(); Phase=12; return false;
+  }
+  if(Phase==12&&W->GetTimeSeconds()-At>.4f) {
+   Victim->RelocateMatch(FVector(4800,18000,0));
+   FCultMobaMechanicsTestAccess::Aim(P,Victim->GetActorLocation());
+   Before=Victim->GetHealth();
+   P->Smash();
+   T->TestFalse(TEXT("LMB releases the live rock projectile"),P->HoldingRock());
+   T->TestEqual(TEXT("A thrown rock takes time to hit"),Victim->GetHealth(),Before);
+   P->ReleaseHeavy();
+   At=W->GetTimeSeconds(); Phase=13; return false;
+  }
+  if(Phase==13&&W->GetTimeSeconds()-At>1.f) {
+   T->TestTrue(TEXT("LMB rock hits the aimed enemy for chip damage"),Victim->GetHealth()<Before&&Victim->GetHealth()>Before-18);
+   Victim->RelocateMatch(FVector(-20000,-18000,0));
+   const FTransform Spawn(P->FeetLocation()+FVector(4400,0,0));
+   AcidCaster=W->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),Spawn,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+   if(!AcidCaster.IsValid()) { T->AddError(TEXT("Could not spawn ranged fixture")); return true; }
+   AcidCaster->ConfigureBot(TEXT("mother_hydra"),1);
+   AcidCaster->FinishSpawning(Spawn);
+   AcidCaster->GetCharacterMovement()->DisableMovement();
+   AcidCaster->SetBotAim(P);
+   FCultMobaMechanicsTestAccess::SubstituteOpponent(M,Victim.Get(),AcidCaster.Get());
+   Before=P->GetHealth();
+   AcidCaster->Smash();
+   AcidCaster->Smash();
+   int32 Shots=0;
+   for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==AcidCaster.Get()&&It->Gravity>0) ++Shots;
+   T->TestEqual(TEXT("The ranged LMB launches one gravity-driven spit through its cooldown"),Shots,1);
+   T->TestFalse(TEXT("Ranged LMB never starts a melee sweep"),AcidCaster->IsSwinging());
+   At=W->GetTimeSeconds(); Phase=14; return false;
+  }
+  if(Phase==14&&W->GetTimeSeconds()-At>1.32f) {
+   DirectHealth=P->GetHealth();
+   T->TestTrue(TEXT("The ballistic spit reaches the aimed hero for limited direct damage"),DirectHealth<Before&&DirectHealth>Before-9);
+   Phase=15; return false;
+  }
+  if(Phase==15&&W->GetTimeSeconds()-At>3.7f) {
+   T->TestTrue(TEXT("Corrosion adds limited delayed health damage"),P->GetHealth()<DirectHealth&&P->GetHealth()>Before-13);
+   DirectHealth=P->GetHealth(); Phase=16; return false;
+  }
+  if(Phase==16&&W->GetTimeSeconds()-At>4.55f) {
+   T->TestEqual(TEXT("The corrosion expires"),P->GetHealth(),DirectHealth);
+   FCultMobaMechanicsTestAccess::SubstituteOpponent(M,AcidCaster.Get(),Victim.Get());
+   AcidCaster->Destroy();
    return true;
   }
   return false;

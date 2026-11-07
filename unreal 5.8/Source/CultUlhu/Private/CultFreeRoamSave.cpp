@@ -234,7 +234,10 @@ struct FCultSaveAccess {
   for(TActorIterator<AActor> It(W);It;++It) if(*It!=Player&&!It->ActorHasTag(TEXT("CultLegacyGeometry"))&&
    (It->IsA<ACultPopulation>()||It->IsA<ACultDestructible>()||It->IsA<ACultFeralBeast>()||It->IsA<ACultUlhuPlayerPawn>()||It->ActorHasTag(TEXT("CultRubble"))||It->ActorHasTag(TEXT("ConstructionPreview")))) Old.Add(*It);
   for(auto* A:Old) A->Destroy();
-  TArray<AActor*> Actors; Actors.Add(Player); Player->SetActorTransform(S.Actors[0].Transform,false,nullptr,ETeleportType::TeleportPhysics);
+  TArray<AActor*> Actors; Actors.Add(Player);
+  FTransform PlayerTransform=S.Actors[0].Transform;
+  PlayerTransform.SetRotation(FRotator(0,PlayerTransform.Rotator().Yaw,0).Quaternion());
+  Player->SetActorTransform(PlayerTransform,false,nullptr,ETeleportType::TeleportPhysics);
   for(int32 I=1;I<S.Actors.Num();++I) {
    auto& R=S.Actors[I]; AActor* Actor=nullptr;
    if(R.Type==0) { auto* P=W->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),R.Transform,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); P->ConfigureBot(R.Character,1); Actor=P; }

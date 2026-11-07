@@ -51,12 +51,14 @@ void ACultUlhuPlayerPawn::StartMelee(float Damage,float Range,float Windup,float
  if(Direction.IsNearlyZero()) Direction=AimRotation().Vector();
  const FTransform T(Direction.Rotation(),Origin); auto* A=GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
  if(!A) return; A->Shape=ACultSkillAttack::EShape::Sweep; A->Direction=Direction; A->Reach=Profile.Reach; A->Radius=Profile.Radius; A->Windup=Windup; A->Duration=Duration; A->HalfAngle=bNextMeleeLeft_?-52.f:52.f; bNextMeleeLeft_=!bNextMeleeLeft_;
- TWeakObjectPtr<ACultUlhuPlayerPawn> Weak(this); A->Hit=[Weak,Damage](AActor* Target,FVector Point) { if(!Weak.IsValid()) return; if(auto* Pawn=Cast<ACultUlhuPlayerPawn>(Target)) if(Pawn->IsEvading()) { Pawn->ConfirmEvade(); return; } float D=Cast<ACultUlhuPlayerPawn>(Target)?Damage*(10.f/135.f):Damage;
+ TWeakObjectPtr<ACultUlhuPlayerPawn> Weak(this); A->Hit=[Weak,Damage](AActor* Target,FVector Point) { if(!Weak.IsValid()) return; auto* Pawn=Cast<ACultUlhuPlayerPawn>(Target); if(Pawn&&Pawn->IsEvading()) { Pawn->ConfirmEvade(); return; } float D=Pawn?Damage/9.f*Pawn->GetMaxHealth()/150.f:Damage;
  if(auto* M=ACultMatchDirector::Find(Weak->GetWorld())) { D=Damage*(Cast<ACultUlhuPlayerPawn>(Target)?15.f/135.f:Cast<ACultMatchUnit>(Target)&&!Cast<ACultMatchUnit>(Target)->IsStructure()?30.f/135.f:15.f/135.f)*M->DamageMultiplier(Weak.Get()); } if(auto* P=Cast<ACultPopulation>(Target)) if(!P->IsCultist()&&!P->IsSummoned()) D=FMath::Max(D,P->GetHealth()); ACultSkillAttack::Hurt(Target,D,Weak.Get(),Point); if(Weak->Kit_) Weak->Kit_->MeleeContact(Target); };
  SwingTime_=Windup+Duration;
  const bool Retreat=FVector::DotProduct(GetVelocity().GetSafeNormal2D(),AimRotation().Vector().GetSafeNormal2D())<-.25f;
  if(HasAuthority()) MulticastMotionCue(0,uint8(Kit_?FMath::Max(1,Kit_->MeleeStage()):1),Retreat,SwingTime_);
  if(HasAuthority()&&ACultCharacterModel::UsesMeleeStep(this)&&!GetCharacterMovement()->IsFalling()) {
+  A->PrimaryAim=Aim;
+  A->bTrackMuzzle=true;
   auto* Movement=GetCharacterMovement(); Movement->RemoveRootMotionSource(TEXT("CultMeleeStep"));
   const bool Finisher=Kit_&&Kit_->MeleeStage()==3;
   const float Distance=(Finisher?.23f:.28f)*GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
