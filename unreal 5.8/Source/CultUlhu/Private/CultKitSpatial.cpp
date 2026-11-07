@@ -77,7 +77,6 @@ namespace {
  }
 }
 void FCultKitRuntime::EmitCast(const cultulhu::SpellDef& S,int Slot) {
- Owner->MulticastMotionCue(6,uint8(Slot+1),false,Slot==2?.82f:.54f);
  if(auto* D=ACultWorldDirector::Find(Owner->GetWorld())) { D->CombatActivity(Owner->GetFaction()); for(auto Type:{cultulhu::EventType::SpellCast,cultulhu::EventType::AbilityCast}) { cultulhu::GameEvent E(Type); E.sourceId=Caster->id(); E.tag=Type==cultulhu::EventType::SpellCast?S.id:S.name; E.amount=Type==cultulhu::EventType::SpellCast?1.f:float(Slot); E.pos=P(Owner->FeetLocation()); D->Bus(Owner->GetFaction()).publish(E); } }
 }
 bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector Aim) {
@@ -138,6 +137,9 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
   A->Finished=[Weak,Origin,Kind](FVector Point) { if(Weak.IsValid()&&Kind!=Shape::Bolt) ACultBlastFX::SpawnBlast(Weak->GetWorld(),ECultBlastKind::ShockRing,Origin,1); };
   A->FinishSpawning(T);
  }
+ const float Contact=Kind==Shape::Sweep?Delay+Life*.5f:Delay;
+ const float Recovery=Slot==2?.47f:Slot<0?.36f:.31f;
+ Owner->PlayAttackMotion(CultAttackMotion::AbilitySlot(Slot),Contact,Contact+Recovery);
  return true;
 }
 void FCultKitRuntime::ResolveSpatial(cultulhu::SpellDef S,AActor* Target,FVector Point,int Slot) {

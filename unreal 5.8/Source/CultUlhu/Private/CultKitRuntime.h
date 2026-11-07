@@ -73,6 +73,8 @@ private:
  void TickMinionThrow(float Dt);
  void LaunchMinion();
  void CancelMinionThrow();
+ cultulhu::AnimationState DominationPose=cultulhu::AnimationState::Idle;
+ void UpdateDominationPose();
  struct FCorrosion { int Ticks=0; float UntilTick=.75f; };
  TMap<TWeakObjectPtr<AActor>,FCorrosion> Corrosion;
  void TickCorrosion(float Delta);

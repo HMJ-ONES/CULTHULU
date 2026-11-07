@@ -160,10 +160,17 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
 void ACultCharacterModel::PlayRole(const FString& ClipRole) {
  // Missing clips remain visibly unanimated; never substitute unrelated attacks.
  if(ClipRole==CurrentRole_) return; CurrentRole_=ClipRole; RoleBegan_=Elapsed_;
+ FString SourceRole=ClipRole;
+ // Keep Yig's three skeletal parts on the same authored frame. A grounded
+ // two-arm cut, a cross-cut and the raised threat posture are distinct bases
+ // for Serpent Strike, Father's Bite and Curse of Yig.
+ if(ClipRole==TEXT("yig_lash")) SourceRole=TEXT("melee_1");
+ else if(ClipRole==TEXT("yig_bite")) SourceRole=TEXT("melee_3");
+ else if(ClipRole==TEXT("yig_curse")) SourceRole=TEXT("taunt");
  for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) {
   auto* Rig=S->GetSkeletalMeshAsset()->GetSkeleton();
-  UAnimSequence* Desired=Animations_.FindRef(Rig->GetPathName()+TEXT("|")+ClipRole);
-  if(!Desired) Desired=Animations_.FindRef(ClipRole);
+  UAnimSequence* Desired=Animations_.FindRef(Rig->GetPathName()+TEXT("|")+SourceRole);
+  if(!Desired) Desired=Animations_.FindRef(SourceRole);
   if(!Desired&&ClipRole.StartsWith(TEXT("melee_"))) {
    const FString Forward=TEXT("melee_")+ClipRole.Right(1);
    Desired=Animations_.FindRef(Rig->GetPathName()+TEXT("|")+Forward);
@@ -209,14 +216,37 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
   if(ActionRole_==TEXT("taunt")&&(Speed>10||Falling||Pawn_->IsSwinging()||Pawn_->IsDashing())) ActionUntil_=Now;
   if(WasFalling_&&!Falling) LandingUntil_=Now+.22f; WasFalling_=Falling;
   if(Pawn_->IsBot()&&Pawn_->GetBotAim()) SetActorRotation(FRotator(0,Pawn_->AimRotation().Yaw,0));
-  const bool Overlay=ActionRole_==TEXT("primary_fire")||ActionRole_==TEXT("rock_lift")||ActionRole_==TEXT("rock_throw")||ActionRole_.StartsWith(TEXT("cast_"));
+  const bool Overlay=ActionRole_==TEXT("attack_overlay");
   bRunning_=Speed>WalkSpeed_*(bRunning_?1.14f:1.27f);
-  const FString MotionRole=Pawn_->IsDashing()?TEXT("dash"):Falling?TEXT("jump"):Now<ActionUntil_&&!Overlay?ActionRole_:Pawn_->IsSwinging()?TEXT("attack"):Now<LandingUntil_?TEXT("land"):bRunning_?TEXT("run"):Speed>10?TEXT("walk"):TEXT("idle");
+  FString MotionRole;
+  if(Pawn_->IsDashing()) MotionRole=TEXT("dash");
+  else if(Falling) MotionRole=TEXT("jump");
+  else if(Now<ActionUntil_&&!Overlay) MotionRole=ActionRole_;
+  else if(Pawn_->IsSwinging()) MotionRole=TEXT("attack");
+  else if(Now<LandingUntil_) MotionRole=TEXT("land");
+  else if(bRunning_) MotionRole=TEXT("run");
+  else MotionRole=Speed>10?TEXT("walk"):TEXT("idle");
+  const auto& Playback=Pawn_->AttackPlayback();
+  const bool CanUseYigStroke=CharacterId_==TEXT("yig")&&Overlay&&Now<ActionUntil_&&
+                            !Pawn_->IsDashing()&&!Falling&&!Pawn_->IsIncapacitated();
+  if(CanUseYigStroke) {
+   using Move=CultAttackMotion::EMove;
+   if(Playback.Move==Move::Q) MotionRole=TEXT("yig_lash");
+   else if(Playback.Move==Move::Heavy) MotionRole=TEXT("yig_bite");
+   else if(Playback.Move==Move::R) MotionRole=TEXT("yig_curse");
+  }
   PlayRole(MotionRole);
-  if(MotionRole.StartsWith(TEXT("melee_"))&&Now<ActionUntil_&&ActionSeconds_>.01f) {
+  const bool YigStroke=MotionRole.StartsWith(TEXT("yig_"));
+  if((YigStroke||MotionRole.StartsWith(TEXT("melee_")))&&Now<ActionUntil_&&ActionSeconds_>.01f) {
    const float Progress=FMath::Clamp(1-(ActionUntil_-Now)/ActionSeconds_,0.f,1.f);
+   float Phase=AuthoredMeleePhase(Progress);
+   if(YigStroke) {
+    const float Contact=FMath::Clamp(Playback.Contact/ActionSeconds_,.05f,.95f);
+    const float Pose=MotionRole==TEXT("yig_curse")?.45f:MeleeContactPhase_;
+    Phase=Progress<=Contact?Pose*Progress/Contact:Pose+(1-Pose)*(Progress-Contact)/(1-Contact);
+   }
    for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) if(auto* Player=S->GetSingleNodeInstance()) if(auto* Clip=Cast<UAnimSequence>(Player->GetCurrentAsset())) {
-    Player->SetPosition(Clip->GetPlayLength()*AuthoredMeleePhase(Progress),false);Player->SetPlaying(false);
+    Player->SetPosition(Clip->GetPlayLength()*Phase,false);Player->SetPlaying(false);
    }
   }
   if(bMeleeStep_) {
@@ -256,14 +286,21 @@ float ACultCharacterModel::AuthoredMeleePhase(float Progress) const {
  // Default primary collision window is .12s windup + .20s sweep: its centre
  // crosses the crosshair at .22/.32 of the action. Align each creature's
  // authored contact pose there, retaining anticipation and a fast recovery.
- constexpr float ContactTime=.6875f;
+ const auto* Playback=Pawn_?&Pawn_->AttackPlayback():nullptr;
+ const float ContactTime=Playback&&Playback->Move==CultAttackMotion::EMove::Melee
+  ?FMath::Clamp(Playback->Contact/FMath::Max(.01f,Playback->Duration),.05f,.95f):.6875f;
  return Progress<=ContactTime?MeleeContactPhase_*Progress/ContactTime:MeleeContactPhase_+(1-MeleeContactPhase_)*(Progress-ContactTime)/(1-ContactTime);
 }
 
-void ACultCharacterModel::Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds) {
+void ACultCharacterModel::Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds,float Age) {
  if(!Pawn) return; TArray<AActor*> Attached; Pawn->GetAttachedActors(Attached);
  for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
-  Model->ActionRole_=Role; Model->ActionSeconds_=Seconds; Model->ActionUntil_=Pawn->GetWorld()->GetTimeSeconds()+Seconds;
-  if(Role!=TEXT("primary_fire")&&Role!=TEXT("rock_lift")&&Role!=TEXT("rock_throw")&&!Role.StartsWith(TEXT("cast_"))) { Model->CurrentRole_.Reset(); Model->PlayRole(Role); }
+  Model->ActionRole_=Role;
+  Model->ActionSeconds_=Seconds;
+  Model->ActionUntil_=Pawn->GetWorld()->GetTimeSeconds()+Seconds-Age;
+  if(Role!=TEXT("attack_overlay")&&Age<Seconds) {
+   Model->CurrentRole_.Reset();
+   Model->PlayRole(Role);
+  }
  }
 }

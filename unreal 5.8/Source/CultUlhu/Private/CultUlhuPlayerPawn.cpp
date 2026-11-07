@@ -268,7 +268,7 @@ void ACultUlhuPlayerPawn::RoutePlayerInput(ECultPlayerInput Action,bool Down) {
  if(Action==ECultPlayerInput::Taunt) {
   if(Down&&!IsSwinging()&&!IsDashing()&&!Control_.Stop&&!Control_.Fear&&!Control_.Stun&&GetVelocity().Size2D()<10&&!GetCharacterMovement()->IsFalling()&&GetWorld()->GetTimeSeconds()>=NextTauntAt_) {
    if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->CanAct(this)) return;
-   NextTauntAt_=GetWorld()->GetTimeSeconds()+3; MulticastMotionCue(2,0,false,2.6f);
+   NextTauntAt_=GetWorld()->GetTimeSeconds()+3; MulticastMotionCue(2,2.6f);
   }
   return;
  }
@@ -431,6 +431,7 @@ void ACultUlhuPlayerPawn::ReceiveDamage(float Amount,AActor* Source)
   for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this) It->Destroy();
   ACultCorpse::Leave(this);
   if(auto* M=ACultMatchDirector::Find(GetWorld())) { M->HeroDied(this,Source); return; }
+  PlayAttackMotion(CultAttackMotion::EMove::None,0,.15f);
   if(auto* D=ACultWorldDirector::Find(GetWorld())) { cultulhu::GameEvent E(cultulhu::EventType::Defeated); D->Bus(Faction_).publish(E); }
   if(IsBot()) { Destroy(); return; }
   SetActorLocation(HomeLocation_,false,nullptr,ETeleportType::TeleportPhysics); PlaceOnWalkableGround(); LastSafeLocation_=GetActorLocation();

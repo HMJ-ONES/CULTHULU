@@ -25,6 +25,7 @@ bool FCultKitRuntime::RockInput(bool Press) {
   if(!Press) {
    DropHeldRock(Owner->ActiveRock_);
    Owner->ActiveRock_=nullptr;
+   Owner->PlayAttackMotion(CultAttackMotion::EMove::Lower,.12f,.46f);
   }
   return true;
  }
@@ -65,7 +66,7 @@ bool FCultKitRuntime::RockInput(bool Press) {
  Owner->ActiveRock_=Rock;
  HeavyCooldown=10.f;
  Owner->MarkCombat();
- Owner->MulticastMotionCue(4,0,false,.55f);
+ Owner->PlayAttackMotion(CultAttackMotion::EMove::RockLift,.30f,.64f);
  return true;
 }
 
@@ -79,21 +80,24 @@ void FCultKitRuntime::ReleaseRock() {
  }
  Rock->ReleaseGuard(Owner->CameraAim().ImpactPoint);
  Owner->MarkCombat();
- Owner->MulticastMotionCue(5,0,false,.58f);
+ Owner->PlayAttackMotion(CultAttackMotion::EMove::RockThrow,Rock->Windup,.64f);
 }
 
 void FCultKitRuntime::TickRock() {
  auto* Rock=Owner->ActiveRock_.Get();
  if(!IsValid(Rock)) {
   Owner->ActiveRock_=nullptr;
+  if(Owner->HasAttackHold(CultAttackMotion::EMove::RockLift)) Owner->PlayAttackMotion(CultAttackMotion::EMove::Lower,.12f,.46f);
   return;
  }
  if(Owner->IsIncapacitated()||Owner->IsDashing()||Owner->GetHealth()<=0) {
   Rock->Destroy();
   Owner->ActiveRock_=nullptr;
+  Owner->PlayAttackMotion(CultAttackMotion::EMove::Lower,.12f,.46f);
  } else if(Rock->GetLifeSpan()>0&&Rock->GetLifeSpan()<.14f) {
   DropHeldRock(Rock);
   Owner->ActiveRock_=nullptr;
+  Owner->PlayAttackMotion(CultAttackMotion::EMove::Lower,.12f,.46f);
  }
 }
 

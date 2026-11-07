@@ -134,7 +134,7 @@ void FCultKitRuntime::Tick(float Dt)
  const bool Synchronize=StatefulRmb||Effects.activeCount()>0;
  if(Synchronize) Snapshot();
  Effects.tick(Dt); TickMinionThrow(Dt); TickRock(); TickCorrosion(Dt);
- if(StatefulRmb) { auto C=Context(); float Remaining=Dt; while(Remaining>0) { const float Step=FMath::Min(.016f,Remaining); Rmb->update(C,Step); Remaining-=Step; } }
+ if(StatefulRmb) { auto C=Context(); float Remaining=Dt; while(Remaining>0) { const float Step=FMath::Min(.016f,Remaining); Rmb->update(C,Step); Remaining-=Step; } UpdateDominationPose(); }
  if(Synchronize) Apply();
 }
 bool FCultKitRuntime::Cast(int Slot)
@@ -192,7 +192,9 @@ bool FCultKitRuntime::Cast(int Slot)
   FActorSpawnParameters Spawn; Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
   if(auto* Unit=Owner->GetWorld()->SpawnActor<ACultPopulation>(SummonPoints[I]+FVector(0,0,100),FRotator::ZeroRotator,Spawn)) { Unit->SetOwner(Owner); Unit->SummonTo(Owner->GetFaction()); if(ACultMatchDirector::IsMatch(Owner->GetWorld())) Unit->SetLifeSpan(Def.id=="shub_niggurath"?37.5f:30.f); CultActorLabels::Set(Unit,UTF8_TO_TCHAR(Summon.first.c_str())); Unit->Tags.Add(FName(UTF8_TO_TCHAR(Summon.first.c_str()))); Unit->SetAttackOrder(true); }
  }
- Apply(); ACultBlastFX::SpawnBlast(Owner->GetWorld(),ECultBlastKind::ShockRing,LastEffectLocation,FMath::Max(1.f,FMath::Min(S.range,20.f))); return true;
+ Apply();
+ Owner->PlayAttackMotion(CultAttackMotion::AbilitySlot(Slot),0.f,Slot==2?.75f:S.effectKind=="dash"?.44f:.57f);
+ ACultBlastFX::SpawnBlast(Owner->GetWorld(),ECultBlastKind::ShockRing,LastEffectLocation,FMath::Max(1.f,FMath::Min(S.range,20.f))); return true;
 }
 void FCultKitRuntime::Heavy(bool Press)
 {
@@ -200,10 +202,10 @@ void FCultKitRuntime::Heavy(bool Press)
  if(RockInput(Press)||UsesMinionThrow()) return;
  if(!Caster || !ACultWorldDirector::Find(Owner->GetWorld())) return; if(Press) Owner->MarkCombat(); Snapshot(); auto C=Context();
  if(Rmb) {
-  if(!Press) { Rmb->onRelease(C); Apply(); return; }
+  if(!Press) { Rmb->onRelease(C); Apply(); UpdateDominationPose(); return; }
   if(HeavyCooldown>0||!Rmb->ready()) return;
   if(C.targetedEntityId) { cultulhu::SpellDef S; S.id="wave_direct_stun"; S.name=Def.rightClick.name; S.effectKind="stun"; S.effectPower=2.5f; S.range=25; FVector Aim; Target(2500,Aim); if(LaunchSpatial(S,-1,Aim)) { EmitCast(S,-1); HeavyCooldown=7; } }
-  else { C.targetedEntityId=0; Rmb->onPress(C); Apply(); }
+  else { C.targetedEntityId=0; Rmb->onPress(C); Apply(); UpdateDominationPose(); }
   return;
  }
  if(!Press || HeavyCooldown>0) return;
@@ -215,7 +217,19 @@ bool FCultKitRuntime::LeftClick()
 {
  if(Owner->HoldingRock()) { ReleaseRock(); return true; }
  if(UsesMinionThrow()) { if(HeldMinion.IsValid()&&HeldMinion->IsHeldBy(Owner)) { ThrowOnReady=true; if(HoldTime>=.3f) LaunchMinion(); return true; } return false; }
- if(!Rmb || !Owner->IsRmbHeld() || !ACultWorldDirector::Find(Owner->GetWorld())) return false; Snapshot(); auto C=Context(); Rmb->onLeftClick(C); Apply(); return true;
+ if(!Rmb || !Owner->IsRmbHeld() || !ACultWorldDirector::Find(Owner->GetWorld())) return false; Snapshot(); auto C=Context(); Rmb->onLeftClick(C); Apply(); UpdateDominationPose(); return true;
+}
+void FCultKitRuntime::UpdateDominationPose() {
+ using State=cultulhu::AnimationState;
+ using Move=CultAttackMotion::EMove;
+ const auto Next=Rmb->suggestedCasterState();
+ if(Next==DominationPose) return;
+ const auto Previous=DominationPose;
+ DominationPose=Next;
+ if(Next==State::CastWave) Owner->PlayAttackMotion(Move::Wave,0,.66f);
+ else if(Next==State::Levitate) Owner->PlayAttackMotion(Move::WaveHold,.27f,.72f);
+ else if(Next==State::Launch) Owner->PlayAttackMotion(Move::WaveThrow,0,.62f);
+ else if(Previous==State::Levitate) Owner->PlayAttackMotion(Move::Lower,.11f,.44f);
 }
 void FCultKitRuntime::Mouse(float X,float Y) { if(Rmb && !UsesMinionThrow() && !Owner->HoldingRock() && Caster && ACultWorldDirector::Find(Owner->GetWorld())) { auto C=Context(); Rmb->onMouseMove(C,X,Y); } }
 float FCultKitRuntime::Damage(float Amount) { if(Caster) Caster->takeDamage(Amount); return Hp(); }
@@ -271,6 +285,7 @@ bool FCultKitRuntime::CastHeal(const cultulhu::SpellDef& Spell,int Slot) {
  Stamina.value-=Spell.staminaCost; Cooldowns[Slot]=Spell.cooldownSec;
  cultulhu::GameEvent E(cultulhu::EventType::HealPerformed); E.sourceId=Caster->id(); E.amount=Actual; ACultWorldDirector::Find(Owner->GetWorld())->Bus(Owner->GetFaction()).publish(E);
  LastEffectLocation=Patient->GetActorLocation(); EmitCast(Spell,Slot);
+ Owner->PlayAttackMotion(CultAttackMotion::AbilitySlot(Slot),0,.61f);
  Owner->Notify(FString::Printf(TEXT("%s: +%.0f HP"),UTF8_TO_TCHAR(Spell.name.c_str()),Actual));
  ACultBlastFX::SpawnBlast(Owner->GetWorld(),ECultBlastKind::ShockRing,Patient->GetActorLocation(),2.f);
  return true;

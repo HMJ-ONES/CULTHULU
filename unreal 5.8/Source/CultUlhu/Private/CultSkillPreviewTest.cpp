@@ -39,6 +39,8 @@ public:
    const FVector Look=B->GetActorLocation(); Camera->SetWorldLocation(P->FeetLocation()+FVector(6000,-4000,3500)); Camera->SetWorldRotation((Look-Camera->GetComponentLocation()).Rotation());
    Test->TestTrue(TEXT("The actual rendered camera aims directly at the test creature"),P->CameraAim().GetActor()==B);
    Before=B->GetHealth(); P->Smash(); Test->TestEqual(TEXT("Actual LMB has a windup"),B->GetHealth(),Before); Phase=1; Time=0;
+   Test->TestTrue(TEXT("LMB starts its authored combo motion"),P->AttackPlayback().Move==CultAttackMotion::EMove::Melee);
+   Test->TestEqual(TEXT("Melee contact is centered inside the physical sweep"),P->AttackPlayback().Contact,.22f);
   } else if(Phase==1) {
    if(Time>.18f&&!SwingShot) {
     TArray<AActor*> Attached;
@@ -59,6 +61,8 @@ public:
      auto* Camera=P->FindComponentByClass<UCameraComponent>();
      Camera->SetWorldRotation((Beast->GetActorLocation()-Camera->GetComponentLocation()).Rotation());
      Before=Beast->GetHealth(); P->AbilityQ();
+     Test->TestTrue(TEXT("Tentacle Slam gets its own Q choreography"),P->AttackPlayback().Move==CultAttackMotion::EMove::Q);
+     Test->TestEqual(TEXT("Tentacle Slam releases on its physical windup"),P->AttackPlayback().Contact,.5f);
      Test->TestEqual(TEXT("Native Q warns instead of instantly detonating"),Beast->GetHealth(),Before);
     }
     Phase=2; Time=0;

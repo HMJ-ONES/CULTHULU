@@ -37,7 +37,7 @@ bool ACultUlhuPlayerPawn::TryDash(FVector Direction) {
  for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this&&It->Shape==ACultSkillAttack::EShape::Sweep) It->Destroy();
  SwingTime_=0; MeleeBuffer_=0;
  if(!IsBot()) PlayCultCombatCue(GetWorld(),ECultCombatCue::Dash,.18f);
- if(HasAuthority()) MulticastMotionCue(1,0,false,StandardDashTime);
+ if(HasAuthority()) MulticastMotionCue(1,StandardDashTime);
  DriveDash(this,DashDirection_,DashSpeed_,DashTime_,WalkSpeed_); return true;
 }
 FCultCombatHUDData ACultUlhuPlayerPawn::CombatHUD() const {
@@ -55,7 +55,9 @@ void ACultUlhuPlayerPawn::StartMelee(float Damage,float Range,float Windup,float
  if(auto* M=ACultMatchDirector::Find(Weak->GetWorld())) { D=Damage*(Cast<ACultUlhuPlayerPawn>(Target)?15.f/135.f:Cast<ACultMatchUnit>(Target)&&!Cast<ACultMatchUnit>(Target)->IsStructure()?30.f/135.f:15.f/135.f)*M->DamageMultiplier(Weak.Get()); } if(auto* P=Cast<ACultPopulation>(Target)) if(!P->IsCultist()&&!P->IsSummoned()) D=FMath::Max(D,P->GetHealth()); ACultSkillAttack::Hurt(Target,D,Weak.Get(),Point); if(Weak->Kit_) Weak->Kit_->MeleeContact(Target); };
  SwingTime_=Windup+Duration;
  const bool Retreat=FVector::DotProduct(GetVelocity().GetSafeNormal2D(),AimRotation().Vector().GetSafeNormal2D())<-.25f;
- if(HasAuthority()) MulticastMotionCue(0,uint8(Kit_?FMath::Max(1,Kit_->MeleeStage()):1),Retreat,SwingTime_);
+ const uint8 Combo=uint8(Kit_?FMath::Clamp(Kit_->MeleeStage(),1,3):1);
+ const uint8 Variant=Combo|(Retreat?4:0)|(A->HalfAngle<0?8:0);
+ PlayAttackMotion(CultAttackMotion::EMove::Melee,Windup+Duration*.5f,SwingTime_+.09f,Variant);
  if(HasAuthority()&&ACultCharacterModel::UsesMeleeStep(this)&&!GetCharacterMovement()->IsFalling()) {
   A->PrimaryAim=Aim;
   A->bTrackMuzzle=true;

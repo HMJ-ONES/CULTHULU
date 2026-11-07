@@ -193,6 +193,7 @@ public:
    FCultMobaMechanicsTestAccess::Aim(P,P->FeetLocation()+FVector(4700,0,0));
    P->HeavyAttack();
    T->TestTrue(TEXT("RMB lifts a rock when aiming off living targets"),P->HoldingRock());
+   T->TestTrue(TEXT("RMB starts the actual two-arm lift pose"),P->AttackPlayback().Move==CultAttackMotion::EMove::RockLift);
    for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==P&&It->IsGuarding()) TestRock=*It;
    if(!TestRock.IsValid()) return true;
    At=W->GetTimeSeconds(); Phase=10; return false;
@@ -200,6 +201,7 @@ public:
   if(Phase==10&&W->GetTimeSeconds()-At>.4f) {
    if(!TestRock.IsValid()) { T->AddError(TEXT("The lifted rock disappeared before its guard window")); return true; }
    const FVector Chest=TestRock->GetActorLocation();
+   T->TestTrue(TEXT("The live upper body stays braced with the collider raised"),P->AttackFrame().Limbs.X<-35);
    FHitResult Cover;
    FCollisionQueryParams CoverQuery(SCENE_QUERY_STAT(RockGuardFixture),false,P);
    W->LineTraceSingleByChannel(Cover,Chest+FVector(3600,0,0),Chest-FVector(2500,0,0),ECC_Visibility,CoverQuery);
@@ -207,6 +209,7 @@ public:
    const FVector Old=TestRock->GetActorLocation();
    P->ReleaseHeavy();
    T->TestFalse(TEXT("Releasing RMB removes the guard"),P->HoldingRock());
+   T->TestTrue(TEXT("RMB release plays the lowering motion"),P->AttackPlayback().Move==CultAttackMotion::EMove::Lower);
    T->TestTrue(TEXT("RMB release disarms the falling rock"),TestRock.IsValid()&&!TestRock->Hit);
    Pickup=Old; At=W->GetTimeSeconds(); Phase=11; return false;
   }
@@ -224,6 +227,8 @@ public:
    Before=Victim->GetHealth();
    P->Smash();
    T->TestFalse(TEXT("LMB releases the live rock projectile"),P->HoldingRock());
+   T->TestTrue(TEXT("The throw uses its own release pose"),P->AttackPlayback().Move==CultAttackMotion::EMove::RockThrow);
+   T->TestEqual(TEXT("The throw cue matches the rock windup"),P->AttackPlayback().Contact,.10f);
    T->TestEqual(TEXT("A thrown rock takes time to hit"),Victim->GetHealth(),Before);
    P->ReleaseHeavy();
    At=W->GetTimeSeconds(); Phase=13; return false;
@@ -242,6 +247,8 @@ public:
    Before=P->GetHealth();
    AcidCaster->Smash();
    AcidCaster->Smash();
+   T->TestTrue(TEXT("Acid spit triggers its ranged pose"),AcidCaster->AttackPlayback().Move==CultAttackMotion::EMove::Primary);
+   T->TestEqual(TEXT("Acid spit pose releases on the actual windup"),AcidCaster->AttackPlayback().Contact,.25f);
    int32 Shots=0;
    for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==AcidCaster.Get()&&It->Gravity>0) ++Shots;
    T->TestEqual(TEXT("The ranged LMB launches one gravity-driven spit through its cooldown"),Shots,1);

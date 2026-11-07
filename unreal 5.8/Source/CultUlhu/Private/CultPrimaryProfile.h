@@ -21,17 +21,6 @@ struct FProfile {
  bool Ranged() const { return Delivery != EDelivery::Melee; }
 };
 
-struct FGesture { float Gather=0, Snap=0; };
-
-inline FGesture ReleaseGesture(float Age,float Release,float Duration) {
- if(Age<0||Age>=Duration) return {};
- auto Ease=[](float T) { T=FMath::Clamp(T,0.f,1.f); return T*T*(3.f-2.f*T); };
- const float After=Age-Release;
- if(After<0) return {Ease(Age/FMath::Max(.01f,Release)),0};
- const float Recovery=FMath::Max(.09f,Duration-Release);
- return {1.f-Ease(After/.085f),Ease(After/.055f)*(1.f-Ease(After/Recovery))};
-}
-
 inline FProfile Find(const FString& Id) {
  using D = EDelivery;
  using A = EAccent;

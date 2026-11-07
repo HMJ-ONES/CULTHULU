@@ -41,13 +41,17 @@ bool FCultKitRuntime::MinionThrowInput(bool Press) {
  }
  if(!Pick||!Pick->TryLift(Owner)) return false;
  HeldMinion=Pick; HoldTime=0; ThrowOnReady=false; HeavyCooldown=20; Owner->MarkCombat(); M->OnAction(Owner);
+ Owner->PlayAttackMotion(CultAttackMotion::EMove::MinionLift,.30f,.65f);
  Owner->Notify(TEXT("Minion lifted. Release RMB or click LMB to launch. 20s cooldown."));
  ACultBlastFX::SpawnBlast(Owner->GetWorld(),ECultBlastKind::HitFlash,Pick->GetActorLocation(),1);
  return true;
 }
 void FCultKitRuntime::TickMinionThrow(float Dt) {
- if(!HeldMinion.IsValid()) return;
- if(!HeldMinion->IsHeldBy(Owner)) { HeldMinion.Reset(); return; }
+ if(!HeldMinion.IsValid()||!HeldMinion->IsHeldBy(Owner)) {
+  if(Owner->HasAttackHold(CultAttackMotion::EMove::MinionLift)) Owner->PlayAttackMotion(CultAttackMotion::EMove::Lower,.11f,.43f);
+  HeldMinion.Reset();
+  return;
+ }
  if(Owner->IsIncapacitated()||Owner->GetHealth()<=0) { CancelMinionThrow(); return; }
  HoldTime+=Dt; if((ThrowOnReady&&HoldTime>=.3f)||HoldTime>=4) LaunchMinion();
 }
@@ -68,6 +72,7 @@ void FCultKitRuntime::LaunchMinion() {
  };
  Bolt->Finished=[WeakUnit](FVector End){ if(WeakUnit.IsValid()&&WeakUnit->IsInTransit()) WeakUnit->LandMiss(End); };
  Bolt->FinishSpawning(T); Bolt->SetActorHiddenInGame(true); Unit->StartFlight(Bolt);
+ Owner->PlayAttackMotion(CultAttackMotion::EMove::MinionThrow,Bolt->Windup,.59f);
  HeldMinion.Reset(); HoldTime=0; ThrowOnReady=false; Owner->MarkCombat(); M->OnAction(Owner);
 }
 void FCultKitRuntime::CancelMinionThrow() {

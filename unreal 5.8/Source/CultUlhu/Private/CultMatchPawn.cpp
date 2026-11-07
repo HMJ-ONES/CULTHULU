@@ -9,6 +9,8 @@
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 void ACultUlhuPlayerPawn::SetMatchDead() {
+ AttackPlayback_={};
+ HeldAttack_={};
  if(HasAuthority()&&IsValid(ActiveRock_)) { ActiveRock_->Destroy(); ActiveRock_=nullptr; }
  PreviousShift_=false; ShiftHeldSeconds_=.18f; ShiftDirection_=FVector::ZeroVector;
  bMatchDead_=true; MeleeBuffer_=SwingTime_=DashTime_=0; bRmbHeld_=false;

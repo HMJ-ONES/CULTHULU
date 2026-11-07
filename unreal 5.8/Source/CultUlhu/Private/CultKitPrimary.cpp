@@ -59,7 +59,7 @@ bool FCultKitRuntime::LaunchPrimary() {
  Shot->FinishSpawning(Transform);
  Owner->MarkCombat();
  if(auto* Director = ACultWorldDirector::Find(Owner->GetWorld())) Director->CombatActivity(Owner->GetFaction());
- Owner->MulticastMotionCue(3,0,false,Primary.Recovery*.85f);
+ Owner->PlayAttackMotion(CultAttackMotion::EMove::Primary,Shot->Windup,Primary.Recovery*.92f);
  return true;
 }
 

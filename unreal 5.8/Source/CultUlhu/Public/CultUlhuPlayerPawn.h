@@ -12,6 +12,7 @@
 
 #include "CoreMinimal.h"
 #include "CultControlProjection.h"
+#include "CultAttackMotion.h"
 namespace cultulhu { struct SpellDef; }
 #include "GameFramework/Character.h"
 
@@ -40,7 +41,12 @@ public:
  void ApplyPrimaryCorrosion(AActor* Target);
  UFUNCTION(Server,Reliable) void ServerDash(FVector_NetQuantizeNormal Direction);
  UFUNCTION(Server,Reliable) void ServerSprint(bool Sprint);
- UFUNCTION(NetMulticast,Unreliable) void MulticastMotionCue(uint8 Kind,uint8 Combo,bool Retreat,float Seconds);
+ UFUNCTION(NetMulticast,Unreliable) void MulticastMotionCue(uint8 Kind,float Seconds);
+ UFUNCTION(NetMulticast,Reliable) void MulticastAttackMotion(uint8 Move,uint8 Variant,float Contact,float Seconds,float ServerStart);
+ void PlayAttackMotion(CultAttackMotion::EMove Move,float Contact,float Seconds,uint8 Variant=0);
+ const CultAttackMotion::FPlayback& AttackPlayback() const { return AttackPlayback_; }
+ bool HasAttackHold(CultAttackMotion::EMove Move) const { return HeldAttack_.Move==Move; }
+ CultAttackMotion::FFrame AttackFrame() const;
 	ACultUlhuPlayerPawn();
  // Optional Enhanced Input and zero-asset keys share one physical press/release.
  void RoutePlayerInput(ECultPlayerInput Action,bool Down);
@@ -178,8 +184,8 @@ private:
 	UCameraComponent* Camera_ = nullptr;
 	UPROPERTY() class UStaticMeshComponent* VesselBody_ = nullptr;
  TArray<TPair<TWeakObjectPtr<UStaticMeshComponent>,FTransform>> VesselRest_;
- float VesselCueAt_=-10.f,VesselCueDuration_=0;
- uint8 VesselCue_=0;
+ CultAttackMotion::FPlayback AttackPlayback_;
+ CultAttackMotion::FPlayback HeldAttack_;
  void UpdateVesselMotion(float DeltaSeconds);
 
 	float DashSpeed_=0;
