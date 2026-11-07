@@ -1,5 +1,6 @@
 #include "CultKitRuntime.h"
 #include "CultCharacterModel.h"
+#include "CultAbilityFX.h"
 #include "CultSkillAttack.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultWorldDirector.h"
@@ -132,9 +133,14 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
  for(int I=0;I<Bolts;++I) {
   const FTransform T(Origin); auto* A=Owner->GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Owner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); if(!A) return false;
   A->Shape=Kind; A->Direction=Direction.RotateAngleAxis(Bolts>1?(I==0?-2.f:2.f):0.f,FVector::UpVector); A->Windup=Delay; A->Reach=Reach; A->Radius=Radius; A->Speed=Speed; A->Duration=Life>0?Life:Reach/Speed+.05f; A->HalfAngle=Angle;
+  A->AbilityLook=uint8(CultAbilityFX::ForSlot(UTF8_TO_TCHAR(Def.id.c_str()),Slot));
   cultulhu::SpellDef HitSpell=S; if(Bolts>1) HitSpell.effectPower*=.5f;
   A->Hit=[Weak,HitSpell,Slot,Origin,Reach](AActor* Target,FVector Point) { if(Weak.IsValid()) { auto Impact=HitSpell; if(Impact.effectKind=="aoe_damage") Impact.effectPower*=1.f-.5f*FMath::Clamp(float(FVector::Dist2D(Origin,Point))/Reach,0.f,1.f); Weak->ResolveSkillHit(Impact,Target,Point,Slot); } };
-  A->Finished=[Weak,Origin,Kind](FVector Point) { if(Weak.IsValid()&&Kind!=Shape::Bolt) ACultBlastFX::SpawnBlast(Weak->GetWorld(),ECultBlastKind::ShockRing,Origin,1); };
+  if(!A->AbilityLook) {
+   A->Finished=[Weak,Origin,Kind](FVector Point) {
+    if(Weak.IsValid()&&Kind!=Shape::Bolt) ACultBlastFX::SpawnBlast(Weak->GetWorld(),ECultBlastKind::ShockRing,Origin,1);
+   };
+  }
   A->FinishSpawning(T);
  }
  const float Contact=Kind==Shape::Sweep?Delay+Life*.5f:Delay;

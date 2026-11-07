@@ -1,4 +1,5 @@
 #include "CultKitRuntime.h"
+#include "CultAbilityFX.h"
 
 #include "CultMatchDirector.h"
 #include "CultSkillAttack.h"
@@ -46,6 +47,7 @@ bool FCultKitRuntime::RockInput(bool Press) {
  Rock->bRockGuard=true;
  Rock->RockExtents=FVector(HalfHeight*.22f,Capsule->GetScaledCapsuleRadius()*1.04f,HalfHeight*.55f);
  Rock->SignalStyle=uint8(CultPrimary::ESignal::Stone);
+ Rock->AbilityLook=uint8(CultAbilityFX::ELook::Abyss);
  Rock->Windup=.10f;
  Rock->Radius=FMath::Min(float(Rock->RockExtents.Y),HalfHeight*.40f);
  Rock->Speed=6400;

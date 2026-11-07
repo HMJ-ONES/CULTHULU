@@ -7,6 +7,7 @@
 #include "CultUlhuGameInstance.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultCharacterModel.h"
+#include "CultAbilityFX.h"
 #include "CultPopulation.h"
 #include "CultFeralBeast.h"
 #include "CultCorpse.h"
@@ -69,6 +70,11 @@ public:
    }
   } else if(Phase==2&&Time>.9f) {
    Test->TestTrue(TEXT("The native delayed ability damages its current occupant"),!Beast.IsValid()||Beast->IsDead()||Beast->GetHealth()<Before);
+   bool TargetBurst=false;
+   for(TActorIterator<ACultAbilityFX> It(W);It;++It) {
+    if(Beast.IsValid()&&FVector::DistSquared(It->GetActorLocation(),Beast->GetActorLocation())<FMath::Square(220.f)) TargetBurst=true;
+   }
+   Test->TestTrue(TEXT("Tentacle Slam produces its effects at the actual target"),TargetBurst);
    if(Beast.IsValid()&&!Beast->IsDead()) Beast->ApplyDamage(10000); Shot(TEXT("SkillCombatHUD.png"));
    FTransform T(P->FeetLocation()+FVector(10000,0,200)); auto* E=W->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); E->ConfigureBot(TEXT("yog_sothoth"),1); E->FinishSpawning(T); Caster=E;
    FActorSpawnParameters Spawn; Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;

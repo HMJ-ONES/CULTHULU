@@ -253,6 +253,17 @@ FFrame Sample(const FString& Id,const FPlayback& Playback,float Now) {
  // Head, feelers and wing tips settle a fraction behind the body impulse.
  const auto Secondary=EvaluateBeats(Motion,FMath::Max(0.f,Age-.035f),Playback.Contact,Playback.Duration,Held);
  Frame.Details=Secondary.Details*(Held?1.f:Ease((Playback.Duration-Age)/.045f));
+ const bool Ability=Playback.Move>=EMove::Heavy&&Playback.Move<=EMove::R;
+ if(Ability&&Age>Playback.Contact) {
+  // The arms and face absorb the release impulse after the effect leaves.
+  const float After=Age-Playback.Contact;
+  const float Recovery=FMath::Clamp(After/.19f,0.f,1.f);
+  const float Rebound=FMath::Sin(PI*Recovery)*(1.f-Recovery);
+  const bool Loaded=Style.Form==F::Cannon||Style.Form==F::Hammer||Style.Form==F::Pull;
+  Frame.Body.X-=Rebound*(Loaded?11.f:3.5f);
+  Frame.Limbs.Z+=Rebound*(Loaded?15.f:6.f);
+  Frame.Details.Y+=Rebound*(Style.Form==F::Invoke||Style.Form==F::Ward?11.f:6.f);
+ }
  if(Held&&Age>Playback.Contact) {
   const float Breath=FMath::Sin(Age*3.1f)*Ease((Age-Playback.Contact)/.28f);
   Frame.Body.X+=Breath*1.1f;

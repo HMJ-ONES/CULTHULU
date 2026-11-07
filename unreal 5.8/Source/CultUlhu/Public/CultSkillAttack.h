@@ -15,6 +15,7 @@ public:
  FVector PrimaryAim=FVector::ZeroVector;
  float Gravity=0.f;
  UPROPERTY(ReplicatedUsing=OnRep_Style) uint8 SignalStyle=0;
+ UPROPERTY(Replicated) uint8 AbilityLook=0;
  UPROPERTY(Replicated) bool bTrackMuzzle=false;
  UPROPERTY(ReplicatedUsing=OnRep_RockGuard) bool bRockGuard=false;
  UPROPERTY(Replicated) FVector RockExtents=FVector::ZeroVector;
@@ -67,6 +68,11 @@ private:
  void BuildPresentation();
  void UpdatePresentation();
  void BuildWarningGeometry(bool Trail=false);
+ UPROPERTY() TObjectPtr<class UProceduralMeshComponent> AbilityFilaments;
+ TArray<FVector> FilamentPath;
+ float LastFilamentUpdate=-1;
+ void UpdateAbilityFilaments();
+ void EmitAbilityFX(uint8 Event,FVector Point,FVector Axis,float Size);
  void Sweep(FVector A,FVector B,float R);
  void Area();
  void ShowSegment(FVector A,FVector B,float Width);

@@ -1,5 +1,6 @@
 #include "CultUlhuPlayerPawn.h"
 #include "CultCharacterModel.h"
+#include "CultAbilityFX.h"
 #include "GameFramework/GameStateBase.h"
 
 void ACultUlhuPlayerPawn::MulticastMotionCue_Implementation(uint8 Kind,float Seconds) {
@@ -33,6 +34,17 @@ void ACultUlhuPlayerPawn::MulticastAttackMotion_Implementation(uint8 Move,uint8 
   MotionRole=FString::Printf(TEXT("%s%d"),(Variant&4)?TEXT("melee_back_"):TEXT("melee_"),FMath::Clamp(int32(Variant&3),1,3));
  }
  ACultCharacterModel::Cue(this,MotionRole,Seconds,Age);
+ CultAbilityFX::CastCue(this,CharacterId_,Move,Contact,Age);
+}
+
+void ACultUlhuPlayerPawn::EmitAbilityBurst(uint8 Look,uint8 Event,FVector Location,FVector Heading,float Size) {
+ if(HasAuthority()&&Look!=0) MulticastAbilityBurst(Look,Event,Location,Heading.GetSafeNormal(),Size);
+}
+
+void ACultUlhuPlayerPawn::MulticastAbilityBurst_Implementation(uint8 Look,uint8 Event,FVector_NetQuantize Location,
+                                                             FVector_NetQuantizeNormal Heading,float Size) {
+ using namespace CultAbilityFX;
+ ACultAbilityFX::Spawn(GetWorld(),ELook(Look),EEvent(Event),Location,Heading,Size);
 }
 
 CultAttackMotion::FFrame ACultUlhuPlayerPawn::AttackFrame() const {

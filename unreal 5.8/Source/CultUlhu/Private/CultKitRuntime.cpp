@@ -1,4 +1,5 @@
 #include "CultKitRuntime.h"
+#include "CultAbilityFX.h"
 #include "CultActorLabels.h"
 #include "ProfilingDebugging/CsvProfiler.h"
 CSV_DEFINE_CATEGORY(CultRuntime,true);
@@ -185,16 +186,23 @@ bool FCultKitRuntime::Cast(int Slot)
  Stamina.value-=S.staminaCost; Cooldowns[Slot]=S.cooldownSec;
  const bool Self=S.effectKind=="dash"||S.effectKind=="fear_aura"||S.effectKind=="pull"||S.effectKind=="buff"||S.effectKind=="shield"||S.effectKind=="heal";
  LastEffectLocation=Self?Owner->FeetLocation():Aim;
+ const auto Look=CultAbilityFX::ForSlot(UTF8_TO_TCHAR(Def.id.c_str()),Slot);
  if(Result.buffSeconds>0) { BuffTime=Result.buffSeconds; BuffMult=Result.buffMult; }
  if(Result.dash.length()>0) { FVector Dir=(Aim-Owner->GetActorLocation()).GetSafeNormal2D(); Owner->AbilityDash(Dir,S.effectPower*100); }
  for(const auto& Summon:Result.summons) for(int I=0;I<Summon.second && Count<512;++I,++Count)
  {
   FActorSpawnParameters Spawn; Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-  if(auto* Unit=Owner->GetWorld()->SpawnActor<ACultPopulation>(SummonPoints[I]+FVector(0,0,100),FRotator::ZeroRotator,Spawn)) { Unit->SetOwner(Owner); Unit->SummonTo(Owner->GetFaction()); if(ACultMatchDirector::IsMatch(Owner->GetWorld())) Unit->SetLifeSpan(Def.id=="shub_niggurath"?37.5f:30.f); CultActorLabels::Set(Unit,UTF8_TO_TCHAR(Summon.first.c_str())); Unit->Tags.Add(FName(UTF8_TO_TCHAR(Summon.first.c_str()))); Unit->SetAttackOrder(true); }
+  if(auto* Unit=Owner->GetWorld()->SpawnActor<ACultPopulation>(SummonPoints[I]+FVector(0,0,100),FRotator::ZeroRotator,Spawn)) { Unit->SetOwner(Owner); Unit->SummonTo(Owner->GetFaction()); if(ACultMatchDirector::IsMatch(Owner->GetWorld())) Unit->SetLifeSpan(Def.id=="shub_niggurath"?37.5f:30.f); CultActorLabels::Set(Unit,UTF8_TO_TCHAR(Summon.first.c_str())); Unit->Tags.Add(FName(UTF8_TO_TCHAR(Summon.first.c_str()))); Unit->SetAttackOrder(true);
+   Owner->EmitAbilityBurst(uint8(Look),uint8(CultAbilityFX::EEvent::Arrival),SummonPoints[I],Owner->AimRotation().Vector(),230.f);
+  }
  }
  Apply();
  Owner->PlayAttackMotion(CultAttackMotion::AbilitySlot(Slot),0.f,Slot==2?.75f:S.effectKind=="dash"?.44f:.57f);
- ACultBlastFX::SpawnBlast(Owner->GetWorld(),ECultBlastKind::ShockRing,LastEffectLocation,FMath::Max(1.f,FMath::Min(S.range,20.f))); return true;
+ if(S.effectKind!="summon") {
+  const float Size=FMath::Clamp(Owner->GetSimpleCollisionRadius()*.98f,190.f,920.f);
+  Owner->EmitAbilityBurst(uint8(Look),uint8(CultAbilityFX::EEvent::Release),LastEffectLocation,Owner->AimRotation().Vector(),Size);
+ }
+ return true;
 }
 void FCultKitRuntime::Heavy(bool Press)
 {
@@ -287,6 +295,7 @@ bool FCultKitRuntime::CastHeal(const cultulhu::SpellDef& Spell,int Slot) {
  LastEffectLocation=Patient->GetActorLocation(); EmitCast(Spell,Slot);
  Owner->PlayAttackMotion(CultAttackMotion::AbilitySlot(Slot),0,.61f);
  Owner->Notify(FString::Printf(TEXT("%s: +%.0f HP"),UTF8_TO_TCHAR(Spell.name.c_str()),Actual));
- ACultBlastFX::SpawnBlast(Owner->GetWorld(),ECultBlastKind::ShockRing,Patient->GetActorLocation(),2.f);
+ Owner->EmitAbilityBurst(uint8(CultAbilityFX::ELook::Mend),uint8(CultAbilityFX::EEvent::Recovery),
+  Patient->GetActorLocation(),FVector::UpVector,FMath::Clamp(Patient->GetSimpleCollisionRadius()*.85f,125.f,720.f));
  return true;
 }

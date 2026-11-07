@@ -2,6 +2,7 @@
 #include "CultUlhuPlayerPawn.h"
 #include "CultCharacterModel.h"
 #include "CultPrimaryProfile.h"
+#include "CultAbilityFilaments.h"
 #include "CultMatchUnit.h"
 #include "CultPopulation.h"
 #include "Components/StaticMeshComponent.h"
@@ -53,6 +54,12 @@ void ACultSkillAttack::BuildPresentation() {
  SignalMaterial->SetVectorParameterValue(TEXT("Color"),Friendly?FLinearColor(.08f,.62f,.76f):FLinearColor(1.f,.22f,.07f));
  Visual->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Sphere")));
  Visual->SetMaterial(0,SignalMaterial); Visual->SetWorldScale3D(FVector(Radius/50));
+ if(AbilityLook&&Shape==EShape::Bolt&&RockExtents.X<=0) {
+  auto* Core=UMaterialInstanceDynamic::Create(Base,this);
+  Core->SetVectorParameterValue(TEXT("Color"),CultAbilityFX::Palette(CultAbilityFX::ELook(AbilityLook)).Tip);
+  Core->SetScalarParameterValue(TEXT("Intensity"),1.65f);
+  Visual->SetMaterial(0,Core);
+ }
  Visual->SetVisibility(Shape==EShape::Bolt||Shape==EShape::Beam);
  Telegraph=NewObject<UProceduralMeshComponent>(this,TEXT("CommittedAttackSignal"));
  Telegraph->SetupAttachment(RootComponent); Telegraph->SetAbsolute(true,true,true);
@@ -153,16 +160,27 @@ void ACultSkillAttack::BuildWarningGeometry(bool Trail) {
 
 void ACultSkillAttack::UpdatePresentation() {
  if(!Telegraph||!SignalMaterial) return;
+ UpdateAbilityFilaments();
  if(SignalStyle==uint8(CultPrimary::ESignal::Stone)) return;
  const bool Charging=Age<Windup; const float Progress=WindupProgress();
  SignalMaterial->SetScalarParameterValue(TEXT("Intensity"),Charging?.35f+.85f*Progress:1.7f);
  Telegraph->SetWorldLocation(Origin);
  if(Shape==EShape::Bolt) {
-  Visual->SetWorldScale3D(FVector(Radius/50*(Charging?.45f+.55f*Progress:1.f)));
+  const float Size=Radius/50*(Charging?.45f+.55f*Progress:1.f);
+  FVector Proportions(1);
+  if(AbilityLook&&!Charging) {
+   using namespace CultAbilityFX;
+   const auto Form=Palette(ELook(AbilityLook)).Form;
+   if(Form==EForm::Lance) Proportions=FVector(2.7,.49,.49);
+   else if(Form==EForm::Arc) Proportions=FVector(1.55,.68,.68);
+   else if(Form==EForm::Crack) Proportions=FVector(1.38,.87,.87);
+   Visual->SetWorldRotation(Direction.Rotation());
+  }
+  Visual->SetWorldScale3D(Proportions*Size);
   if(!Charging) BuildWarningGeometry(true);
  } else if(Shape==EShape::Beam) {
   Visual->SetVisibility(!Charging);
-  if(!Charging) ShowSegment(Origin,Origin+Direction*Reach,Radius);
+  if(!Charging) ShowSegment(Origin,Previous.Equals(Origin)?Origin+Direction*Reach:Previous,Radius);
   Telegraph->SetVisibility(Charging);
  } else if(Shape==EShape::Sweep) {
   if(!Charging) BuildWarningGeometry(true);

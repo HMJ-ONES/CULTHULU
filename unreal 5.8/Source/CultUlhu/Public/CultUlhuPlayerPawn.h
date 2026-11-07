@@ -43,6 +43,9 @@ public:
  UFUNCTION(Server,Reliable) void ServerSprint(bool Sprint);
  UFUNCTION(NetMulticast,Unreliable) void MulticastMotionCue(uint8 Kind,float Seconds);
  UFUNCTION(NetMulticast,Reliable) void MulticastAttackMotion(uint8 Move,uint8 Variant,float Contact,float Seconds,float ServerStart);
+ UFUNCTION(NetMulticast,Unreliable) void MulticastAbilityBurst(uint8 Look,uint8 Event,FVector_NetQuantize Location,
+                                                          FVector_NetQuantizeNormal Heading,float Size);
+ void EmitAbilityBurst(uint8 Look,uint8 Event,FVector Location,FVector Heading,float Size);
  void PlayAttackMotion(CultAttackMotion::EMove Move,float Contact,float Seconds,uint8 Variant=0);
  const CultAttackMotion::FPlayback& AttackPlayback() const { return AttackPlayback_; }
  bool HasAttackHold(CultAttackMotion::EMove Move) const { return HeldAttack_.Move==Move; }

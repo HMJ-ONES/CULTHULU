@@ -1,4 +1,5 @@
 #include "CultSkillAttack.h"
+#include "CultAbilityFX.h"
 #include "CultReplicatedBody.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/PlayerController.h"
@@ -77,6 +78,7 @@ void ACultSkillAttack::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
  Super::GetLifetimeReplicatedProps(OutLifetimeProps);
  DOREPLIFETIME(ACultSkillAttack,WardTarget); DOREPLIFETIME(ACultSkillAttack,WardLocked); DOREPLIFETIME(ACultSkillAttack,WardChargeRemaining);
  DOREPLIFETIME_CONDITION(ACultSkillAttack,SignalStyle,COND_InitialOnly);
+ DOREPLIFETIME_CONDITION(ACultSkillAttack,AbilityLook,COND_InitialOnly);
  DOREPLIFETIME_CONDITION(ACultSkillAttack,bTrackMuzzle,COND_InitialOnly);
  DOREPLIFETIME_CONDITION(ACultSkillAttack,RockExtents,COND_InitialOnly);
  DOREPLIFETIME(ACultSkillAttack,bRockGuard);
@@ -101,17 +103,26 @@ void ACultSkillAttack::Sweep(FVector A,FVector B,float R) {
   if(Enemy(GetOwner(),Other)&&!Struck.Contains(Other)&&(Shape!=EShape::Sweep||Clear(GetWorld(),Origin,H.ImpactPoint,GetOwner(),Other))) {
    Struck.Add(Other);
    if(Hit) Hit(Other,H.ImpactPoint);
+   if(Shape==EShape::Sweep&&Struck.Num()==1) {
+    EmitAbilityFX(uint8(CultAbilityFX::EEvent::Contact),H.ImpactPoint,-Direction,FMath::Max(130.f,Radius*3.2f));
+   }
   }
   if(!H.bBlockingHit) continue;
   if(Shape==EShape::Bolt) {
    if(RockExtents.X>0&&!Hit) {
+    EmitAbilityFX(uint8(CultAbilityFX::EEvent::Contact),H.ImpactPoint,FVector::UpVector,FMath::Min(780.f,Radius*1.8f));
     SetActorLocation(H.Location);
     SetActorTickEnabled(false);
     SetLifeSpan(.65f);
     return;
    }
+   EmitAbilityFX(uint8(CultAbilityFX::EEvent::Contact),H.ImpactPoint,H.ImpactNormal,FMath::Clamp(Radius*3.2f,105.f,850.f));
    if(Finished) Finished(H.ImpactPoint);
    Destroy();
+  }
+  if(Shape==EShape::Beam) {
+   Previous=H.ImpactPoint;
+   EmitAbilityFX(uint8(CultAbilityFX::EEvent::Contact),Previous,H.ImpactNormal,FMath::Max(135.f,Radius*4.2f));
   }
   break;
  }
@@ -148,12 +159,12 @@ void ACultSkillAttack::Tick(float Dt) {
  Super::Tick(Dt);
  if(!HasAuthority()) {
   Age+=Dt;
-  if(bTrackMuzzle&&Shape==EShape::Bolt) Visual->SetWorldLocation(GetActorLocation());
+  if((bTrackMuzzle||AbilityLook)&&Shape==EShape::Bolt&&RockExtents.X<=0) Visual->SetWorldLocation(GetActorLocation());
   UpdatePresentation();
   return;
  }
  if(!Alive(GetOwner())) { Destroy(); return; }
- if(bRockGuard) { Age+=Dt; PositionGuard(); return; }
+ if(bRockGuard) { Age+=Dt; PositionGuard(); UpdateAbilityFilaments(); return; }
  if(Shape==EShape::Bolt&&bTrackMuzzle&&IsWindingUp()) {
   if(auto* Pawn=Cast<ACultUlhuPlayerPawn>(GetOwner()); Pawn&&(Pawn->IsIncapacitated()||Pawn->IsDashing())) { Destroy(); return; }
   Origin=Previous=GetOwner()->GetActorLocation()+SweepOffset;
@@ -206,7 +217,7 @@ void ACultSkillAttack::Tick(float Dt) {
   if(IsActorBeingDestroyed()||!IsActorTickEnabled()) return;
   Travel+=Segment.Size();
   Previous=Next;
-  if(bTrackMuzzle||RockExtents.X>0) SetActorLocation(Next);
+  if(bTrackMuzzle||AbilityLook||RockExtents.X>0) SetActorLocation(Next);
   if(RockExtents.X<=0) Visual->SetWorldLocation(Next);
   if(Travel>=Reach-.01f||Active>=Duration) { if(Finished) Finished(Next); Destroy(); return; }
  } else if(Shape==EShape::Sweep) {
@@ -214,7 +225,17 @@ void ACultSkillAttack::Tick(float Dt) {
   const int Steps=FMath::Max(1,FMath::CeilToInt((End-Start)/.012f));
   for(int I=0;I<=Steps;++I) { const float T=FMath::Lerp(Start,End,I/float(Steps))/Duration; FVector D=Direction.RotateAngleAxis(FMath::Lerp(-HalfAngle,HalfAngle,T),FVector::UpVector); FVector Tip=Origin+D*Reach; if(I>0) Sweep(Previous,Tip,Radius); Sweep(Origin+D*Radius,Tip,Radius);
    Previous=Tip; }
- } else if(Old<=Windup) { if(Shape==EShape::Beam) { Sweep(Origin,Origin+Direction*Reach,Radius); ShowSegment(Origin,Origin+Direction*Reach,Radius); } else Area(); }
+ } else if(Old<=Windup) {
+  if(Shape==EShape::Beam) {
+   Previous=Origin+Direction*Reach;
+   Sweep(Origin,Previous,Radius);
+   ShowSegment(Origin,Previous,Radius);
+  } else {
+   Area();
+   const float Size=Shape==EShape::Cone?Reach*.60f:Reach;
+   EmitAbilityFX(uint8(CultAbilityFX::EEvent::Release),Origin,Direction,Size);
+  }
+ }
  if(!IsActorBeingDestroyed()) UpdatePresentation();
  if(Age>=Windup+Duration) { if(Finished&&Shape!=EShape::Bolt) Finished(Origin); Destroy(); }
 }

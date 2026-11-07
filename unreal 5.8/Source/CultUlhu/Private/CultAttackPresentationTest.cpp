@@ -32,7 +32,12 @@ struct FCultAttackPresentationTestAccess {
  }
  static void CommitDirection(ACultSkillAttack* A,FVector D) { A->Direction=D.GetSafeNormal(); A->BuildWarningGeometry(); }
  static FLinearColor Color(ACultSkillAttack* A) { return A->SignalMaterial->K2_GetVectorParameterValue(TEXT("Color")); }
- static void Advance(ACultSkillAttack* A,float Delta) { A->FirstTick=false; A->Tick(Delta); }
+ static void Advance(ACultSkillAttack* A,float Delta) {
+  A->FirstTick=false;
+  A->SetActorTickEnabled(true);
+  A->Tick(Delta);
+  if(!A->IsActorBeingDestroyed()) A->SetActorTickEnabled(false);
+ }
  static bool CoreVisible(ACultSkillAttack* A) { return A->Visual->IsVisible(); }
 };
 class FCultAttackSignalObservation:public IAutomationLatentCommand {
