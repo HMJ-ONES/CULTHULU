@@ -45,6 +45,7 @@ public:
  float Damage(float Amount);
  void Heal(float Amount);
  float Hp() const { return Caster ? Caster->hp() : 0.f; }
+ float Ward() const { return Caster ? Caster->ward() : 0.f; }
  float MaxHp() const { return Def.maxHp; }
  bool Sprint(bool Wanted, float Dt) { return Stamina.update(Wanted, Dt); }
  FString Status() const;
@@ -54,6 +55,7 @@ private:
  friend struct FCultSaveAccess;
  friend struct FCultCombatFeelTestAccess;
  friend struct FCultMobaMechanicsTestAccess;
+ friend struct FCultPlayabilityAccess;
  struct Mirror { TWeakObjectPtr<AActor> Actor; std::unique_ptr<cultulhu::Entity> Core; float BeforeHp = 0; FVector BeforePosition; };
  ACultUlhuPlayerPawn* Owner;
  std::unique_ptr<cultulhu::Entity> Caster;
@@ -67,6 +69,7 @@ private:
  float HeavyCooldown = 0;
  float BuffTime = 0;
  float BuffMult = 1;
+ float WardTime = 0;
  TWeakObjectPtr<class ACultMatchUnit> HeldMinion;
  float HoldTime=0; bool ThrowOnReady=false;
  bool MinionThrowInput(bool Press);
@@ -83,4 +86,7 @@ private:
  void Apply();
  cultulhu::Entity* Target(float MaxRange, FVector& Aim);
  cultulhu::RmbContext Context();
+ static bool IsCasterGroundStrike(const std::string& Id) {
+  return Id=="doomfall_stomp"||Id=="protoplasm_slam";
+ }
 };

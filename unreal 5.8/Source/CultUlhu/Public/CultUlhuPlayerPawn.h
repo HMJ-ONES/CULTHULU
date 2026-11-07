@@ -173,6 +173,7 @@ private:
  friend struct FCultSaveAccess;
  friend struct FCultCombatFeelTestAccess;
  friend struct FCultMatchTestAccess;
+ friend struct FCultPlayabilityAccess;
  friend struct FCultTacticsTestAccess;
  friend struct FCultMobaMechanicsTestAccess;
 	bool PlaceOnWalkableGround();

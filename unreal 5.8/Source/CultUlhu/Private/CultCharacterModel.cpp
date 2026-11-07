@@ -3,6 +3,7 @@
 #include "Animation/AnimSingleNodeInstance.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultCanonicalKit.h"
+#include "CultMovementTuning.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -266,7 +267,7 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
   }
   if(MotionRole==TEXT("walk")||MotionRole==TEXT("run")) {
    const float Alignment=FVector::DotProduct(Pawn_->GetVelocity().GetSafeNormal2D(),Pawn_->AimRotation().Vector().GetSafeNormal2D());
-   const float Nominal=WalkSpeed_*(bRunning_?1.65f:1.f);
+   const float Nominal=WalkSpeed_*(bRunning_?CultMovement::SprintRatio:1.f);
    const float Goal=(Alignment<-.35f?-1.f:1.f)*FMath::Clamp(Speed/FMath::Max(1.f,Nominal),.4f,1.45f);
    GaitRate_=FMath::FInterpTo(GaitRate_,Goal,DeltaSeconds,12.f);
    for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) if(auto* Player=S->GetSingleNodeInstance()) Player->SetPlayRate(GaitRate_);

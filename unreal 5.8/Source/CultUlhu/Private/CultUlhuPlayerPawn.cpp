@@ -4,6 +4,7 @@
 CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 // CULT-ULHU player pawn implementation.
 #include "CultCanonicalKit.h"
+#include "CultAbilityFX.h"
 #include "CultMatchDirector.h"
 #include "CultMatchUnit.h"
 #include "Camera/PlayerCameraManager.h"
@@ -37,6 +38,7 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 #include "CultKitRuntime.h"
 #include "CultPlayHUD.h"
 #include "CultLivingLandscape.h"
+#include "CultMovementTuning.h"
 #include "CultWorldDirector.h"
 
 ACultUlhuPlayerPawn::ACultUlhuPlayerPawn()
@@ -90,7 +92,7 @@ void ACultUlhuPlayerPawn::BeginPlay()
 	}
 
 	// Kaiju stride: walk speed grows with the square root of scale.
-	WalkSpeed_ = (Kit_ ? Kit_->Def.moveSpeed * 100.f : 600.f) * FMath::Sqrt(CharScale_) * 1.25f;
+	WalkSpeed_ = (Kit_ ? Kit_->Def.moveSpeed * 100.f : 600.f) * FMath::Sqrt(CharScale_) * (1.25f * CultMovement::WalkIncrease);
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed_;
 	GetCharacterMovement()->MaxAcceleration = WalkSpeed_ * 3.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = WalkSpeed_ * 4.f;
@@ -360,7 +362,8 @@ float ACultUlhuPlayerPawn::GetHealth() const { return Kit_?Kit_->Hp():Health_; }
 void ACultUlhuPlayerPawn::SetSprinting(bool bSprint)
 {
  if(!HasAuthority()&&NetworkSprinting_!=bSprint) { NetworkSprinting_=bSprint; ServerSprint(bSprint); }
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed_ * (DashTime_>0?DashSpeed_/WalkSpeed_:bSprint ? 1.85f : 1.f) * (Control_.Stop?0.f:Control_.Speed);
+	const float Speed=DashTime_>0?DashSpeed_:WalkSpeed_*(bSprint?CultMovement::SprintRatio:1.f);
+	GetCharacterMovement()->MaxWalkSpeed = Speed * (Control_.Stop?0.f:Control_.Speed);
 }
 
 void ACultUlhuPlayerPawn::LookYaw(float Value) { if(auto* PC=Cast<APlayerController>(GetController())) if(PC->bShowMouseCursor) return; AddControllerYawInput(Value); if(Kit_) Kit_->Mouse(Value,0); }
@@ -415,7 +418,12 @@ void ACultUlhuPlayerPawn::ReceiveDamage(float Amount,AActor* Source)
  if(Ward&&Ward->IsStructure()?IsDashing():IsEvading()) { ConfirmEvade(); return; }
  MarkCombat();
  const float Before=GetHealth();
+ const float WardBefore=Kit_?Kit_->Ward():0.f;
  Health_=Kit_?Kit_->Damage(Amount):Health_-Amount;
+ if(Kit_&&Kit_->Ward()<WardBefore) {
+  const FVector Facing=Source?(Source->GetActorLocation()-GetActorLocation()).GetSafeNormal2D():GetActorForwardVector();
+  EmitAbilityBurst(uint8(CultAbilityFX::ELook::Chitin),uint8(CultAbilityFX::EEvent::Contact),GetActorLocation(),Facing,GetSimpleCollisionRadius());
+ }
  const float Actual=FMath::Clamp(Before-Health_,0.f,Before);
  if(auto* M=ACultMatchDirector::Find(GetWorld())) M->NoteDamage(this,Source,Actual);
  if(Actual>0) {
@@ -539,8 +547,13 @@ void ACultUlhuPlayerPawn::PollMoveKeys(float DeltaSeconds)
 	if (!PC || !PC->IsLocalController()) return;
 	const bool Shift=EnhancedSprint_||PC->IsInputKeyDown(EKeys::LeftShift)||PC->IsInputKeyDown(EKeys::RightShift);
 
-	if(Control_.Stop||PC->bShowMouseCursor) { ProcessShift(Shift,FVector::ZeroVector,DeltaSeconds,false); SetSprinting(false); return; }
- if(Control_.Fear) { ProcessShift(Shift,FVector::ZeroVector,DeltaSeconds,false); SetSprinting(false); AddMovementInput((GetActorLocation()-Control_.Origin).GetSafeNormal2D(),1); return; }
+	if(Control_.Stop||Control_.Fear||PC->bShowMouseCursor) {
+  ProcessShift(Shift,FVector::ZeroVector,DeltaSeconds,false);
+  if(Kit_) Kit_->Sprint(false,DeltaSeconds);
+  SetSprinting(false);
+  if(Control_.Fear&&!Control_.Stop&&!PC->bShowMouseCursor) AddMovementInput((GetActorLocation()-Control_.Origin).GetSafeNormal2D(),1);
+  return;
+ }
  FVector Move = FVector::ZeroVector;
 	const FRotator Yaw(0.0f, PC->GetControlRotation().Yaw, 0.0f);
 	if (PC->IsInputKeyDown(EKeys::W) || PC->IsInputKeyDown(EKeys::Up))    Move += Yaw.Vector();

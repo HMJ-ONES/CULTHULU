@@ -94,7 +94,7 @@ struct FCultCharacterSelectionTestAccess {
   for(int Slot=0;Slot<3;++Slot) {
    T->TestEqual(TEXT("Selected ability name matches original source"),Menu->AbilityNames_[Slot]->GetText().ToString(),FString(UTF8_TO_TCHAR(Spells[Slot]->name.c_str())));
    const auto Meta=Menu->AbilityMeta_[Slot]->GetText().ToString();
-   T->TestTrue(TEXT("Ability cooldown and stamina match source values"),Meta.Contains(FString::Printf(TEXT(" / %gs /"),double(Spells[Slot]->cooldownSec)))&&Meta.Contains(FString::Printf(TEXT("/ %g STAMINA"),double(Spells[Slot]->staminaCost))));
+   T->TestTrue(TEXT("Ability displays the authored cooldown without a stamina cost"),Meta.Contains(FString::Printf(TEXT(" / %gs COOLDOWN"),double(Spells[Slot]->cooldownSec)))&&!Meta.Contains(TEXT("STAMINA")));
    if(Mode==ECultPlayMode::Domination&&Spells[Slot]->effectKind=="summon") T->TestTrue(TEXT("Domination explains its existing invocation strike"),Meta.Contains(TEXT("AREA STRIKE")));
    if(Mode!=ECultPlayMode::FreeRoam&&Spells[Slot]->effectKind=="heal") T->TestTrue(TEXT("Competitive healing explains its hero-only target rule"),Meta.Contains(TEXT("ALLIED HEROES")));
   }

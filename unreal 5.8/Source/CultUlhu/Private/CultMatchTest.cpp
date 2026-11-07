@@ -531,7 +531,9 @@ public:
   if(Phase==7) {
    if(W->GetTimeSeconds()-At<1.f) return false;
    Test->AddInfo(FString::Printf(TEXT("Committed surge after %.2f game seconds: %.1f -> %.1f HP"),W->GetTimeSeconds()-At,SurgeBefore,SurgeVictim.IsValid()?SurgeVictim->GetHealth():-1.f));
-   Test->TestTrue(TEXT("A tall hero entering the committed surge volume takes its delayed physical hit"),SurgeVictim.IsValid()&&SurgeVictim->GetHealth()<SurgeBefore-30);
+   const float ExpectedSurgeDamage=SurgeVictim.IsValid()?SurgeVictim->GetMaxHealth()*.16f*M->DamageMultiplier(P):0.f;
+   Test->TestTrue(TEXT("A tall hero entering the committed surge takes the delayed hit at the competitive hero cap"),
+    SurgeVictim.IsValid()&&FMath::IsNearlyEqual(SurgeBefore-SurgeVictim->GetHealth(),ExpectedSurgeDamage,.25f));
    FCultMatchTestAccess::StartRampWalk(M); At=W->GetTimeSeconds(); Phase=9; return false;
   }
   if(Phase==9) {

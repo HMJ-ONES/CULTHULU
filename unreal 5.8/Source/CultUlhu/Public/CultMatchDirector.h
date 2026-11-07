@@ -87,6 +87,7 @@ private:
  friend struct FCultHUDCoordinateTestAccess;
  friend struct FCultMatchNetAccess;
  friend struct FCultMatchTestAccess;
+ friend struct FCultPlayabilityAccess;
  friend struct FCultTacticsTestAccess;
  friend struct FCultMobaMechanicsTestAccess;
  friend struct FCultJungleTestAccess;

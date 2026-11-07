@@ -131,7 +131,7 @@ void UCultCharacterSelectWidget::RefreshSelection()
     FString Kind=UTF8_TO_TCHAR(Spell.effectKind.c_str()); Kind.ReplaceInline(TEXT("_"),TEXT(" ")); if(Kind==TEXT("aoe damage")) Kind=TEXT("area damage");
     if(Mode_==ECultPlayMode::Domination&&Kind==TEXT("summon")) Kind=TEXT("area strike");
     if(Mode_!=ECultPlayMode::FreeRoam&&Kind==TEXT("heal")) Kind=TEXT("heal allied heroes");
-    AbilityMeta_[I]->SetText(FText::FromString(Kind.ToUpper()+FString::Printf(TEXT(" / %gs / %g STAMINA"),double(Spell.cooldownSec),double(Spell.staminaCost))));
+    AbilityMeta_[I]->SetText(FText::FromString(Kind.ToUpper()+FString::Printf(TEXT(" / %gs COOLDOWN"),double(Spell.cooldownSec))));
    }
    const bool Sling=Mode_==ECultPlayMode::Dotgoo&&E.Id==TEXT("cthulhu_avatar");
    AbilityNames_[3]->SetText(FText::FromString(Sling?TEXT("Minion Sling"):UTF8_TO_TCHAR(Def.rightClick.name.c_str())));

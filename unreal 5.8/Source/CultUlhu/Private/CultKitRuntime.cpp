@@ -128,6 +128,10 @@ void FCultKitRuntime::Tick(float Dt)
 {
  CSV_SCOPED_TIMING_STAT(CultRuntime, KitTick);
  if(!Caster || !ACultWorldDirector::Find(Owner->GetWorld())) return; for(float& C:Cooldowns) C=FMath::Max(0.f,C-Dt); HeavyCooldown=FMath::Max(0.f,HeavyCooldown-Dt); BuffTime=FMath::Max(0.f,BuffTime-Dt); if(BuffTime<=0) BuffMult=1;
+ if(WardTime>0) {
+  WardTime=FMath::Max(0.f,WardTime-Dt);
+  if(WardTime==0) Caster->clearWard();
+ }
  // Check before advancing timers: the last active frame must still publish
  // cleared control state. Cast/input/contact paths take fresh snapshots themselves.
  // Keep the original RMB state machine synchronized, including its cooldown.
@@ -143,20 +147,23 @@ bool FCultKitRuntime::Cast(int Slot)
  if(auto* M=ACultMatchDirector::Find(Owner->GetWorld())) if(!M->AbilityAvailable(Owner,Slot,false)) return false;
  if(!ACultWorldDirector::Find(Owner->GetWorld()) || !Caster || Slot<0 || Slot>2 || Cooldowns[Slot]>0) return false;
  cultulhu::SpellDef S=Slot==0?Def.qAbility:Slot==1?Def.fAbility:Def.rAbility;
- if(Stamina.value<S.staminaCost) { Owner->Notify(TEXT("Not enough stamina")); return false; }
  if(auto* M=ACultMatchDirector::Find(Owner->GetWorld())) {
   M->OnAction(Owner);
   if(M->Mode()==ECultPlayMode::Domination&&S.effectKind=="summon") {
    Owner->MarkCombat(); auto Surge=S; Surge.effectKind="domination_summon"; FVector Aim=Owner->CameraAim().ImpactPoint;
-   if(!LaunchSpatial(Surge,Slot,Aim)) return false; Stamina.value-=S.staminaCost; Cooldowns[Slot]=S.cooldownSec; EmitCast(S,Slot); return true;
+   if(!LaunchSpatial(Surge,Slot,Aim)) return false; Cooldowns[Slot]=S.cooldownSec; EmitCast(S,Slot); return true;
   }
  }
  if(S.effectKind=="heal") return CastHeal(S,Slot);
  Owner->MarkCombat();
  if(S.effectKind=="projectile"||S.effectKind=="aoe_damage"||S.effectKind=="stun"||S.effectKind=="debuff"||S.effectKind=="fear_aura"||S.effectKind=="pull") {
-  const auto Pick=Owner->CameraAim(S.effectKind=="aoe_damage"?6000.f:25000.f); FVector Point=Pick.ImpactPoint;
-  if(S.effectKind=="aoe_damage"&&!Pick.bBlockingHit) { Owner->Notify(TEXT("Aim the warning zone at a solid surface")); return false; }
-  if(!LaunchSpatial(S,Slot,Point)) return false; Stamina.value-=S.staminaCost; Cooldowns[Slot]=S.cooldownSec; EmitCast(S,Slot); return true;
+  FVector Point=Owner->FeetLocation();
+  if(!IsCasterGroundStrike(S.id)) {
+   const auto Pick=Owner->CameraAim(S.effectKind=="aoe_damage"?6000.f:25000.f);
+   if(S.effectKind=="aoe_damage"&&!Pick.bBlockingHit) { Owner->Notify(TEXT("Aim the warning zone at a solid surface")); return false; }
+   Point=Pick.ImpactPoint;
+  }
+  if(!LaunchSpatial(S,Slot,Point)) return false; Cooldowns[Slot]=S.cooldownSec; EmitCast(S,Slot); return true;
  }
  Snapshot(); FVector Aim; auto* T=Target(S.effectKind=="projectile"||S.effectKind=="stun"?S.range*100:25000,Aim);
  if(S.effectKind=="aoe_damage" && !T && !Owner->CameraAim().bBlockingHit) { Owner->Notify(TEXT("Aim at a target or solid ground")); return false; }
@@ -179,11 +186,20 @@ bool FCultKitRuntime::Cast(int Slot)
   }
  }
  auto* Core=ACultWorldDirector::Find(Owner->GetWorld());
+ const bool CompetitiveWard=S.effectKind=="shield"&&ACultMatchDirector::IsMatch(Owner->GetWorld());
+ if(S.effectKind=="shield") {
+  Caster->clearWard();
+  if(CompetitiveWard) S.effectPower=FMath::Min(S.effectPower,MaxHp()*.18f);
+ }
  if(S.effectKind=="heal") { T=nullptr; auto Hit=Owner->CameraAim(); for(auto& M:Mirrors) if(M.Actor==Hit.GetActor() && M.Core->alive() && M.Core->faction()==Caster->faction()) { T=M.Core.get(); break; } }
  auto Result=cultulhu::castKitSpell(S,*Caster,T,Foes,Core->Beliefs(Owner->GetFaction()),Core->Bus(Owner->GetFaction()),Effects,BuffMult*Core->CombatMultiplier(Owner->GetFaction()),Slot);
- Owner->Notify(UTF8_TO_TCHAR(Result.message.c_str())); if(!Result.ok) return false;
+ if(CompetitiveWard&&Result.ok) {
+  WardTime=4.f;
+  Owner->Notify(FString::Printf(TEXT("%s: %.0f shield for 4s"),UTF8_TO_TCHAR(S.name.c_str()),Ward()));
+ } else Owner->Notify(UTF8_TO_TCHAR(Result.message.c_str()));
+ if(!Result.ok) return false;
  Core->CombatActivity(Owner->GetFaction());
- Stamina.value-=S.staminaCost; Cooldowns[Slot]=S.cooldownSec;
+ Cooldowns[Slot]=S.cooldownSec;
  const bool Self=S.effectKind=="dash"||S.effectKind=="fear_aura"||S.effectKind=="pull"||S.effectKind=="buff"||S.effectKind=="shield"||S.effectKind=="heal";
  LastEffectLocation=Self?Owner->FeetLocation():Aim;
  const auto Look=CultAbilityFX::ForSlot(UTF8_TO_TCHAR(Def.id.c_str()),Slot);
@@ -290,7 +306,7 @@ bool FCultKitRuntime::CastHeal(const cultulhu::SpellDef& Spell,int Slot) {
  const float Actual=ActorHp(Patient)-Before;
  if(Actual<=0) { Owner->Notify(TEXT("Target is already at full health.")); return false; }
  if(auto* M=ACultMatchDirector::Find(Owner->GetWorld())) M->OnAction(Owner);
- Stamina.value-=Spell.staminaCost; Cooldowns[Slot]=Spell.cooldownSec;
+ Cooldowns[Slot]=Spell.cooldownSec;
  cultulhu::GameEvent E(cultulhu::EventType::HealPerformed); E.sourceId=Caster->id(); E.amount=Actual; ACultWorldDirector::Find(Owner->GetWorld())->Bus(Owner->GetFaction()).publish(E);
  LastEffectLocation=Patient->GetActorLocation(); EmitCast(Spell,Slot);
  Owner->PlayAttackMotion(CultAttackMotion::AbilitySlot(Slot),0,.61f);

@@ -3,6 +3,7 @@
 #include "EngineUtils.h"
 #include "CultSkillAttack.h"
 #include "CultMeleeGeometry.h"
+#include "CultMovementTuning.h"
 #include "CultKitRuntime.h"
 #include "CultCharacterModel.h"
 #include "CultBlastFX.h"
@@ -15,7 +16,7 @@
 #include "GameFramework/RootMotionSource.h"
 
 namespace {
-constexpr float StandardDashTime=.22f,StandardDashSpeed=3.5f;
+constexpr float StandardDashTime=.22f,StandardDashSpeed=3.5f/CultMovement::WalkIncrease;
 void DriveDash(ACultUlhuPlayerPawn* Pawn,FVector Direction,float Speed,float Duration,float ExitSpeed) {
  auto* Movement=Pawn->GetCharacterMovement(); Movement->RemoveRootMotionSource(TEXT("CultDash")); Movement->RemoveRootMotionSource(TEXT("CultMeleeStep"));
  auto Motion=MakeShared<FRootMotionSource_ConstantForce>(); Motion->InstanceName=TEXT("CultDash"); Motion->Priority=500; Motion->AccumulateMode=ERootMotionAccumulateMode::Override; Motion->Force=Direction*Speed; Motion->Duration=Duration; Motion->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate); Motion->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::ClampVelocity; Motion->FinishVelocityParams.ClampVelocity=ExitSpeed; Movement->ApplyRootMotionSource(Motion);
@@ -70,7 +71,7 @@ void ACultUlhuPlayerPawn::StartMelee(float Damage,float Range,float Windup,float
   Motion->Force=AimRotation().Vector().GetSafeNormal2D()*(Retreat?-1:1)*Distance/Motion->Duration;
   Motion->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
   Motion->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::ClampVelocity;
-  Motion->FinishVelocityParams.ClampVelocity=WalkSpeed_*1.85f;
+  Motion->FinishVelocityParams.ClampVelocity=WalkSpeed_*CultMovement::SprintRatio;
   Movement->ApplyRootMotionSource(Motion); // swept CharacterMovement; this is not an evasion dash
  }
  A->FinishSpawning(T);

@@ -102,7 +102,7 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
  if(Id=="blight_ray") { Kind=Shape::Beam; Delay=.35f; Life=.12f; Radius=25; }
  if(S.effectKind=="stun"||S.effectKind=="debuff") { Radius=40; Speed=2200; Delay=.25f; }
  if(Id=="claw_of_the_sphinx"||Id=="crushing_maw"||Id=="crusher_claw") { Kind=Shape::Cone; Origin=Muzzle; Delay=.30f; Life=.06f; Angle=Id=="crusher_claw"?28:45; }
- if(Id=="doomfall_stomp"||Id=="protoplasm_slam") { Origin=Owner->FeetLocation()+FVector(0,0,12); Delay=.55f; }
+ if(IsCasterGroundStrike(Id)) { Origin=Owner->FeetLocation()+FVector(0,0,12); Delay=.55f; }
  if(Owner->IsBot()&&Kind==Shape::Sweep) {
   FVector Committed=(Aim-Origin).GetSafeNormal(); if(Committed.IsNearlyZero()) Committed=Owner->AimRotation().Vector();
   if(!BotHeavyOpportunity(Owner,Origin,Committed,Reach,Radius,Angle,Life)) return false;
