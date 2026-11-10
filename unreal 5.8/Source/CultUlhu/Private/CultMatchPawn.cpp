@@ -41,7 +41,7 @@ void ACultUlhuPlayerPawn::MoveMatchToward(FVector Goal,float Dt) {
  if(Control_.Fear) Goal=GetActorLocation()+(GetActorLocation()-Control_.Origin).GetSafeNormal2D()*6000;
  const FVector Direction=(Goal-FeetLocation()).GetSafeNormal2D(); if(Direction.IsNearlyZero()) return;
  const float Radius=GetSimpleCollisionRadius(); FCollisionQueryParams Q(SCENE_QUERY_STAT(MatchBotAvoid),false,this);
- for(float Turn:{0.f,40.f,-40.f,80.f,-80.f}) {
+ for(float Turn:{0.f,35.f,-35.f,65.f,-65.f,95.f,-95.f}) {
   FVector Heading=Direction.RotateAngleAxis(Turn,FVector::UpVector); FHitResult H;
   if(GetWorld()->SweepSingleByObjectType(H,GetActorLocation(),GetActorLocation()+Heading*(Radius+600),FQuat::Identity,FCollisionObjectQueryParams(ECC_WorldStatic),FCollisionShape::MakeCapsule(Radius*.98f,GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-.2f),Q)&&!GetCharacterMovement()->IsWalkable(H)&&H.ImpactPoint.Z>FeetLocation().Z+GetCharacterMovement()->MaxStepHeight) continue;
   // Use the same floor finding, ramp stepping, gravity and swept capsule as the player.

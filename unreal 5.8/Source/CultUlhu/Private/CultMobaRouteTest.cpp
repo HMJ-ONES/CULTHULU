@@ -25,7 +25,7 @@ bool FCultMobaRouteTest::RunTest(const FString&) {
  for(const auto& Tower:Rules.Towers()) {
   const auto At=FVector(Tower.pos.x,Tower.pos.z,0)*200;
   TestTrue(TEXT("Every rules-owned tower stands on its actual curved lane"),FCultMobaRoute::Project(Tower.team,Tower.lane,At).Distance<.2f);
-  TestEqual(TEXT("Tower durability is retained"),Tower.hp,3000.f); ++Count;
+  TestEqual(TEXT("Tower uses the revised lane health budget"),Tower.hp,CultMatchBalance::LaneTowerHealth); ++Count;
  }
  TestEqual(TEXT("Both teams retain all three pairs of lane towers"),Count,12);
  const FVector Miss(3500,20500,0); const auto Return=FCultMobaRoute::Project(1,2,Miss);

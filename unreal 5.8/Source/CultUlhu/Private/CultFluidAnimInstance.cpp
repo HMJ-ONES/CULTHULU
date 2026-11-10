@@ -61,7 +61,7 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
   auto Torso=[&](FName Bone,double Gain) {
    Rotate(Bone,Right,B.X*Gain);
    Rotate(Bone,Up,B.Y*Gain);
-   Rotate(Bone,Forward,Lean*4+B.W*.22);
+   Rotate(Bone,Forward,Lean*6+B.W*.24);
   };
   if(GestureRig==1) {
    // Shoulders take the load before the forearms extend. Wing spars and

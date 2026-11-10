@@ -447,7 +447,7 @@ public:
   if(Phase==1) {
    Test->TestTrue(TEXT("Selected mode reaches its actual match director"),M->Mode()==(Moba?ECultPlayMode::Dotgoo:ECultPlayMode::Domination));
    Test->TestEqual(TEXT("Two complete teams are physically present"),M->Fighters().Num(),10);
-   int Teams[2]={},Bots=0; for(const auto& F:M->Fighters()) { if(F.Pawn.IsValid()) { ++Teams[F.Team]; Bots+=F.Pawn->IsBot(); Test->TestEqual(TEXT("Match uses source 100-HP competitive normalization"),F.Pawn->GetMaxHealth(),100.f); } }
+   int Teams[2]={},Bots=0; for(const auto& F:M->Fighters()) { if(F.Pawn.IsValid()) { ++Teams[F.Team]; Bots+=F.Pawn->IsBot(); Test->TestEqual(TEXT("Each hero starts at its mode's health budget"),F.Pawn->GetMaxHealth(),CultMatchBalance::HeroHealth(M->Mode(),0.f)); } }
    Test->TestEqual(TEXT("Five allied heroes"),Teams[0],5); Test->TestEqual(TEXT("Five opposing heroes"),Teams[1],5); Test->TestEqual(TEXT("Nine bots including same-faction allies"),Bots,9);
    Test->TestTrue(TEXT("Canonical character height survives mode entry"),FMath::IsNearlyEqual(P->GetActorScale3D().Z,30.f/1.8f));
    Test->TestTrue(TEXT("Player is grounded, never dropped from a huge height"),FMath::Abs(P->FeetLocation().Z)<10);
@@ -531,7 +531,7 @@ public:
   if(Phase==7) {
    if(W->GetTimeSeconds()-At<1.f) return false;
    Test->AddInfo(FString::Printf(TEXT("Committed surge after %.2f game seconds: %.1f -> %.1f HP"),W->GetTimeSeconds()-At,SurgeBefore,SurgeVictim.IsValid()?SurgeVictim->GetHealth():-1.f));
-   const float ExpectedSurgeDamage=SurgeVictim.IsValid()?SurgeVictim->GetMaxHealth()*.16f*M->DamageMultiplier(P):0.f;
+   const float ExpectedSurgeDamage=CultMatchBalance::CompetitiveBaseHealth*.16f*M->DamageMultiplier(P);
    Test->TestTrue(TEXT("A tall hero entering the committed surge takes the delayed hit at the competitive hero cap"),
     SurgeVictim.IsValid()&&FMath::IsNearlyEqual(SurgeBefore-SurgeVictim->GetHealth(),ExpectedSurgeDamage,.25f));
    FCultMatchTestAccess::StartRampWalk(M); At=W->GetTimeSeconds(); Phase=9; return false;

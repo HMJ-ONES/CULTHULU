@@ -6,6 +6,7 @@
 #include "CultMatchDirector.h"
 #include "CultDominationRoute.h"
 #include "CultSkillAttack.h"
+#include "CultPrimaryProfile.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EngineUtils.h"
 
@@ -42,7 +43,7 @@ public:
    const FTransform Spawn(M->Base(Team)+FVector(0,0,1500));
    auto* NewBot=W->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),Spawn,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
    NewBot->ConfigureBot(F.Kit,Team); F.Pawn=NewBot; NewBot->FinishSpawning(Spawn); NewBot->RespawnMatch(M->Base(Team));
-   Test->TestEqual(TEXT("Fixture spawns the actual authored Mi-Go kit"),NewBot->BotRangedReach(),2000.f);
+   Test->TestEqual(TEXT("Fixture spawns the actual authored Mi-Go kit"),NewBot->BotRangedReach(),CultPrimary::Find(TEXT("mi_go")).Reach);
    // Do not supply a route or movement commands to this bot.
    // Outside Mi-Go's physical arm reach, inside its original projectile reach.
    Fighters[(1-Team)*5].Pawn->RelocateMatch(FVector((Scenario==2?1:Team?1:-1)*3300,Side*2300,0));
@@ -50,7 +51,7 @@ public:
   }
   auto* P=Fighters[Slot].Pawn.Get(); auto* Target=Fighters[(1-Team)*5].Pawn.Get(); const FVector Feet=P->FeetLocation(); Highest=FMath::Max(Highest,float(Feet.Z));
   if(Phase==2) {
-   // Competitive heroes have 100 HP: legitimate approach/melee hits can kill
+   // Legitimate approach/melee hits can kill
    // this fixture before the ranged observation. Heal between frames until an
    // instrumented original projectile actually deals damage from the perch.
    if(!*RangedContact) Target->HealMatch(Target->GetMaxHealth());
@@ -59,7 +60,7 @@ public:
    const bool Here=FVector::Dist2D(Feet,Site)<450&&FMath::Abs(Feet.Z-Site.Z)<120;
    if(Here&&!Perch) { Perch=true; HealthOnPerch=Target->GetHealth(); Test->AddInfo(FString::Printf(TEXT("Scenario %d: autonomous Mi-Go reached low perch after %.2fs, highest feet %.1f"),Scenario,W->GetTimeSeconds()-At,Highest)); }
    if(Here) {
-    for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==P&&It->Shape==ACultSkillAttack::EShape::Bolt&&It->Reach==2000.f) {
+    for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==P&&It->Shape==ACultSkillAttack::EShape::Bolt&&It->Reach>2000.f) {
      Bolt=true; if(Observed.Contains(*It)) continue; Observed.Add(*It);
      auto Original=MoveTemp(It->Hit); TWeakObjectPtr<ACultUlhuPlayerPawn> Victim(Target),Shooter(P); auto Contact=RangedContact;
      It->Hit=[Original=MoveTemp(Original),Victim,Shooter,Contact,Site](AActor* Other,FVector Point) mutable {

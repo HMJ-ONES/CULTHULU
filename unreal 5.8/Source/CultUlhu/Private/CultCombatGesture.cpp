@@ -3,11 +3,22 @@
 #include "CultFluidAnimInstance.h"
 #include "CultUlhuPlayerPawn.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
- const auto Pose=Pawn_->AttackFrame();
+ auto Pose=Pawn_->AttackFrame();
  const float Lateral=FVector::DotProduct(GetActorRightVector(),Pawn_->GetVelocity())/FMath::Max(1.f,WalkSpeed_);
  GuardWeight_=FMath::FInterpTo(GuardWeight_,FMath::Clamp(Lateral,-1.f,1.f),DeltaSeconds,8.f);
+ if(Pawn_->IsDashing()) {
+  const float Direction=FVector::DotProduct(GetActorForwardVector(),Pawn_->GetVelocity().GetSafeNormal2D());
+  Pose.Body.X+=12.f*Direction;
+  Pose.Body.W-=2.5f;
+  Pose.Details.Y+=Direction<-.2f?14.f:7.f;
+ } else if(Pawn_->GetCharacterMovement()->IsFalling()) {
+  const float Lift=FMath::Clamp(Pawn_->GetVelocity().Z/FMath::Max(1.f,WalkSpeed_),-1.f,1.f);
+  Pose.Body.X-=Lift*8.f;
+  Pose.Details.Y+=FMath::Abs(Lift)*8.f;
+ }
 
  uint8 Rig=0;
  if(CharacterId_==TEXT("cthulhu_avatar")) Rig=1;

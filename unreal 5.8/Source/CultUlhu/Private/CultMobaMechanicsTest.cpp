@@ -106,7 +106,7 @@ public:
      if(Body.Num()==1) T->TestEqual(TEXT("Lane minion uses all six certified original source pieces"),CultHumanMesh::SourceParts(Cast<USkeletalMesh>(Body[0]->GetSkinnedAsset())),6);
      ++AuthoredMinions;
     }
-    if(It->Kind==3) T->TestEqual(TEXT("Lane wards have 3000 HP"),It->MaxHealth,3000.f);
+    if(It->Kind==3) T->TestEqual(TEXT("Lane wards use the revised health budget"),It->MaxHealth,CultMatchBalance::LaneTowerHealth);
     if(It->Kind==5) T->TestEqual(TEXT("Nexus wards have 4000 HP"),It->MaxHealth,4000.f);
     if(It->Team==1&&It->Kind==3&&!M->UnitProtected(*It)) Tower=*It;
    }

@@ -10,6 +10,7 @@
 #include <memory>
 #include "CultMobaRoute.h"
 #include "CultBotThreat.h"
+#include "CultMatchBalance.h"
 #include "CultDominationUpper.h"
 // Retain the source MOBA's objective damage, protection, wave stats and timeout rules.
 // Native movement / collision attacks replace its abstract DPS simulation.
@@ -23,7 +24,7 @@ public:
    for(int I=0;I<=FCultMobaRoute::Segments;++I) { const auto P=FCultMobaRoute::Knot(Lane,I)/200; Points.push_back({float(P.X),0,float(P.Y)}); }
    addLane(Points);
   }
-  ensureTowers(); for(auto& T:towers_) T.hp=T.maxHp=3000.f;
+  ensureTowers(); for(auto& T:towers_) T.hp=T.maxHp=CultMatchBalance::LaneTowerHealth;
  }
  void Advance(float Dt) { elapsed_+=Dt; noteMatchTick("moba"); }
  const std::vector<Tower>& Towers() const { return towers_; }
@@ -62,5 +63,10 @@ struct ACultMatchDirector::FState {
  TArray<FBox2D> ResultButtons;
  float LastBotInvoke[10]={};
  FCultBotThreatMemory BotThreats[10];
+ struct FLaneStall {
+  FVector Sample=FVector::ZeroVector,Detour=FVector::ZeroVector;
+  float CheckAt=0,DetourUntil=0;
+  int Side=1;
+ } LaneStalls[10];
  FCultDominationUpperMemory UpperRoutes[10];
 };

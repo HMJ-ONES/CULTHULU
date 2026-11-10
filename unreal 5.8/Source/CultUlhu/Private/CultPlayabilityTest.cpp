@@ -21,6 +21,12 @@ struct FCultPlayabilityAccess {
  static FCultKitRuntime& Kit(ACultUlhuPlayerPawn* P) { return *P->Kit_; }
  static bool HasKit(ACultUlhuPlayerPawn* P) { return IsValid(P)&&P->Kit_; }
  static bool PowerSurge(ACultUlhuPlayerPawn* P) { return Kit(P).BuffTime>0&&Kit(P).BuffMult>1.f; }
+ static void ApplyTelekineticImpact(ACultUlhuPlayerPawn* Source,ACultUlhuPlayerPawn* Target) {
+  auto& Runtime=Kit(Source);
+  Runtime.Snapshot();
+  for(auto& Mirror:Runtime.Mirrors) if(Mirror.Actor.Get()==Target) Mirror.Core->takeDamage(1000000.f);
+  Runtime.Apply();
+ }
  static bool Control(ACultUlhuPlayerPawn* P,const std::string& Kind) {
   P->Control_.Tick(0);
   return Kind=="fear_aura"?P->Control_.Fear:Kind=="stun"?P->Control_.Stun:P->Control_.Speed<.99f;
@@ -238,6 +244,13 @@ public:
    const FVector Near=Arena+FVector(E->GetSimpleCollisionRadius()+(Spell?Spell->range*68.f:0.f),0,0);
    E->RespawnMatch(CloseArea?Near:EnemyFeet);
    E->GetCharacterMovement()->DisableMovement();
+   if(Action==1&&Cthulhu&&Mode==ECultPlayMode::Domination) {
+    const float Health=E->GetHealth();
+    Access::ApplyTelekineticImpact(P,E);
+    Check(TEXT("lethal core impact damage is capped against a competitive hero"),FMath::IsNearlyEqual(Health-E->GetHealth(),18.f,.1f));
+    E->RespawnMatch(EnemyFeet);
+    E->GetCharacterMovement()->DisableMovement();
+   }
    FVector Aim=E->GetActorLocation();
    if(Stomp) Aim=P->GetActorLocation()+FVector(400,0,9000);
    if(Healing||(Summon&&Mode!=ECultPlayMode::Domination)||(Action==1&&Cthulhu&&Mode!=ECultPlayMode::Dotgoo))
@@ -257,7 +270,7 @@ public:
    const auto WardCapacity=[&] {
     return Mode==ECultPlayMode::FreeRoam
      ? Spell->effectPower*Director->CombatMultiplier(P->GetFaction())
-     : P->GetMaxHealth()*.18f;
+     : CultMatchBalance::CompetitiveBaseHealth*.18f;
    };
    const float ExpectedWard=Spell&&Spell->effectKind=="shield"?WardCapacity():0.f;
    if(Spell) Kit.SetCooldown(Action-2,0);

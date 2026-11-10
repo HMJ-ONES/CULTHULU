@@ -17,8 +17,8 @@ void ACultUlhuPlayerPawn::UpdateVesselMotion(float DeltaSeconds) {
  const float Time=GetWorld()->GetTimeSeconds();
  const float Weight=FMath::Clamp(GetVelocity().Size2D()/FMath::Max(1.f,WalkSpeed_),0.f,1.f);
  const float Wave=FMath::Sin(Time*(Heavy?4.2f:6.6f));
- const double Roll=2.2f*Wave*Weight+Pose.Details.Z*.45;
- const double Bob=FMath::Abs(Wave)*3.f*Weight+FMath::Sin(Time*1.7f)*1.2f;
+ const double Roll=3.2f*Wave*Weight+Pose.Details.Z*.45;
+ const double Bob=FMath::Abs(Wave)*4.4f*Weight+FMath::Sin(Time*1.7f)*1.2f;
  const double Compression=Pose.Body.W/85;
  const FTransform Gesture(FRotator(-Pose.Body.X+2*Weight,Pose.Body.Y,Roll),
   FVector(Pose.Body.Z,0,Bob+Pose.Body.W),

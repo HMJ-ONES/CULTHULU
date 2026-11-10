@@ -166,7 +166,13 @@ void ACultSkillAttack::UpdatePresentation() {
  SignalMaterial->SetScalarParameterValue(TEXT("Intensity"),Charging?.35f+.85f*Progress:1.7f);
  Telegraph->SetWorldLocation(Origin);
  if(Shape==EShape::Bolt) {
-  const float Size=Radius/50*(Charging?.45f+.55f*Progress:1.f);
+  const float Visibility=FMath::Lerp(.35f,1.f,FlightVisibility());
+  const float Size=Radius/50*(Charging?.45f+.55f*Progress:Visibility);
+  if(!Charging) {
+   SignalMaterial->SetScalarParameterValue(TEXT("Intensity"),1.7f*Visibility);
+   if(auto* Core=Cast<UMaterialInstanceDynamic>(Visual->GetMaterial(0));Core&&Core!=SignalMaterial)
+    Core->SetScalarParameterValue(TEXT("Intensity"),1.65f*Visibility);
+  }
   FVector Proportions(1);
   if(AbilityLook&&!Charging) {
    using namespace CultAbilityFX;

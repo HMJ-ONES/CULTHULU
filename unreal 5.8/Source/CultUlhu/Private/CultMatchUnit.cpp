@@ -100,6 +100,7 @@ void ACultMatchUnit::FireAt(AActor* Target) {
  const bool Ranged=Kind>0;
  A->Shape=Ranged?ACultSkillAttack::EShape::Bolt:ACultSkillAttack::EShape::Sweep;
  A->Direction=(Aim-Origin).GetSafeNormal(); A->Reach=Range+1500; A->Radius=Ranged?45:55; A->Speed=IsStructure()?15000:2200; A->Windup=IsStructure()?.25f:.28f; A->Duration=Ranged?A->Reach/A->Speed+.1f:.18f;
+ if(Ranged&&!IsStructure()) A->ConfigureProjectileFlight(A->Reach,false);
  if(!Ranged) { A->Reach=Range; A->HalfAngle=50; }
  TWeakObjectPtr<ACultMatchUnit> Weak(this); const float Damage=Dps;
  A->Hit=[Weak,Damage](AActor* Other,FVector Point) { if(Weak.IsValid()) ACultSkillAttack::Hurt(Other,Damage,Weak.Get(),Point); };

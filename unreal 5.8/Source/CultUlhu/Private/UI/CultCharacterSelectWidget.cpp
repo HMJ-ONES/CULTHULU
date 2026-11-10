@@ -1,5 +1,6 @@
 #include "UI/CultCharacterSelectWidget.h"
 #include "Blueprint/WidgetTree.h"
+#include "CultMatchBalance.h"
 // CULT-ULHU character select implementation.
 #include "UI/CultCharacterSelectWidget.h"
 
@@ -124,7 +125,7 @@ void UCultCharacterSelectWidget::RefreshSelection()
   DetailText_->SetText(FText::FromString(Short.ToUpper())); DetailSubtitle_->SetText(FText::FromString(Subtitle)); DetailFlavor_->SetText(FText::FromString(E.Flavor));
   cultulhu::CharacterDef Def;
   if(CultCanonicalKit::Load(E.Id,Def)) {
-   DetailStats_->SetText(FText::FromString(FString::Printf(TEXT("%.0f M / HP %.0f / STAMINA %.0f"),E.HeightM,Mode_==ECultPlayMode::FreeRoam?Def.maxHp:100.f,Def.maxStamina)));
+   DetailStats_->SetText(FText::FromString(FString::Printf(TEXT("%.0f M / HP %.0f / STAMINA %.0f"),E.HeightM,CultMatchBalance::HeroHealth(Mode_,Def.maxHp),Def.maxStamina)));
    const cultulhu::SpellDef* Spells[]={&Def.qAbility,&Def.fAbility,&Def.rAbility};
    for(int I=0;I<3;++I) {
     const auto& Spell=*Spells[I]; AbilityNames_[I]->SetText(FText::FromString(UTF8_TO_TCHAR(Spell.name.c_str())));

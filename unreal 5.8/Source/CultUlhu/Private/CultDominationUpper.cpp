@@ -4,13 +4,17 @@
 #include "CultUlhuPlayerPawn.h"
 #include "CultCanonicalKit.h"
 #include "CultSkillAttack.h"
+#include "CultBotFocus.h"
+#include "CultPrimaryProfile.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 namespace {
 float WeaponRange(const FString& Id) {
  cultulhu::CharacterDef D; if(!CultCanonicalKit::Load(Id,D)) return 0;
- float R=0; for(const auto* S:{&D.qAbility,&D.fAbility}) if(S->effectKind=="projectile") R=FMath::Max(R,S->range*100.f);
+ const auto Primary=CultPrimary::Find(Id);
+ float R=Primary.Reach;
+ for(const auto* S:{&D.qAbility,&D.fAbility}) if(S->effectKind=="projectile") R=FMath::Max(R,S->range*100.f);
  if(D.rightClick.kind==cultulhu::HeavyAttackKind::AcidSpit) R=FMath::Max(R,D.rightClick.range*100.f);
  return R;
 }
@@ -18,7 +22,9 @@ AActor* Reachable(ACultMatchDirector* M,ACultUlhuPlayerPawn* P,FVector Feet,floa
  AActor* Best=nullptr; float Distance=Range;
  const float H=P->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*2,Body=P->GetSimpleCollisionRadius();
  for(const auto& F:M->Fighters()) if(F.Team!=P->GetFaction()&&F.Respawn<=0&&F.Pawn.IsValid()&&F.Pawn->GetHealth()>0) {
-  auto* Other=F.Pawn.Get(); const FVector Eye=Feet+FVector(0,0,H*.52f),D=(Other->GetActorLocation()-Eye).GetSafeNormal(),Origin=Eye+D*Body*.8f;
+  auto* Other=F.Pawn.Get();
+  if(CultBotFocus::AlliesAimingAt(*M,P,Other)>=2) continue;
+  const FVector Eye=Feet+FVector(0,0,H*.52f),D=(Other->GetActorLocation()-Eye).GetSafeNormal(),Origin=Eye+D*Body*.8f;
   FVector Point; const float Near=Other->GetCapsuleComponent()->GetClosestPointOnCollision(Origin,Point);
   if(Near>=0&&Near<=Distance&&ACultSkillAttack::Clear(P->GetWorld(),Origin,Point,P,Other)) { Best=Other; Distance=Near; }
  }
@@ -59,6 +65,7 @@ bool CultDominationUpper::Update(ACultMatchDirector* M,FCultMatchFighter& F,FCul
    S.Side=Feet.Y>=0?1:-1; S.Home=F.Team?1:-1; Exit();
   } else {
    if(Now<S.NextTry||Rally||Reserved||Capturers==0||F.Retreating||F.DomPath.Num()||Slot%5==4||S.Range<1200||P->GetHealth()<P->GetMaxHealth()*.65f) return false;
+   if(Feet.Z<350&&FVector::Dist2D(Feet,M->Base(F.Team))>7500) return false;
    S.NextTry=Now+1;
    int Chosen=0; float Best=BIG_NUMBER; S.Home=F.Team?1:-1; S.High=false;
    for(int Side:{-1,1}) if(Reachable(M,P,FCultDominationRoute::Perch(S.Home,Side),S.Range)) { const float D=FVector::Dist2D(Feet,FCultDominationRoute::PerchRamp(S.Home,Side)); if(D<Best) { Best=D; Chosen=Side; } }

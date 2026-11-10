@@ -100,6 +100,7 @@ void ACultSkillAttack::UpdateAbilityFilaments() {
   const FVector Cross=FVector::CrossProduct(Side,Along);
   const float Scale=FMath::Clamp(Radius*.69f,13.f,145.f);
   const bool Straight=Color.Form==EForm::Lance;
+  const float Visibility=FlightVisibility();
   const int32 Strands=Look==ELook::Prism?3:2;
   for(int32 Strand=0;Strand<Strands;++Strand) {
    FVector A=FilamentPath[0]-Head;
@@ -110,7 +111,7 @@ void ACultSkillAttack::UpdateAbilityFilaments() {
     const FVector B=FilamentPath[Index]-Head+Helix;
     const auto Tint=Strand==0?Color.Body:Strand==1?Color.Tip:FLinearColor(.31f,1,.65f);
     Lines.Ribbon(A,B,Scale*(.06f+.22f*Weight),Scale*(.10f+.26f*Weight),
-     Alpha(Tint,Weight*.42f),Alpha(Tint,Weight*.85f));
+     Alpha(Tint,Weight*.42f*Visibility),Alpha(Tint,Weight*.85f*Visibility));
     A=B;
    }
   }

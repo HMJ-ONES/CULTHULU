@@ -27,10 +27,9 @@ bool FCultKitRuntime::LaunchPrimary() {
 
  Shot->Direction = Direction;
  Shot->Windup = Primary.Windup;
- Shot->Reach = Primary.Reach;
  Shot->Speed = Primary.Speed;
  Shot->Radius = Primary.Radius;
- Shot->Duration = Primary.Reach/Primary.Speed + .35f;
+ Shot->ConfigureProjectileFlight(Primary.Reach,Primary.Delivery==EDelivery::Cannon);
  Shot->SignalStyle = uint8(Primary.Signal);
  Shot->bTrackMuzzle = true;
  Shot->PrimaryAim = Aim.ImpactPoint;
@@ -38,12 +37,13 @@ bool FCultKitRuntime::LaunchPrimary() {
  if(Corrosive) Shot->Gravity = 2750.f;
 
  const TWeakObjectPtr<ACultUlhuPlayerPawn> Source(Owner);
+ const TWeakObjectPtr<ACultSkillAttack> Projectile(Shot);
  const float Damage = Primary.Damage;
- Shot->Hit = [Source,Damage,Corrosive](AActor* Target,FVector Point) {
+ Shot->Hit = [Source,Projectile,Damage,Corrosive](AActor* Target,FVector Point) {
   auto* Pawn = Source.Get();
   if(!Pawn) return;
   const auto* Match = ACultMatchDirector::Find(Pawn->GetWorld());
-  float Amount = Damage;
+  float Amount = Damage*(Projectile.IsValid()?Projectile->ProjectileDamageScale(Point):1.f);
   if(auto* Hero = ::Cast<ACultUlhuPlayerPawn>(Target)) {
    if(!Match) Amount *= Hero->GetMaxHealth()/150.f;
   } else if(auto* Unit = ::Cast<ACultMatchUnit>(Target)) {

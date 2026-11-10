@@ -83,10 +83,23 @@ struct FCultTacticsTestAccess {
    Ally->RelocateMatch(FVector(-22000,-22000,0)); Bot->RelocateMatch(FVector(0,4800,0)); F.Think=999; M->BotThink(1,.016f);
    T->TestTrue(TEXT("Without a teammate capturing the ranged bot returns to the objective"),ACultMatchDirector::InsideCapture(F.TacticalGoal));
   }
-  // A threatened teammate attracts support even if another opponent is nearer.
-  auto* Near=M->State_->Fighters[6].Pawn.Get(); Near->RelocateMatch(FVector(2500,4800,0));
+  // A wounded teammate can get support, but a third ally needs another target.
+  auto* Near=M->State_->Fighters[6].Pawn.Get(); Near->RelocateMatch(FVector(2500,4000,0));
   Enemy->RelocateMatch(FVector(0,1700,0)); Ally->RelocateMatch(FVector(0,1500,0)); F.Think=999;
+  Ally->Kit_->Damage(Ally->GetMaxHealth()*.6f);
   M->BotThink(1,.016f); T->TestEqual(TEXT("Bot prioritizes supporting the teammate's nearby opponent"),Bot->GetBotAim(),static_cast<AActor*>(Enemy));
+  for(int Slot:{2,3}) {
+   auto* Wingmate=M->State_->Fighters[Slot].Pawn.Get();
+   Wingmate->bBotControlled_=true;
+   Wingmate->SetBotAim(Enemy);
+  }
+  M->BotThink(1,.016f);
+  T->TestEqual(TEXT("Two existing attackers cause a third bot to engage a different hero"),Bot->GetBotAim(),static_cast<AActor*>(Near));
+  for(int Slot:{2,3}) {
+   auto* Wingmate=M->State_->Fighters[Slot].Pawn.Get();
+   Wingmate->bBotControlled_=false;
+   Wingmate->SetBotAim(nullptr);
+  }
   // Observe an actual tactical escape decision on supported ground.
   auto* Floor=M->GetWorld()->SpawnActor<AStaticMeshActor>(FVector(0,0,60000),FRotator::ZeroRotator);
   auto* Surface=Floor->GetStaticMeshComponent(); Surface->SetMobility(EComponentMobility::Movable); Surface->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube"))); Surface->SetCollisionProfileName(TEXT("BlockAll")); Floor->SetActorScale3D(FVector(400,400,1));
@@ -106,7 +119,7 @@ struct FCultTacticsTestAccess {
    HeavyF.DomPath.Reset(); HeavyF.RouteStep=2; HeavyF.Think=0; HeavyF.NextTacticalMove=999; HeavyF.Retreating=false;
    Hydra->Kit_->AdvanceCooldowns(100); for(int S=0;S<3;++S) Hydra->Kit_->SetCooldown(S,999);
    const float Hp=Victim->GetHealth(); M->BotThink(8,.016f); int HeavyBolts=0;
-   for(TActorIterator<ACultSkillAttack> It(M->GetWorld());It;++It) if(It->GetOwner()==Hydra&&It->Shape==ACultSkillAttack::EShape::Bolt) { ++HeavyBolts; T->TestEqual(TEXT("Even-slot Hydra retains its original twenty-metre acid range"),It->Reach,2000.f); It->Tick(0); It->Tick(1.2f); }
+   for(TActorIterator<ACultSkillAttack> It(M->GetWorld());It;++It) if(It->GetOwner()==Hydra&&It->Shape==ACultSkillAttack::EShape::Bolt) { ++HeavyBolts; T->TestTrue(TEXT("Even-slot Hydra's acid reaches past its former twenty metres"),It->Reach>2000.f); It->Tick(0); It->Tick(1.2f); }
    T->TestTrue(TEXT("A perch operator uses its authored acid spit regardless of alternating slot gate"),HeavyBolts>0);
    T->TestTrue(TEXT("The acid-only opportunity causes actual contact damage"),Victim->GetHealth()<Hp);
   }

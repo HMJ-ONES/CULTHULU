@@ -6,6 +6,7 @@ CSV_DEFINE_CATEGORY(CultRuntime,true);
 #include <algorithm>
 #include "CultSkillAttack.h"
 #include "CultMatchDirector.h"
+#include "CultMatchBalance.h"
 #include "CultMatchUnit.h"
 #include "CultUlhuGameInstance.h"
 #include "CultUlhuPlayerPawn.h"
@@ -32,7 +33,11 @@ bool FCultKitRuntime::Initialize(const FString& Id)
 {
  if(!CultCanonicalKit::Load(Id,Def)) return false;
  Primary=CultPrimary::Find(Id);
- if(ACultMatchDirector::IsMatch(Owner->GetWorld())) { Def.maxHp=100; if(auto* G=::Cast<UCultUlhuGameInstance>(Owner->GetGameInstance())) if(G->SelectedMode==ECultPlayMode::Domination) Cooldowns[2]=Def.rAbility.cooldownSec+5; }
+ if(ACultMatchDirector::IsMatch(Owner->GetWorld())) {
+  const auto* Game=::Cast<UCultUlhuGameInstance>(Owner->GetGameInstance());
+  Def.maxHp=CultMatchBalance::HeroHealth(Game->SelectedMode,Def.maxHp);
+  if(Game->SelectedMode==ECultPlayMode::Domination) Cooldowns[2]=Def.rAbility.cooldownSec+5;
+ }
  WorldImpact=std::make_unique<cultulhu::Entity>(cultulhu::EntityType::Building,-1,cultulhu::Vec3{},1000000000.f);
  Caster=std::make_unique<cultulhu::Entity>(cultulhu::EntityType::EldritchAvatar,Owner->GetFaction(),CorePos(Owner->FeetLocation()),Def.maxHp);
  auto Chain=cultulhu::defaultBasicFlurry(); Chain.id=Def.meleeComboId; Combo=cultulhu::ComboTracker(Chain);
@@ -70,12 +75,24 @@ void FCultKitRuntime::Snapshot()
 void FCultKitRuntime::Apply()
 {
  CSV_SCOPED_TIMING_STAT(CultRuntime, KitApply);
+ const auto* Match=ACultMatchDirector::Find(Owner->GetWorld());
+ const bool Domination=Match&&Match->Mode()==ECultPlayMode::Domination;
  for(auto& M:Mirrors) if(M.Actor.IsValid())
  {
   AActor* A=M.Actor.Get(); const float D=M.BeforeHp-M.Core->hp();
   if(D>0 && M.Core->faction()>=0 && M.Core->faction()!=Owner->GetFaction()) if(auto* World=ACultWorldDirector::Find(Owner->GetWorld())) World->DeclareWar(Owner->GetFaction(),M.Core->faction());
   const float NativeBefore=ActorHp(A);
-  if(D>0) { if(auto* U=::Cast<ACultMatchUnit>(A)) U->Hurt(D,Owner); else if(auto* B=::Cast<ACultFeralBeast>(A)) B->ApplyDamage(D); else if(auto* P=::Cast<ACultPopulation>(A)) P->ReceiveAttack(D,Owner->GetFaction(),true); else if(auto* Building=::Cast<ACultDestructible>(A)) Building->ApplyDamage(D,LastEffectLocation,Owner->GetFaction()); else if(auto* Pawn=::Cast<ACultUlhuPlayerPawn>(A)) Pawn->ReceiveDamage(D,Owner); }
+  if(D>0) {
+   if(auto* U=::Cast<ACultMatchUnit>(A)) U->Hurt(D,Owner);
+   else if(auto* B=::Cast<ACultFeralBeast>(A)) B->ApplyDamage(D);
+   else if(auto* P=::Cast<ACultPopulation>(A)) P->ReceiveAttack(D,Owner->GetFaction(),true);
+   else if(auto* Building=::Cast<ACultDestructible>(A)) Building->ApplyDamage(D,LastEffectLocation,Owner->GetFaction());
+   else if(auto* Pawn=::Cast<ACultUlhuPlayerPawn>(A)) {
+    // Wave impacts and drops use lethal core damage for civilians. Projecting
+    // that directly onto a Domination hero bypassed the arena burst budget.
+    Pawn->ReceiveDamage(Domination?FMath::Min(D,18.f):D,Owner);
+   }
+  }
   if(D>0&&!::Cast<ACultUlhuPlayerPawn>(A)) {
    const float After=IsValid(A)?ActorHp(A):0.f;
    Owner->RecordCombatHit(A,LastEffectLocation.IsNearlyZero()?M.BeforePosition:LastEffectLocation,FMath::Clamp(NativeBefore-After,0.f,NativeBefore),After<=0);
@@ -189,7 +206,7 @@ bool FCultKitRuntime::Cast(int Slot)
  const bool CompetitiveWard=S.effectKind=="shield"&&ACultMatchDirector::IsMatch(Owner->GetWorld());
  if(S.effectKind=="shield") {
   Caster->clearWard();
-  if(CompetitiveWard) S.effectPower=FMath::Min(S.effectPower,MaxHp()*.18f);
+  if(CompetitiveWard) S.effectPower=FMath::Min(S.effectPower,CultMatchBalance::CompetitiveBaseHealth*.18f);
  }
  if(S.effectKind=="heal") { T=nullptr; auto Hit=Owner->CameraAim(); for(auto& M:Mirrors) if(M.Actor==Hit.GetActor() && M.Core->alive() && M.Core->faction()==Caster->faction()) { T=M.Core.get(); break; } }
  auto Result=cultulhu::castKitSpell(S,*Caster,T,Foes,Core->Beliefs(Owner->GetFaction()),Core->Bus(Owner->GetFaction()),Effects,BuffMult*Core->CombatMultiplier(Owner->GetFaction()),Slot);

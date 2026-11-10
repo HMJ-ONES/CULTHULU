@@ -14,6 +14,8 @@ public:
  float Windup=.18f, Duration=.22f, Radius=35, Reach=2000, Speed=2400, HalfAngle=45;
  FVector PrimaryAim=FVector::ZeroVector;
  float Gravity=0.f;
+ void ConfigureProjectileFlight(float BaseReach,bool LongFlight);
+ float ProjectileDamageScale(FVector Contact) const;
  UPROPERTY(ReplicatedUsing=OnRep_Style) uint8 SignalStyle=0;
  UPROPERTY(Replicated) uint8 AbilityLook=0;
  UPROPERTY(Replicated) bool bTrackMuzzle=false;
@@ -57,6 +59,10 @@ private:
  UPROPERTY() TObjectPtr<class UBoxComponent> GuardCollision;
  float WardCountdownReceivedAt=0;
  float Age=0,Travel=0;
+ float FalloffStart=0;
+ UPROPERTY(Replicated) float FadeAt=0;
+ UPROPERTY(Replicated) float FadeSeconds=0;
+ float FlightVisibility() const;
  float BornAt=0;
  bool FirstTick=true;
  FVector Origin,Previous,SweepOffset;

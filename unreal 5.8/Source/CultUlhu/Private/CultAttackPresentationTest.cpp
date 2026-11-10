@@ -39,6 +39,7 @@ struct FCultAttackPresentationTestAccess {
   if(!A->IsActorBeingDestroyed()) A->SetActorTickEnabled(false);
  }
  static bool CoreVisible(ACultSkillAttack* A) { return A->Visual->IsVisible(); }
+ static float Visibility(ACultSkillAttack* A) { return A->FlightVisibility(); }
 };
 class FCultAttackSignalObservation:public IAutomationLatentCommand {
  FDelegateHandle CaptureHandle; bool Captured=false;
@@ -99,6 +100,28 @@ public:
    Test->TestTrue(TEXT("Projectile trail follows its actual swept position, behind its leading core"),FMath::IsNearlyEqual(float(BB.Max.X),200.f,5.f)&&BB.Min.X>60&&BB.Min.X<80&&FMath::IsNearlyEqual(float(Bolt->ProjectilePosition().X),200.f,2.f));
    FCultAttackPresentationTestAccess::Advance(Bolt,.05f); const auto Moved=FCultAttackPresentationTestAccess::Geometry(Bolt);
    Test->TestTrue(TEXT("A moving trail updates its existing geometry to the new projectile position"),FMath::IsNearlyEqual(float(Moved.Max.X),300.f,5.f)&&Moved.Min.X>160&&Moved.Min.X<180); Bolt->Destroy();
+   auto* Medium=Attack(S::Bolt,Friendly,FVector(0,5000,41000));
+   Medium->Windup=0; Medium->Speed=2000; Medium->ConfigureProjectileFlight(1000,false);
+   FCultAttackPresentationTestAccess::Advance(Medium,.60f);
+   Test->TestTrue(TEXT("The medium bolt flies beyond its former range and visibly fades"),
+    Medium->ProjectilePosition().X>1000&&FCultAttackPresentationTestAccess::Visibility(Medium)<.75f);
+   FCultAttackPresentationTestAccess::Advance(Medium,.20f);
+   Test->TestTrue(TEXT("The fading bolt expires at its medium flight limit"),Medium->IsActorBeingDestroyed());
+   auto* Long=Attack(S::Bolt,Friendly,FVector(0,6500,41000));
+   Long->Windup=0; Long->Speed=2000; Long->ConfigureProjectileFlight(1000,true);
+   const float NearScale=Long->ProjectileDamageScale(Long->GetActorLocation()+FVector(400,0,0));
+   auto* Wall=W->SpawnActor<AStaticMeshActor>(FVector(2150,6500,41000),FRotator::ZeroRotator);
+   auto* WallMesh=Wall->GetStaticMeshComponent(); WallMesh->SetMobility(EComponentMobility::Movable);
+   WallMesh->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube")));
+   WallMesh->SetCollisionProfileName(TEXT("BlockAll")); WallMesh->SetWorldScale3D(FVector(1,5,5));
+   FVector End=FVector::ZeroVector;
+   Long->Finished=[&](FVector Point) { End=Point; };
+   FCultAttackPresentationTestAccess::Advance(Long,.80f);
+   Test->TestTrue(TEXT("A long bolt stays visible and loses damage after passing the former limit"),
+    NearScale==1.f&&Long->ProjectilePosition().X>1000&&Long->ProjectileDamageScale(Long->ProjectilePosition())<.8f&&FCultAttackPresentationTestAccess::Visibility(Long)==1.f);
+   FCultAttackPresentationTestAccess::Advance(Long,.40f);
+   Test->TestTrue(TEXT("Solid cover stops a long bolt on physical contact"),Long->IsActorBeingDestroyed()&&End.X>2000&&End.X<2160);
+   Wall->Destroy();
    // Separate visual fixture: six real attack actors, frozen for inspection.
    auto* Floor=W->SpawnActor<AStaticMeshActor>(FVector(0,0,39900),FRotator::ZeroRotator); auto* C=Floor->GetStaticMeshComponent(); C->SetMobility(EComponentMobility::Movable); C->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube"))); C->SetWorldScale3D(FVector(150,100,2));
    C->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_ArenaSurface")));

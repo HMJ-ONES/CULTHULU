@@ -1,5 +1,6 @@
 #if WITH_DEV_AUTOMATION_TESTS && WITH_EDITOR
 #include "Misc/AutomationTest.h"
+#include "CultMatchBalance.h"
 #include "CultAutomationPIE.h"
 #include "CultUlhuGameInstance.h"
 #include "UI/CultCharacterSelectWidget.h"
@@ -98,7 +99,7 @@ struct FCultCharacterSelectionTestAccess {
    if(Mode==ECultPlayMode::Domination&&Spells[Slot]->effectKind=="summon") T->TestTrue(TEXT("Domination explains its existing invocation strike"),Meta.Contains(TEXT("AREA STRIKE")));
    if(Mode!=ECultPlayMode::FreeRoam&&Spells[Slot]->effectKind=="heal") T->TestTrue(TEXT("Competitive healing explains its hero-only target rule"),Meta.Contains(TEXT("ALLIED HEROES")));
   }
-  T->TestTrue(TEXT("Health display respects source versus competitive normalization"),Menu->DetailStats_->GetText().ToString().Contains(FString::Printf(TEXT(" / HP %.0f /"),Mode==ECultPlayMode::FreeRoam?Definition.maxHp:100.f)));
+  T->TestTrue(TEXT("Health display uses the selected mode's budget"),Menu->DetailStats_->GetText().ToString().Contains(FString::Printf(TEXT(" / HP %.0f /"),CultMatchBalance::HeroHealth(Mode,Definition.maxHp))));
   if(Mode==ECultPlayMode::Dotgoo&&Roster[Index].Id==TEXT("cthulhu_avatar")) {
    T->TestEqual(TEXT("MOBA Cthulhu explains the actual alternate attack"),Menu->AbilityNames_[3]->GetText().ToString(),FString(TEXT("Minion Sling")));
    T->TestTrue(TEXT("Minion sling shows its actual cooldown"),Menu->AbilityMeta_[3]->GetText().ToString().Contains(TEXT("20s")));

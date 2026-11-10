@@ -4,6 +4,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
+#include "GameFramework/GameStateBase.h"
 #include "CultCombatCredit.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultPopulation.h"
@@ -70,6 +71,10 @@ void ACultSkillAttack::BeginPlay() {
  Super::BeginPlay(); BornAt=GetWorld()->GetTimeSeconds(); Origin=Previous=GetActorLocation(); Direction.Normalize(); if(Shape==EShape::Sweep&&GetOwner()) SweepOffset=Origin-GetOwner()->GetActorLocation();
  if((Shape==EShape::Sweep||bTrackMuzzle)&&GetOwner()) SweepOffset=Origin-GetOwner()->GetActorLocation();
  if(HasAuthority()&&WardLocked) WardChargeRemaining=Windup;
+ if(HasAuthority()&&FadeSeconds>0) {
+  const auto* State=GetWorld()->GetGameState();
+  FadeAt=(State?State->GetServerWorldTimeSeconds():BornAt)+Windup+Duration;
+ }
  BuildPresentation();
  OnRep_RockGuard();
 }
@@ -81,7 +86,34 @@ void ACultSkillAttack::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
  DOREPLIFETIME_CONDITION(ACultSkillAttack,AbilityLook,COND_InitialOnly);
  DOREPLIFETIME_CONDITION(ACultSkillAttack,bTrackMuzzle,COND_InitialOnly);
  DOREPLIFETIME_CONDITION(ACultSkillAttack,RockExtents,COND_InitialOnly);
+ DOREPLIFETIME_CONDITION(ACultSkillAttack,FadeAt,COND_InitialOnly);
+ DOREPLIFETIME_CONDITION(ACultSkillAttack,FadeSeconds,COND_InitialOnly);
  DOREPLIFETIME(ACultSkillAttack,bRockGuard);
+}
+void ACultSkillAttack::ConfigureProjectileFlight(float BaseReach,bool LongFlight) {
+ // Long rounds stay solid through the playable engagement. A generous cap
+ // still collects missed shots sent out into empty sky.
+ Reach=LongFlight?FMath::Max(BaseReach*2.8f,Speed*18.f):BaseReach*1.35f;
+ Duration=Reach/FMath::Max(1.f,Speed);
+ FalloffStart=LongFlight?BaseReach*.65f:0.f;
+ FadeSeconds=LongFlight?0.f:Duration*.22f;
+}
+float ACultSkillAttack::ProjectileDamageScale(FVector Contact) const {
+ if(FalloffStart<=0) return 1.f;
+ const float Distance=Travel+FVector::Dist(Previous,Contact);
+ const float FalloffSpan=FalloffStart*((2.8f-.65f)/.65f);
+ const float Progress=FMath::Clamp((Distance-FalloffStart)/FMath::Max(1.f,FalloffSpan),0.f,1.f);
+ return FMath::Lerp(1.f,.4f,Progress);
+}
+float ACultSkillAttack::FlightVisibility() const {
+ if(FadeSeconds<=0) return 1.f;
+ if(HasAuthority()) {
+  const float Remaining=FMath::Min((Reach-Travel)/FMath::Max(1.f,Speed),Duration-FMath::Max(0.f,Age-Windup));
+  return FMath::Clamp(Remaining/FadeSeconds,0.f,1.f);
+ }
+ const auto* State=GetWorld()->GetGameState();
+ const float Now=State?State->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+ return FMath::Clamp((FadeAt-Now)/FadeSeconds,0.f,1.f);
 }
 void ACultSkillAttack::OnRep_WardCountdown() { WardCountdownReceivedAt=GetWorld()->GetTimeSeconds(); }
 float ACultSkillAttack::WardReleaseRemaining() const {
@@ -159,11 +191,11 @@ void ACultSkillAttack::Tick(float Dt) {
  Super::Tick(Dt);
  if(!HasAuthority()) {
   Age+=Dt;
-  if((bTrackMuzzle||AbilityLook)&&Shape==EShape::Bolt&&RockExtents.X<=0) Visual->SetWorldLocation(GetActorLocation());
+  if(Shape==EShape::Bolt&&RockExtents.X<=0) { Previous=GetActorLocation(); Visual->SetWorldLocation(Previous); }
   UpdatePresentation();
   return;
  }
- if(!Alive(GetOwner())) { Destroy(); return; }
+ if(!Alive(GetOwner())&&!(FalloffStart>0&&!IsWindingUp()&&IsValid(GetOwner()))) { Destroy(); return; }
  if(bRockGuard) { Age+=Dt; PositionGuard(); UpdateAbilityFilaments(); return; }
  if(Shape==EShape::Bolt&&bTrackMuzzle&&IsWindingUp()) {
   if(auto* Pawn=Cast<ACultUlhuPlayerPawn>(GetOwner()); Pawn&&(Pawn->IsIncapacitated()||Pawn->IsDashing())) { Destroy(); return; }
@@ -198,7 +230,7 @@ void ACultSkillAttack::Tick(float Dt) {
   const float Step=Speed*(Age-FMath::Max(Old,Windup));
   Direction=(Aim-Previous).GetSafeNormal();
   if(FVector::Dist(Previous,Aim)<=Step+Radius) { if(Hit) Hit(Target,Aim); if(Finished) Finished(Aim); Destroy(); return; }
-  Previous+=Direction*Step; Visual->SetWorldLocation(Previous);
+  Previous+=Direction*Step; SetActorLocation(Previous); Visual->SetWorldLocation(Previous);
  } else if(Shape==EShape::Bolt) {
   FVector Segment;
   if(Gravity>0) {
@@ -217,7 +249,7 @@ void ACultSkillAttack::Tick(float Dt) {
   if(IsActorBeingDestroyed()||!IsActorTickEnabled()) return;
   Travel+=Segment.Size();
   Previous=Next;
-  if(bTrackMuzzle||AbilityLook||RockExtents.X>0) SetActorLocation(Next);
+  SetActorLocation(Next);
   if(RockExtents.X<=0) Visual->SetWorldLocation(Next);
   if(Travel>=Reach-.01f||Active>=Duration) { if(Finished) Finished(Next); Destroy(); return; }
  } else if(Shape==EShape::Sweep) {

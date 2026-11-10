@@ -117,11 +117,13 @@ public:
    ReleaseKeys(W); if(Wall.IsValid()) Wall->Destroy();
    Target->RespawnMatch(FVector(10000,0,0)); Shooter->RespawnMatch(FVector(-3000,0,0)); Shooter->SetBotAim(Target.Get());
    Delivery=MakeUnique<FCultKitRuntime>(Shooter.Get()); Delivery->Initialize(TEXT("mi_go")); const float StaminaBefore=Delivery->StaminaValue();
+   TSet<TWeakObjectPtr<ACultSkillAttack>> InFlight;
+   for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Shooter.Get()) InFlight.Add(*It);
    Test->TestFalse(TEXT("A bot does not spend an aimed projectile on an unreachable body"),Delivery->Cast(0));
    Test->TestEqual(TEXT("An unreachable shot preserves its cooldown"),Delivery->Cooldown(0),0.f);
    Test->TestEqual(TEXT("An unreachable shot preserves its stamina"),Delivery->StaminaValue(),StaminaBefore);
-   int Strays=0; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Shooter.Get()) ++Strays;
-   Test->TestEqual(TEXT("Range rejection spawns no stray attack actor"),Strays,0);
+   int Strays=0; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Shooter.Get()&&!InFlight.Contains(*It)) ++Strays;
+   Test->TestEqual(TEXT("Range rejection spawns no new attack while previous rounds are still flying"),Strays,0);
    // Direction-only probe: even a supplied moving candidate must not provide
    // prediction or aim assistance to a human-controlled cast.
    const FVector OldVelocity=Shooter->GetCharacterMovement()->Velocity;
