@@ -53,6 +53,7 @@ public:
 	ACultUlhuPlayerPawn();
  // Optional Enhanced Input and zero-asset keys share one physical press/release.
  void RoutePlayerInput(ECultPlayerInput Action,bool Down);
+ bool IsHoldingInteract() const { return InputHeld_[static_cast<int32>(ECultPlayerInput::Interact)]; }
  void SetEnhancedMove(FVector2D Value) { EnhancedMove_=Value; }
  void SetEnhancedSprint(bool Down) { EnhancedSprint_=Down; }
 

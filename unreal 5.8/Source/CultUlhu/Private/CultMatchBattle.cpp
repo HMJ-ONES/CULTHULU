@@ -1,4 +1,3 @@
-#include "Kismet/GameplayStatics.h"
 #include "CultMatchDirector.h"
 #include "CultCombatCredit.h"
 #include "CultMatchState.h"
@@ -13,11 +12,8 @@
 #include "CultMeleeGeometry.h"
 #include "CultPopulation.h"
 #include "EngineUtils.h"
-#include "Engine/StaticMeshActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Materials/MaterialInstanceDynamic.h"
-#include "discovery/RelicNames.h"
 #include "CultBotThreat.h"
 #include "CultBotFocus.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -216,7 +212,8 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
   if(Camp>=0) Goal=FCultMobaJungle::Exit(Camp,F.Lane,P->FeetLocation());
   if(!F.Retreating&&F.RouteStep>=2&&I%5<2) for(int RIndex=0;RIndex<State_->Relics.Num();++RIndex) {
    const auto& R=State_->Relics[RIndex];
-   if(R.Claim>=0||State_->Time<R.Spawn||F.Level<(R.Tier==1?10:R.Tier==2?20:30)||FVector::Dist2D(P->FeetLocation(),R.Point)>8500) continue;
+   if(R.Claim>=0||State_->Time<R.Spawn||(R.IsRoving()&&R.Point.IsZero())||F.Level<R.RequiredLevel()||State_->Time<F.RelicBlockedUntil||
+      FVector::Dist2D(P->FeetLocation(),R.Point)>(R.IsRoving()?13500.f:8500.f)) continue;
    Goal=RIndex<4?FCultMobaJungle::Approach(RIndex,F.Lane,P->FeetLocation()):R.Point; break;
   }
  }
@@ -342,35 +339,6 @@ void ACultMatchDirector::BotThink(int I,float Dt) {
   }
  }
 }
-void ACultMatchDirector::UpdateRelics(float Dt) {
- for(auto& R:State_->Relics) {
-  if(R.Name.EndsWith(TEXT("relic"))) R.Name=UTF8_TO_TCHAR(cultulhu::generateRelicName(State_->Rng).c_str());
-  if(R.Claim>=0||State_->Time<R.Spawn) continue;
-  if(!R.Visual.IsValid()) {
-   auto* A=GetWorld()->SpawnActor<AStaticMeshActor>(R.Point+FVector(0,0,300),FRotator::ZeroRotator); auto* C=A->GetStaticMeshComponent(); C->SetMobility(EComponentMobility::Movable); C->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Sphere"))); C->SetWorldScale3D(FVector(R.Tier+1)); C->SetCollisionEnabled(ECollisionEnabled::NoCollision); C->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_Glow_Eye"))); R.Visual=A;
-   if(R.Tier==3) Announce(TEXT("THE MYTHIC RELIC HAS MANIFESTED AT MID. Level 30, six-second channel."));
-  }
-  int Candidate=-1,Teams=0;
-  for(int I=0;I<State_->Fighters.Num();++I) {
-   const auto& F=State_->Fighters[I]; if(!F.Pawn.IsValid()||F.Respawn>0||FVector::Dist2D(F.Pawn->FeetLocation(),R.Point)>1200||FMath::Abs(F.Pawn->FeetLocation().Z-R.Point.Z)>400) continue;
-   Teams|=1<<F.Team;
-   if(Candidate<0&&F.Level>=(R.Tier==1?10:R.Tier==2?20:30)&&State_->Time-F.LastHurt>.3f) Candidate=I;
-  }
-  if(Teams==3||Candidate<0) { R.Channel=0; R.ChannelSlot=-1; continue; }
-  if(R.ChannelSlot!=Candidate) { R.ChannelSlot=Candidate; R.Channel=0; }
-  R.Channel+=Dt;
-  if(R.Channel>=R.Need) {
-   R.Claim=Candidate; auto& F=State_->Fighters[Candidate]; F.RelicMult=FMath::Min(3.f,F.RelicMult+R.Amp);
-   Announce(F.Name+TEXT(" claimed ")+R.Name); if(R.Visual.IsValid()) R.Visual->Destroy();
-  }
- }
-}
-FString ACultMatchDirector::RelicStatus() const {
- if(!State_||!State_->Moba) return FString();
- for(const auto& R:State_->Relics) if(R.ChannelSlot==Slot(Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(this,0)))&&R.Claim<0) return FString::Printf(TEXT("CLAIMING %s  %.0f%%"),*R.Name,R.Need>0?100*R.Channel/R.Need:100);
- return State_->Time<600?FString::Printf(TEXT("Mythic relic in %.0fs | Tiers require level 10 / 20 / 30"),600-State_->Time):TEXT("Mythic relic available at mid | Level 30");
-}
-
 AActor* ACultMatchDirector::SelectTowerTarget(ACultMatchUnit* Tower) {
  if(!Tower||!Tower->IsStructure()||Tower->Kind==4) return nullptr;
  auto InRange=[&](AActor* A) {

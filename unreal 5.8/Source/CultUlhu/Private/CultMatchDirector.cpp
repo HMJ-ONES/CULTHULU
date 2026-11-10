@@ -65,7 +65,7 @@ void ACultMatchDirector::BeginPlay() {
    AddUnit(T,1,4,T,Base(T),cultulhu::MobaDefense::GOO_MAX_HP,0,0,0);
    AddUnit(T,-1,5,T,Base(T)+FVector(T?-4000:4000,0,0),4000,22,4600,0);
   }
-  State_->Relics={{FCultMobaJungle::Ground(0),TEXT("Jungle relic"),1,.12f,0,0,0}, {FCultMobaJungle::Ground(1),TEXT("Jungle relic"),1,.12f,0,0,0}, {FCultMobaJungle::Ground(2),TEXT("Eldritch relic"),2,.23f,0,0,4}, {FCultMobaJungle::Ground(3),TEXT("Eldritch relic"),2,.23f,0,0,4}, {FVector(0,0,0),TEXT("Mythic relic"),3,.38f,600,0,6}};
+  State_->Relics={{FCultMobaJungle::Ground(0),TEXT("Jungle relic"),1,.12f,0,0,5}, {FCultMobaJungle::Ground(1),TEXT("Jungle relic"),1,.12f,0,0,5}, {FCultMobaJungle::Ground(2),TEXT("Eldritch relic"),2,.23f,0,0,6}, {FCultMobaJungle::Ground(3),TEXT("Eldritch relic"),2,.23f,0,0,6}, {FVector(0,0,0),TEXT("Mythic relic"),3,.38f,600,0,8}, {FVector::ZeroVector,TEXT("Veilheart"),0,.16f,120,0,7}};
  }
  const auto& Roster=UCultUlhuGameInstance::Roster();
  // Mirrored compositions keep the local match fair; deferred IDs cannot enter here.
@@ -99,10 +99,14 @@ void ACultMatchDirector::SpawnFighter(int I) {
  if(F.Pawn.IsValid()) { F.Pawn->RespawnMatch(Feet); F.Pawn->SetActorRotation(FRotator(0,F.Team?180:0,0)); }
  F.DomPath.Reset(); F.DomPathIndex=0; F.DomEscape=false;
  if(Mode()==ECultPlayMode::Domination&&I%5==4) F.DomPath=FCultDominationRoute::Flank(F.Team,(F.Team?-1:1)*(F.Deaths%2?-1:1));
- F.Shield=3; F.Respawn=0; F.Recall=F.Invoke=0; F.RouteStep=1; F.Retreating=false; if(F.Pawn.IsValid()) F.Pawn->MarkCombat(); F.Pawn->Tags.AddUnique(FName(*FString::Printf(TEXT("MatchFighter%d"),I)));
+ F.Shield=3; F.Respawn=0; F.Recall=F.Invoke=0; F.RelicNeedsRelease=false; F.RouteStep=1; F.Retreating=false; if(F.Pawn.IsValid()) F.Pawn->MarkCombat(); F.Pawn->Tags.AddUnique(FName(*FString::Printf(TEXT("MatchFighter%d"),I)));
 }
 void ACultMatchDirector::Announce(const FString& Text) { State_->Notice=Text; State_->NoticeTime=6; UE_LOG(LogTemp,Log,TEXT("[CultMatch] %s"),*Text); }
-FString ACultMatchDirector::Announcement() const { return State_&&State_->NoticeTime>0?State_->Notice:FString(); }
+FString ACultMatchDirector::Announcement() const {
+ if(!State_) return FString();
+ if(State_->Time<State_->RelicNoticeUntil) return State_->RelicNotice;
+ return State_->NoticeTime>0?State_->Notice:FString();
+}
 const TArray<FCultMatchElimination>& ACultMatchDirector::Eliminations() const { static const TArray<FCultMatchElimination> Empty; return State_?State_->Eliminations:Empty; }
 void ACultMatchDirector::Tick(float Dt) {
  Super::Tick(Dt); if(!State_) return; if(!HasAuthority()) { if(!State_->Over) State_->Time+=Dt; State_->Warmup=FMath::Max(0.f,State_->Warmup-Dt); RefreshRemoteMatch(); return; } if(State_->Paused) return; State_->NoticeTime=FMath::Max(0.f,State_->NoticeTime-Dt);
@@ -195,7 +199,7 @@ void ACultMatchDirector::Interact(ACultUlhuPlayerPawn* P) {
   if(F.Level<10||F.Invokes<=0) { P->Notify(TEXT("Artifact invocation requires level 10 and a level-up charge. The temple heals you automatically.")); return; }
   F.Recall=0; F.Invoke=.001f; F.ChannelOrigin=P->FeetLocation(); P->Notify(TEXT("Invoking an artifact: stay still for 20 seconds.")); return;
  }
- P->Notify(TEXT("G: recall to your healing temple. Jungle relics channel automatically when eligible and uncontested."));
+ if(Mode()==ECultPlayMode::Dotgoo&&NearbyRelic(P)==INDEX_NONE) P->Notify(TEXT("Hold E beside a jungle relic to claim it. G recalls to your temple."));
 }
 void ACultMatchDirector::Ping(ACultUlhuPlayerPawn* P) {
  if(!CanAct(P)) return; const auto Hit=P->CameraAim(25000,true); if(!Hit.bBlockingHit) { P->Notify(TEXT("Aim your rally at solid ground.")); return; }
@@ -216,7 +220,7 @@ void ACultMatchDirector::Finish(int T) {
 void ACultMatchDirector::TogglePause() {
  if(!State_||State_->Over) return;
  State_->LocalMenu=!State_->LocalMenu;
- if(auto* PC=GetWorld()->GetFirstPlayerController()) { PC->bShowMouseCursor=IsPaused(); if(IsPaused()) { if(auto* P=Cast<ACultUlhuPlayerPawn>(PC->GetPawn())) P->RoutePlayerInput(ECultPlayerInput::Heavy,false); FInputModeGameAndUI Input; Input.SetHideCursorDuringCapture(false); PC->SetInputMode(Input); } else PC->SetInputMode(FInputModeGameOnly()); }
+ if(auto* PC=GetWorld()->GetFirstPlayerController()) { PC->bShowMouseCursor=IsPaused(); if(IsPaused()) { if(auto* P=Cast<ACultUlhuPlayerPawn>(PC->GetPawn())) { P->RoutePlayerInput(ECultPlayerInput::Heavy,false); P->RoutePlayerInput(ECultPlayerInput::Interact,false); } FInputModeGameAndUI Input; Input.SetHideCursorDuringCapture(false); PC->SetInputMode(Input); } else PC->SetInputMode(FInputModeGameOnly()); }
 }
 void ACultMatchDirector::Rematch() {
  if(!State_||!IsOver()) return; if(!HasAuthority()) { if(auto* P=Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(this,0))) P->Notify(TEXT("Only the host can restart the room.")); return; }

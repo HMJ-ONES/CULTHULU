@@ -409,11 +409,57 @@ struct FCultMatchTestAccess {
  static void VerifyRelicHeight(FAutomationTestBase* T,ACultMatchDirector* M,ACultUlhuPlayerPawn* P) {
   auto& F=M->State_->Fighters[0]; const int OriginalLevel=F.Level; F.Level=20;
   auto& Relic=M->State_->Relics[2]; Relic.Channel=0; Relic.ChannelSlot=-1;
+  P->RoutePlayerInput(ECultPlayerInput::Interact,true);
   P->RelocateMatch(FVector(Relic.Point.X,Relic.Point.Y,0)); M->UpdateRelics(.2f);
   T->TestEqual(TEXT("A hero below the plateau cannot collect its relic through solid ground"),Relic.Channel,0.f);
+  P->RoutePlayerInput(ECultPlayerInput::Interact,false);
   P->RelocateMatch(Relic.Point); M->UpdateRelics(.2f);
-  T->TestTrue(TEXT("A hero on the plateau can actually channel its elevated relic"),Relic.Channel>.1f);
-  Relic.Channel=0; Relic.ChannelSlot=-1; F.Level=OriginalLevel;
+  T->TestEqual(TEXT("Standing on the relic without E gives no progress"),Relic.Channel,0.f);
+  const float IdleScale=Relic.Visual->GetActorScale3D().X;
+  P->RoutePlayerInput(ECultPlayerInput::Interact,true);
+  M->UpdateRelics(2.f);
+  T->TestTrue(TEXT("Holding E charges the glow without collecting early"),Relic.Channel>1.9f&&Relic.Claim<0&&Relic.Visual->GetActorScale3D().X>IdleScale);
+  P->RoutePlayerInput(ECultPlayerInput::Interact,false);
+  T->TestEqual(TEXT("Releasing E immediately resets the claim"),Relic.Channel,0.f);
+  P->RoutePlayerInput(ECultPlayerInput::Interact,true);
+  M->UpdateRelics(1.f);
+  const float OldShield=F.Shield,Now=M->State_->Time;
+  F.Shield=0;
+  P->ReceiveDamage(1.f);
+  T->TestTrue(TEXT("An actual hit resets the claim and locks it out for three seconds"),
+   Relic.Channel==0&&FMath::IsNearlyEqual(F.RelicBlockedUntil-Now,3.f,.01f));
+  M->UpdateRelics(1.f);
+  T->TestEqual(TEXT("Holding E through an interruption does not progress"),Relic.Channel,0.f);
+  P->RoutePlayerInput(ECultPlayerInput::Interact,false);
+  P->RoutePlayerInput(ECultPlayerInput::Interact,true);
+  M->State_->Time=Now+2.9f;
+  M->UpdateRelics(.1f);
+  T->TestEqual(TEXT("Pressing again before the full lockout still gives no progress"),Relic.Channel,0.f);
+  M->State_->Time=Now+3.1f;
+  const float Power=F.RelicMult;
+  auto* Contestant=M->State_->Fighters[5].Pawn.Get();
+  const FVector Previous=Contestant->FeetLocation();
+  Contestant->RelocateMatch(Relic.Point+FVector(300,0,0));
+  M->UpdateRelics(1.f);
+  T->TestTrue(TEXT("An enemy beside the relic contests the hold"),Relic.Contested&&Relic.Channel==0);
+  Contestant->RelocateMatch(Previous);
+  M->UpdateRelics(Relic.Need-.2f);
+  T->TestTrue(TEXT("The full hold is needed to collect"),Relic.Claim<0);
+  M->UpdateRelics(.25f);
+  T->TestTrue(TEXT("Completing the hold grants the relic exactly once"),Relic.Claim==0&&F.RelicMult>Power&&!Relic.Visual.IsValid());
+  P->RoutePlayerInput(ECultPlayerInput::Interact,false);
+  F.RelicBlockedUntil=0; F.Shield=OldShield; F.RelicMult=Power; F.Level=OriginalLevel;
+  Relic.Claim=-1;
+  M->State_->Time=Now;
+  auto& Veilheart=M->State_->Relics.Last();
+  const float Spawn=Veilheart.Spawn;
+  Veilheart.Spawn=Now;
+  M->UpdateRelics(.1f);
+  T->TestTrue(TEXT("The special relic spawns at one of the two mid-jungle sites and announces its side"),
+   Veilheart.IsRoving()&&Veilheart.Visual.IsValid()&&FMath::IsNearlyEqual(FMath::Abs(Veilheart.Point.Y),8500.0)&&
+   M->Announcement().Contains(Veilheart.Point.Y<0?TEXT("NORTH JUNGLE"):TEXT("SOUTH JUNGLE")));
+  Veilheart.Spawn=Spawn; Veilheart.Point=FVector::ZeroVector; M->State_->RelicNoticeUntil=0;
+  M->RefreshRelicVisuals();
  }
  static ACultMatchUnit* TerrainReturn(ACultMatchDirector* M,ACultUlhuPlayerPawn* Player,int Camp=2,int Lane=2) {
   auto* U=M->AddUnit(1,Lane,0,-1,FCultMobaJungle::Ground(Camp),80,8,800,600);

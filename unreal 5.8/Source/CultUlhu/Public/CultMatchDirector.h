@@ -18,6 +18,8 @@ struct FCultMatchFighter {
  FVector ChannelOrigin=FVector::ZeroVector; float RelicMult=1,DamageDone=0,DamageTaken=0; bool Retreating=false,LaneEntered=false; float PointSeconds=0;
  TArray<FVector> DomPath; int DomPathIndex=0; bool DomEscape=false,DomTunnelVisited=false,DomFlankCompleted=false;
  float NextTacticalMove=0;
+ float RelicBlockedUntil=0;
+ bool RelicNeedsRelease=false;
  FVector TacticalGoal=FVector::ZeroVector;
  TMap<int,float> RecentAttackers;
 };
@@ -71,6 +73,7 @@ public:
  float DamageMultiplier(const ACultUlhuPlayerPawn* P) const;
  void StartRecall(ACultUlhuPlayerPawn* P);
  void Interact(ACultUlhuPlayerPawn* P);
+ void InterruptRelicClaim(ACultUlhuPlayerPawn* P,bool Hit=true);
  void Ping(ACultUlhuPlayerPawn* P);
  void PingAt(ACultUlhuPlayerPawn* P,FVector Point);
  void Rematch();
@@ -97,6 +100,8 @@ private:
  void UpdateUnits(float Dt);
  AActor* SelectTowerTarget(ACultMatchUnit* Tower);
  void UpdateRelics(float Dt);
+ void RefreshRelicVisuals();
+ int32 NearbyRelic(const ACultUlhuPlayerPawn* P) const;
  void SpawnWaves();
  void Finish(int Team);
  void Announce(const FString& Text);

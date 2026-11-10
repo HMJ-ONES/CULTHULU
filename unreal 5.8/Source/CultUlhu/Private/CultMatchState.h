@@ -58,8 +58,20 @@ struct ACultMatchDirector::FState {
  FString Notice;
  TArray<FCultMatchElimination> Eliminations;
  int32 PingTeam=0; FVector PingPoint=FVector::ZeroVector; float PingTime=0;
- struct FRelic { FVector Point; FString Name; int Tier=1; float Amp=.12f,Spawn=0,Channel=0,Need=0; int Claim=-1,ChannelSlot=-1; TWeakObjectPtr<AActor> Visual; };
+ struct FRelic {
+  FVector Point;
+  FString Name;
+  int Tier=1;
+  float Amp=.12f,Spawn=0,Channel=0,Need=0;
+  int Claim=-1,ChannelSlot=-1;
+  TWeakObjectPtr<AActor> Visual;
+  bool Contested=false;
+  bool IsRoving() const { return Tier==0; }
+  int RequiredLevel() const { return IsRoving()?1:Tier*10; }
+ };
  TArray<FRelic> Relics;
+ FString RelicNotice;
+ float RelicNoticeUntil=0;
  TArray<FBox2D> ResultButtons;
  float LastBotInvoke[10]={};
  FCultBotThreatMemory BotThreats[10];

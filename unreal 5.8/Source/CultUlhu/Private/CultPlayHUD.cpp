@@ -15,6 +15,9 @@
 #include "EngineUtils.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Rendering/SlateRenderer.h"
+#include "Fonts/FontMeasure.h"
 #include "ui/CommandMenu.h"
 
 void DrawCultCombat(ACultPlayHUD*,ACultUlhuPlayerPawn*,UCanvas*);
@@ -97,8 +100,19 @@ void ACultPlayHUD::DrawHUD()
 {
  Super::DrawHUD(); InspectionCards_.Reset(); auto* P=Cast<ACultUlhuPlayerPawn>(GetOwningPawn()); if(!P||!Canvas) return;
  const float S=FMath::Clamp(FMath::Min(Canvas->SizeX/1600.f,Canvas->SizeY/900.f),.6f,2.f); UFont* Font=GEngine->GetMediumFont();
+ Presentation_=CultHUDPresentation::Observe(P,ACultMatchDirector::Find(GetWorld()),PresentationMemory_,GetWorld()->GetTimeSeconds());
  DrawCultCombat(this,P,Canvas);
- if(auto* M=ACultMatchDirector::Find(GetWorld())) { M->Draw(this,Canvas,P); return; }
+ if(auto* M=ACultMatchDirector::Find(GetWorld())) {
+  M->Draw(this,Canvas,P);
+  const FString Relic=M->RelicStatus();
+  if(!Relic.IsEmpty()&&!M->IsPaused()&&!M->IsOver()&&!Presentation_.Expanded) {
+   const auto Measure=FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
+   const float W=Measure->Measure(Relic,CultUI::Font(13*S)).X,X=(Canvas->SizeX-W)*.5f,Y=Canvas->SizeY*.62f;
+   DrawRect(CultUI::Panel,X-10*S,Y-5*S,W+20*S,28*S);
+   CultCanvasLabel(Canvas,Relic,CultUI::Gold,X,Y,13*S);
+  }
+  return;
+ }
 
  if(bRegionMap_) { InspectionHover_.Reset(); DrawRegionMap(); return; }
  if(bFaith_) { InspectionHover_.Reset(); DrawFaith(); return; }

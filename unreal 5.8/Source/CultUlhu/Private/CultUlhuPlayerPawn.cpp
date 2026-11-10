@@ -278,6 +278,7 @@ void ACultUlhuPlayerPawn::RoutePlayerInput(ECultPlayerInput Action,bool Down) {
   if(Action==ECultPlayerInput::Jump) StopJumping();
   else if(Action==ECultPlayerInput::Primary) CommandReleased();
   else if(Action==ECultPlayerInput::Heavy) ReleaseHeavy();
+  else if(Action==ECultPlayerInput::Interact) { if(auto* Match=ACultMatchDirector::Find(GetWorld())) Match->InterruptRelicClaim(this,false); }
   else if(Action==ECultPlayerInput::Command) AltReleased();
   return;
  }
@@ -416,6 +417,7 @@ void ACultUlhuPlayerPawn::ReceiveDamage(float Amount,AActor* Source)
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->DamageAllowed(this,Source)) return;
  const auto* Ward=Cast<ACultMatchUnit>(Source);
  if(Ward&&Ward->IsStructure()?IsDashing():IsEvading()) { ConfirmEvade(); return; }
+ if(auto* Match=ACultMatchDirector::Find(GetWorld())) Match->InterruptRelicClaim(this);
  MarkCombat();
  const float Before=GetHealth();
  const float WardBefore=Kit_?Kit_->Ward():0.f;

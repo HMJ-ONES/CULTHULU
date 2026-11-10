@@ -9,6 +9,7 @@
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 void ACultUlhuPlayerPawn::SetMatchDead() {
+ InputHeld_[static_cast<int32>(ECultPlayerInput::Interact)]=false;
  AttackPlayback_={};
  HeldAttack_={};
  if(HasAuthority()&&IsValid(ActiveRock_)) { ActiveRock_->Destroy(); ActiveRock_=nullptr; }

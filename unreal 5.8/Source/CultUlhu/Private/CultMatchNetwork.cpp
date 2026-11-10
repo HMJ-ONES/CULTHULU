@@ -3,12 +3,9 @@
 #include "CultUlhuPlayerController.h"
 #include "CultMatchSpawn.h"
 #include "CultCanonicalKit.h"
-#include "Components/StaticMeshComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
-#include "Engine/StaticMeshActor.h"
-#include "Engine/StaticMesh.h"
 struct FCultMatchNetAccess {
  static void Serialize(FArchive& A,ACultMatchDirector* M) {
   if(!M->State_) return; auto& S=*M->State_; int32 Mode=int(S.Mode); A<<Mode; if(Mode<1||Mode>2) { A.SetError(); return; }
@@ -18,9 +15,10 @@ struct FCultMatchNetAccess {
   if(A.IsLoading()) { S.RemoteHolder=Holder; S.RemoteContested=Contested; S.RemoteOvertime=Overtime; }
   for(int Team=0;Team<2;++Team) { float Score=M->Score(Team),Core=M->CoreHealth(Team); int Towers=M->TowersAlive(Team); A<<Score<<Core<<Towers<<S.NexusDestroyed[Team]; if(A.IsLoading()) { S.RemoteScores[Team]=Score; S.RemoteCore[Team]=Core; S.RemoteTowers[Team]=Towers; } }
   int32 N=S.Fighters.Num(); A<<N; if(N<0||N>10) { A.SetError(); return; } if(A.IsLoading()) S.Fighters.SetNum(N);
-  for(auto& F:S.Fighters) A<<F.Kit<<F.Name<<F.Team<<F.Lane<<F.XP<<F.Level<<F.Kills<<F.Deaths<<F.Assists<<F.Invokes<<F.FirstPick<<F.Respawn<<F.Shield<<F.Recall<<F.Invoke<<F.RelicMult<<F.DamageDone<<F.DamageTaken;
+  for(auto& F:S.Fighters) A<<F.Kit<<F.Name<<F.Team<<F.Lane<<F.XP<<F.Level<<F.Kills<<F.Deaths<<F.Assists<<F.Invokes<<F.FirstPick<<F.Respawn<<F.Shield<<F.Recall<<F.Invoke<<F.RelicMult<<F.DamageDone<<F.DamageTaken<<F.RelicBlockedUntil<<F.RelicNeedsRelease;
   N=S.Relics.Num(); A<<N; if(N<0||N>8) { A.SetError(); return; } if(A.IsLoading()) S.Relics.SetNum(N);
-  for(auto& R:S.Relics) A<<R.Point<<R.Name<<R.Tier<<R.Amp<<R.Spawn<<R.Channel<<R.Need<<R.Claim<<R.ChannelSlot;
+  for(auto& R:S.Relics) A<<R.Point<<R.Name<<R.Tier<<R.Amp<<R.Spawn<<R.Channel<<R.Need<<R.Claim<<R.ChannelSlot<<R.Contested;
+  A<<S.RelicNotice<<S.RelicNoticeUntil;
   N=S.Eliminations.Num(); A<<N; if(N<0||N>32) { A.SetError(); return; } if(A.IsLoading()) S.Eliminations.SetNum(N);
   for(auto& E:S.Eliminations) A<<E.Attacker<<E.Victim<<E.AttackerTeam<<E.VictimTeam<<E.Remaining<<E.Local<<E.AttackerSlot<<E.VictimSlot;
   if(A.IsLoading()) { if(S.Over) S.LocalMenu=false; S.RemoteReady=true; M->RefreshRemoteMatch(); if(S.Over) if(auto* PC=M->GetWorld()->GetFirstPlayerController()) { PC->bShowMouseCursor=true; FInputModeGameAndUI Input; Input.SetHideCursorDuringCapture(false); PC->SetInputMode(Input); } }
@@ -34,13 +32,7 @@ void ACultMatchDirector::RefreshRemoteMatch() {
  if(HasAuthority()||!State_) return; auto& S=*State_;
  if(S.Mode==ECultPlayMode::Dotgoo&&!S.Moba) { S.Moba=std::make_unique<FCultNativeMoba>(S.Bus,S.Clock,S.Rng); S.Moba->Setup(); }
  if(S.Mode==ECultPlayMode::Domination&&!S.Capture) { S.Capture=std::make_unique<cultulhu::CapturePointMode>(S.Bus,S.Clock); S.Capture->addPoint({0,0,0},35); }
- for(auto& R:S.Relics) {
-  const bool Visible=R.Claim<0&&S.Time>=R.Spawn;
-  if(!Visible&&R.Visual.IsValid()) { R.Visual->Destroy(); R.Visual.Reset(); }
-  if(Visible&&!R.Visual.IsValid()) {
-   auto* A=GetWorld()->SpawnActor<AStaticMeshActor>(R.Point+FVector(0,0,300),FRotator::ZeroRotator); auto* C=A->GetStaticMeshComponent(); C->SetMobility(EComponentMobility::Movable); C->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Sphere"))); C->SetWorldScale3D(FVector(R.Tier+1)); C->SetCollisionProfileName(TEXT("NoCollision")); R.Visual=A;
-  }
- }
+ RefreshRelicVisuals();
  S.Units.Reset(); for(TActorIterator<ACultMatchUnit> It(GetWorld());It;++It) S.Units.Add(*It);
  for(int I=0;I<S.Fighters.Num();++I) {
   auto& F=S.Fighters[I]; const FName Tag(*FString::Printf(TEXT("MatchFighter%d"),I));
@@ -59,7 +51,7 @@ bool ACultMatchDirector::AddHumanPlayer(APlayerController* PC,const FString& Cha
  auto* P=GetWorld()->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),Transform,PC,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); if(!P) return false;
  P->ConfigurePlayer(Character,Team); P->Tags.Add(FName(*FString::Printf(TEXT("MatchFighter%d"),SlotIndex))); P->FinishSpawning(Transform); PC->Possess(P);
  if(auto* C=Cast<ACultUlhuPlayerController>(PC)) C->MatchSlot=SlotIndex;
- F.Pawn=P; F.Kit=Character; FString Name=Character; for(const auto& Entry:UCultUlhuGameInstance::Roster()) if(Entry.Id==Character) { Name=Entry.DisplayName; int Comma; if(Name.FindChar(',',Comma)) Name.LeftInline(Comma); break; } F.Name=FString::Printf(TEXT("Player %d / %s"),SlotIndex+1,*Name); F.Respawn=0; F.Recall=F.Invoke=0; F.Retreating=false; F.Shield=3; P->RespawnMatch(Feet);
+ F.Pawn=P; F.Kit=Character; FString Name=Character; for(const auto& Entry:UCultUlhuGameInstance::Roster()) if(Entry.Id==Character) { Name=Entry.DisplayName; int Comma; if(Name.FindChar(',',Comma)) Name.LeftInline(Comma); break; } F.Name=FString::Printf(TEXT("Player %d / %s"),SlotIndex+1,*Name); F.Respawn=0; F.Recall=F.Invoke=0; F.RelicBlockedUntil=0; F.RelicNeedsRelease=false; F.Retreating=false; F.Shield=3; P->RespawnMatch(Feet);
  if(OldBot&&OldBot!=P) OldBot->Destroy(); if(OldPawn&&OldPawn!=OldBot&&OldPawn!=P) OldPawn->Destroy(); ForceNetUpdate();
  UE_LOG(LogTemp,Display,TEXT("[CultRoom] Human joined team %d slot %d as %s"),Team,SlotIndex,*Character); return true;
 }
