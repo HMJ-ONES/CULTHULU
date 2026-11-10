@@ -27,13 +27,13 @@ range = 8
 [f]
 id = tidal_surge
 name = Tidal Surge
-flavor = The sea itself shoves him forward.
+flavor = The sea breaks from his jaws in a crushing jet.
 cooldown = 14
 stamina_cost = 30
 mana_cost = 0
-effect = dash
-power = 12
-range = 0
+effect = projectile
+power = 88
+range = 26
 
 [r]
 id = rise_deep_ones

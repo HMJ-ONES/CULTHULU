@@ -56,18 +56,21 @@ void FCultKitRuntime::Snapshot()
   if(Known.Contains(A)) continue;
   Mirror M; M.Actor=A; const auto P=CorePos(A->GetActorLocation()); const float Hp=ActorHp(A);
   if(auto* U=::Cast<ACultMatchUnit>(A)) { if(U->IsStructure()) M.Core=std::make_unique<cultulhu::Building>(U->Team,P,Hp); else M.Core=std::make_unique<cultulhu::Creature>(U->Team,P,"lane_minion",Hp); }
-  else if(auto* C=::Cast<ACultPopulation>(A)) { if(C->IsSummoned()) M.Core=std::make_unique<cultulhu::Creature>(C->GetFaction(),P,"summoned",Hp); else if(C->IsCultist()) M.Core=std::make_unique<cultulhu::Cultist>(C->GetFaction(),P,Hp); else M.Core=std::make_unique<cultulhu::Civilian>(P,Hp); }
+  else if(auto* C=::Cast<ACultPopulation>(A)) { if(C->IsSummoned()) M.Core=std::make_unique<cultulhu::Creature>(C->GetFaction(),P,"summoned",C->GetMaxHealth()); else if(C->IsCultist()) M.Core=std::make_unique<cultulhu::Cultist>(C->GetFaction(),P,C->GetMaxHealth()); else M.Core=std::make_unique<cultulhu::Civilian>(P,C->GetMaxHealth()); }
   else if(auto* B=::Cast<ACultFeralBeast>(A)) M.Core=std::make_unique<cultulhu::Monstrosity>(-1,P,"feral",true,Hp);
   else if(auto* Structure=::Cast<ACultDestructible>(A)) M.Core=std::make_unique<cultulhu::Building>(Structure->GetFaction(),P,Hp);
-  else if(auto* Rival=::Cast<ACultUlhuPlayerPawn>(A)) M.Core=std::make_unique<cultulhu::Entity>(cultulhu::EntityType::EldritchAvatar,Rival->GetFaction(),P,Hp);
+  else if(auto* Rival=::Cast<ACultUlhuPlayerPawn>(A)) M.Core=std::make_unique<cultulhu::Entity>(cultulhu::EntityType::EldritchAvatar,Rival->GetFaction(),P,Rival->GetMaxHealth());
   if(M.Core) Mirrors.push_back(std::move(M));
  }
  for(auto& M:Mirrors)
  {
   if(!M.Actor.IsValid()) { M.Core->takeDamage(100000); continue; }
-  M.BeforeHp=ActorHp(M.Actor.Get());
+  const float NativeHp=ActorHp(M.Actor.Get());
   if(auto* Person=::Cast<ACultPopulation>(M.Actor.Get())) if(Person->GetFaction()!=M.Core->faction()) { if(Person->IsCultist()) M.Core=std::make_unique<cultulhu::Cultist>(Person->GetFaction(),CorePos(Person->GetActorLocation()),100.f); else M.Core=std::make_unique<cultulhu::Civilian>(CorePos(Person->GetActorLocation()),50.f); }
-  M.Core->revive(M.BeforeHp);
+  M.Core->revive(NativeHp);
+  // Compare against the initialized simulation value, never against a health
+  // value the mirror couldn't represent. Synchronization is not a damage event.
+  M.BeforeHp=M.Core->hp();
   M.BeforePosition=M.Actor->GetActorLocation(); M.Core->setPosition(CorePos(M.BeforePosition));
   if(auto* P=::Cast<ACultPopulation>(M.Actor.Get())) if(M.Core->type()==cultulhu::EntityType::Cultist) { auto* C=static_cast<cultulhu::Cultist*>(M.Core.get()); C->setDevotion(P->GetLoyalty()); C->setState(P->IsLunatic()?cultulhu::CultistState::Lunatic:cultulhu::CultistState::Loyal); }
  }
@@ -159,11 +162,39 @@ void FCultKitRuntime::Tick(float Dt)
  if(StatefulRmb) { auto C=Context(); float Remaining=Dt; while(Remaining>0) { const float Step=FMath::Min(.016f,Remaining); Rmb->update(C,Step); Remaining-=Step; } UpdateDominationPose(); }
  if(Synchronize) Apply();
 }
+FCultCastArea FCultKitRuntime::CastArea(int Slot) const
+{
+ FCultCastArea Area;
+ if(Slot<0||Slot>2) return Area;
+ const auto& Spell=Slot==0?Def.qAbility:Slot==1?Def.fAbility:Def.rAbility;
+ const auto& Kind=Spell.effectKind;
+ const auto* Match=ACultMatchDirector::Find(Owner->GetWorld());
+ const bool Summon=Kind=="summon"&&(!Match||Match->Mode()!=ECultPlayMode::Domination);
+ if(!Summon&&Kind!="aoe_damage"&&Kind!="fear_aura"&&Kind!="pull") return Area;
+ Area.Slot=Slot;
+ Area.Radius=Spell.range*100.f;
+ if(IsCasterGroundStrike(Spell.id)||Kind=="fear_aura"||Kind=="pull") {
+  Area.Center=Owner->FeetLocation()+FVector(0,0,IsCasterGroundStrike(Spell.id)?12:100);
+  Area.Valid=true;
+  return Area;
+ }
+ const FHitResult Aim=Owner->CameraAim();
+ Area.Center=Aim.ImpactPoint;
+ Area.OutOfRange=!Summon&&Aim.bBlockingHit&&FVector::DistSquared2D(Owner->FeetLocation(),Area.Center)>
+  FMath::Square(18000.f+Owner->GetSimpleCollisionRadius());
+ Area.Valid=Aim.bBlockingHit&&!Area.OutOfRange;
+ return Area;
+}
 bool FCultKitRuntime::Cast(int Slot)
 {
  if(auto* M=ACultMatchDirector::Find(Owner->GetWorld())) if(!M->AbilityAvailable(Owner,Slot,false)) return false;
  if(!ACultWorldDirector::Find(Owner->GetWorld()) || !Caster || Slot<0 || Slot>2 || Cooldowns[Slot]>0) return false;
  cultulhu::SpellDef S=Slot==0?Def.qAbility:Slot==1?Def.fAbility:Def.rAbility;
+ const FCultCastArea Area=CastArea(Slot);
+ if(Area.Slot!=INDEX_NONE&&!Area.Valid) {
+  Owner->Notify(Area.OutOfRange?TEXT("Target out of range. Aim at a closer surface."):TEXT("Aim at a solid surface."));
+  return false;
+ }
  if(auto* M=ACultMatchDirector::Find(Owner->GetWorld())) {
   M->OnAction(Owner);
   if(M->Mode()==ECultPlayMode::Domination&&S.effectKind=="summon") {
@@ -174,25 +205,17 @@ bool FCultKitRuntime::Cast(int Slot)
  if(S.effectKind=="heal") return CastHeal(S,Slot);
  Owner->MarkCombat();
  if(S.effectKind=="projectile"||S.effectKind=="aoe_damage"||S.effectKind=="stun"||S.effectKind=="debuff"||S.effectKind=="fear_aura"||S.effectKind=="pull") {
-  FVector Point=Owner->FeetLocation();
-  if(!IsCasterGroundStrike(S.id)) {
-   const auto Pick=Owner->CameraAim(S.effectKind=="aoe_damage"?6000.f:25000.f);
-   if(S.effectKind=="aoe_damage"&&!Pick.bBlockingHit) { Owner->Notify(TEXT("Aim the warning zone at a solid surface")); return false; }
-   Point=Pick.ImpactPoint;
-  }
+  const FVector Point=Area.Slot!=INDEX_NONE?Area.Center:Owner->CameraAim().ImpactPoint;
   if(!LaunchSpatial(S,Slot,Point)) return false; Cooldowns[Slot]=S.cooldownSec; EmitCast(S,Slot); return true;
  }
- Snapshot(); FVector Aim; auto* T=Target(S.effectKind=="projectile"||S.effectKind=="stun"?S.range*100:25000,Aim);
- if(S.effectKind=="aoe_damage" && !T && !Owner->CameraAim().bBlockingHit) { Owner->Notify(TEXT("Aim at a target or solid ground")); return false; }
- cultulhu::Entity Ground(cultulhu::EntityType::Creature,-1,CorePos(Aim),1000000);
- if(S.effectKind=="aoe_damage"&&!T) T=&Ground;
+ Snapshot(); FVector Aim=Area.Center; auto* T=Target(25000,Aim);
+ if(Area.Slot!=INDEX_NONE) Aim=Area.Center;
  std::vector<cultulhu::Entity*> Foes;
  for(auto& M:Mirrors) if(M.Actor.IsValid() && M.Core->alive() && M.Core->faction()!=Caster->faction()) Foes.push_back(M.Core.get());
  TArray<FVector> SummonPoints;
  int Count=0; for(TActorIterator<ACultPopulation> It(Owner->GetWorld());It;++It) ++Count;
  if(S.effectKind=="summon") {
   if(Count+int(S.effectPower)>512) { Owner->Notify(TEXT("No room for the complete summon")); return false; }
-  if(!Owner->CameraAim().bBlockingHit) { Owner->Notify(TEXT("Aim summons at solid ground")); return false; }
   for(int I=0;I<int(S.effectPower);++I) {
    bool Placed=false;
    for(int Try=0;Try<24;++Try) { const float A=FMath::FRand()*2*PI; const float R=Try==23?0.f:FMath::FRand()*S.range*100.f; FVector P=Aim+FVector(FMath::Cos(A)*R,FMath::Sin(A)*R,0); FHitResult H; FCollisionQueryParams Q(SCENE_QUERY_STAT(KitSummonPlan),false,Owner);
@@ -208,7 +231,6 @@ bool FCultKitRuntime::Cast(int Slot)
   Caster->clearWard();
   if(CompetitiveWard) S.effectPower=FMath::Min(S.effectPower,CultMatchBalance::CompetitiveBaseHealth*.18f);
  }
- if(S.effectKind=="heal") { T=nullptr; auto Hit=Owner->CameraAim(); for(auto& M:Mirrors) if(M.Actor==Hit.GetActor() && M.Core->alive() && M.Core->faction()==Caster->faction()) { T=M.Core.get(); break; } }
  auto Result=cultulhu::castKitSpell(S,*Caster,T,Foes,Core->Beliefs(Owner->GetFaction()),Core->Bus(Owner->GetFaction()),Effects,BuffMult*Core->CombatMultiplier(Owner->GetFaction()),Slot);
  if(CompetitiveWard&&Result.ok) {
   WardTime=4.f;
@@ -217,11 +239,10 @@ bool FCultKitRuntime::Cast(int Slot)
  if(!Result.ok) return false;
  Core->CombatActivity(Owner->GetFaction());
  Cooldowns[Slot]=S.cooldownSec;
- const bool Self=S.effectKind=="dash"||S.effectKind=="fear_aura"||S.effectKind=="pull"||S.effectKind=="buff"||S.effectKind=="shield"||S.effectKind=="heal";
+ const bool Self=S.effectKind=="buff"||S.effectKind=="shield";
  LastEffectLocation=Self?Owner->FeetLocation():Aim;
  const auto Look=CultAbilityFX::ForSlot(UTF8_TO_TCHAR(Def.id.c_str()),Slot);
  if(Result.buffSeconds>0) { BuffTime=Result.buffSeconds; BuffMult=Result.buffMult; }
- if(Result.dash.length()>0) { FVector Dir=(Aim-Owner->GetActorLocation()).GetSafeNormal2D(); Owner->AbilityDash(Dir,S.effectPower*100); }
  for(const auto& Summon:Result.summons) for(int I=0;I<Summon.second && Count<512;++I,++Count)
  {
   FActorSpawnParameters Spawn; Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -230,7 +251,7 @@ bool FCultKitRuntime::Cast(int Slot)
   }
  }
  Apply();
- Owner->PlayAttackMotion(CultAttackMotion::AbilitySlot(Slot),0.f,Slot==2?.75f:S.effectKind=="dash"?.44f:.57f);
+ Owner->PlayAttackMotion(CultAttackMotion::AbilitySlot(Slot),0.f,Slot==2?.75f:.57f);
  if(S.effectKind!="summon") {
   const float Size=FMath::Clamp(Owner->GetSimpleCollisionRadius()*.98f,190.f,920.f);
   Owner->EmitAbilityBurst(uint8(Look),uint8(CultAbilityFX::EEvent::Release),LastEffectLocation,Owner->AimRotation().Vector(),Size);

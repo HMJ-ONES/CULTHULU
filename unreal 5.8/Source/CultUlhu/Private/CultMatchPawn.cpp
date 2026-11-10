@@ -9,6 +9,7 @@
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 void ACultUlhuPlayerPawn::SetMatchDead() {
+ CastPreviewSlot_=INDEX_NONE;
  InputHeld_[static_cast<int32>(ECultPlayerInput::Interact)]=false;
  AttackPlayback_={};
  HeldAttack_={};
@@ -73,7 +74,7 @@ void ACultUlhuPlayerPawn::UpdateRecovery(float Dt) {
  if(bMatchDead_||GetHealth()<=0) return;
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->CanAct(this)) return;
  const float RecoverSeconds=FMath::Clamp(GetWorld()->GetTimeSeconds()-LastCombatAt_-5.f,0.f,Dt);
- HealMatch(GetMaxHealth()*.005f*RecoverSeconds);
+ HealMatch(GetMaxHealth()*.015f*RecoverSeconds);
 }
 float ACultUlhuPlayerPawn::BotRangedReach() const {
  if(!Kit_) return 0;

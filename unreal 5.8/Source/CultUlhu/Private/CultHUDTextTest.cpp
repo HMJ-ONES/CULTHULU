@@ -44,6 +44,10 @@ public:
   if(World->GetTimeSeconds()<3||!World->GetFirstPlayerController()) return false;
   if(Phase==1) {
    Client=World->GetGameViewport(); if(!Client.IsValid()||!Client->GetGameViewport()) return false;
+   if(Mode==ECultPlayMode::Dotgoo&&!Events) {
+    const auto* Match=ACultMatchDirector::Find(World);
+    if(!Match||Match->Warmup()>0) return false;
+   }
    if(Events&&!Seeded) {
     auto* Match=ACultMatchDirector::Find(World); if(!Match) return false;
     auto* Player=Cast<ACultUlhuPlayerPawn>(World->GetFirstPlayerController()->GetPawn());
@@ -88,7 +92,7 @@ public:
     Test->TestFalse(TEXT("Control hints never overlap the actual mode/power glyphs"),HintBox.Intersect(Other));
    }
    if(Mode!=ECultPlayMode::FreeRoam) {
-    const float MatchScale=FMath::Clamp(FMath::Min(Hint->Canvas.X/1600.,Hint->Canvas.Y/900.),.65,2.);
+    const float MatchScale=FMath::Clamp(FMath::Min(Hint->Canvas.X/1600.,Hint->Canvas.Y/900.),.55,2.);
     const FBox2D Score(FVector2D(Hint->Canvas.X*.5-205*MatchScale,12*MatchScale)*Hint->DPI,FVector2D(Hint->Canvas.X*.5+205*MatchScale,76*MatchScale)*Hint->DPI);
     Test->TestFalse(TEXT("The backed control hints remain clear of the competitive score panel"),HintBox.ExpandBy(FMath::Max(6.f,8*Scale)*Hint->DPI).Intersect(Score));
    }
@@ -117,17 +121,26 @@ public:
    auto* Hero=Cast<ACultUlhuPlayerPawn>(World->GetFirstPlayerController()->GetPawn());
    if(Hero) {
     const auto Data=Hero->CombatHUD(); TArray<FBox2D> AbilityText;
+    if(Mode==ECultPlayMode::Dotgoo&&!Events) {
+     const auto* Learn=CultHUDTextProbe::Captured.FindByPredicate([](const auto& Sample){return Sample.Text==TEXT("LEARN ONE ABILITY");});
+     Test->TestTrue(TEXT("The first-ability callout is prominent in the rendered HUD"),Learn&&Learn->Points>=24*Scale&&Box(*Learn).Min.X>=0&&Box(*Learn).Max.X<=Hint->Canvas.X*Hint->DPI);
+     Test->TestEqual(TEXT("Exactly Q and F offer the first ability choice"),CultHUDTextProbe::Captured.FilterByPredicate([](const auto& Sample){return Sample.Text==TEXT("PICK THIS");}).Num(),2);
+    }
     if(Character==TEXT("cthulhu_avatar")&&Mode==ECultPlayMode::Dotgoo) Test->TestTrue(TEXT("The requested Cthulhu body exposes its actual minion-RMB instruction"),Data.RmbHint.Contains(TEXT("minion"),ESearchCase::IgnoreCase));
     for(int I=0;I<3;++I) {
      const auto* Name=CultHUDTextProbe::Captured.FindByPredicate([&](const auto& Text){return Text.Position.Y>Hint->Canvas.Y*.5&&Text.Text.Replace(TEXT("\n"),TEXT(" "))==Data.AbilityNames[I];});
      Test->TestNotNull(TEXT("Actual canonical ability label is present"),Name); if(!Name) continue;
      const auto* State=CultHUDTextProbe::Captured.FindByPredicate([&](const auto& Text){return FMath::Abs(Text.Position.X-Name->Position.X)<1&&Text.Position.Y>Name->Position.Y&&(Text.Text==TEXT("READY")||Text.Text.Contains(TEXT("COOLDOWN"))||Text.Text.StartsWith(TEXT("LEVEL "))||Text.Text==TEXT("PICK THIS"));});
-     Test->TestNotNull(TEXT("Each actual ability label has its state row"),State);
+     const TCHAR* KeyLabels[]={TEXT("Q"),TEXT("F"),TEXT("R")};
+     const auto* Key=CultHUDTextProbe::Captured.FindByPredicate([&](const auto& Text){return Text.Text==KeyLabels[I]&&FMath::Abs(Text.Position.X-Name->Position.X)<1&&Text.Position.Y<Name->Position.Y;});
+     Test->TestNotNull(TEXT("Every ability keeps its actual input key visible above its name"),Key);
+     if(Key) Test->TestFalse(TEXT("Input key and wrapped name remain separate"),Box(*Key).Intersect(Box(*Name)));
+     if(Mode==ECultPlayMode::Dotgoo&&State) Test->TestTrue(TEXT("Explicit state rows describe availability locks or first choice"),State->Text.StartsWith(TEXT("LEVEL "))||State->Text==TEXT("PICK THIS"));
      Test->TestTrue(TEXT("Wrapped ability glyphs fit the card width"),Name->Drawn.X<=(148*Scale-2*FMath::Max(6.f,8*Scale))*Name->DPI+1);
      AbilityText.Add(Box(*Name));
      if(State) { Test->TestFalse(TEXT("Actual wrapped ability and state glyphs never collide"),Box(*Name).Intersect(Box(*State))); AbilityText.Add(Box(*State)); Test->AddInfo(FString::Printf(TEXT("HUD ability %s %dx%d slot=%d name=%s extent=%s state=%s extent=%s"),*ModeName(),Sizes[Shape].X,Sizes[Shape].Y,I,*Name->Position.ToString(),*Name->Drawn.ToString(),*State->Position.ToString(),*State->Drawn.ToString())); }
     }
-    for(const auto& Text:CultHUDTextProbe::Captured) if(Text.Text==TEXT("TAP SHIFT DASH")||Text.Text.StartsWith(TEXT("DASH  "))||Text.Text==TEXT("LOW STAMINA")||Text.Text==TEXT("HOLD SHIFT  SPRINT")) {
+    for(const auto& Text:CultHUDTextProbe::Captured) if(Text.Text==TEXT("TAP SHIFT DASH")||Text.Text==TEXT("SHIFT / DASH")||Text.Text.StartsWith(TEXT("DASH  "))||Text.Text==TEXT("LOW STAMINA")||Text.Text==TEXT("HOLD SHIFT  SPRINT")) {
      for(const auto& Ability:AbilityText) Test->TestFalse(TEXT("Movement instructions remain separate from ability glyphs"),Box(Text).Intersect(Ability));
      Test->TestTrue(TEXT("Movement instruction glyphs remain inside the viewport"),Box(Text).Min.X>=0&&Box(Text).Max.X<=Hint->Canvas.X*Hint->DPI&&Box(Text).Max.Y<=Hint->Canvas.Y*Hint->DPI);
     }

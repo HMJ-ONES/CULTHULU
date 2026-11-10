@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "CultHUDPresentation.h"
 #include "CultPlayHUD.generated.h"
 
 class ACultPopulation;
@@ -40,6 +41,7 @@ public:
  void DrawSelection();
  const TArray<FCultInspectionCard>& InspectionCards() const { return InspectionCards_; }
  float CombatContentTop() const { return CombatBottomTop_; }
+ const FCultHUDPresentation& Presentation() const { return Presentation_; }
 private:
  friend void DrawCultCombat(ACultPlayHUD*,ACultUlhuPlayerPawn*,UCanvas*);
  friend struct FCultHUDCoordinateTestAccess;
@@ -51,6 +53,8 @@ private:
  void DrawRegionMap();
  void RegionMapClick(FVector2D Pointer);
  float CombatBottomTop_=MAX_flt;
+ FCultHUDPresentationMemory PresentationMemory_;
+ FCultHUDPresentation Presentation_;
  TArray<FCultInspectionCard> InspectionCards_;
  FCultInspectionHover InspectionHover_;
  void DrawPopulationInspection();

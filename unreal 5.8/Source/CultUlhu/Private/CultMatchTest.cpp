@@ -316,11 +316,12 @@ struct FCultMatchTestAccess {
   H->RelocateMatch(FVector(-14000,17000,0)); Patient->RelocateMatch(FVector(-12000,17000,0));
   M->GrantXP(3,100); H->Kit_->SetCooldown(1,0); Patient->Kit_->Damage(60); H->SetBotAim(Patient);
   const float Before=Patient->GetHealth();
+  const float HealLimit=Patient->GetMaxHealth()*.105f+.01f;
   T->TestTrue(TEXT("Original Brine Blessing casts onto an aimed allied hero"),H->Kit_->Cast(1));
-  T->TestTrue(TEXT("Healing restores a limited share of a wounded hero's health"),Patient->GetHealth()>Before&&Patient->GetHealth()<=Before+10.51f);
+  T->TestTrue(TEXT("Healing restores a limited share of a wounded hero's health"),Patient->GetHealth()>Before&&Patient->GetHealth()<=Before+HealLimit);
   T->TestTrue(TEXT("Successful healing consumes its original cooldown"),H->Kit_->Cooldown(1)>0);
   H->Kit_->SetCooldown(1,0); Patient->Kit_->Damage(45); const float BotBefore=Patient->GetHealth(); H->SetBotAim(nullptr); M->State_->Fighters[3].Think=0; M->BotThink(3,.35f);
-  T->TestTrue(TEXT("Support bot proactively heals an injured allied hero"),Patient->GetHealth()>BotBefore&&Patient->GetHealth()<=BotBefore+10.51f);
+  T->TestTrue(TEXT("Support bot proactively heals an injured allied hero"),Patient->GetHealth()>BotBefore&&Patient->GetHealth()<=BotBefore+HealLimit);
   T->TestFalse(TEXT("Healing rejects opposing heroes"),H->CanHealActor(Enemy));
   for(auto& U:M->State_->Units) if(U.IsValid()) T->TestFalse(TEXT("MOBA minions, towers, and gods cannot receive hero healing"),H->CanHealActor(U.Get()));
   FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -342,7 +343,8 @@ struct FCultMatchTestAccess {
   Patient->Kit_->Heal(1000); Patient->Kit_->Damage(40); Patient->LastCombatAt_=M->GetWorld()->GetTimeSeconds()-4.9f;
   float Hp=Patient->GetHealth(); Patient->UpdateRecovery(.1f); T->TestEqual(TEXT("No passive healing during the five-second combat lock"),Patient->GetHealth(),Hp);
   Patient->LastCombatAt_=M->GetWorld()->GetTimeSeconds()-5.5f; Patient->UpdateRecovery(1.f);
-  T->TestTrue(TEXT("Only the post-delay half second regenerates: 0.25 HP"),FMath::IsNearlyEqual(Patient->GetHealth()-Hp,.25f,.01f));
+  T->TestTrue(TEXT("Only the post-delay half second regenerates at 1.5 percent max health per second"),
+   FMath::IsNearlyEqual(Patient->GetHealth()-Hp,Patient->GetMaxHealth()*.015f*.5f,.01f));
   Patient->MarkCombat(); Hp=Patient->GetHealth(); Patient->UpdateRecovery(1.f); T->TestEqual(TEXT("A new combat action immediately stops passive regeneration"),Patient->GetHealth(),Hp);
   Patient->Kit_->Heal(1000); H->Kit_->SetCooldown(1,0); H->SetBotAim(nullptr); H->RelocateMatch(OldH); Patient->RelocateMatch(OldP);
  }
@@ -528,8 +530,10 @@ public:
     Test->TestEqual(TEXT("Standing outside the painted edge does not bank score"),M->Score(0),CornerScore);
     P->RelocateMatch(FVector::ZeroVector); float Before=M->Score(0); M->Tick(1);
     Test->TestTrue(TEXT("Actual player presence earns one hold point per second"),FMath::IsNearlyEqual(M->Score(0)-Before,1.f,.02f));
+    Test->TestTrue(TEXT("An uncontested holder receives the control announcement"),M->Announcement().Contains(TEXT("controls the seal")));
     auto* Enemy=M->Fighters()[5].Pawn.Get(); Enemy->RelocateMatch(FVector(1000,0,0)); M->Tick(.05f);
     Test->TestTrue(TEXT("An enemy standing on the seal contests it"),M->Contested());
+    Test->TestFalse(TEXT("Contesting the seal immediately clears a stale scoring announcement"),M->Announcement().Contains(TEXT("controls the seal")));
     Before=M->Score(0); M->Tick(.05f); Test->TestEqual(TEXT("Contested points stop scoring"),M->Score(0),Before);
     FCultMatchTestAccess::Unshield(M); int Deaths=M->Fighters()[5].Deaths;
     const FString ObjectiveNotice=M->Announcement();
@@ -561,7 +565,15 @@ public:
     Test->TestTrue(TEXT("First Q choice is available"),M->AbilityAvailable(P,0,true)); Test->TestFalse(TEXT("Second ability waits for level three"),M->AbilityAvailable(P,1));
     M->GrantXP(0,100); Test->TestTrue(TEXT("Source level three unlocks the second ability"),M->AbilityAvailable(P,1)); M->GrantXP(0,150); Test->TestTrue(TEXT("Source level six unlocks R"),M->AbilityAvailable(P,2));
     auto Cores=FCultMatchTestAccess::Units(M,1,4); Test->TestEqual(TEXT("One actual enemy god actor"),Cores.Num(),1); if(Cores.Num()) { float HP=Cores[0]->Health; Cores[0]->Hurt(400,P); Test->TestEqual(TEXT("Backdoor damage is rejected before a lane opens"),Cores[0]->Health,HP); }
-    auto Lane=FCultMatchTestAccess::Units(M,1,3,1); if(Lane.Num()==2) { auto* Inner=M->UnitProtected(Lane[0])?Lane[0]:Lane[1]; auto* Outer=Inner==Lane[0]?Lane[1]:Lane[0]; float Hp=Inner->Health; Inner->Hurt(100,P); Test->TestEqual(TEXT("Inner ward is protected by its actual outer tower"),Inner->Health,Hp); Outer->Hurt(10000,P); Test->TestFalse(TEXT("Outer tower destruction exposes that lane's inner ward"),M->UnitProtected(Inner)); }
+    auto Lane=FCultMatchTestAccess::Units(M,1,3,1); if(Lane.Num()==2) {
+     auto* Inner=M->UnitProtected(Lane[0])?Lane[0]:Lane[1]; auto* Outer=Inner==Lane[0]?Lane[1]:Lane[0];
+     float Hp=Inner->Health; Inner->Hurt(100,P); Test->TestEqual(TEXT("Inner ward is protected by its actual outer tower"),Inner->Health,Hp);
+     const int BeforeXP=M->Fighter(P)->XP, AllyXP=M->Fighters()[1].XP;
+     Outer->Hurt(10000,P);
+     Test->TestFalse(TEXT("Outer tower destruction exposes that lane's inner ward"),M->UnitProtected(Inner));
+     Test->TestEqual(TEXT("Destroying a ward awards the tuned last-hit XP"),M->Fighter(P)->XP-BeforeXP,CultMatchBalance::WardLastHitXP);
+     Test->TestEqual(TEXT("A ward also rewards allies"),M->Fighters()[1].XP-AllyXP,CultMatchBalance::WardTeamXP);
+    }
     auto Wave=FCultMatchTestAccess::Units(M,0,0); Test->TestTrue(TEXT("The first physical wave has marching melee units"),Wave.Num()>=3);
     if(Wave.Num()) { Test->TestNotNull(TEXT("Wave melee uses the retained authored cultist rig"),Wave[0]->FindComponentByClass<UPoseableMeshComponent>()); float Hp=Wave[0]->Health; Wave[0]->Hurt(60,P); Test->TestEqual(TEXT("Allied waves cannot be killed by friendly attacks"),Wave[0]->Health,Hp); }
     M->StartRecall(P); Test->TestTrue(TEXT("Recall starts from its real player command"),M->Fighter(P)->Recall>0); M->OnAction(P); Test->TestEqual(TEXT("An attack cancels recall"),M->Fighter(P)->Recall,0.f);

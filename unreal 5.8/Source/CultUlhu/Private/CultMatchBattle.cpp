@@ -71,10 +71,25 @@ float ACultMatchDirector::HurtUnit(ACultMatchUnit* U,float Damage,AActor* Source
  if(U->Kind==4) Hp=State_->Moba->HitCore(U->Team,Damage,Attacker);
  if(Hp<=0&&U->Health>0) {
   const int Killer=Slot(CultCombatCredit::Hero(Source));
-  if(U->Kind==3) { Announce(FString::Printf(TEXT("%s %s tower destroyed%s"),U->Team==0?TEXT("Blue"):TEXT("Orange"),U->Lane==0?TEXT("top"):U->Lane==1?TEXT("mid"):TEXT("bottom"),LaneWardsCleared(U->Team)?TEXT(" | Nexus ward exposed!"):TEXT(""))); for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Team!=U->Team) GrantXP(I,I==Killer?800:200); }
-  else if(U->Kind==5) { State_->NexusDestroyed[U->Team]=true; Announce(U->Team==0?TEXT("Blue nexus ward has fallen. Their god is exposed!"):TEXT("Orange nexus ward destroyed. Their god is exposed!")); for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Team!=U->Team) GrantXP(I,I==Killer?800:200); }
-  else if(U->Kind==4) { U->Health=0; Finish(1-U->Team); }
-  else for(int I=0;I<State_->Fighters.Num();++I) { auto& F=State_->Fighters[I]; if(F.Team==U->Team||F.Respawn>0||!F.Pawn.IsValid()) continue; if(I==Killer||FVector::Dist2D(F.Pawn->FeetLocation(),U->GetActorLocation())<6000) GrantXP(I,I==Killer?60:30); }
+  if(U->Kind==3||U->Kind==5) {
+   if(U->Kind==3) {
+    Announce(FString::Printf(TEXT("%s %s tower destroyed%s"),U->Team==0?TEXT("Blue"):TEXT("Orange"),U->Lane==0?TEXT("top"):U->Lane==1?TEXT("mid"):TEXT("bottom"),LaneWardsCleared(U->Team)?TEXT(" | Nexus ward exposed!"):TEXT("")));
+   } else {
+    State_->NexusDestroyed[U->Team]=true;
+    Announce(U->Team==0?TEXT("Blue nexus ward has fallen. Their god is exposed!"):TEXT("Orange nexus ward destroyed. Their god is exposed!"));
+   }
+   for(int I=0;I<State_->Fighters.Num();++I) if(State_->Fighters[I].Team!=U->Team)
+    GrantXP(I,I==Killer?CultMatchBalance::WardLastHitXP:CultMatchBalance::WardTeamXP);
+  } else if(U->Kind==4) {
+   U->Health=0; Finish(1-U->Team);
+  } else {
+   for(int I=0;I<State_->Fighters.Num();++I) {
+    const auto& F=State_->Fighters[I];
+    if(F.Team==U->Team||F.Respawn>0||!F.Pawn.IsValid()) continue;
+    if(I==Killer||FVector::DistSquared2D(F.Pawn->FeetLocation(),U->GetActorLocation())<FMath::Square(CultMatchBalance::MinionXPRadius))
+     GrantXP(I,I==Killer?CultMatchBalance::MinionLastHitXP:CultMatchBalance::MinionNearbyXP);
+   }
+  }
  }
  return Hp;
 }

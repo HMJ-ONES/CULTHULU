@@ -10,6 +10,7 @@
 #include <memory>
 
 class ACultUlhuPlayerPawn;
+struct FCultCastArea;
 class FCultKitRuntime
 {
 public:
@@ -22,6 +23,7 @@ public:
  void AdvanceCooldowns(float Dt) { for(float& C:Cooldowns) C=FMath::Max(0.f,C-Dt); HeavyCooldown=FMath::Max(0.f,HeavyCooldown-Dt); }
  void SetCooldown(int Slot,float Value) { if(Slot>=0&&Slot<3) Cooldowns[Slot]=Value; }
  bool Cast(int Slot);
+ FCultCastArea CastArea(int Slot) const;
  bool CanHeal(AActor* Target) const;
  bool CastHeal(const cultulhu::SpellDef& Spell,int Slot);
  void Heavy(bool bPress);
@@ -87,6 +89,6 @@ private:
  cultulhu::Entity* Target(float MaxRange, FVector& Aim);
  cultulhu::RmbContext Context();
  static bool IsCasterGroundStrike(const std::string& Id) {
-  return Id=="doomfall_stomp"||Id=="protoplasm_slam";
+  return Id=="doomfall_stomp";
  }
 };

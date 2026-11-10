@@ -25,6 +25,13 @@
 #include "GameFramework/PlayerController.h"
 #include "modes/Match.h"
 
+namespace {
+const TCHAR* const SealControlNotices[]={
+ TEXT("Blue team controls the seal +1 / second"),
+ TEXT("Orange team controls the seal +1 / second")
+};
+}
+
 ACultMatchDirector::ACultMatchDirector() { PrimaryActorTick.bCanEverTick=true; bReplicates=true; bAlwaysRelevant=true; SetNetUpdateFrequency(10.f); CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody")); }
 bool ACultMatchDirector::IsMatch(UWorld* W) { auto* G=W?Cast<UCultUlhuGameInstance>(W->GetGameInstance()):nullptr; return G&&G->SelectedMode!=ECultPlayMode::FreeRoam&&!W->GetName().Contains(TEXT("L_MainMenu")); }
 ACultMatchDirector* ACultMatchDirector::Find(UWorld* W) { if(W) for(TActorIterator<ACultMatchDirector> It(W);It;++It) return *It; return nullptr; }
@@ -119,8 +126,14 @@ void ACultMatchDirector::Tick(float Dt) {
  if(State_->Capture) {
   int Counts[2]={0,0};
   for(const auto& F:State_->Fighters) if(F.Pawn.IsValid()&&F.Respawn<=0&&F.Pawn->GetHealth()>0&&InsideCapture(F.Pawn->FeetLocation())) ++Counts[F.Team];
-  int Prev=Holder(); bool WasOT=Overtime(); State_->Capture->setOccupants(0,Counts[0],Counts[1]); State_->Capture->update(Dt);
-  if(Prev!=Holder()&&Holder()>=0) Announce(Holder()==0?TEXT("Blue team controls the seal +1 / second"):TEXT("Orange team controls the seal +1 / second"));
+  const int PreviousHolder=Holder();
+  const bool WasContested=Contested(), WasOT=Overtime();
+  State_->Capture->setOccupants(0,Counts[0],Counts[1]); State_->Capture->update(Dt);
+  if(Contested()||Holder()<0) {
+   if(State_->Notice==SealControlNotices[0]||State_->Notice==SealControlNotices[1]) State_->NoticeTime=0;
+  } else if(PreviousHolder!=Holder()||WasContested) {
+   Announce(SealControlNotices[Holder()]);
+  }
   if(!WasOT&&Overtime()) Announce(TEXT("SUDDEN DEATH | First score wins. Contest the seal!"));
   if(State_->Capture->isOver()) Finish(State_->Capture->winner());
  } else {
@@ -171,7 +184,7 @@ void ACultMatchDirector::HeroDied(ACultUlhuPlayerPawn* P,AActor* Source) {
  if(Killer>=0&&State_->Fighters[Killer].Team!=Victim.Team) {
   auto& K=State_->Fighters[Killer]; ++K.Kills;
   if(State_->Capture) State_->Capture->notePlayerKill(K.Team);
-  GrantXP(Killer,50+25*Victim.Level);
+  GrantXP(Killer,CultMatchBalance::HeroKillXP(K.Level,Victim.Level));
  }
  // Eliminations must not replace capture, overtime, rally or defense messages.
  FCultMatchElimination Entry; Entry.Attacker=Killer>=0?State_->Fighters[Killer].Name:TEXT("ENVIRONMENT");
@@ -179,7 +192,7 @@ void ACultMatchDirector::HeroDied(ACultUlhuPlayerPawn* P,AActor* Source) {
  if(State_->Eliminations.Num()>=4) State_->Eliminations.RemoveAt(0);
  State_->Eliminations.Add(MoveTemp(Entry));
  UE_LOG(LogTemp,Log,TEXT("[CultMatch] %s eliminated %s"),*State_->Eliminations.Last().Attacker,*Victim.Name);
- for(auto& Hit:Victim.RecentAttackers) if(Hit.Key!=Killer&&State_->Time-Hit.Value<8) { ++State_->Fighters[Hit.Key].Assists; GrantXP(Hit.Key,35); }
+ for(auto& Hit:Victim.RecentAttackers) if(Hit.Key!=Killer&&State_->Time-Hit.Value<8) { ++State_->Fighters[Hit.Key].Assists; GrantXP(Hit.Key,CultMatchBalance::HeroAssistXP); }
  Victim.RecentAttackers.Reset(); Victim.Respawn=Mode()==ECultPlayMode::Domination?5:FMath::Min(20.f,5.f+State_->Time/60); Victim.Recall=Victim.Invoke=0;
  P->SetMatchDead();
 }

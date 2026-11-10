@@ -40,6 +40,17 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 #include "CultLivingLandscape.h"
 #include "CultMovementTuning.h"
 #include "CultWorldDirector.h"
+#include "CultHUDSpace.h"
+
+namespace {
+void FrameThirdPerson(USpringArmComponent& Arm,const FString& CharacterId,float Scale,float HalfHeight)
+{
+ const bool bWideWings=CharacterId==TEXT("mi_go");
+ Arm.TargetArmLength=(bWideWings?300.f:260.f)*Scale;
+ Arm.SocketOffset=FVector(0,bWideWings?122.f:90.f,bWideWings?32.f:15.f)*Scale;
+ Arm.SetRelativeLocation(FVector(0,0,HalfHeight*(bWideWings?.90f:.75f)));
+}
+}
 
 ACultUlhuPlayerPawn::ACultUlhuPlayerPawn()
 {
@@ -72,7 +83,7 @@ void ACultUlhuPlayerPawn::BeginPlay()
  if(!CultCanonicalKit::IsReleased(CharacterId_)) { Destroy(); return; }
  Kit_=new FCultKitRuntime(this);
  if(!Kit_->Initialize(CharacterId_)) { delete Kit_; Kit_=nullptr; }
- if(Kit_) Health_=Kit_->Hp();
+ if(Kit_&&HasAuthority()) Health_=Kit_->Hp();
 	if (UCultUlhuGameInstance* GI = Cast<UCultUlhuGameInstance>(GetGameInstance()))
 	{
 		for (const FCultRosterEntry& E : UCultUlhuGameInstance::Roster())
@@ -107,9 +118,7 @@ void ACultUlhuPlayerPawn::BeginPlay()
 
 	// Camera rig for the scaled body.
 	const float HalfH = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
-	SpringArm_->TargetArmLength = 260.f * CharScale_;
- SpringArm_->SocketOffset=FVector(0,90*CharScale_,15*CharScale_);
-	SpringArm_->SetRelativeLocation(FVector(0.0f, 0.0f, HalfH * 0.75f));
+ FrameThirdPerson(*SpringArm_,CharacterId_,CharScale_,HalfH);
 	bThirdPerson_ = true;
 
 	// Vessel treatment: the roster FBX models haven't landed yet, so wear
@@ -262,6 +271,12 @@ void ACultUlhuPlayerPawn::RoutePlayerInput(ECultPlayerInput Action,bool Down) {
  if(Action==ECultPlayerInput::Primary) if(auto* PC=Cast<APlayerController>(GetController())) if(PC->IsLocalController()) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->FaithVisible()||HUD->RegionMapVisible()||PC->IsInputKeyDown(EKeys::LeftAlt)) {
   InputHeld_[Index]=Down; if(Down) HUD->CommandClick(); else HUD->CommandRelease(); return;
  }
+ if(Action>=ECultPlayerInput::Q&&Action<=ECultPlayerInput::R) {
+  InputHeld_[Index]=Down;
+  if(Down) UseAbility(Index-static_cast<int32>(ECultPlayerInput::Q));
+  return;
+ }
+ if(Down&&(Action==ECultPlayerInput::Primary||Action==ECultPlayerInput::Heavy||Action==ECultPlayerInput::Command)) CastPreviewSlot_=INDEX_NONE;
  if(!HasAuthority()&&(Action==ECultPlayerInput::Taunt||Action==ECultPlayerInput::Jump||(Action>=ECultPlayerInput::Primary&&Action<=ECultPlayerInput::Interact))) {
   const auto Aim=CameraAim(); FVector O=Camera_->GetComponentLocation(),D=(Aim.ImpactPoint-O).GetSafeNormal();
   InputHeld_[Index]=Down; if(Action==ECultPlayerInput::Jump) { if(Down) TryJump(); else StopJumping(); } ServerCombatInput(uint8(Action),Down,O,D); return;
@@ -286,9 +301,6 @@ void ACultUlhuPlayerPawn::RoutePlayerInput(ECultPlayerInput Action,bool Down) {
   case ECultPlayerInput::Jump:TryJump();break;
   case ECultPlayerInput::Primary:Smash();break;
   case ECultPlayerInput::Heavy:HeavyAttack();break;
-  case ECultPlayerInput::Q:AbilityQ();break;
-  case ECultPlayerInput::F:AbilityF();break;
-  case ECultPlayerInput::R:AbilityR();break;
   case ECultPlayerInput::Interact:Interact();break;
   case ECultPlayerInput::Stats:ToggleStats();break;
   case ECultPlayerInput::Command:AltPressed();break;
@@ -306,9 +318,7 @@ void ACultUlhuPlayerPawn::ToggleCamera()
 	const float HalfH = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 	if (bThirdPerson_)
 	{
-		SpringArm_->TargetArmLength = 260.f * CharScale_;
- SpringArm_->SocketOffset=FVector(0,90*CharScale_,15*CharScale_);
-		SpringArm_->SetRelativeLocation(FVector(0.0f, 0.0f, HalfH * 0.75f));
+  FrameThirdPerson(*SpringArm_,CharacterId_,CharScale_,HalfH);
 	}
 	else
 	{
@@ -321,6 +331,7 @@ void ACultUlhuPlayerPawn::ToggleCamera()
 
 void ACultUlhuPlayerPawn::ReturnToMenu()
 {
+ if(CastPreviewSlot_!=INDEX_NONE) { CastPreviewSlot_=INDEX_NONE; return; }
  if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->RegionMapVisible()) { HUD->ToggleRegionMap(); return; }
  if(auto* M=ACultMatchDirector::Find(GetWorld())) { if(!M->IsOver()) M->TogglePause(); else if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) G->LeaveCompetitiveMatch(); return; }
 	if (UCultUlhuGameInstance* GI = Cast<UCultUlhuGameInstance>(GetGameInstance()))
@@ -358,7 +369,7 @@ void ACultUlhuPlayerPawn::AddCameraKick(float Strength)
 		ShakeDur_ * FMath::Clamp(Strength, 0.0f, 1.0f));
 }
 
-float ACultUlhuPlayerPawn::GetHealth() const { return Kit_?Kit_->Hp():Health_; }
+float ACultUlhuPlayerPawn::GetHealth() const { return Kit_&&HasAuthority()?Kit_->Hp():Health_; }
 
 void ACultUlhuPlayerPawn::SetSprinting(bool bSprint)
 {
@@ -407,9 +418,56 @@ void ACultUlhuPlayerPawn::AreaAttack(FVector Center, float Radius, float Damage)
 
 void ACultUlhuPlayerPawn::HeavyAttack() { if(auto* M=ACultMatchDirector::Find(GetWorld())) { if(!M->CanAct(this)) return; M->OnAction(this); } if(Control_.Stun || Control_.Fear) return; if(auto* PC=Cast<APlayerController>(GetController())) if(PC->bShowMouseCursor) { if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) HUD->CloseCommands(); return; } bRmbHeld_=true; if(Kit_) Kit_->Heavy(true); }
 void ACultUlhuPlayerPawn::ReleaseHeavy() { bRmbHeld_=false; if(Kit_) Kit_->Heavy(false); }
-void ACultUlhuPlayerPawn::AbilityQ() { if(auto* M=ACultMatchDirector::Find(GetWorld())) { if(!M->AbilityAvailable(this,0,true)) { if(!IsBot()) Notify(TEXT("Ability locked: choose Q or F at level 1, both at level 3, R at level 6.")); return; } } if(!Control_.Stun && !Control_.Fear && Kit_) Kit_->Cast(0); }
-void ACultUlhuPlayerPawn::AbilityF() { if(auto* M=ACultMatchDirector::Find(GetWorld())) { if(!M->AbilityAvailable(this,1,true)) { if(!IsBot()) Notify(TEXT("Ability locked: choose Q or F at level 1, both at level 3, R at level 6.")); return; } } if(!Control_.Stun && !Control_.Fear && Kit_) Kit_->Cast(1); }
-void ACultUlhuPlayerPawn::AbilityR() { if(auto* M=ACultMatchDirector::Find(GetWorld())) { if(!M->AbilityAvailable(this,2,true)) { if(!IsBot()) Notify(TEXT("Ability locked: choose Q or F at level 1, both at level 3, R at level 6.")); return; } } if(!Control_.Stun && !Control_.Fear && Kit_) Kit_->Cast(2); }
+void ACultUlhuPlayerPawn::AbilityQ() { UseAbility(0); }
+void ACultUlhuPlayerPawn::AbilityF() { UseAbility(1); }
+void ACultUlhuPlayerPawn::AbilityR() { UseAbility(2); }
+
+FCultCastArea ACultUlhuPlayerPawn::CastAreaPreview() const
+{
+ return Kit_&&!IsIncapacitated()?Kit_->CastArea(CastPreviewSlot_):FCultCastArea{};
+}
+
+void ACultUlhuPlayerPawn::UseAbility(int Slot)
+{
+ if(!Kit_||IsIncapacitated()) return;
+ if(!IsBot()&&IsLocallyControlled()) {
+  if(auto* M=ACultMatchDirector::Find(GetWorld())) {
+   if(!M->CanAct(this)||M->IsPaused()) return;
+   const auto* F=M->Fighter(this);
+   if(M->Mode()==ECultPlayMode::Dotgoo&&F&&
+      ((Slot==2&&F->Level<6)||(Slot<2&&F->Level<3&&F->FirstPick>=0&&F->FirstPick!=Slot))) {
+    Notify(Slot==2?TEXT("R unlocks at level 6."):TEXT("Your second ability unlocks at level 3."));
+    return;
+   }
+  }
+  if(Kit_->Cooldown(Slot)>0) return;
+  const auto Area=Kit_->CastArea(Slot);
+  if(Area.Slot!=INDEX_NONE) {
+   if(CastPreviewSlot_!=Slot) { CastPreviewSlot_=Slot; return; }
+   if(!Area.Valid) return;
+  }
+  CastPreviewSlot_=INDEX_NONE;
+  if(!HasAuthority()) {
+   const auto Aim=CameraAim();
+   ServerCombatInput(uint8(ECultPlayerInput::Q)+Slot,true,Aim.TraceStart,(Aim.ImpactPoint-Aim.TraceStart).GetSafeNormal());
+   return;
+  }
+ }
+ CommitAbility(Slot);
+}
+
+void ACultUlhuPlayerPawn::CommitAbility(int Slot)
+{
+ if(!HasAuthority()||!Kit_||IsIncapacitated()) return;
+ if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->AbilityAvailable(this,Slot,true)) return;
+ if(Kit_->Cast(Slot)&&!IsBot()&&!IsLocallyControlled()) ClientAbilityCommitted(Slot,Kit_->Cooldown(Slot));
+}
+
+void ACultUlhuPlayerPawn::ClientAbilityCommitted_Implementation(uint8 Slot,float Cooldown)
+{
+ if(Kit_) Kit_->SetCooldown(Slot,Cooldown);
+ if(CastPreviewSlot_==Slot) CastPreviewSlot_=INDEX_NONE;
+}
 void ACultUlhuPlayerPawn::ReceiveDamage(float Amount,AActor* Source)
 {
  if(!HasAuthority()) return;
@@ -437,6 +495,7 @@ void ACultUlhuPlayerPawn::ReceiveDamage(float Amount,AActor* Source)
   if(!IsBot()&&PlayHurtCue) PlayCultCombatCue(GetWorld(),ECultCombatCue::Hurt,.32f);
  }
  if(Health_<=0) {
+  CastPreviewSlot_=INDEX_NONE;
   GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultMeleeStep")); DashTime_=0; MeleeBuffer_=0; SwingTime_=0;
   for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this) It->Destroy();
   ACultCorpse::Leave(this);
@@ -469,7 +528,12 @@ FHitResult ACultUlhuPlayerPawn::CameraAim(float RangeCm,bool Cursor) const
  else if(HasAuthority()&&GetNetMode()!=NM_Standalone&&!IsLocallyControlled()&&GetWorld()->GetTimeSeconds()-NetworkAimAt_<1.f) { Start=NetworkAimOrigin_; Direction=NetworkAimDirection_; }
  else if(auto* PC=Cast<APlayerController>(GetController())) {
   if(Cursor) PC->DeprojectMousePositionToWorld(Start,Direction);
-  else { if(PC->PlayerCameraManager) PC->PlayerCameraManager->UpdateCamera(0.f); int32 Width=0,Height=0; PC->GetViewportSize(Width,Height); if(Width>0&&Height>0) PC->DeprojectScreenPositionToWorld(Width*.5f,Height*.5f,Start,Direction); }
+  else {
+   if(PC->PlayerCameraManager) PC->PlayerCameraManager->UpdateCamera(0.f);
+   FIntRect View;
+   if(CultHUDSpace::View(PC,View))
+    PC->DeprojectScreenPositionToWorld(View.Min.X+View.Width()*.5f,View.Min.Y+View.Height()*.5f,Start,Direction);
+  }
  }
  FCollisionQueryParams Q(SCENE_QUERY_STAT(CultCameraAim),true,this); FHitResult Hit;
  Q.AddIgnoredActor(ActiveRock_);
@@ -502,7 +566,10 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
  if(Control_.Stop||Control_.Stun||Control_.Fear) GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultMeleeStep"));
  if(Control_.Stun||Control_.Fear) for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this&&It->Shape==ACultSkillAttack::EShape::Sweep) It->Destroy();
 
-	if(Kit_) { if(HasAuthority()) Kit_->Tick(DeltaSeconds); else Kit_->AdvanceCooldowns(DeltaSeconds); Health_=Kit_->Hp(); }
+ if(Kit_) {
+  if(HasAuthority()) { Kit_->Tick(DeltaSeconds); Health_=Kit_->Hp(); }
+  else Kit_->AdvanceCooldowns(DeltaSeconds);
+ }
  UpdateRecovery(DeltaSeconds);
  if(HasAuthority()&&!IsBot()&&!IsLocallyControlled()&&GetNetMode()!=NM_Standalone) {
   SetSprinting(Kit_?Kit_->Sprint(NetworkSprinting_,DeltaSeconds):false);

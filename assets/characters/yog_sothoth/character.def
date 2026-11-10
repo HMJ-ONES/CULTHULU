@@ -26,14 +26,14 @@ range = 18
 
 [f]
 id = between_spaces
-name = Between Spaces
-flavor = Steps outside the world and back, elsewhere.
+name = Folded Rift
+flavor = The space between worlds folds shut on everything within it.
 cooldown = 14
 stamina_cost = 30
 mana_cost = 0
-effect = dash
-power = 15
-range = 0
+effect = aoe_damage
+power = 105
+range = 11
 
 [r]
 id = key_and_gate

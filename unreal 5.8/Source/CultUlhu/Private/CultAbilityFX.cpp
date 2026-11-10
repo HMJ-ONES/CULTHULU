@@ -24,9 +24,9 @@ constexpr FKitLooks Looks[]={
  {TEXT("nyarlathotep"),    {L::Blade,L::Tendrils,L::Sigil,L::Dread}},
  {TEXT("rhan_tegoth"),     {L::Stone,L::Chitin,L::Chitin,L::Dread}},
  {TEXT("sghllor"),         {L::Prism,L::Prism,L::Spore,L::Prism}},
- {TEXT("shoggoths"),       {L::Tendrils,L::Stone,L::Tendrils,L::Dread}},
+ {TEXT("shoggoths"),       {L::Tendrils,L::Stone,L::Mend,L::Dread}},
  {TEXT("shub_niggurath"),  {L::Spore,L::Brood,L::Spore,L::Brood}},
- {TEXT("yig"),             {L::Venom,L::Blade,L::Venom,L::Sigil}},
+ {TEXT("yig"),             {L::Venom,L::Blade,L::Mend,L::Sigil}},
  {TEXT("yog_sothoth"),     {L::Gate,L::Gate,L::Gate,L::Abyss}},
 };
 

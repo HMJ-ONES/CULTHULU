@@ -7,6 +7,8 @@
 #include "CultUlhuGameInstance.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultCharacterModel.h"
+#include "CultKitRuntime.h"
+#include "CultSkillAttack.h"
 #include "CultAbilityFX.h"
 #include "CultPopulation.h"
 #include "CultFeralBeast.h"
@@ -62,12 +64,20 @@ public:
      auto* Camera=P->FindComponentByClass<UCameraComponent>();
      Camera->SetWorldRotation((Beast->GetActorLocation()-Camera->GetComponentLocation()).Rotation());
      Before=Beast->GetHealth(); P->AbilityQ();
-     Test->TestTrue(TEXT("Tentacle Slam gets its own Q choreography"),P->AttackPlayback().Move==CultAttackMotion::EMove::Q);
-     Test->TestEqual(TEXT("Tentacle Slam releases on its physical windup"),P->AttackPlayback().Contact,.5f);
-     Test->TestEqual(TEXT("Native Q warns instead of instantly detonating"),Beast->GetHealth(),Before);
+     const auto Preview=P->CastAreaPreview();
+     Test->TestTrue(TEXT("First press previews the exact crosshair impact with no damage"),Preview.Valid&&Preview.Center.Equals(P->CameraAim().ImpactPoint,1)&&Beast->GetHealth()==Before);
+     Test->TestFalse(TEXT("Preview does not start the cast motion"),P->AttackPlayback().Move==CultAttackMotion::EMove::Q);
+     Shot(TEXT("SkillCastAreaPreview.png")); Phase=11; Time=0; return false;
     }
     Phase=2; Time=0;
    }
+  } else if(Phase==11&&Time>.12f&&!FScreenshotRequest::IsScreenshotRequested()) {
+   P->AbilityQ();
+   Test->TestTrue(TEXT("Tentacle Slam gets its own Q choreography"),P->AttackPlayback().Move==CultAttackMotion::EMove::Q);
+   Test->TestEqual(TEXT("Tentacle Slam releases on its physical windup"),P->AttackPlayback().Contact,.5f);
+   Test->TestEqual(TEXT("Native Q warns instead of instantly detonating"),Beast->GetHealth(),Before);
+   Test->TestEqual(TEXT("Committing the spell closes its local preview"),P->CastAreaPreview().Slot,INDEX_NONE);
+   Phase=2; Time=0;
   } else if(Phase==2&&Time>.9f) {
    Test->TestTrue(TEXT("The native delayed ability damages its current occupant"),!Beast.IsValid()||Beast->IsDead()||Beast->GetHealth()<Before);
    bool TargetBurst=false;
@@ -80,9 +90,29 @@ public:
    FActorSpawnParameters Spawn; Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
    auto* C=W->SpawnActor<ACultPopulation>(E->FeetLocation()+FVector(1500,0,E->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*1.04f),FRotator::ZeroRotator,Spawn); C->GetCharacterMovement()->DisableMovement(); Victim=C; E->SetBotAim(C); E->AbilityQ(); Test->TestTrue(TEXT("A native roster projectile does not hit instantly"),Victim.IsValid()); Phase=3; Time=0;
   } else if(Phase==3&&Time>1.4f) {
-   Test->TestTrue(TEXT("The roster's Gate Lash projectile collides with an actual civilian"),!Victim.IsValid()); DashOrigin=Caster->GetActorLocation(); Caster->AbilityF(); Test->TestTrue(TEXT("Dash cast effects stay at the caster instead of a distant camera point"),Caster->GetLastEffectLocation().Equals(Caster->FeetLocation(),1)); Phase=30; Time=0;
-  } else if(Phase==30&&Time>.5f) { Test->AddInfo(FString::Printf(TEXT("AI Between Spaces dash displacement %.1f cm; %s"),FVector::Dist2D(DashOrigin,Caster->GetActorLocation()),*Caster->GetStatusText())); Test->TestTrue(TEXT("The same roster dash physically moves an AI-controlled entity"),FVector::Dist2D(DashOrigin,Caster->GetActorLocation())>500);
-
+   Test->TestTrue(TEXT("The roster's Gate Lash projectile collides with an actual civilian"),!Victim.IsValid());
+   if(Caster.IsValid()) {
+    Caster->SetBotAim(P);
+    const auto Aim=Caster->CameraAim();
+    Caster->AbilityF();
+    bool HasRift=false;
+    for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Caster.Get()&&It->Shape==ACultSkillAttack::EShape::GroundDisk&&It->GetActorLocation().Equals(Aim.ImpactPoint,1)) HasRift=true;
+    Test->TestTrue(TEXT("Folded Rift commits a damage disk at the aimed point"),HasRift);
+   }
+   FTransform ShoggothSpawn(P->FeetLocation()+FVector(5000,0,200));
+   auto* Shoggoth=W->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),ShoggothSpawn,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+   Shoggoth->ConfigureBot(TEXT("shoggoths"),1); Shoggoth->FinishSpawning(ShoggothSpawn);
+   Shoggoth->ReceiveDamage(Shoggoth->GetMaxHealth()-16);
+   P->Tick(.02f);
+   Shoggoth->HealMatch(60);
+   const float Recovered=Shoggoth->GetHealth();
+   P->Tick(.02f);
+   Test->TestTrue(TEXT("An opponent first mirrored at 16 HP keeps its recovered health"),Recovered>16&&Shoggoth->GetHealth()==Recovered);
+   Shoggoth->SetBotAim(P);
+   FCultKitRuntime ShoggothKit(Shoggoth); ShoggothKit.Initialize(TEXT("shoggoths"));
+   const auto Slam=ShoggothKit.CastArea(0);
+   Test->TestTrue(TEXT("Shoggoth Q follows the aimed hit instead of the caster's feet"),Slam.Valid&&Slam.Center.Equals(Shoggoth->CameraAim().ImpactPoint,1)&&FVector::Dist2D(Slam.Center,Shoggoth->FeetLocation())>200);
+   Shoggoth->Destroy();
    if(Victim.IsValid()) Victim->Destroy(); if(Caster.IsValid()) Caster->Destroy();
    FTransform T(P->FeetLocation()+FVector(10000,0,200)); auto* E=W->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); E->ConfigureBot(TEXT("cthulhu_avatar"),1); E->FinishSpawning(T); E->SetActorLocation(E->GetActorLocation()+FVector(0,0,6000)); E->GetCharacterMovement()->DisableMovement(); Caster=E;
    const FVector Base=E->FeetLocation(); FActorSpawnParameters Spawn; Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -104,7 +134,7 @@ public:
   if(Time>10) { Test->AddError(TEXT("Preview stage timed out")); return true; } return false;
  }
  void Shot(const TCHAR* Name) { FScreenshotRequest::RequestScreenshot(FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir()/TEXT("Screenshots")/Name),true,false); }
-private: FAutomationTestBase* Test; double Started; float Time=0,Before=0,RaisedHealth=0,GroundHealth=0; int Phase=0; bool Entered=false,SwingShot=false; ACultUlhuPlayerPawn* P=nullptr; TWeakObjectPtr<ACultFeralBeast> Beast; TWeakObjectPtr<ACultPopulation> Victim; TWeakObjectPtr<ACultUlhuPlayerPawn> Caster; ACultDestructible* Raised=nullptr; ACultDestructible* GroundTarget=nullptr; AActor* AimGuide=nullptr; FVector DashOrigin;
+private: FAutomationTestBase* Test; double Started; float Time=0,Before=0,RaisedHealth=0,GroundHealth=0; int Phase=0; bool Entered=false,SwingShot=false; ACultUlhuPlayerPawn* P=nullptr; TWeakObjectPtr<ACultFeralBeast> Beast; TWeakObjectPtr<ACultPopulation> Victim; TWeakObjectPtr<ACultUlhuPlayerPawn> Caster; ACultDestructible* Raised=nullptr; ACultDestructible* GroundTarget=nullptr; AActor* AimGuide=nullptr;
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultSkillPreviewTest,"CultUlhu.Menu.SkillPreview",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultSkillPreviewTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(1.f)); ADD_LATENT_AUTOMATION_COMMAND(FSkillPreviewObservation(this)); return true; }

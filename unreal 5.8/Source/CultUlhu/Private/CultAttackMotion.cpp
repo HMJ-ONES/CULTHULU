@@ -24,20 +24,20 @@ struct FCharacterMoves {
 constexpr FCharacterMoves Roster[] = {
  {TEXT("bokrug"),         {{F::Spit,1.04f,.15f},{F::Bite,1.1f,-.4f},{F::Hammer,1.25f,0},{F::Gaze,.8f,.2f},{F::Invoke,1.42f,-.15f}}},
  {TEXT("cthulhu_avatar"), {{F::Cut,1,1},{F::Gaze,1,.7f},{F::Hammer,1.23f,.15f},{F::Ward,1.15f,0},{F::Invoke,1.45f,0}}},
- {TEXT("dagon"),          {{F::Cut,1,-1},{F::Pounce,1.15f,.7f},{F::Bite,1.25f,.05f},{F::Surge,1,-.45f},{F::Invoke,1.25f,-.5f}}},
+ {TEXT("dagon"),          {{F::Cut,1,-1},{F::Pounce,1.15f,.7f},{F::Bite,1.25f,.05f},{F::Spit,1.14f,-.45f},{F::Invoke,1.25f,-.5f}}},
  {TEXT("ghatanothoa"),    {{F::Cannon,1.3f,0},{F::Hammer,1,.8f},{F::Gaze,.85f,0},{F::Dart,1.1f,-.65f},{F::Ward,1.5f,.15f}}},
  {TEXT("hastur"),         {{F::Gaze,.92f,-.45f},{F::Lash,.72f,.8f},{F::Ray,1.1f,-.2f},{F::Ward,.9f,.4f},{F::Invoke,1.35f,-.35f}}},
  {TEXT("mi_go"),          {{F::Dart,1,.65f},{F::Spit,1.19f,-.2f},{F::Dart,.82f,-.85f},{F::Gaze,1.06f,.65f},{F::Pull,1.21f,-.45f}}},
  {TEXT("mother_hydra"),   {{F::Spit,1,-.2f},{F::Spit,1.32f,.7f},{F::Invoke,.83f,.55f},{F::Mend,.9f,-.15f},{F::Ward,1.33f,0}}},
- {TEXT("nodens"),         {{F::Dart,1.1f,.8f},{F::Pull,1,-.8f},{F::Dart,1.42f,-.55f},{F::Surge,.9f,.4f},{F::Invoke,1.26f,.25f}}},
+ {TEXT("nodens"),         {{F::Dart,1.1f,.8f},{F::Pull,1,-.8f},{F::Dart,1.42f,-.55f},{F::Hammer,1.16f,.4f},{F::Invoke,1.26f,.25f}}},
  {TEXT("nug_and_yeb"),    {{F::Cannon,1.14f,.45f},{F::Cut,1.17f,-.65f},{F::Spit,.83f,.75f},{F::Ward,.96f,-.45f},{F::Hammer,1.42f,0}}},
  {TEXT("nyarlathotep"),   {{F::Cut,.97f,.9f},{F::Pounce,1.12f,-.8f},{F::Lash,1.18f,.7f},{F::Gaze,.73f,-.55f},{F::Ward,1.2f,-.35f}}},
  {TEXT("rhan_tegoth"),    {{F::Cut,1.17f,-1},{F::Hammer,1.36f,.55f},{F::Bite,1.28f,-.6f},{F::Ward,1.05f,0},{F::Invoke,1.23f,.6f}}},
  {TEXT("sghllor"),        {{F::Dart,.88f,.05f},{F::Ray,1.12f,-.3f},{F::Ray,.85f,.55f},{F::Gaze,.82f,-.6f},{F::Hammer,1.29f,.15f}}},
- {TEXT("shoggoths"),      {{F::Cut,1.04f,.85f},{F::Pull,1.22f,-.55f},{F::Hammer,1.22f,0},{F::Surge,1.12f,-.25f},{F::Ward,1.33f,.45f}}},
+ {TEXT("shoggoths"),      {{F::Cut,1.04f,.85f},{F::Pull,1.22f,-.55f},{F::Hammer,1.22f,0},{F::Mend,1.12f,-.25f},{F::Ward,1.33f,.45f}}},
  {TEXT("shub_niggurath"), {{F::Spit,1.13f,.6f},{F::Cannon,.88f,-.55f},{F::Invoke,1,-.55f},{F::Lash,.88f,.65f},{F::Invoke,1.43f,.18f}}},
- {TEXT("yig"),            {{F::Cut,1,-.8f},{F::Bite,1.09f,.55f},{F::Lash,1.12f,-.7f},{F::Surge,.87f,.8f},{F::Gaze,1.35f,.45f}}},
- {TEXT("yog_sothoth"),    {{F::Cannon,1.16f,.05f},{F::Pull,.97f,.35f},{F::Lash,1.07f,-.55f},{F::Surge,.88f,.35f},{F::Pull,1.38f,-.2f}}},
+ {TEXT("yig"),            {{F::Cut,1,-.8f},{F::Bite,1.09f,.55f},{F::Lash,1.12f,-.7f},{F::Mend,.95f,.8f},{F::Gaze,1.35f,.45f}}},
+ {TEXT("yog_sothoth"),    {{F::Cannon,1.16f,.05f},{F::Pull,.97f,.35f},{F::Lash,1.07f,-.55f},{F::Invoke,1.1f,.35f},{F::Pull,1.38f,-.2f}}},
 };
 
 FDesign Design(const FString& Id,const FPlayback& Playback) {

@@ -96,6 +96,7 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
  if(Id=="nerve_needle") { Radius=14; Speed=4800; Delay=.12f; }
  if(Id=="dream_pierce"||Id=="abyssal_harpoon") { Radius=24; Speed=3400; }
  if(Id=="tattered_shriek") { Radius=100; Speed=1800; Delay=.3f; }
+ if(Id=="tidal_surge") { Radius=85; Speed=3200; Delay=.28f; }
  if(Id=="thousand_lashes") { Radius=55; Speed=3000; }
  if(Id=="temporal_lash"||Id=="gate_lash") { Radius=45; Speed=2800; }
  if(Id=="obsidian_shards") { Radius=70; Speed=2400; }
@@ -130,10 +131,12 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
  FVector Direction=(Aim-Origin).GetSafeNormal(); if(Direction.IsNearlyZero()) Direction=Owner->AimRotation().Vector();
  LastEffectLocation=(S.effectKind=="fear_aura"||S.effectKind=="pull")?Owner->FeetLocation():Origin;
  TWeakObjectPtr<ACultUlhuPlayerPawn> Weak(Owner);
- int Bolts=Id=="twin_fangs"?2:1;
+ const int Bolts=Id=="twin_fangs"?2:1;
+ const FVector Across=FVector::CrossProduct(FVector::UpVector,Direction).GetSafeNormal();
  for(int I=0;I<Bolts;++I) {
-  const FTransform T(Origin); auto* A=Owner->GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Owner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); if(!A) return false;
-  A->Shape=Kind; A->Direction=Direction.RotateAngleAxis(Bolts>1?(I==0?-2.f:2.f):0.f,FVector::UpVector); A->Windup=Delay; A->Reach=Reach; A->Radius=Radius; A->Speed=Speed; A->Duration=Life>0?Life:Reach/Speed+.05f; A->HalfAngle=Angle;
+  const FVector Start=Bolts==2?Origin+Across*(I==0?-80.f:80.f):Origin;
+  const FTransform T(Start); auto* A=Owner->GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Owner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); if(!A) return false;
+  A->Shape=Kind; A->Direction=Bolts==2?(Aim-Start).GetSafeNormal():Direction; A->Windup=Delay; A->Reach=Reach; A->Radius=Radius; A->Speed=Speed; A->Duration=Life>0?Life:Reach/Speed+.05f; A->HalfAngle=Angle;
   if(Kind==Shape::Bolt) A->ConfigureProjectileFlight(Reach,Id=="nerve_needle"||Id=="dream_pierce"||Id=="abyssal_harpoon"||Id=="gate_lash");
   A->AbilityLook=uint8(CultAbilityFX::ForSlot(UTF8_TO_TCHAR(Def.id.c_str()),Slot));
   cultulhu::SpellDef HitSpell=S; if(Bolts>1) HitSpell.effectPower*=.5f;

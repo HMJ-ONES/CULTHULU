@@ -79,7 +79,3 @@ void ACultUlhuPlayerPawn::StartMelee(float Damage,float Range,float Windup,float
 
 void ACultUlhuPlayerPawn::ResolveSkillHit(const cultulhu::SpellDef& S,AActor* T,FVector Point,int Slot) { if(Kit_) Kit_->ResolveSpatial(S,T,Point,Slot); }
 
-void ACultUlhuPlayerPawn::AbilityDash(FVector Direction,float Distance) {
- for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this&&It->Shape==ACultSkillAttack::EShape::Sweep) It->Destroy();
- SwingTime_=0; MeleeBuffer_=0;
- if(!IsBot()) PlayCultCombatCue(GetWorld(),ECultCombatCue::Dash,.18f); if(IsBot()) GetCharacterMovement()->bRunPhysicsWithNoController=true; DashDirection_=Direction.GetSafeNormal2D(); DashSpeed_=Distance/.3f; DashTime_=.3f; EvadeTime_=.18f; DriveDash(this,DashDirection_,DashSpeed_,DashTime_,WalkSpeed_); }

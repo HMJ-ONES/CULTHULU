@@ -17,7 +17,7 @@
 
 void PopulateCultWilds(UWorld* World);
 void ACultUlhuPlayerPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
- Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(ACultUlhuPlayerPawn,CharacterId_); DOREPLIFETIME(ACultUlhuPlayerPawn,bBotControlled_); DOREPLIFETIME(ACultUlhuPlayerPawn,Faction_); DOREPLIFETIME(ACultUlhuPlayerPawn,bMatchDead_); DOREPLIFETIME(ACultUlhuPlayerPawn,ActiveRock_);
+ Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(ACultUlhuPlayerPawn,CharacterId_); DOREPLIFETIME(ACultUlhuPlayerPawn,bBotControlled_); DOREPLIFETIME(ACultUlhuPlayerPawn,Faction_); DOREPLIFETIME(ACultUlhuPlayerPawn,bMatchDead_); DOREPLIFETIME(ACultUlhuPlayerPawn,ActiveRock_); DOREPLIFETIME(ACultUlhuPlayerPawn,Health_);
 }
 void ACultUlhuPlayerPawn::ServerCombatInput_Implementation(uint8 Action,bool Down,FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction) {
  if((Action!=uint8(ECultPlayerInput::Jump)&&Action!=uint8(ECultPlayerInput::Taunt)&&(Action<uint8(ECultPlayerInput::Primary)||Action>uint8(ECultPlayerInput::Interact)))||IsBot()) return;
@@ -28,6 +28,10 @@ void ACultUlhuPlayerPawn::ServerCombatInput_Implementation(uint8 Action,bool Dow
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->CanAct(this)) return;
  if(Origin.ContainsNaN()||Direction.ContainsNaN()||Direction.IsNearlyZero()||FVector::Dist(Origin,GetActorLocation())>GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*5) return;
  NetworkAimOrigin_=Origin; NetworkAimDirection_=FVector(Direction).GetSafeNormal(); NetworkAimAt_=GetWorld()->GetTimeSeconds();
+ if(Action>=uint8(ECultPlayerInput::Q)&&Action<=uint8(ECultPlayerInput::R)) {
+  if(Down) CommitAbility(Action-uint8(ECultPlayerInput::Q));
+  return;
+ }
  RoutePlayerInput(ECultPlayerInput(Action),Down);
 }
 void ACultUlhuPlayerPawn::ServerDash_Implementation(FVector_NetQuantizeNormal Direction) { if(!Direction.ContainsNaN()) { if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->CanAct(this)) return; TryDash(Direction); } }

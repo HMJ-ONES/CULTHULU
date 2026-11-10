@@ -22,6 +22,12 @@ class USpringArmComponent;
 class UCameraComponent;
 
 struct FCultImpactText { FVector Point; float Amount=0,Age=0; bool Killed=false; uint32 TargetId=0; };
+struct FCultCastArea {
+ int Slot=INDEX_NONE;
+ FVector Center=FVector::ZeroVector;
+ float Radius=0;
+ bool Valid=false, OutOfRange=false;
+};
 enum class ECultPlayerInput : uint8 { Jump, Primary, Heavy, Q, F, R, Interact, Stats, Command, Taunt, Count };
 struct FCultCombatHUDData {
  FString Name,AbilityNames[3],RmbHint; float Health=0,MaxHealth=1,Stamina=0,MaxStamina=100,Cooldowns[3]={},DashCooldown=0; bool Swinging=false;
@@ -35,6 +41,7 @@ public:
  virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
  void ConfigurePlayer(const FString& Id,int32 Team=0) { CharacterId_=Id; Faction_=Team; bBotControlled_=false; }
  UFUNCTION(Server,Reliable) void ServerCombatInput(uint8 Action,bool Down,FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction);
+ UFUNCTION(Client,Reliable) void ClientAbilityCommitted(uint8 Slot,float Cooldown);
  bool HoldingRock() const;
  bool RecentlyInCombat() const;
  bool PrimaryInReach(AActor* Target) const;
@@ -63,6 +70,7 @@ public:
 	FVector FeetLocation() const;
 	FRotator AimRotation() const;
 	FHitResult CameraAim(float RangeCm = 25000.f, bool bCursor = false) const;
+ FCultCastArea CastAreaPreview() const;
 	int32 GetFaction() const { return Faction_; }
 	void ConfigureBot(const FString& Id, int32 Faction);
  void SetControlState(bool Stop,bool Fear,float Speed,FVector Origin,bool Stun=false,int32 Source=0) { Control_.Set(Source,Stop,Fear,Speed,Origin,Stun); }
@@ -83,7 +91,6 @@ public:
  bool TryDash(FVector Direction);
  bool CanDash() const;
  float DashTravelDistance() const;
- void AbilityDash(FVector Direction,float Distance);
  void ResolveSkillHit(const cultulhu::SpellDef& Spell,AActor* Target,FVector Point,int Slot);
  bool IsEvading() const { return EvadeTime_>0; }
  bool IsDashing() const { return DashTime_>0; }
@@ -181,6 +188,9 @@ private:
 	void GuardTerrainBoundary();
 	void AreaAttack(FVector Center, float Radius, float Damage);
 	void PollMoveKeys(float DeltaSeconds);
+ void UseAbility(int Slot);
+ void CommitAbility(int Slot);
+ int CastPreviewSlot_=INDEX_NONE;
 
 	UPROPERTY(VisibleAnywhere, Category = "CultUlhu|Camera")
 	USpringArmComponent* SpringArm_ = nullptr;
@@ -212,7 +222,7 @@ private:
 	float WalkSpeed_ = 600.f;
  float LastCombatAt_=-100.f;
  float NextTauntAt_=0;
-	float Health_ = 1000.f;
+	UPROPERTY(Replicated) float Health_ = 1000.f;
 	class FCultKitRuntime* Kit_ = nullptr;
 	UPROPERTY(Replicated) int32 Faction_ = 0;
  UPROPERTY(Replicated) bool bBotControlled_=false;

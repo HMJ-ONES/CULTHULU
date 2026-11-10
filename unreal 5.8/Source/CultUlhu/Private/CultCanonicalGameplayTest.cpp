@@ -24,6 +24,7 @@ bool FCultCanonicalGameplayTest::RunTest(const FString& Parameters)
  for(const auto& Entry:UCultUlhuGameInstance::Roster()) {
   cultulhu::CharacterDef D; if(!TestTrue(Entry.Id+TEXT(" loads original kit"),CultCanonicalKit::Load(Entry.Id,D))) continue;
   TestTrue(Entry.Id+TEXT(" has all three named abilities"),!D.qAbility.id.empty()&&!D.fAbility.id.empty()&&!D.rAbility.id.empty());
+  TestTrue(Entry.Id+TEXT(" has no movement dash in the ability kit"),D.qAbility.effectKind!="dash"&&D.fAbility.effectKind!="dash"&&D.rAbility.effectKind!="dash");
  }
  UWorld* W=nullptr; for(const auto& C:GEngine->GetWorldContexts()) if(C.World()&&C.World()->IsGameWorld()) W=C.World();
  if(!W) { AddError(TEXT("Dark Wilds game world required")); return false; }
@@ -39,7 +40,7 @@ bool FCultCanonicalGameplayTest::RunTest(const FString& Parameters)
  auto* Building=W->SpawnActor<ACultDestructible>(Ground.ImpactPoint+FVector(0,0,50),FRotator::ZeroRotator,Spawn);
  Building->SetMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")));
  const auto Expected=Player->CameraAim(); const FVector Point=Expected.bBlockingHit?Expected.ImpactPoint:Expected.TraceEnd;
- const float Hp=Building->GetHealth(); Player->AbilityQ();
+ const float Hp=Building->GetHealth(); Player->AbilityQ(); Player->AbilityQ();
  TestTrue(TEXT("Tentacle Slam appears at the actual camera pick"),Player->GetLastEffectLocation().Equals(Point,1));
  bool RenderedAtPick=false;
  for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetActorLocation().Equals(Point,1)) {
@@ -48,11 +49,10 @@ bool FCultCanonicalGameplayTest::RunTest(const FString& Parameters)
  }
  TestTrue(TEXT("Actual spawned effect meshes appear at the camera pick, not world origin"),RenderedAtPick);
  TestTrue(TEXT("Tentacle Slam warning does not damage a structure instantly"),Building->GetHealth()==Hp);
- Player->AbilityF(); TestTrue(TEXT("Nightmare Veil stays at its documented caster location"),Player->GetLastEffectLocation().Equals(Player->FeetLocation(),1));
+ Player->AbilityF(); Player->AbilityF(); TestTrue(TEXT("Nightmare Veil stays at its documented caster location"),Player->GetLastEffectLocation().Equals(Player->FeetLocation(),1));
  int Before=0; for(TActorIterator<ACultPopulation> It(W);It;++It) if(It->GetFaction()==0) ++Before;
  Player->AbilityR(); int After=0; for(TActorIterator<ACultPopulation> It(W);It;++It) if(It->GetFaction()==0) ++After;
- // Q+F costs 60 stamina; R correctly waits until at least 50 is available.
- TestEqual(TEXT("Original stamina costs prevent over-casting"),After,Before);
+ TestEqual(TEXT("The summon preview does not create units"),After,Before);
  const float BuildingHp=Building->GetHealth(); Player->AbilityQ(); TestEqual(TEXT("Original cooldown blocks an immediate repeat cast"),Building->GetHealth(),BuildingHp);
  Building->Destroy();
  auto* Pickable=W->SpawnActor<ACultPopulation>(Player->FeetLocation()+FVector(1200,0,100),FRotator::ZeroRotator,Spawn);
@@ -61,13 +61,13 @@ bool FCultCanonicalGameplayTest::RunTest(const FString& Parameters)
  Pickable->Destroy();
  Camera->SetWorldLocation(Player->FeetLocation()+FVector(-1200,0,2500)); Camera->SetWorldRotation(FRotator(-45,0,0));
  for(int I=0;I<5;++I) Player->Tick(1.f);
- Player->AbilityR(); int Summons=0; for(TActorIterator<ACultPopulation> It(W);It;++It) if(It->IsSummoned()&&It->GetFaction()==0) ++Summons;
+ Player->AbilityR(); Player->AbilityR(); int Summons=0; for(TActorIterator<ACultPopulation> It(W);It;++It) if(It->IsSummoned()&&It->GetFaction()==0) ++Summons;
  TestEqual(TEXT("Call of the Deep summons the original four allied creatures"),Summons,4);
  if(auto* Land=ACultLivingLandscape::Find(W)) {
   const FVector Cave=Land->CaveSites()[0]; FVector Floor;
   if(ACultLivingLandscape::Surface(W,Cave,Floor)) {
    Camera->SetWorldLocation(Floor+FVector(-1000,-1000,1000)); Camera->SetWorldRotation((Floor-Camera->GetComponentLocation()).Rotation());
-   Player->Tick(46.f); Player->AbilityR(); int Inside=0;
+   Player->Tick(46.f); Player->AbilityR(); Player->AbilityR(); int Inside=0;
    for(TActorIterator<ACultPopulation> It(W);It;++It) if(It->IsSummoned()&&It->GetFaction()==0&&FVector::Dist2D(It->GetActorLocation(),Floor)<2500&&FMath::Abs(It->GetActorLocation().Z-Floor.Z)<300) ++Inside;
    TestEqual(TEXT("Camera-aimed cavern summons stay inside on the floor, below the roof"),Inside,4);
   }
@@ -79,8 +79,10 @@ bool FCultCanonicalGameplayTest::RunTest(const FString& Parameters)
   auto* Hydra=W->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),Transform,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
   Hydra->ConfigureBot(TEXT("mother_hydra"),1); Hydra->FinishSpawning(Transform);
   Hydra->SetControlState(true,false,0,Hydra->GetActorLocation(),Stunned!=0,101); Hydra->Tick(.01f);
-  Hydra->ReceiveDamage(100.f); Hydra->AbilityF();
-  TestEqual(Stunned?TEXT("Stun prevents Brine Blessing"):TEXT("Root allows Brine Blessing"),Hydra->GetHealth(),Hydra->GetMaxHealth()-(Stunned?100.f:0.f));
+  Hydra->ReceiveDamage(100.f);
+  const float HurtHealth=Hydra->GetHealth(); Hydra->AbilityF();
+  TestTrue(Stunned?TEXT("Stun prevents Brine Blessing"):TEXT("Root allows Brine Blessing"),
+   Stunned?Hydra->GetHealth()==HurtHealth:Hydra->GetHealth()>HurtHealth);
   Hydra->Destroy();
  }
  const int Cities=Director->CityCount(); Director->Tick(181);

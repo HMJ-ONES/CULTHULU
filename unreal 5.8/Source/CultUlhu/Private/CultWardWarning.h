@@ -3,6 +3,7 @@
 class ACultUlhuPlayerPawn;
 class ACultSkillAttack;
 class UCanvas;
+class ACultPlayHUD;
 struct FCultWardWarning {
  TWeakObjectPtr<ACultSkillAttack> Shot;
  float ReleaseIn=0;
@@ -19,5 +20,6 @@ namespace CultWardWarning {
  // Only a real, living ward's lock on this player warrants a screen warning.
  FCultWardWarning Observe(ACultUlhuPlayerPawn* Player);
  FBox2D Bounds(FVector2D Canvas,float Scale,FVector2D TextSize);
- FCultWardWarningPanel Panel(const FCultWardWarning& Warning,float DashCooldown,UCanvas* Canvas);
+ FCultWardWarningPanel Panel(const FCultWardWarning& Warning,float DashCooldown,UCanvas* Canvas,bool DockTop=false,float Stamina=100);
+ void Draw(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* Player,UCanvas* Canvas,bool DockTop=false);
 }

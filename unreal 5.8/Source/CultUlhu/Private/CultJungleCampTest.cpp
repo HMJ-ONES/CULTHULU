@@ -67,7 +67,7 @@ public:
    for(int I=0;I<4;++I) {
     auto* B=Camps[I]->Monster(); T->TestNotNull(TEXT("A camp owns a live creature actor"),B); if(!B) return true;
     T->TestTrue(TEXT("Jungle creatures use authored skeletal parts"),B->HasCreatureMesh()&&B->GetCreaturePartCount()>=8);
-    T->TestTrue(TEXT("Neutral camp XP exceeds a lane minion's 60-XP killing blow"),Camps[I]->RewardXP()>60);
+    T->TestTrue(TEXT("Neutral camp XP exceeds a lane minion's last hit reward"),Camps[I]->RewardXP()>CultMatchBalance::MinionLastHitXP);
     T->TestTrue(TEXT("Neutral swings exceed minor lane damage"),B->GetAttackDamage()>=20);
     T->TestFalse(TEXT("Competitive creatures cannot be healed by heroes"),P->CanHealActor(B)); B->Capture(P,0); T->TestFalse(TEXT("A neutral MOBA camp cannot become a free-roam captive"),B->IsCaptured());
    }
