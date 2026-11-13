@@ -9,7 +9,8 @@ CultMeleeGeometry::FProfile CultMeleeGeometry::Describe(const ACultUlhuPlayerPaw
 bool CultMeleeGeometry::InReach(const ACultUlhuPlayerPawn* Pawn,AActor* Target) {
  if(!Pawn||!IsValid(Target)) return false;
  const auto Profile=Describe(Pawn); FVector Closest;
- if(auto* Body=Target->FindComponentByClass<UCapsuleComponent>()) {
+ const auto* Hero=Cast<ACultUlhuPlayerPawn>(Target);
+ if(auto* Body=Hero?Hero->CombatCapsule():Target->FindComponentByClass<UCapsuleComponent>()) {
   const float Distance=Body->GetClosestPointOnCollision(Profile.Origin,Closest);
   return Distance>=0&&Distance<=Profile.Reach+Profile.Radius;
  }
@@ -19,7 +20,8 @@ bool CultMeleeGeometry::InReach(const ACultUlhuPlayerPawn* Pawn,AActor* Target) 
 float CultMeleeGeometry::ApproachDistance(const ACultUlhuPlayerPawn* Pawn,AActor* Target) {
  if(!Pawn||!IsValid(Target)) return 400;
  const auto Profile=Describe(Pawn);
- auto* Body=Target->FindComponentByClass<UCapsuleComponent>(); if(!Body) return 400;
+ const auto* Hero=Cast<ACultUlhuPlayerPawn>(Target);
+ auto* Body=Hero?Hero->CombatCapsule():Target->FindComponentByClass<UCapsuleComponent>(); if(!Body) return 400;
  const float Radius=Body->GetScaledCapsuleRadius(),Spine=Body->GetScaledCapsuleHalfHeight()-Radius;
  const float Vertical=FMath::Max(0.f,float(FMath::Abs(Profile.Origin.Z-Body->GetComponentLocation().Z))-Spine);
  const float Reach=Profile.Reach+Profile.Radius+Radius;

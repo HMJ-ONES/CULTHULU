@@ -18,6 +18,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
+#include "CultMovementTuning.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInterface.h"
 
@@ -96,6 +97,7 @@ void ACultSkillAttack::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
  DOREPLIFETIME(ACultSkillAttack,bRockGuard);
 }
 void ACultSkillAttack::ConfigureProjectileFlight(float BaseReach,bool LongFlight) {
+ Speed*=CultMovement::ProjectileSpeedMultiplier;
  // Long rounds stay solid through the playable engagement. A generous cap
  // still collects missed shots sent out into empty sky.
  Reach=LongFlight?FMath::Max(BaseReach*2.8f,Speed*18.f):BaseReach*1.35f;
@@ -219,7 +221,9 @@ void ACultSkillAttack::UpdateLimbStrike() {
  LastLimbAge=Age;
 }
 bool ACultSkillAttack::AreaContact(EShape Shape,FVector Origin,FVector Direction,float Reach,float Radius,float HalfAngle,AActor* Target,FVector& Point) {
-  Point=Target->GetActorLocation(); float Body=0; if(auto* C=Target->FindComponentByClass<UCapsuleComponent>()) {
+  const auto* Hero=Cast<ACultUlhuPlayerPawn>(Target);
+  auto* Capsule=Hero?Hero->CombatCapsule():Target->FindComponentByClass<UCapsuleComponent>();
+  Point=Capsule?Capsule->GetComponentLocation():Target->GetActorLocation(); float Body=0; if(auto* C=Capsule) {
    Body=C->GetScaledCapsuleRadius();
    if(Shape==EShape::GroundDisk) Point.Z=FMath::Clamp(Origin.Z,Point.Z-C->GetScaledCapsuleHalfHeight(),Point.Z+C->GetScaledCapsuleHalfHeight());
    else { FVector Closest; if(C->GetClosestPointOnCollision(Origin,Closest)>=0) Point=Closest; Body=0; }
@@ -232,7 +236,7 @@ bool ACultSkillAttack::AreaContact(EShape Shape,FVector Origin,FVector Direction
    In=In&&(Offset.IsNearlyZero()||FVector::DotProduct(Offset.GetSafeNormal(),Direction)>=Cos);
    // A giant capsule can intersect a cone even when its nearest point to the
    // caster lies outside the cone. Test actual collider points near the committed axis.
-   if(!In) if(auto* Capsule=Target->FindComponentByClass<UCapsuleComponent>()) for(int I=0;I<=8;++I) {
+   if(!In&&Capsule) for(int I=0;I<=8;++I) {
     FVector Candidate; if(Capsule->GetClosestPointOnCollision(Origin+Direction*Reach*(I/8.f),Candidate)<0) continue;
     const FVector Delta=Candidate-Origin;
     if(Delta.SizeSquared()<=FMath::Square(Reach+1)&&(Delta.IsNearlyZero()||FVector::DotProduct(Delta.GetSafeNormal(),Direction)>=Cos)) { In=true; Point=Candidate; break; }
@@ -299,10 +303,13 @@ void ACultSkillAttack::Tick(float Dt) {
   // A timed dash breaks this shot permanently; jumping and running do not.
   if(auto* Hero=Cast<ACultUlhuPlayerPawn>(Target)) if(Hero->IsDashing()) { Hero->ConfirmEvade(); Destroy(); return; }
   FVector Aim=Target->GetActorLocation();
-  if(auto* Capsule=Target->FindComponentByClass<UCapsuleComponent>()) { FVector Closest; if(Capsule->GetClosestPointOnCollision(Previous,Closest)>=0) Aim=Closest; }
+  const auto* Hero=Cast<ACultUlhuPlayerPawn>(Target);
+  if(auto* Capsule=Hero?Hero->CombatCapsule():Target->FindComponentByClass<UCapsuleComponent>()) {
+   FVector Closest; if(Capsule->GetClosestPointOnCollision(Previous,Closest)>=0) Aim=Closest;
+  }
   const float Step=Speed*(Age-FMath::Max(Old,Windup));
   Direction=(Aim-Previous).GetSafeNormal();
-  if(auto* Hero=Cast<ACultUlhuPlayerPawn>(Target);Hero&&Hero->HoldingRock()) {
+  if(Hero&&Hero->HoldingRock()) {
    FHitResult Block;
    FCollisionQueryParams Query(SCENE_QUERY_STAT(CultWardGuard),false,GetOwner());
    const FVector Next=Previous+Direction*FMath::Min(FVector::Dist(Previous,Aim),double(Step));

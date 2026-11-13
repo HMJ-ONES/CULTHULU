@@ -77,7 +77,7 @@ public:
    }
    if(Time>.65f) {
     Test->TestTrue(TEXT("The attack sampled a real wrist and forearm"),LimbFixture);
-    Test->TestTrue(TEXT("Forward melee moves the capsule aggressively"),FVector::Dist2D(LungeStart,P->GetActorLocation())>300);
+    Test->TestTrue(TEXT("A stationary melee swing does not move the capsule"),FVector::Dist2D(LungeStart,P->GetActorLocation())<25);
     Test->TestTrue(TEXT("Actual aimed LMB makes creature contact"),!Beast.IsValid()||Beast->GetHealth()<Before);
     if(Beast.IsValid()&&!Beast->IsDead()) {
      auto* Camera=P->FindComponentByClass<UCameraComponent>();

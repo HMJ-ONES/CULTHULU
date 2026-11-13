@@ -141,14 +141,15 @@ void DrawCultCombat(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C) {
  for(int I:{-1,1}) { HUD->DrawLine(Mid+I*6*S,CY,Mid+I*11*S,CY,AimColor,1.5f*S); HUD->DrawLine(Mid,CY+I*6*S,Mid,CY+I*11*S,AimColor,1.5f*S); }
  Rect(AimColor,Mid-S*.65f,CY-S*.65f,1.3f*S,1.3f*S);
  if(P->HitConfirmTime()>0) for(int I:{-1,1}) for(int J:{-1,1}) HUD->DrawLine(Mid+I*13*S,CY+J*13*S,Mid+I*20*S,CY+J*20*S,Gold,2*S);
- const FString Dash=Data.DashCooldown>0?FString::Printf(TEXT("DASH  %.1fs"),Data.DashCooldown):Data.Stamina<18?TEXT("LOW STAMINA"):(Guidance?TEXT("TAP SHIFT DASH"):TEXT("SHIFT / DASH"));
- const FString Sprint=Guidance?TEXT("HOLD SHIFT  SPRINT"):TEXT("");
+ const bool LowStamina=Data.Stamina+.01f<Data.MaxStamina/3.f;
+ const FString Dash=Data.DashCooldown>0?FString::Printf(TEXT("DASH  %.1fs"),Data.DashCooldown):LowStamina?TEXT("LOW STAMINA"):(Guidance?TEXT("TAP SHIFT DASH"):TEXT("SHIFT / DASH"));
+ const FString Sprint=Guidance?(P->CanFly()?W<800?TEXT("SPACE FLY + SHIFT"):TEXT("HOLD SPACE FLY  |  + SHIFT BOOST"):TEXT("HOLD SHIFT  SPRINT")):TEXT("");
  const auto DashSize=Measure->Measure(Dash,CultUI::Font(14.f*.83f*S)),SprintSize=Measure->Measure(Sprint,CultUI::Font(14.f*.62f*S));
  const float CueCenter=FMath::Min(Mid,(X+320*S+Start)*.5f),CuePad=FMath::Max(5.f,8*S);
  const float SprintY=H-SprintSize.Y-FMath::Max(6.f,12*S),DashY=Sprint.IsEmpty()?H-DashSize.Y-2*CuePad-FMath::Max(6.f,12*S):SprintY-RowGap-DashSize.Y-2*CuePad;
  const float CueWidth=FMath::Max(DashSize.X,SprintSize.X)+2*CuePad;
  Rect(Ink,CueCenter-CueWidth*.5f,DashY,CueWidth,SprintY+SprintSize.Y+CuePad-DashY);
- Text(Dash,Data.DashCooldown>0||Data.Stamina<18?Grey:Blue,CueCenter-DashSize.X*.5f,DashY+CuePad,.83f);
+ Text(Dash,Data.DashCooldown>0||LowStamina?Grey:Blue,CueCenter-DashSize.X*.5f,DashY+CuePad,.83f);
  if(!Sprint.IsEmpty()) Text(Sprint,Grey,CueCenter-SprintSize.X*.5f,SprintY,.62f);
  float MessageBottom=HUD->CombatBottomTop_-RowGap;
  if(!Data.RmbHint.IsEmpty()) {

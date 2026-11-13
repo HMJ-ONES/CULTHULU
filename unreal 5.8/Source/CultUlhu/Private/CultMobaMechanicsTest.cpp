@@ -51,6 +51,38 @@ struct FCultMobaMechanicsTestAccess {
   }
   Reset(); P->ProcessShift(true,FVector::ForwardVector,.04f); P->ProcessShift(true,FVector::ZeroVector,.02f,false); P->ProcessShift(false,FVector::ForwardVector,.02f);
   T->TestEqual(TEXT("Cursor/control cancellation cannot queue a dash"),P->DashTime_,0.f); Reset();
+  for(int Index=0;Index<3;++Index) {
+   P->DashCooldown_=0;
+   T->TestTrue(TEXT("Three dashes are available from full stamina"),P->TryDash(FVector::RightVector));
+   const float Remaining=P->Kit_->StaminaValue();
+   P->Kit_->Sprint(false,1.5f);
+   T->TestEqual(TEXT("Stamina does not regenerate before the next dash opens"),P->Kit_->StaminaValue(),Remaining);
+  }
+  P->DashCooldown_=0;
+  T->TestFalse(TEXT("A fourth dash is unavailable on an empty gauge"),P->CanDash());
+  P->Kit_->Sprint(false,.50f);
+  T->TestTrue(TEXT("Stamina recovers after the delay expires"),P->Kit_->StaminaValue()>0);
+  Reset();
+  P->UpdateFlight(true,false,.25f);
+  const float Normal=P->Kit_->StaminaValue(), FlightSpeed=P->GetCharacterMovement()->MaxFlySpeed;
+  T->TestTrue(TEXT("Cthulhu takes flight while holding Space"),P->GetCharacterMovement()->IsFlying()&&P->GetVelocity().Z>0);
+  P->UpdateFlight(true,true,.25f);
+  T->TestTrue(TEXT("Boost flight trades more stamina for speed"),Normal-P->Kit_->StaminaValue()>P->Kit_->Def.maxStamina-Normal&&P->GetCharacterMovement()->MaxFlySpeed>FlightSpeed);
+  P->UpdateFlight(false,false,.01f);
+  T->TestTrue(TEXT("Releasing flight returns the character to falling"),P->GetCharacterMovement()->IsFalling());
+  P->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+  P->GetCharacterMovement()->StopMovementImmediately();
+  Reset();
+  const int Team=P->GetFaction();
+  const auto Ally=P->TeamColorFor(Team), Foe=P->TeamColorFor(1-Team);
+  T->TestTrue(TEXT("Allies are blue and opponents are red from the local perspective"),Ally.B>Ally.R&&Foe.R>Foe.B);
+  for(TActorIterator<ACultUlhuPlayerPawn> It(P->GetWorld());It;++It) if(It->GetCharacterId()==TEXT("yig")) {
+   T->TestTrue(TEXT("Yig uses an elevated combat collider separate from his movement capsule"),
+    It->CombatCapsule()!=It->GetCapsuleComponent()&&
+    It->CombatCapsule()->Bounds.Origin.Z-It->CombatCapsule()->Bounds.BoxExtent.Z>It->FeetLocation().Z+
+    It->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*.6f);
+   break;
+  }
  }
  static void VerifyWardShots(FAutomationTestBase* T,ACultMatchDirector* M,ACultUlhuPlayerPawn* P,ACultMatchUnit* Tower) {
   const FVector Origin=Tower->GetActorLocation(); const FVector Feet=Origin+FVector(3000,0,-1253);
@@ -68,7 +100,7 @@ struct FCultMobaMechanicsTestAccess {
   P->EvadeTime_=0; Shot=Fire(); Before=P->GetHealth();
   if(Shot) {
    Shot->Tick(.26f); T->TestTrue(TEXT("A real dash is available against an incoming tower shot"),P->TryDash(FVector::RightVector));
-   T->TestEqual(TEXT("DOTGOO dash uses an eight-second cooldown"),P->CombatHUD().DashCooldown,8.f);
+   T->TestEqual(TEXT("DOTGOO dash uses the revised cooldown"),P->CombatHUD().DashCooldown,1.5f);
    Shot->Tick(.01f); T->TestTrue(TEXT("Dash permanently breaks the in-flight ward lock"),Shot->IsActorBeingDestroyed());
    T->TestEqual(TEXT("A dashed tower shot deals no damage"),P->GetHealth(),Before);
    T->TestFalse(TEXT("Dash cannot be immediately repeated in DOTGOO"),P->CanDash());
@@ -123,8 +155,8 @@ public:
    T->TestEqual(TEXT("Friendly lane wave entering area takes tower aggression"),FCultMobaMechanicsTestAccess::Target(M,Tower.Get()),static_cast<AActor*>(Wave));
    Wave->SetActorLocation(FVector(-30000,-17000,153)); T->TestTrue(TEXT("Tower resumes hero fire when the covering wave leaves"),Cast<ACultUlhuPlayerPawn>(FCultMobaMechanicsTestAccess::Target(M,Tower.Get()))!=nullptr);
    Ally->RelocateMatch(FVector(-32000,-18000,0)); Tower->AttackTarget=P; Before=P->GetHealth(); Tower->FireAt(P);
-   bool Fast=false; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Tower.Get()) Fast=It->Speed==15000;
-   T->TestTrue(TEXT("Actual tower projectile travels at 15000 cm/s"),Fast); T->TestEqual(TEXT("Tower shot has visible windup before contact"),P->GetHealth(),Before);
+   bool Fast=false; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Tower.Get()) Fast=It->Speed==20250;
+   T->TestTrue(TEXT("Actual tower projectile travels at 20250 cm/s"),Fast); T->TestEqual(TEXT("Tower shot has visible windup before contact"),P->GetHealth(),Before);
    Tower->AttackCooldown=100; At=W->GetTimeSeconds(); Phase=2; return false;
   }
   if(Phase==2) {

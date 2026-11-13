@@ -4,6 +4,7 @@
 #include "CultUlhuPlayerPawn.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
@@ -15,7 +16,7 @@ void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
   Pose.Body.X+=12.f*Direction;
   Pose.Body.W-=2.5f;
   Pose.Details.Y+=Direction<-.2f?14.f:7.f;
- } else if(Pawn_->GetCharacterMovement()->IsFalling()) {
+ } else if(Pawn_->GetCharacterMovement()->IsFalling()||Pawn_->GetCharacterMovement()->IsFlying()) {
   const float Lift=FMath::Clamp(Pawn_->GetVelocity().Z/FMath::Max(1.f,WalkSpeed_),-1.f,1.f);
   Pose.Body.X-=Lift*8.f;
   Pose.Details.Y+=FMath::Abs(Lift)*8.f;
@@ -74,4 +75,37 @@ void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
   :FTransform(FRotator(-Pose.Body.X*.40,Pose.Body.Y*.54,1.6f*WheelRoll+Pose.Details.Z*.12),
               FVector(Pose.Body.Z*.68,0,2*WheelRoll+Pose.Body.W*.55));
  for(int32 Index=0;Index<Parts_.Num();++Index) Parts_[Index]->SetRelativeTransform(StaticRest_[Index]*Accent);
+ if(Yig) {
+  USkeletalMeshComponent* Torso=nullptr;
+  USkeletalMeshComponent* Tail=nullptr;
+  USkeletalMeshComponent* Weapons=nullptr;
+  for(const auto& Part:Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part.Get())) {
+   if(Skin->GetBoneIndex(TEXT("hips"))!=INDEX_NONE) Torso=Skin;
+   if(Skin->GetBoneIndex(TEXT("tail01"))!=INDEX_NONE) Tail=Skin;
+   if(Skin->GetBoneIndex(TEXT("weaponsroot"))!=INDEX_NONE) Weapons=Skin;
+  }
+  if(Torso&&Tail) {
+   // Follow the torso's animated hip displacement while retaining the
+   // assembled offset of the two meshes in the imported reference pose.
+   const int Hips=Torso->GetBoneIndex(TEXT("hips"));
+   const auto& Ref=Torso->GetSkeletalMeshAsset()->GetRefSkeleton();
+   FTransform Rest=Ref.GetRefBonePose()[Hips];
+   for(int Parent=Ref.GetParentIndex(Hips);Parent!=INDEX_NONE;Parent=Ref.GetParentIndex(Parent))
+    Rest=Rest*Ref.GetRefBonePose()[Parent];
+   const FVector HipDelta=Torso->GetBoneLocation(TEXT("hips"))-Torso->GetComponentTransform().TransformPosition(Rest.GetLocation());
+   Tail->AddWorldOffset(HipDelta.GetClampedToMaxSize(Pawn_->GetSimpleCollisionRadius()*.33f));
+   if(auto* Anim=Cast<UCultFluidAnimInstance>(Tail->GetAnimInstance())) {
+    Anim->TailMotion=FMath::Clamp(Speed/FMath::Max(1.f,WalkSpeed_),0.f,1.f);
+    Anim->TailPhase=GetWorld()->GetTimeSeconds()*6.f;
+   }
+  }
+  if(Torso&&Weapons) if(auto* Anim=Cast<UCultFluidAnimInstance>(Weapons->GetAnimInstance())) {
+   static const FName Hands[]={TEXT("lefthand"),TEXT("righthand"),TEXT("lefthand_001"),TEXT("righthand_001")};
+   Anim->GripMask=0;
+   for(int Index=0;Index<4;++Index) if(Torso->GetBoneIndex(Hands[Index])!=INDEX_NONE) {
+    Anim->GripTargets[Index]=Weapons->GetComponentTransform().InverseTransformPosition(Torso->GetBoneLocation(Hands[Index]));
+    Anim->GripMask|=1<<Index;
+   }
+  }
+ }
 }

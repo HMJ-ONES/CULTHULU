@@ -11,6 +11,8 @@
 void ACultUlhuPlayerPawn::SetMatchDead() {
  CastPreviewSlot_=INDEX_NONE;
  InputHeld_[static_cast<int32>(ECultPlayerInput::Interact)]=false;
+ InputHeld_[static_cast<int32>(ECultPlayerInput::Jump)]=false;
+ FlightNeedsRelease_=false;
  AttackPlayback_={};
  HeldAttack_={};
  if(HasAuthority()&&IsValid(ActiveRock_)) { ActiveRock_->Destroy(); ActiveRock_=nullptr; }

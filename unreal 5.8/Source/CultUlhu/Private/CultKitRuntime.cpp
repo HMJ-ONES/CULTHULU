@@ -7,6 +7,7 @@ CSV_DEFINE_CATEGORY(CultRuntime,true);
 #include "CultSkillAttack.h"
 #include "CultMatchDirector.h"
 #include "CultMatchBalance.h"
+#include "CultMovementTuning.h"
 #include "CultMatchUnit.h"
 #include "CultUlhuGameInstance.h"
 #include "CultUlhuPlayerPawn.h"
@@ -172,7 +173,7 @@ FCultCastArea FCultKitRuntime::CastArea(int Slot) const
  const bool Summon=Kind=="summon"&&(!Match||Match->Mode()!=ECultPlayMode::Domination);
  if(!Summon&&Kind!="aoe_damage"&&Kind!="fear_aura"&&Kind!="pull") return Area;
  Area.Slot=Slot;
- Area.Radius=Spell.range*100.f;
+ Area.Radius=Spell.range*100.f*CultMovement::AbilityAreaMultiplier;
  if(IsCasterGroundStrike(Spell.id)||Kind=="fear_aura"||Kind=="pull") {
   Area.Center=Owner->FeetLocation()+FVector(0,0,IsCasterGroundStrike(Spell.id)?12:100);
   Area.Valid=true;
@@ -218,7 +219,7 @@ bool FCultKitRuntime::Cast(int Slot)
   if(Count+int(S.effectPower)>512) { Owner->Notify(TEXT("No room for the complete summon")); return false; }
   for(int I=0;I<int(S.effectPower);++I) {
    bool Placed=false;
-   for(int Try=0;Try<24;++Try) { const float A=FMath::FRand()*2*PI; const float R=Try==23?0.f:FMath::FRand()*S.range*100.f; FVector P=Aim+FVector(FMath::Cos(A)*R,FMath::Sin(A)*R,0); FHitResult H; FCollisionQueryParams Q(SCENE_QUERY_STAT(KitSummonPlan),false,Owner);
+   for(int Try=0;Try<24;++Try) { const float A=FMath::FRand()*2*PI; const float R=Try==23?0.f:FMath::FRand()*Area.Radius; FVector P=Aim+FVector(FMath::Cos(A)*R,FMath::Sin(A)*R,0); FHitResult H; FCollisionQueryParams Q(SCENE_QUERY_STAT(KitSummonPlan),false,Owner);
     // Begin near the aimed surface, so a cavern ceiling cannot replace its floor.
     if(Owner->GetWorld()->LineTraceSingleByObjectType(H,P+FVector(0,0,200),P-FVector(0,0,20000),FCollisionObjectQueryParams(ECC_WorldStatic),Q)&&H.ImpactNormal.Z>.65f) { SummonPoints.Add(H.ImpactPoint); Placed=true; break; }
    }

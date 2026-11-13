@@ -80,7 +80,7 @@ public:
    Test->TestTrue(TEXT("Actual source Q casts without bypassing its resource/cooldown path"),Delivery->Cast(0));
    for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Shooter.Get()) Shot=*It;
    if(!Shot.IsValid()) { Test->AddError(TEXT("Canonical Q created no physical shot")); return true; }
-   Test->TestEqual(TEXT("Needle retains the native fast, narrow profile"),Shot->Speed,4800.f); Test->TestEqual(TEXT("Needle radius is unchanged"),Shot->Radius,14.f);
+   Test->TestEqual(TEXT("Needle uses the faster projectile tuning"),Shot->Speed,6480.f); Test->TestEqual(TEXT("Needle remains a narrow shot"),Shot->Radius,17.5f);
    Direction=Shot->Direction; auto Original=Shot->Hit; auto Count=Contacts; auto ContactTime=FirstContact; const float ShotBegan=Now; auto Victim=Target;
    Shot->Hit=[Original,Count,ContactTime,ShotBegan,Victim](AActor* Hit,FVector Point) { if(Hit==Victim.Get()) { ++*Count; if(*ContactTime<0) *ContactTime=Hit->GetWorld()->GetTimeSeconds()-ShotBegan; } if(Original) Original(Hit,Point); };
    auto Finished=Shot->Finished; auto End=EndPoint; Shot->Finished=[Finished,End](FVector Point) { *End=Point; if(Finished) Finished(Point); };

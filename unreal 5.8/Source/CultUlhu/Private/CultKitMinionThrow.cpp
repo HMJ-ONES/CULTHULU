@@ -63,7 +63,7 @@ void FCultKitRuntime::LaunchMinion() {
  const FTransform T(Origin); auto* Bolt=Owner->GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Owner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
  if(!Bolt) { CancelMinionThrow(); return; }
  Bolt->Shape=ACultSkillAttack::EShape::Bolt; Bolt->Direction=(Aim-Origin).GetSafeNormal(); if(Bolt->Direction.IsNearlyZero()) Bolt->Direction=Owner->AimRotation().Vector();
- Bolt->Speed=6000; Bolt->Reach=9200; Bolt->Radius=100; Bolt->Windup=.12f; Bolt->Duration=1.6f;
+ Bolt->Speed=8100; Bolt->Reach=9200; Bolt->Radius=100; Bolt->Windup=.12f; Bolt->Duration=Bolt->Reach/Bolt->Speed+.06f;
  Bolt->AbilityLook=uint8(CultAbilityFX::ELook::Tendrils);
  Bolt->TargetFilter=[](AActor* A){ auto* U=::Cast<ACultMatchUnit>(A); return ::Cast<ACultUlhuPlayerPawn>(A)||(U&&U->IsStructure()); };
  TWeakObjectPtr<ACultMatchUnit> WeakUnit(Unit); TWeakObjectPtr<ACultUlhuPlayerPawn> WeakOwner(Owner); const float Scale=M->DamageMultiplier(Owner);

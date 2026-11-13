@@ -3,6 +3,37 @@
 #include "CultPrimaryProfile.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "CultCharacterModel.h"
+#include "CultMatchDirector.h"
+#include "Kismet/GameplayStatics.h"
+#include "Materials/MaterialInstanceDynamic.h"
+
+FLinearColor ACultUlhuPlayerPawn::TeamColorFor(int ViewerFaction) const
+{
+ return GetFaction()==ViewerFaction?FLinearColor(.12f,.48f,1.f):FLinearColor(1.f,.12f,.17f);
+}
+
+void ACultUlhuPlayerPawn::UpdateTeamAura()
+{
+ if(GetNetMode()==NM_DedicatedServer||!ACultMatchDirector::IsMatch(GetWorld())) return;
+ const auto* Viewer=Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(GetWorld(),0));
+ if(!Viewer) return;
+ const int Relation=Viewer==this?-1:int(Viewer->GetFaction()==GetFaction());
+ if(AuraRelation_==Relation) return;
+ AuraRelation_=Relation;
+ static UMaterialInterface* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_CompetitiveTeamRim"));
+ if(!Base) return;
+ auto* Rim=Relation<0?nullptr:UMaterialInstanceDynamic::Create(Base,this);
+ if(Rim) Rim->SetVectorParameterValue(TEXT("TeamColor"),TeamColorFor(Viewer->GetFaction()));
+ TArray<AActor*> Attached;
+ GetAttachedActors(Attached);
+ for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
+  for(const auto& Part:Model->Parts()) if(Part) { Part->SetOverlayMaterial(Rim); Part->SetOverlayMaterialMaxDrawDistance(30000.f); }
+  return;
+ }
+ VesselBody_->SetOverlayMaterial(Rim);
+ for(const auto& Limb:VesselArms_) if(Limb) Limb->SetOverlayMaterial(Rim);
+}
 
 void ACultUlhuPlayerPawn::CreateVesselArms() {
  auto* LimbMesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Sphere"));
@@ -69,10 +100,8 @@ void ACultUlhuPlayerPawn::UpdateVesselMotion(float DeltaSeconds) {
    Limb->SetRelativeLocationAndRotation((Points[Segment]+Points[Segment+1])*.5,
      FRotationMatrix::MakeFromZ(Points[Segment+1]-Points[Segment]).Rotator());
    Limb->SetRelativeScale3D(FVector(.22,.22,FVector::Dist(Points[Segment],Points[Segment+1])/90));
-   Limb->SetVisibility(IsThirdPerson());
   }
   VesselArms_[Index*3+2]->SetRelativeLocation(Hand);
   VesselArms_[Index*3+2]->SetRelativeScale3D(FVector(.29,.22,.19));
-  VesselArms_[Index*3+2]->SetVisibility(IsThirdPerson());
  }
 }

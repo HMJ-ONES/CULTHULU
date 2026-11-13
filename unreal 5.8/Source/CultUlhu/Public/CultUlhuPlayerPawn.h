@@ -43,6 +43,10 @@ public:
  UFUNCTION(Server,Reliable) void ServerCombatInput(uint8 Action,bool Down,FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction);
  UFUNCTION(Client,Reliable) void ClientAbilityCommitted(uint8 Slot,float Cooldown);
  bool HoldingRock() const;
+ bool CanFly() const;
+ FLinearColor TeamColorFor(int ViewerFaction) const;
+ void UpdateTeamAura();
+ class UCapsuleComponent* CombatCapsule() const;
  bool RecentlyInCombat() const;
  bool PrimaryInReach(AActor* Target) const;
  void ApplyPrimaryCorrosion(AActor* Target);
@@ -237,6 +241,10 @@ private:
  FVector NetworkAimOrigin_=FVector::ZeroVector,NetworkAimDirection_=FVector::ForwardVector;
  float NetworkAimAt_=-100;
  bool NetworkSprinting_=false;
+ void UpdateFlight(bool Held,bool Boost,float DeltaSeconds);
+ bool FlightNeedsRelease_=false;
+ UPROPERTY() TObjectPtr<class UCapsuleComponent> TorsoCollision_;
+ int AuraRelation_=-2;
 	TWeakObjectPtr<AActor> BotAim_;
 	FString Notice_; float NoticeTime_=0;
 	bool bStats_ = false;

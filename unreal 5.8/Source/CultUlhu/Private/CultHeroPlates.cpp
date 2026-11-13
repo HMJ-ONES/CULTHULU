@@ -32,7 +32,9 @@ void CultHeroPlates::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* P,AC
   auto* H=F.Pawn.Get(); if(!H||H==P||F.Respawn>0||H->GetHealth()<=0||H->IsHidden()||FVector::DistSquared(Eye,H->GetActorLocation())>FMath::Square(30000.f)) continue;
   const float Half=H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
   const FVector Head=H->GetActorLocation()+FVector(0,0,Half+100); FVector2D Anchor;
-  if(!CultHUDProjection::Project(C,Head,Anchor)||!Safe.IsInside(Anchor)) continue;
+  if(!CultHUDProjection::Project(C,Head,Anchor)||!Safe.IsInside(Anchor)) {
+   if(!CultHUDProjection::Project(C,H->GetActorLocation(),Anchor)||!Safe.IsInside(Anchor)) continue;
+  }
   FCollisionQueryParams Q(SCENE_QUERY_STAT(HeroPlateSight),false,P); Q.AddIgnoredActor(H); FHitResult Hit;
   // Only visible bodies qualify. A remembered combat focus never reveals a
   // hidden hero; either its centre or head must have a real unobstructed ray.
@@ -70,12 +72,12 @@ void CultHeroPlates::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* P,AC
  // Leaders all sit beneath all cards, including cards placed earlier by focus
  // priority. A later candidate must never draw a line across another name.
  for(const auto& Card:Cards) {
-  const auto& Candidate=*Card.Candidate; const auto& Bounds=Card.Bounds; const auto Accent=Candidate.Friendly?CultUI::Teal:CultUI::Danger;
+  const auto& Candidate=*Card.Candidate; const auto& Bounds=Card.Bounds; const auto Accent=Candidate.Hero->TeamColorFor(P->GetFaction());
   HUD->DrawLine(FMath::Clamp(Candidate.Anchor.X,Bounds.Min.X,Bounds.Max.X),FMath::Clamp(Candidate.Anchor.Y,Bounds.Min.Y,Bounds.Max.Y),Candidate.Anchor.X,Candidate.Anchor.Y,Accent.CopyWithNewOpacity(.6f),S);
  }
  for(const auto& Card:Cards) {
   const auto& Candidate=*Card.Candidate; const auto& Bounds=Card.Bounds; const auto& Name=Card.Name; const auto TextSize=Card.TextSize;
-  const float Width=Bounds.GetSize().X,Height=Bounds.GetSize().Y,Pad=7*S,Mark=14*S; const auto Accent=Candidate.Friendly?CultUI::Teal:CultUI::Danger;
+  const float Width=Bounds.GetSize().X,Height=Bounds.GetSize().Y,Pad=7*S,Mark=14*S; const auto Accent=Candidate.Hero->TeamColorFor(P->GetFaction());
   const float X=Bounds.Min.X,Y=Bounds.Min.Y,Health=Candidate.Hero->GetHealth(),Max=FMath::Max(1.f,Candidate.Hero->GetMaxHealth());
   HUD->DrawRect(CultUI::Panel,X,Y,Width,Height); HUD->DrawRect(Candidate.Focused?CultUI::Gold:Accent,X,Y,Width,FMath::Max(1.f,S));
   const float GX=X+Pad+4*S,GY=Y+TextSize.Y*.5f+3*S;

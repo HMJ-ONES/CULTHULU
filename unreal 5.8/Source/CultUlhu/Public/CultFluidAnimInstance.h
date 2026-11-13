@@ -14,6 +14,9 @@ public:
  uint8 GestureRig=0;
  uint8 MeleeStage=0;
  float MeleeProgress=0, MeleePitch=0;
+ FVector GripTargets[4]={};
+ uint8 GripMask=0;
+ float TailMotion=0, TailPhase=0;
 protected:
  virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
 };

@@ -66,7 +66,7 @@ public:
    TArray<UMeshComponent*> Meshes; BodyMeshes(Friend.Get(),Meshes); BodyMeshes(Enemy.Get(),Meshes);
    TSet<FPrimitiveComponentId> Hidden; PC->UpdateHiddenComponents(Eye,Hidden);
    T->TestTrue(TEXT("An ally enclosing the first-person eye cannot black out the view"),AnyHidden(Friend.Get(),Hidden));
-   T->TestTrue(TEXT("The player's own first-person body is excluded before rendering"),AnyHidden(P,Hidden));
+   T->TestFalse(TEXT("The player's own body is visible in first person"),AnyHidden(P,Hidden));
    T->TestFalse(TEXT("First-person occlusion never hides enemy bodies"),AnyHidden(Enemy.Get(),Hidden));
    T->TestTrue(TEXT("The final character capsule retains the canonical height"),FMath::IsNearlyEqual(P->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*2,2933.333f,1.f));
    return true;

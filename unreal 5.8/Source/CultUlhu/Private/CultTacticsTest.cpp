@@ -108,7 +108,7 @@ struct FCultTacticsTestAccess {
   M->BotThink(1,.016f);
   T->TestTrue(TEXT("A pressured ranged bot chooses a real tactical dash on safe ground"),Bot->IsDashing());
   T->TestTrue(TEXT("The escape dash moves away from the nearby opponent"),Bot->DashDirection_.X<0);
-  T->TestEqual(TEXT("Dash cooldown follows this match mode"),Bot->CombatHUD().DashCooldown,M->Mode()==ECultPlayMode::Dotgoo?8.f:1.15f);
+  T->TestEqual(TEXT("Dash cooldown follows this match mode"),Bot->CombatHUD().DashCooldown,M->Mode()==ECultPlayMode::Dotgoo?1.5f:1.15f);
   Bot->GetCharacterMovement()->RemoveRootMotionSource(TEXT("CultDash")); Bot->DashTime_=0;
   T->AddInfo(FString::Printf(TEXT("Tactics mode %d: ranged reach %.0f, goal %s, dash cooldown %.2f"),int(M->Mode()),Bot->BotRangedReach(),*F.TacticalGoal.ToCompactString(),Bot->CombatHUD().DashCooldown));
   if(M->Mode()==ECultPlayMode::Domination) {

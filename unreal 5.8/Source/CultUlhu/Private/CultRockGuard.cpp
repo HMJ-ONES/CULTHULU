@@ -52,9 +52,9 @@ bool FCultKitRuntime::RockInput(bool Press) {
  Rock->AbilityLook=uint8(CultAbilityFX::ELook::Stone);
  Rock->Windup=.10f;
  Rock->Radius=FMath::Min(float(Rock->RockExtents.Y),HalfHeight*.40f);
- Rock->Speed=7800;
+ Rock->Speed=10530;
  Rock->Reach=11000;
- Rock->Duration=1.45f;
+ Rock->Duration=Rock->Reach/Rock->Speed+.06f;
  const TWeakObjectPtr<ACultUlhuPlayerPawn> Source(Owner);
  Rock->Hit=[Source](AActor* Target,FVector Point) {
   if(auto* Pawn=Source.Get()) {

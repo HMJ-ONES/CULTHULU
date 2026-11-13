@@ -32,7 +32,7 @@ FCultWardWarningPanel CultWardWarning::Panel(const FCultWardWarning& Warning,flo
  FCultWardWarningPanel Result; if(!Warning.IsVisible()||!C) return Result;
  const float S=FMath::Clamp(FMath::Min(C->SizeX/1600.f,C->SizeY/900.f),.55f,2.f);
  Result.Title=Warning.Incoming?TEXT("WARD SHOT INCOMING"):TEXT("WARD LOCKED ON YOU");
- Result.Detail=Cooldown>.05f?FString::Printf(TEXT("DASH RECHARGING  %.1fs"),Cooldown):Stamina<18?TEXT("LOW STAMINA | DASH UNAVAILABLE"):Warning.Incoming?TEXT("TAP SHIFT TO BREAK LOCK"):FString::Printf(TEXT("DASH AT RELEASE  %.1fs"),Warning.ReleaseIn);
+ Result.Detail=Cooldown>.05f?FString::Printf(TEXT("DASH RECHARGING  %.1fs"),Cooldown):Stamina<33.32f?TEXT("LOW STAMINA | DASH UNAVAILABLE"):Warning.Incoming?TEXT("TAP SHIFT TO BREAK LOCK"):FString::Printf(TEXT("DASH AT RELEASE  %.1fs"),Warning.ReleaseIn);
  const auto Measure=FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
  const auto Title=Measure->Measure(Result.Title,CultUI::Font(15*S,true)),Detail=Measure->Measure(Result.Detail,CultUI::Font(11*S));
  Result.TitleHeight=Title.Y;

@@ -8,6 +8,7 @@
 #include "CultPopulation.h"
 #include "CultMatchDirector.h"
 #include "CultMatchBalance.h"
+#include "CultMovementTuning.h"
 #include "CultMatchUnit.h"
 #include "Components/CapsuleComponent.h"
 #include "combat/Attacks.h"
@@ -104,6 +105,10 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
  if(Id=="blight_ray") { Kind=Shape::Beam; Delay=.35f; Life=.12f; Radius=25; }
  if(S.effectKind=="stun"||S.effectKind=="debuff") { Radius=40; Speed=2200; Delay=.25f; }
  if(Id=="claw_of_the_sphinx"||Id=="crushing_maw"||Id=="crusher_claw") { Kind=Shape::Cone; Origin=Muzzle; Delay=.30f; Life=.06f; Angle=Id=="crusher_claw"?28:45; }
+ if(Kind==Shape::GroundDisk||Kind==Shape::Sphere||Kind==Shape::Cone) {
+  Reach*=CultMovement::AbilityAreaMultiplier;
+  if(Kind==Shape::Sphere||Kind==Shape::GroundDisk) Radius*=CultMovement::AbilityAreaMultiplier;
+ } else if(Kind==Shape::Bolt||Kind==Shape::Beam) Radius*=1.25f;
  if(IsCasterGroundStrike(Id)) { Origin=Owner->FeetLocation()+FVector(0,0,12); Delay=.55f; }
  if(Owner->IsBot()&&Kind==Shape::Sweep) {
   FVector Committed=(Aim-Origin).GetSafeNormal(); if(Committed.IsNearlyZero()) Committed=Owner->AimRotation().Vector();
@@ -126,7 +131,7 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
    FVector Closest; const float Distance=Collision->GetClosestPointOnCollision(Origin,Closest);
    if(Distance>=0&&Distance>Reach+Radius+5) return false;
   }
-  Aim=BotCommittedAim(Owner,Origin,Aim,Speed,Delay,Reach);
+  Aim=BotCommittedAim(Owner,Origin,Aim,Speed*CultMovement::ProjectileSpeedMultiplier,Delay,Reach);
  }
  FVector Direction=(Aim-Origin).GetSafeNormal(); if(Direction.IsNearlyZero()) Direction=Owner->AimRotation().Vector();
  LastEffectLocation=(S.effectKind=="fear_aura"||S.effectKind=="pull")?Owner->FeetLocation():Origin;

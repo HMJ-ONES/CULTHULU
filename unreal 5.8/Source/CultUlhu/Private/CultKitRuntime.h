@@ -50,7 +50,19 @@ public:
  float Hp() const { return Caster ? Caster->hp() : 0.f; }
  float Ward() const { return Caster ? Caster->ward() : 0.f; }
  float MaxHp() const { return Def.maxHp; }
- bool Sprint(bool Wanted, float Dt) { return Stamina.update(Wanted, Dt); }
+ bool Sprint(bool Wanted,float Dt) {
+  const float RecoveryDt=FMath::Max(0.f,Dt-StaminaDelay);
+  StaminaDelay=FMath::Max(0.f,StaminaDelay-Dt);
+  return Stamina.update(Wanted,Wanted&&!Stamina.exhausted?Dt:RecoveryDt);
+ }
+ bool SpendFlight(float Rate,float Dt) {
+  if(Stamina.exhausted||Stamina.value<=0) return false;
+  Stamina.value=FMath::Max(0.f,Stamina.value-Rate*Dt);
+  StaminaDelay=FMath::Max(StaminaDelay,.55f);
+  Stamina.exhausted=Stamina.value<=0;
+  return !Stamina.exhausted;
+ }
+ void DelayStamina(float Seconds) { StaminaDelay=FMath::Max(StaminaDelay,Seconds); }
  FString Status() const;
  cultulhu::CharacterDef Def;
  FVector LastEffectLocation = FVector::ZeroVector;
@@ -67,6 +79,7 @@ private:
  std::vector<Mirror> Mirrors;
  cultulhu::ActiveEffects Effects;
  cultulhu::StaminaGauge Stamina;
+ float StaminaDelay=0;
  cultulhu::ComboTracker Combo;
  float Cooldowns[3] = {};
  float HeavyCooldown = 0;

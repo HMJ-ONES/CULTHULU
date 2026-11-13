@@ -10,6 +10,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/SkeletalMesh.h"
+#include "Rendering/SkeletalMeshRenderData.h"
+#include "Rendering/SkinWeightVertexBuffer.h"
 #include "Materials/MaterialInterface.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
@@ -24,6 +26,56 @@
 #endif
 
 namespace {
+void SeparateDagonTorso(USkeletalMeshComponent& Skin)
+{
+ const auto* Mesh=Skin.GetSkeletalMeshAsset();
+ const auto* Render=Mesh->GetResourceForRendering();
+ if(!Render) return;
+ const int Chest=Skin.GetBoneIndex(TEXT("chest"));
+ if(Chest==INDEX_NONE) return;
+ const FBox Bounds=Mesh->GetBounds().GetBox().TransformBy(FTransform(Skin.GetRelativeRotation()));
+ const FVector Center=Bounds.GetCenter(),Extent=Bounds.GetExtent();
+ for(int LODIndex=0;LODIndex<Render->LODRenderData.Num();++LODIndex) {
+  const auto& LOD=Render->LODRenderData[LODIndex];
+  const auto* Source=LOD.GetSkinWeightVertexBuffer();
+  const auto& Positions=LOD.StaticVertexBuffers.PositionVertexBuffer;
+  if(!Source||!Source->GetNeedsCPUAccess()||!Positions.GetAllowCPUAccess()) continue;
+  TArray<FSkelMeshSkinWeightInfo> Weights;
+  Weights.SetNum(LOD.GetNumVertices());
+  bool Changed=false;
+  for(const auto& Section:LOD.RenderSections) for(uint32 Local=0;Local<Section.NumVertices;++Local) {
+   const uint32 Vertex=Section.BaseVertexIndex+Local;
+   const FVector Position=Skin.GetRelativeRotation().RotateVector(FVector(Positions.VertexPosition(Vertex)));
+   const float Across=FMath::Abs(Position.Y-Center.Y)/FMath::Max(1.,Extent.Y);
+   const float Height=(Position.Z-Bounds.Min.Z)/FMath::Max(1.,Extent.Z*2);
+   const bool Torso=Section.BoneMap.Contains(Chest)&&Across<.43f&&Height>.43f&&Height<.81f;
+   auto& Result=Weights[Vertex];
+   int Count=0;
+   for(uint32 I=0;I<Source->GetMaxBoneInfluences();++I) {
+    const int Weight=FMath::RoundToInt(Source->GetBoneWeight(Vertex,I)/257.f);
+    if(Weight<=0) continue;
+    int Bone=Section.BoneMap[Source->GetBoneIndex(Vertex,I)];
+    const FString Name=Skin.GetBoneName(Bone).ToString();
+    if(Torso&&(Name.StartsWith(TEXT("upperarm"))||Name.StartsWith(TEXT("forearm"))||Name.StartsWith(TEXT("hand"))||Name.StartsWith(TEXT("claw")))) {
+     Bone=Chest;
+     Changed=true;
+    }
+    int Slot=0;
+    while(Slot<Count&&Result.Bones[Slot]!=Bone) ++Slot;
+    if(Slot==Count) ++Count;
+    Result.Bones[Slot]=Bone;
+    Result.Weights[Slot]=FMath::Min(255,Result.Weights[Slot]+Weight);
+   }
+   if(Count) {
+    int Sum=0;
+    for(int Slot=0;Slot<Count;++Slot) Sum+=Result.Weights[Slot];
+    Result.Weights[0]+=255-Sum;
+   }
+  }
+  if(Changed) Skin.SetSkinWeightOverride(LODIndex,Weights);
+ }
+}
+
 TSharedPtr<FJsonObject> Binding(const FString& Id) {
  // Load once per process. Editor import is followed by a new play session/process.
  static TSharedPtr<FJsonObject> Registry=[]() {
@@ -99,6 +151,8 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
   Part->SetGenerateOverlapEvents(false); Part->SetCanEverAffectNavigation(false);
   Part->ComponentTags.Add(TEXT("CultCorpseBody"));
   Part->SetRelativeRotation(Rotation); Part->RegisterComponent(); Part->AddTickPrerequisiteActor(this); Part->UpdateBounds();
+  if(Id==TEXT("dagon")&&GetNetMode()!=NM_DedicatedServer)
+   if(auto* Skin=Cast<USkeletalMeshComponent>(Part)) SeparateDagonTorso(*Skin);
   // Initialize is called at the origin, before attaching or placing the actor.
   Bounds+=Part->Bounds.GetBox(); Parts_.Add(Part);
  }
@@ -217,8 +271,9 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
  }
  if(Pawn_&&!IsValid(Pawn_)) { Destroy(); return; }
  if(Pawn_) {
-  SetActorHiddenInGame(Pawn_->IsHidden()||Pawn_->MatchDead()||(!Pawn_->IsBot()&&!Pawn_->IsThirdPerson()));
+  SetActorHiddenInGame(Pawn_->IsHidden()||Pawn_->MatchDead());
   const float Now=GetWorld()->GetTimeSeconds(),Speed=Pawn_->GetVelocity().Size2D();
+  const bool Flying=Pawn_->GetCharacterMovement()->IsFlying();
   const bool Falling=Pawn_->GetCharacterMovement()->IsFalling();
   if(ActionRole_==TEXT("taunt")&&(Speed>10||Falling||Pawn_->IsSwinging()||Pawn_->IsDashing())) ActionUntil_=Now;
   if(WasFalling_&&!Falling) LandingUntil_=Now+.22f; WasFalling_=Falling;
@@ -228,7 +283,7 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
   FString MotionRole;
   if(Pawn_->IsDashing()&&!Pawn_->IsSwinging()) MotionRole=TEXT("dash");
   else if(Now<ActionUntil_&&!Overlay&&!Pawn_->IsIncapacitated()) MotionRole=ActionRole_;
-  else if(Falling) MotionRole=TEXT("jump");
+  else if(Falling||Flying) MotionRole=TEXT("jump");
   else if(Pawn_->IsSwinging()) MotionRole=TEXT("attack");
   else if(Now<LandingUntil_) MotionRole=TEXT("land");
   else if(bRunning_) MotionRole=TEXT("run");

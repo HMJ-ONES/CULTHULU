@@ -93,6 +93,17 @@ void ACultUlhuPlayerPawn::BeginPlay()
 	SetActorScale3D(FVector(CharScale_));
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
  GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
+ if(CharacterId_==TEXT("yig")) {
+  GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Ignore);
+  TorsoCollision_=NewObject<UCapsuleComponent>(this,TEXT("YigTorso"));
+  TorsoCollision_->SetupAttachment(GetCapsuleComponent());
+  TorsoCollision_->SetCapsuleSize(24.f,43.f);
+  TorsoCollision_->SetRelativeLocation(FVector(0,0,37));
+  TorsoCollision_->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+  TorsoCollision_->SetCollisionResponseToAllChannels(ECR_Ignore);
+  TorsoCollision_->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
+  TorsoCollision_->RegisterComponent();
+ }
 	// Resolve the final capsule, before the first movement tick (also works in PIE).
 	if (HasAuthority() && !PlaceOnWalkableGround())
 	{
@@ -310,7 +321,7 @@ void ACultUlhuPlayerPawn::RoutePlayerInput(ECultPlayerInput Action,bool Down) {
 
 void ACultUlhuPlayerPawn::ToggleCamera()
 {	bThirdPerson_ = !bThirdPerson_;
-	VesselBody_->SetVisibility(bThirdPerson_&&!VesselBody_->ComponentHasTag(TEXT("CultReplacedVessel")));
+	VesselBody_->SetVisibility(!VesselBody_->ComponentHasTag(TEXT("CultReplacedVessel")));
 	TArray<UStaticMeshComponent*> Visuals;
 	GetComponents(Visuals);
 	for (UStaticMeshComponent* Visual : Visuals)
@@ -325,7 +336,7 @@ void ACultUlhuPlayerPawn::ToggleCamera()
 		// First person: collapse the boom, park the pivot at head height.
   SpringArm_->SocketOffset=FVector::ZeroVector;
 		SpringArm_->TargetArmLength = 0.0f;
-		SpringArm_->SetRelativeLocation(FVector(40.0f, 0.0f, HalfH * 0.85f));
+		SpringArm_->SetRelativeLocation(FVector(51.f, 0.f, HalfH * .90f));
 	}
 }
 
@@ -374,9 +385,36 @@ float ACultUlhuPlayerPawn::GetHealth() const { return Kit_&&HasAuthority()?Kit_-
 
 void ACultUlhuPlayerPawn::SetSprinting(bool bSprint)
 {
- if(!HasAuthority()&&NetworkSprinting_!=bSprint) { NetworkSprinting_=bSprint; ServerSprint(bSprint); }
 	const float Speed=DashTime_>0?DashSpeed_:WalkSpeed_*(bSprint?CultMovement::SprintRatio:1.f);
 	GetCharacterMovement()->MaxWalkSpeed = Speed * (Control_.Stop?0.f:Control_.Speed);
+}
+
+UCapsuleComponent* ACultUlhuPlayerPawn::CombatCapsule() const
+{
+ return TorsoCollision_?TorsoCollision_.Get():GetCapsuleComponent();
+}
+
+bool ACultUlhuPlayerPawn::CanFly() const
+{
+ return CharacterId_==TEXT("cthulhu_avatar")||CharacterId_==TEXT("mi_go")||
+  CharacterId_==TEXT("yog_sothoth")||CharacterId_==TEXT("sghllor");
+}
+
+void ACultUlhuPlayerPawn::UpdateFlight(bool Held,bool Boost,float DeltaSeconds)
+{
+ auto* Movement=GetCharacterMovement();
+ if(!Held) FlightNeedsRelease_=false;
+ if(!CanFly()||!Kit_) return;
+ const bool Allowed=Held&&!FlightNeedsRelease_&&!Control_.Stop&&!IsIncapacitated()&&!IsDashing();
+ if(Allowed&&Kit_->SpendFlight(Boost?38.f:24.f,DeltaSeconds)) {
+  if(!Movement->IsFlying()) Movement->SetMovementMode(MOVE_Flying);
+  Movement->MaxFlySpeed=WalkSpeed_*(Boost?1.7f:1.04f)*Control_.Speed;
+  const float ClimbSpeed=Movement->MaxFlySpeed*(Boost?.59f:.40f);
+  Movement->Velocity.Z=FMath::FInterpTo(Movement->Velocity.Z,ClimbSpeed,DeltaSeconds,9.f);
+  return;
+ }
+ if(Allowed) FlightNeedsRelease_=true;
+ if(Movement->IsFlying()) Movement->SetMovementMode(MOVE_Falling);
 }
 
 void ACultUlhuPlayerPawn::LookYaw(float Value) { if(auto* PC=Cast<APlayerController>(GetController())) if(PC->bShowMouseCursor) return; AddControllerYawInput(Value); if(Kit_) Kit_->Mouse(Value,0); }
@@ -558,6 +596,7 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
 {
  CSV_SCOPED_TIMING_STAT(CultRuntime, HeroTick);
 	Super::Tick(DeltaSeconds);
+ UpdateTeamAura();
  if(GetNetMode()!=NM_DedicatedServer||!VesselArms_.IsEmpty()) UpdateVesselMotion(DeltaSeconds);
  if(bMatchDead_) { if(Kit_) Kit_->AdvanceCooldowns(DeltaSeconds); return; }
  Control_.Tick(DeltaSeconds); NoticeTime_=FMath::Max(0.f,NoticeTime_-DeltaSeconds);
@@ -573,13 +612,19 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
   else Kit_->AdvanceCooldowns(DeltaSeconds);
  }
  UpdateRecovery(DeltaSeconds);
+ if(auto* M=ACultMatchDirector::Find(GetWorld());M&&!M->CanAct(this)) {
+  UpdateFlight(false,false,DeltaSeconds);
+  GetCharacterMovement()->StopMovementImmediately();
+  return;
+ }
  if(HasAuthority()&&!IsBot()&&!IsLocallyControlled()&&GetNetMode()!=NM_Standalone) {
-  SetSprinting(Kit_?Kit_->Sprint(NetworkSprinting_,DeltaSeconds):false);
+  const bool Space=InputHeld_[static_cast<int32>(ECultPlayerInput::Jump)];
+  UpdateFlight(Space,NetworkSprinting_,DeltaSeconds);
+  if(!GetCharacterMovement()->IsFlying()) SetSprinting(Kit_?Kit_->Sprint(NetworkSprinting_&&!DashTime_,DeltaSeconds):false);
   GroundCheckTime_-=DeltaSeconds; if(GroundCheckTime_<=0) { GroundCheckTime_=.05f; GuardTerrainBoundary(); }
  }
  SmashCooldown_=FMath::Max(0.f,SmashCooldown_-DeltaSeconds);
  TickCombatFeel(DeltaSeconds);
- if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->CanAct(this)) { GetCharacterMovement()->StopMovementImmediately(); return; }
  if(IsBot()) { if(Kit_) Kit_->Sprint(false,DeltaSeconds); SetSprinting(false); return; }
  APlayerController* PC = Cast<APlayerController>(GetController());
  if(!HasAuthority()&&IsLocallyControlled()&&InputHeld_[static_cast<int32>(ECultPlayerInput::Heavy)]&&GetWorld()->GetTimeSeconds()-NetworkAimAt_>.1f) {
@@ -613,12 +658,17 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
 
 void ACultUlhuPlayerPawn::PollMoveKeys(float DeltaSeconds)
 {
- if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance())) if(G->FreeRoamMenuOpen&&IsLocallyControlled()) return;
+ if(auto* G=Cast<UCultUlhuGameInstance>(GetGameInstance());G&&G->FreeRoamMenuOpen) {
+  UpdateFlight(false,false,DeltaSeconds);
+  return;
+ }
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (!PC || !PC->IsLocalController()) return;
 	const bool Shift=EnhancedSprint_||PC->IsInputKeyDown(EKeys::LeftShift)||PC->IsInputKeyDown(EKeys::RightShift);
 
-	if(Control_.Stop||Control_.Fear||PC->bShowMouseCursor) {
+	if(Control_.Stop||IsIncapacitated()||PC->bShowMouseCursor) {
+  UpdateFlight(false,false,DeltaSeconds);
+  if(!HasAuthority()&&NetworkSprinting_) { NetworkSprinting_=false; ServerSprint(false); }
   ProcessShift(Shift,FVector::ZeroVector,DeltaSeconds,false);
   if(Kit_) Kit_->Sprint(false,DeltaSeconds);
   SetSprinting(false);
@@ -632,8 +682,13 @@ void ACultUlhuPlayerPawn::PollMoveKeys(float DeltaSeconds)
 	if (PC->IsInputKeyDown(EKeys::D) || PC->IsInputKeyDown(EKeys::Right)) Move += FRotationMatrix(Yaw).GetScaledAxis(EAxis::Y);
 	if (PC->IsInputKeyDown(EKeys::A) || PC->IsInputKeyDown(EKeys::Left))  Move -= FRotationMatrix(Yaw).GetScaledAxis(EAxis::Y);
  if(Move.IsNearlyZero()) Move=Yaw.Vector()*EnhancedMove_.Y+FRotationMatrix(Yaw).GetScaledAxis(EAxis::Y)*EnhancedMove_.X;
- const bool Sprint=ProcessShift(Shift,Move,DeltaSeconds);
- SetSprinting(Kit_?Kit_->Sprint(Sprint&&Move.SizeSquared()>0&&DashTime_<=0,DeltaSeconds):false);
+ const bool Space=InputHeld_[static_cast<int32>(ECultPlayerInput::Jump)];
+ const bool FlightInput=Space&&CanFly();
+ const bool Sprint=ProcessShift(Shift,Move,DeltaSeconds,!FlightInput)&&!Move.IsNearlyZero();
+ const bool SpeedInput=FlightInput?Shift:Sprint;
+ if(!HasAuthority()&&NetworkSprinting_!=SpeedInput) { NetworkSprinting_=SpeedInput; ServerSprint(SpeedInput); }
+ UpdateFlight(Space,Shift,DeltaSeconds);
+ if(!GetCharacterMovement()->IsFlying()) SetSprinting(Kit_?Kit_->Sprint(!FlightInput&&Sprint&&DashTime_<=0,DeltaSeconds):false);
  if (Move.SizeSquared() > 0.0f)
   AddMovementInput(Move.GetSafeNormal(), 1.0f);
 }

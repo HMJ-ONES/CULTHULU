@@ -13,6 +13,9 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
  uint8 GestureRig=0;
  uint8 MeleeStage=0;
  float MeleeProgress=0, MeleePitch=0;
+ FVector GripTargets[4]={};
+ uint8 GripMask=0;
+ float TailMotion=0, TailPhase=0;
  FVector Right=FVector::RightVector,Up=FVector::UpVector,Forward=FVector::ForwardVector;
 
  void PreUpdate(UAnimInstance* Instance,float Delta) override {
@@ -24,10 +27,46 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
   MeleeStage=Motion->MeleeStage;
   MeleeProgress=Motion->MeleeProgress;
   MeleePitch=Motion->MeleePitch;
+  GripMask=Motion->GripMask;
+  for(int Index=0;Index<4;++Index) if(GripMask&(1<<Index)) GripTargets[Index]=Motion->GripTargets[Index];
+  TailMotion=Motion->TailMotion;
+  TailPhase=Motion->TailPhase;
   const FQuat Relative=Instance->GetSkelMeshComponent()->GetRelativeRotation().Quaternion();
   Right=Relative.UnrotateVector(FVector::RightVector);
   Up=Relative.UnrotateVector(FVector::UpVector);
   Forward=Relative.UnrotateVector(FVector::ForwardVector);
+ }
+
+ void UpdateYigAttachments(FCompactPose& Pose) {
+  if(!GripMask&&TailMotion<=0) return;
+  const auto& Bones=Pose.GetBoneContainer();
+  auto Find=[&](FName Name) {
+   const int Index=Bones.GetReferenceSkeleton().FindBoneIndex(Name);
+   return Index==INDEX_NONE?FCompactPoseBoneIndex(INDEX_NONE):Bones.MakeCompactPoseIndex(FMeshPoseBoneIndex(Index));
+  };
+  if(GripMask) {
+   static const FName Swords[]={TEXT("sword_scimitar_lp__005"),TEXT("sword_scimitar_lp__006"),TEXT("sword_scimitar_lp__008"),TEXT("sword_scimitar_lp__009")};
+   FCSPose<FCompactPose> Component;
+   Component.InitPose(Pose);
+   for(int Index=0;Index<4;++Index) if(GripMask&(1<<Index)) {
+    const auto Bone=Find(Swords[Index]);
+    if(Bone.GetInt()==INDEX_NONE) continue;
+    const auto Parent=Pose.GetParentBoneIndex(Bone);
+    if(Parent.GetInt()!=INDEX_NONE)
+     Pose[Bone].SetTranslation(Component.GetComponentSpaceTransform(Parent).InverseTransformPosition(GripTargets[Index]));
+   }
+  }
+  if(TailMotion>0) for(int Index=2;Index<=16;++Index) {
+   const auto Bone=Find(FName(*FString::Printf(TEXT("tail%02d"),Index)));
+   if(Bone.GetInt()==INDEX_NONE) continue;
+   const auto Parent=Pose.GetParentBoneIndex(Bone);
+   if(Parent.GetInt()==INDEX_NONE) continue;
+   FCSPose<FCompactPose> Component;
+   Component.InitPose(Pose);
+   const auto Axis=Component.GetComponentSpaceTransform(Parent).GetRotation().UnrotateVector(Up);
+   const float Degrees=FMath::Sin(TailPhase-Index*.49f)*TailMotion*FMath::Lerp(3.f,10.f,Index/16.f);
+   Pose[Bone].SetRotation((FQuat(Axis,FMath::DegreesToRadians(Degrees))*Pose[Bone].GetRotation()).GetNormalized());
+  }
  }
 
  void AimStrike(FCompactPose& Pose) {
@@ -184,6 +223,7 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
   for(int32 I=0;I<Count;++I) LastPose[I]=Output.Pose[FCompactPoseBoneIndex(I)];
   ApplyGesture(Output.Pose);
   AimStrike(Output.Pose);
+  UpdateYigAttachments(Output.Pose);
   return Result;
  }
 };

@@ -105,7 +105,7 @@ public:
    Test->TestTrue(TEXT("Movement remains enabled"),Hero->GetCharacterMovement()->MovementMode!=MOVE_None);
    for(UMeshComponent* Part:Model->Parts()) Test->TestEqual(TEXT("Imported art adds no gameplay collision"),Part->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
    const auto Transform=Hero->GetActorTransform(); Hero->ToggleCamera(); Model->Tick(0);
-   Test->TestTrue(TEXT("Human first-person view hides the full imported body"),Model->IsHidden());
+   Test->TestFalse(TEXT("First person keeps the imported body and attack motion visible"),Model->IsHidden());
    Hero->ToggleCamera(); Model->Tick(0); Test->TestFalse(TEXT("Third-person view restores the imported body"),Model->IsHidden());
    TArray<UMeshComponent*> PreviousParts; Hero->GetComponents(PreviousParts);
    for(auto* Part:PreviousParts) if(Part->ComponentHasTag(TEXT("CultReplacedVessel"))) Test->TestFalse(TEXT("Camera toggle never restores the replaced placeholder"),Part->IsVisible());

@@ -211,9 +211,9 @@ public:
    P->SetEnhancedSprint(false);
    P->SetEnhancedMove(FVector2D::ZeroVector);
    const float BeforeDash=Kit.StaminaValue();
-   Check(TEXT("a standard dash spends exactly 18 stamina"),P->TryDash(FVector::RightVector)&&FMath::IsNearlyEqual(Kit.StaminaValue(),BeforeDash-18.f,.01f));
+   Check(TEXT("a standard dash spends one third of the stamina gauge"),P->TryDash(FVector::RightVector)&&FMath::IsNearlyEqual(Kit.StaminaValue(),BeforeDash-Kit.Def.maxStamina/3.f,.01f));
    Check(TEXT("standard dash keeps its reach and mode cooldown"),FMath::IsNearlyEqual(P->DashTravelDistance(),OldWalk*3.5f*.22f,1.f)&&
-    FMath::IsNearlyEqual(P->CombatHUD().DashCooldown,Mode==ECultPlayMode::Dotgoo?8.f:1.15f,.01f));
+    FMath::IsNearlyEqual(P->CombatHUD().DashCooldown,Mode==ECultPlayMode::Dotgoo?1.5f:1.15f,.01f));
    Start=P->FeetLocation();
    Phase=EPhase::Dash;
    PhaseAt=Now;

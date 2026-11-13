@@ -25,6 +25,7 @@ void ACultUlhuPlayerPawn::ServerCombatInput_Implementation(uint8 Action,bool Dow
   RoutePlayerInput(ECultPlayerInput::Interact,Down);
   return;
  }
+ if(Action==uint8(ECultPlayerInput::Jump)&&!Down) { RoutePlayerInput(ECultPlayerInput::Jump,false); return; }
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->CanAct(this)) return;
  if(Origin.ContainsNaN()||Direction.ContainsNaN()||Direction.IsNearlyZero()||FVector::Dist(Origin,GetActorLocation())>GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*5) return;
  NetworkAimOrigin_=Origin; NetworkAimDirection_=FVector(Direction).GetSafeNormal(); NetworkAimAt_=GetWorld()->GetTimeSeconds();
