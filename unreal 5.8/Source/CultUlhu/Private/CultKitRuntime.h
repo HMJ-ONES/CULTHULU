@@ -22,6 +22,7 @@ public:
  void Tick(float Delta);
  void AdvanceCooldowns(float Dt) { for(float& C:Cooldowns) C=FMath::Max(0.f,C-Dt); HeavyCooldown=FMath::Max(0.f,HeavyCooldown-Dt); }
  void SetCooldown(int Slot,float Value) { if(Slot>=0&&Slot<3) Cooldowns[Slot]=Value; }
+ void SetHeavyCooldown(float Value) { HeavyCooldown=Value; }
  bool Cast(int Slot);
  FCultCastArea CastArea(int Slot) const;
  bool CanHeal(AActor* Target) const;

@@ -21,6 +21,7 @@ public:
  static FString SourceCredit(const FString& Id);
  static bool HasSourceAnimation(const FString& Id);
  static bool UsesMeleeStep(ACultUlhuPlayerPawn* Pawn);
+ bool StrikeLimb(int Index,FVector& Elbow,FVector& Hand) const;
  virtual void Tick(float DeltaSeconds) override;
  static void Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds=.55f,float Age=0);
  FString AnimationRole() const { return CurrentRole_; }

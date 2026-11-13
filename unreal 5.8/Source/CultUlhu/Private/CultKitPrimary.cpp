@@ -29,6 +29,7 @@ bool FCultKitRuntime::LaunchPrimary() {
  Shot->Windup = Primary.Windup;
  Shot->Speed = Primary.Speed;
  Shot->Radius = Primary.Radius;
+ Shot->ImpactPower = Primary.Damage;
  Shot->ConfigureProjectileFlight(Primary.Reach,Primary.Delivery==EDelivery::Cannon);
  Shot->SignalStyle = uint8(Primary.Signal);
  Shot->bTrackMuzzle = true;

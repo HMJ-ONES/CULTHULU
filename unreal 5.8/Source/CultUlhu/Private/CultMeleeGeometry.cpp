@@ -4,7 +4,7 @@
 
 CultMeleeGeometry::FProfile CultMeleeGeometry::Describe(const ACultUlhuPlayerPawn* Pawn,float ReachOverride) {
  const float Height=Pawn->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*2;
- return {Pawn->FeetLocation()+FVector(0,0,Height*.48f),ReachOverride>0?ReachOverride:Height*.9f,FMath::Clamp(Height*.035f,25.f,120.f)};
+ return {Pawn->FeetLocation()+FVector(0,0,Height*.48f),ReachOverride>0?ReachOverride:Height*.55f,FMath::Clamp(Height*.042f,25.f,132.f)};
 }
 bool CultMeleeGeometry::InReach(const ACultUlhuPlayerPawn* Pawn,AActor* Target) {
  if(!Pawn||!IsValid(Target)) return false;

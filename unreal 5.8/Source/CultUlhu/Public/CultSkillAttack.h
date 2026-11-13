@@ -19,10 +19,14 @@ public:
  UPROPERTY(ReplicatedUsing=OnRep_Style) uint8 SignalStyle=0;
  UPROPERTY(Replicated) uint8 AbilityLook=0;
  UPROPERTY(Replicated) bool bTrackMuzzle=false;
+ UPROPERTY(Replicated) bool bLimbStrike=false;
  UPROPERTY(ReplicatedUsing=OnRep_RockGuard) bool bRockGuard=false;
  UPROPERTY(Replicated) FVector RockExtents=FVector::ZeroVector;
  void ReleaseGuard(FVector Aim);
  bool IsGuarding() const { return bRockGuard; }
+ void DamageGuard(float Amount);
+ float GuardIntegrity=48.f;
+ float ImpactPower=9.f;
  FVector Direction=FVector::ForwardVector;
  // Only ward shots use a target lock; character and minion bolts remain physical skill shots.
  UPROPERTY(Replicated) TWeakObjectPtr<AActor> WardTarget;
@@ -54,6 +58,7 @@ private:
  UFUNCTION() void OnRep_Style();
  UFUNCTION() void OnRep_RockGuard();
  void PositionGuard();
+ void UpdateLimbStrike();
  void ApplySignalStyle();
  FVector LaunchVelocity=FVector::ZeroVector;
  UPROPERTY() TObjectPtr<class UBoxComponent> GuardCollision;
@@ -65,10 +70,15 @@ private:
  float FlightVisibility() const;
  float BornAt=0;
  bool FirstTick=true;
+ bool LimbBlockedByGuard=false;
  FVector Origin,Previous,SweepOffset;
  TSet<TWeakObjectPtr<AActor>> Struck;
  UPROPERTY() class UStaticMeshComponent* Visual=nullptr;
- UPROPERTY() TArray<class UStaticMeshComponent*> Ring;
+ TWeakObjectPtr<class ACultCharacterModel> StrikeModel;
+ struct FLimbSample { FVector Elbow,Hand; bool Valid=false; };
+ FLimbSample LastLimbs[4];
+ TArray<FVector> HandTrails[4];
+ float LastLimbAge=-1.f;
  UPROPERTY() class UProceduralMeshComponent* Telegraph=nullptr;
  UPROPERTY() class UMaterialInstanceDynamic* SignalMaterial=nullptr;
  void BuildPresentation();

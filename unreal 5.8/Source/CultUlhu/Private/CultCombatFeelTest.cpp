@@ -45,8 +45,9 @@ struct FCultCombatFeelTestAccess {
   T->AddInfo(FString::Printf(TEXT("Corpse source %s feet %s final actor %s floorZ %.2f"),*Before.ToCompactString(),*P->FeetLocation().ToCompactString(),*Corpse->GetActorLocation().ToCompactString(),Ground.ImpactPoint.Z));
   T->AddInfo(FString::Printf(TEXT("Hero corpse true sphere-surface clearance %.2fcm, copied sphere parts %d"),SurfaceMin-Ground.ImpactPoint.Z,Spheres));
   T->TestTrue(TEXT("The actual stretched sphere rests on the floor, not its conservative rotated box"),Found&&FMath::IsNearlyEqual(SurfaceMin,float(Ground.ImpactPoint.Z)+3.f,2.f));
-  T->TestEqual(TEXT("Dead vessel retains its body without the two living eye lights"),Spheres,1);
-  T->TestEqual(TEXT("Editor camera helpers are excluded from the dead body"),Meshes.Num(),1);
+  const int ExpectedParts=1+P->VesselArms_.Num();
+  T->TestEqual(TEXT("Dead vessel retains its body and limbs without the two living eye lights"),Spheres,ExpectedParts);
+  T->TestEqual(TEXT("Editor camera helpers are excluded from the dead body"),Meshes.Num(),ExpectedParts);
   T->TestTrue(TEXT("Creating a corpse preserves the source's location and canonical scale"),P->GetActorLocation().Equals(Before)&&P->GetActorScale3D().Equals(Scale));
   Corpse->Destroy(); P->Tags.Remove(TEXT("CorpseRecorded"));
  }
@@ -166,9 +167,9 @@ public:
    P->Tick(.01f); Test->TestFalse(TEXT("Stun clears queued melee instead of firing it later"),P->HasBufferedMelee());
    P->SetControlState(false,false,1,P->GetActorLocation(),false,519); P->Tick(.01f);
    FCultCombatFeelTestAccess::Ready(P); P->Smash(); FCultCombatFeelTestAccess::ResetDash(P);
-   Test->TestTrue(TEXT("A dash can cancel a committed melee attack"),P->TryDash(FVector::RightVector));
+   Test->TestTrue(TEXT("A dodge can be started during a committed melee attack"),P->TryDash(FVector::RightVector));
    int Active=0; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==P&&It->Shape==ACultSkillAttack::EShape::Sweep) ++Active;
-   Test->TestEqual(TEXT("Dash cancellation cannot drag a damaging arm across the map"),Active,0);
+   Test->TestEqual(TEXT("The same single attack remains live during the dodge"),Active,1);
    Before=P->GetHealth(); P->ReceiveDamage(12);
    Test->TestEqual(TEXT("A confirmed dodge prevents damage"),P->GetHealth(),Before);
    Test->TestTrue(TEXT("A prevented hit displays dodge feedback"),P->EvadeConfirmTime()>0);

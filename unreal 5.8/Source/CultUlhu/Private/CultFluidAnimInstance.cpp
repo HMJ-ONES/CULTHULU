@@ -11,6 +11,8 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
  CultAttackMotion::FFrame Attack;
  float Lean=0;
  uint8 GestureRig=0;
+ uint8 MeleeStage=0;
+ float MeleeProgress=0, MeleePitch=0;
  FVector Right=FVector::RightVector,Up=FVector::UpVector,Forward=FVector::ForwardVector;
 
  void PreUpdate(UAnimInstance* Instance,float Delta) override {
@@ -19,10 +21,41 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
   Attack=Motion->Attack;
   Lean=Motion->LateralLean;
   GestureRig=Motion->GestureRig;
+  MeleeStage=Motion->MeleeStage;
+  MeleeProgress=Motion->MeleeProgress;
+  MeleePitch=Motion->MeleePitch;
   const FQuat Relative=Instance->GetSkelMeshComponent()->GetRelativeRotation().Quaternion();
   Right=Relative.UnrotateVector(FVector::RightVector);
   Up=Relative.UnrotateVector(FVector::UpVector);
   Forward=Relative.UnrotateVector(FVector::ForwardVector);
+ }
+
+ void AimStrike(FCompactPose& Pose) {
+  if(!MeleeStage||(GestureRig!=1&&GestureRig!=4&&GestureRig!=5&&GestureRig!=6)) return;
+  const float Weight=FMath::SmoothStep(-1.55f,-.72f,MeleeProgress)*(1-FMath::SmoothStep(.65f,1.65f,MeleeProgress));
+  if(Weight<=0) return;
+  const auto& Bones=Pose.GetBoneContainer();
+  for(int Side=0;Side<2;++Side) {
+   if(MeleeStage!=3&&Side!=MeleeStage-1) continue;
+   const auto Index=[&](FName Name) { return Bones.MakeCompactPoseIndex(FMeshPoseBoneIndex(Bones.GetReferenceSkeleton().FindBoneIndex(Name))); };
+   const auto Arm=Index(Side?TEXT("upperarm_r"):TEXT("upperarm_l"));
+   const auto Hand=Index(Side?TEXT("hand_r"):TEXT("hand_l"));
+   if(Arm.GetInt()==INDEX_NONE||Hand.GetInt()==INDEX_NONE) continue;
+   FCSPose<FCompactPose> ComponentPose;
+   ComponentPose.InitPose(Pose);
+   const auto ArmTransform=ComponentPose.GetComponentSpaceTransform(Arm);
+   const auto HandTransform=ComponentPose.GetComponentSpaceTransform(Hand);
+   const auto Parent=ComponentPose.GetComponentSpaceTransform(Pose.GetParentBoneIndex(Arm));
+   const float SideSign=Side?1.f:-1.f;
+   const float Swing=FMath::SmoothStep(-1.f,1.f,MeleeProgress);
+   const float Yaw=FMath::DegreesToRadians(SideSign*FMath::Lerp(58.f,-32.f,Swing));
+   const float Pitch=FMath::DegreesToRadians(MeleePitch);
+   const FVector Desired=(Forward*FMath::Cos(Yaw)+Right*FMath::Sin(Yaw))*FMath::Cos(Pitch)+Up*FMath::Sin(Pitch);
+   const FVector Current=(HandTransform.GetLocation()-ArmTransform.GetLocation()).GetSafeNormal();
+   if(Current.IsNearlyZero()) continue;
+   const FQuat Turn=FQuat::Slerp(FQuat::Identity,FQuat::FindBetweenNormals(Current,Desired.GetSafeNormal()),Weight);
+   Pose[Arm].SetRotation((Parent.GetRotation().Inverse()*Turn*ArmTransform.GetRotation()).GetNormalized());
+  }
  }
 
  void ApplyGesture(FCompactPose& Pose) {
@@ -150,6 +183,7 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
   LastPose.SetNumUninitialized(Count);
   for(int32 I=0;I<Count;++I) LastPose[I]=Output.Pose[FCompactPoseBoneIndex(I)];
   ApplyGesture(Output.Pose);
+  AimStrike(Output.Pose);
   return Result;
  }
 };

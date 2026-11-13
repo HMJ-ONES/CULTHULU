@@ -4,6 +4,7 @@
 #include "CultUlhuPlayerPawn.h"
 #include "CultCanonicalKit.h"
 #include "CultMovementTuning.h"
+#include "CultPrimaryProfile.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -196,6 +197,11 @@ ACultCharacterModel* ACultCharacterModel::AttachToPawn(ACultUlhuPlayerPawn* Pawn
  auto* Model=Pawn->GetWorld()->SpawnActor<ACultCharacterModel>();
  if(!Model||!Model->Initialize(Id)) { if(Model) Model->Destroy(); return nullptr; }
  Model->Pawn_=Pawn; Model->WalkSpeed_=Pawn->GetCharacterMovement()->MaxWalkSpeed; Model->SetOwner(Pawn);
+ Model->AddTickPrerequisiteComponent(Pawn->GetCharacterMovement());
+ if(!CultPrimary::Find(Id).Ranged()) {
+  for(UMeshComponent* Part:Model->Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part))
+   Skin->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+ }
  Model->AttachToComponent(Pawn->GetCapsuleComponent(),FAttachmentTransformRules::KeepRelativeTransform);
  Model->SetActorRelativeLocation(FVector(0,0,-Pawn->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
  TArray<UStaticMeshComponent*> Old; Pawn->GetComponents(Old);
@@ -220,9 +226,9 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
   const bool Overlay=ActionRole_==TEXT("attack_overlay");
   bRunning_=Speed>WalkSpeed_*(bRunning_?1.14f:1.27f);
   FString MotionRole;
-  if(Pawn_->IsDashing()) MotionRole=TEXT("dash");
+  if(Pawn_->IsDashing()&&!Pawn_->IsSwinging()) MotionRole=TEXT("dash");
+  else if(Now<ActionUntil_&&!Overlay&&!Pawn_->IsIncapacitated()) MotionRole=ActionRole_;
   else if(Falling) MotionRole=TEXT("jump");
-  else if(Now<ActionUntil_&&!Overlay) MotionRole=ActionRole_;
   else if(Pawn_->IsSwinging()) MotionRole=TEXT("attack");
   else if(Now<LandingUntil_) MotionRole=TEXT("land");
   else if(bRunning_) MotionRole=TEXT("run");
@@ -277,6 +283,25 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
  if(Pawn_) UpdateCombatGesture(DeltaSeconds);
 }
 
+bool ACultCharacterModel::StrikeLimb(int Index,FVector& Elbow,FVector& Hand) const {
+ static const FName Hands[]={TEXT("hand_l"),TEXT("hand_r")};
+ static const FName Forearms[]={TEXT("forearm_l"),TEXT("forearm_r")};
+ static const FName YigHands[]={TEXT("lefthand"),TEXT("righthand"),TEXT("lefthand_001"),TEXT("righthand_001")};
+ static const FName YigForearms[]={TEXT("leftforearm"),TEXT("rightforearm"),TEXT("leftforearm_001"),TEXT("rightforearm_001")};
+ const bool Yig=CharacterId_==TEXT("yig");
+ if(Index<0||Index>=(Yig?4:2)) return false;
+ for(UMeshComponent* Part:Parts_) if(const auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
+  const int HandIndex=Skin->GetBoneIndex(Yig?YigHands[Index]:Hands[Index]);
+  const int ElbowIndex=Skin->GetBoneIndex(Yig?YigForearms[Index]:Forearms[Index]);
+  if(HandIndex==INDEX_NONE||ElbowIndex==INDEX_NONE) continue;
+  Elbow=Skin->GetBoneLocation(Skin->GetBoneName(ElbowIndex));
+  Hand=Skin->GetBoneLocation(Skin->GetBoneName(HandIndex));
+  Hand+=(Hand-Elbow)*.18; // palm centre lies past the wrist joint
+  return true;
+ }
+ return false;
+}
+
 bool ACultCharacterModel::UsesMeleeStep(ACultUlhuPlayerPawn* Pawn) {
  if(!Pawn) return false; TArray<AActor*> Attached; Pawn->GetAttachedActors(Attached);
  for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) if(Model->bMeleeStep_) return true;
@@ -290,7 +315,13 @@ float ACultCharacterModel::AuthoredMeleePhase(float Progress) const {
  const auto* Playback=Pawn_?&Pawn_->AttackPlayback():nullptr;
  const float ContactTime=Playback&&Playback->Move==CultAttackMotion::EMove::Melee
   ?FMath::Clamp(Playback->Contact/FMath::Max(.01f,Playback->Duration),.05f,.95f):.6875f;
- return Progress<=ContactTime?MeleeContactPhase_*Progress/ContactTime:MeleeContactPhase_+(1-MeleeContactPhase_)*(Progress-ContactTime)/(1-ContactTime);
+ if(Progress<=ContactTime) {
+  const float Gather=ContactTime*.60f;
+  if(Progress<=Gather) return MeleeContactPhase_*.31f*Progress/Gather;
+  return MeleeContactPhase_*FMath::Lerp(.31f,1.f,(Progress-Gather)/(ContactTime-Gather));
+ }
+ const float Follow=FMath::Clamp((Progress-ContactTime)/(1-ContactTime),0.f,1.f);
+ return MeleeContactPhase_+(1-MeleeContactPhase_)*(1-FMath::Square(1-Follow));
 }
 
 void ACultCharacterModel::Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds,float Age) {

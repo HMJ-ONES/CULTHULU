@@ -66,14 +66,6 @@ void ACultSkillAttack::BuildPresentation() {
  Telegraph->SetCollisionEnabled(ECollisionEnabled::NoCollision); Telegraph->SetCastShadow(false);
  Telegraph->bUseAsyncCooking=false; Telegraph->SetMaterial(0,SignalMaterial); Telegraph->RegisterComponent();
  Telegraph->SetWorldLocation(Origin);
- if(Shape==EShape::Sweep&&Cast<ACultUlhuPlayerPawn>(GetOwner())) {
-  for(int I=0;I<2;++I) {
-   auto* C=NewObject<UStaticMeshComponent>(this); C->SetupAttachment(RootComponent);
-   C->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cylinder")));
-   C->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_PawnVessel")));
-   C->SetCollisionEnabled(ECollisionEnabled::NoCollision); C->SetCastShadow(false); C->RegisterComponent(); Ring.Add(C);
-  }
- }
  ApplySignalStyle();
  BuildWarningGeometry(); UpdatePresentation();
 }
@@ -108,7 +100,7 @@ void ACultSkillAttack::ApplySignalStyle() {
 }
 
 void ACultSkillAttack::BuildWarningGeometry(bool Trail) {
- if(!Telegraph) return;
+ if(!Telegraph||bLimbStrike) return;
  FSignalLines Lines; const float Width=FMath::Clamp(Reach*.004f,8.f,24.f);
  const FVector D=Direction.GetSafeNormal(); FVector Right=FVector::CrossProduct(D,FVector::UpVector).GetSafeNormal();
  if(Right.IsNearlyZero()) Right=FVector::RightVector;
@@ -160,6 +152,23 @@ void ACultSkillAttack::BuildWarningGeometry(bool Trail) {
 
 void ACultSkillAttack::UpdatePresentation() {
  if(!Telegraph||!SignalMaterial) return;
+ if(bLimbStrike) {
+  using namespace CultAbilityFX;
+  Visual->SetVisibility(false);
+  Telegraph->SetWorldLocation(GetActorLocation());
+  SignalMaterial->SetScalarParameterValue(TEXT("Intensity"),2.8f);
+  FFilaments Lines;
+  for(const auto& Trail:HandTrails) for(int Index=1;Index<Trail.Num();++Index) {
+   const float Strength=Index/float(Trail.Num()-1);
+   const FVector From=Trail[Index-1]-GetActorLocation(),To=Trail[Index]-GetActorLocation();
+   const float Width=Radius*FMath::Lerp(.035f,.45f,Strength);
+   Lines.Ribbon(From,To,Width*.45f,Width,FLinearColor::White,FLinearColor::White);
+   const FVector Offset(0,0,Width*.75f);
+   Lines.Ribbon(From+Offset,To+Offset,Width*.16f,Width*.28f,FLinearColor::White,FLinearColor::White);
+  }
+  Lines.Apply(Telegraph);
+  return;
+ }
  UpdateAbilityFilaments();
  if(SignalStyle==uint8(CultPrimary::ESignal::Stone)) return;
  const bool Charging=Age<Windup; const float Progress=WindupProgress();
@@ -190,11 +199,5 @@ void ACultSkillAttack::UpdatePresentation() {
   Telegraph->SetVisibility(Charging);
  } else if(Shape==EShape::Sweep) {
   if(!Charging) BuildWarningGeometry(true);
-  const float T=Charging?0.f:FMath::Clamp((Age-Windup)/FMath::Max(.001f,Duration),0.f,1.f);
-  const FVector D=Direction.RotateAngleAxis(FMath::Lerp(-HalfAngle,HalfAngle,T),FVector::UpVector),Tip=Origin+D*Reach*(Charging?.8f:1.f);
-  if(Ring.Num()==2) {
-   const FVector Elbow=Origin+D*Reach*.48f+FVector(0,0,Radius*2);
-   for(int I=0;I<2;++I) { const FVector A=I?Elbow:Origin,B=I?Tip:Elbow; auto* C=Ring[I]; C->SetWorldLocation((A+B)*.5f); C->SetWorldRotation(FRotationMatrix::MakeFromZ(B-A).Rotator()); const float R=Radius*(I?.55f:.7f); C->SetWorldScale3D(FVector(R/50,R/50,FVector::Dist(A,B)/100)); }
-  }
  }
 }

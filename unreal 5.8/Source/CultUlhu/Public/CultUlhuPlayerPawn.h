@@ -72,6 +72,7 @@ public:
 	FHitResult CameraAim(float RangeCm = 25000.f, bool bCursor = false) const;
  FCultCastArea CastAreaPreview() const;
 	int32 GetFaction() const { return Faction_; }
+ const FString& GetCharacterId() const { return CharacterId_; }
 	void ConfigureBot(const FString& Id, int32 Faction);
  void SetControlState(bool Stop,bool Fear,float Speed,FVector Origin,bool Stun=false,int32 Source=0) { Control_.Set(Source,Stop,Fear,Speed,Origin,Stun); }
 	void SetBotAim(AActor* Target) { BotAim_ = Target; }
@@ -96,6 +97,7 @@ public:
  bool IsDashing() const { return DashTime_>0; }
  float BotRangedReach() const;
  bool IsSwinging() const { return SwingTime_>0; }
+ bool FallbackStrikeLimb(int Index,FVector& Elbow,FVector& Hand) const;
  FCultCombatHUDData CombatHUD() const;
  void StartMelee(float Damage,float Range=0,float Windup=.12f,float Duration=.20f);
  void HitConfirm() { HitConfirmTime_=.15f; }
@@ -198,6 +200,8 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "CultUlhu|Camera")
 	UCameraComponent* Camera_ = nullptr;
 	UPROPERTY() class UStaticMeshComponent* VesselBody_ = nullptr;
+ UPROPERTY() TArray<TObjectPtr<class UStaticMeshComponent>> VesselArms_;
+ void CreateVesselArms();
  TArray<TPair<TWeakObjectPtr<UStaticMeshComponent>,FTransform>> VesselRest_;
  CultAttackMotion::FPlayback AttackPlayback_;
  CultAttackMotion::FPlayback HeldAttack_;

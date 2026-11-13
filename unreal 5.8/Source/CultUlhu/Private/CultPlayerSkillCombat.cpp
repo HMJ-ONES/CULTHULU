@@ -1,5 +1,6 @@
 #include "CultUlhuPlayerPawn.h"
 #include "CultCombatAudio.h"
+#include "CultAbilityFX.h"
 #include "EngineUtils.h"
 #include "CultSkillAttack.h"
 #include "CultMeleeGeometry.h"
@@ -34,11 +35,8 @@ bool ACultUlhuPlayerPawn::TryDash(FVector Direction) {
  if(auto* M=ACultMatchDirector::Find(GetWorld())) M->OnAction(this);
  DashDirection_=Direction.GetSafeNormal2D(); DashSpeed_=WalkSpeed_*StandardDashSpeed; DashTime_=StandardDashTime; EvadeTime_=.18f; DashCooldown_=1.15f;
  if(auto* Match=ACultMatchDirector::Find(GetWorld())) if(Match->Mode()==ECultPlayMode::Dotgoo) DashCooldown_=8.f;
- // Dashing cancels the arm instead of carrying an active swing across the whole dash.
- for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->GetOwner()==this&&It->Shape==ACultSkillAttack::EShape::Sweep) It->Destroy();
- SwingTime_=0; MeleeBuffer_=0;
  if(!IsBot()) PlayCultCombatCue(GetWorld(),ECultCombatCue::Dash,.18f);
- if(HasAuthority()) MulticastMotionCue(1,StandardDashTime);
+ if(HasAuthority()&&!IsSwinging()) MulticastMotionCue(1,StandardDashTime);
  DriveDash(this,DashDirection_,DashSpeed_,DashTime_,WalkSpeed_); return true;
 }
 FCultCombatHUDData ACultUlhuPlayerPawn::CombatHUD() const {
@@ -52,6 +50,9 @@ void ACultUlhuPlayerPawn::StartMelee(float Damage,float Range,float Windup,float
  if(Direction.IsNearlyZero()) Direction=AimRotation().Vector();
  const FTransform T(Direction.Rotation(),Origin); auto* A=GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
  if(!A) return; A->Shape=ACultSkillAttack::EShape::Sweep; A->Direction=Direction; A->Reach=Profile.Reach; A->Radius=Profile.Radius; A->Windup=Windup; A->Duration=Duration; A->HalfAngle=bNextMeleeLeft_?-52.f:52.f; bNextMeleeLeft_=!bNextMeleeLeft_;
+ A->bLimbStrike=true;
+ A->ImpactPower=Damage/9.f;
+ A->AbilityLook=uint8(CultAbilityFX::ELook::Blade);
  TWeakObjectPtr<ACultUlhuPlayerPawn> Weak(this); A->Hit=[Weak,Damage](AActor* Target,FVector Point) { if(!Weak.IsValid()) return; auto* Pawn=Cast<ACultUlhuPlayerPawn>(Target); if(Pawn&&Pawn->IsEvading()) { Pawn->ConfirmEvade(); return; } float D=Pawn?Damage/9.f*Pawn->GetMaxHealth()/150.f:Damage;
  if(auto* M=ACultMatchDirector::Find(Weak->GetWorld())) { D=Damage*(Cast<ACultUlhuPlayerPawn>(Target)?15.f/135.f:Cast<ACultMatchUnit>(Target)&&!Cast<ACultMatchUnit>(Target)->IsStructure()?30.f/135.f:15.f/135.f)*M->DamageMultiplier(Weak.Get()); } if(auto* P=Cast<ACultPopulation>(Target)) if(!P->IsCultist()&&!P->IsSummoned()) D=FMath::Max(D,P->GetHealth()); ACultSkillAttack::Hurt(Target,D,Weak.Get(),Point); if(Weak->Kit_) Weak->Kit_->MeleeContact(Target); };
  SwingTime_=Windup+Duration;
@@ -59,20 +60,18 @@ void ACultUlhuPlayerPawn::StartMelee(float Damage,float Range,float Windup,float
  const uint8 Combo=uint8(Kit_?FMath::Clamp(Kit_->MeleeStage(),1,3):1);
  const uint8 Variant=Combo|(Retreat?4:0)|(A->HalfAngle<0?8:0);
  PlayAttackMotion(CultAttackMotion::EMove::Melee,Windup+Duration*.5f,SwingTime_+.09f,Variant);
- if(HasAuthority()&&ACultCharacterModel::UsesMeleeStep(this)&&!GetCharacterMovement()->IsFalling()) {
-  A->PrimaryAim=Aim;
-  A->bTrackMuzzle=true;
-  auto* Movement=GetCharacterMovement(); Movement->RemoveRootMotionSource(TEXT("CultMeleeStep"));
-  const bool Finisher=Kit_&&Kit_->MeleeStage()==3;
-  const float Distance=(Finisher?.23f:.28f)*GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+ auto* Movement=GetCharacterMovement();
+ if(!IsDashing()&&!Movement->IsFalling()) {
+  Movement->RemoveRootMotionSource(TEXT("CultMeleeStep"));
+  const float Distance=FMath::Min(DashTravelDistance()*.68f,1350.f)*(Retreat?.38f:Combo==3?1.f:.88f);
   auto Motion=MakeShared<FRootMotionSource_ConstantForce>(); Motion->InstanceName=TEXT("CultMeleeStep");
-  Motion->Priority=400; Motion->AccumulateMode=ERootMotionAccumulateMode::Additive;
-  Motion->Duration=FMath::Max(.05f,SwingTime_*.43f);
-  Motion->Force=AimRotation().Vector().GetSafeNormal2D()*(Retreat?-1:1)*Distance/Motion->Duration;
+  Motion->Priority=400; Motion->AccumulateMode=ERootMotionAccumulateMode::Override;
+  Motion->Duration=.19f;
+  Motion->Force=Direction.GetSafeNormal2D()*(Retreat?-1:1)*Distance/Motion->Duration;
   Motion->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
   Motion->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::ClampVelocity;
   Motion->FinishVelocityParams.ClampVelocity=WalkSpeed_*CultMovement::SprintRatio;
-  Movement->ApplyRootMotionSource(Motion); // swept CharacterMovement; this is not an evasion dash
+  Movement->ApplyRootMotionSource(Motion);
  }
  A->FinishSpawning(T);
 }

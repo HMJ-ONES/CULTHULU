@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 
 namespace {
+constexpr float RockCooldown=10.f;
 void DropHeldRock(ACultSkillAttack* Rock) {
  Rock->Hit.Reset();
  Rock->Windup=0;
@@ -46,17 +47,18 @@ bool FCultKitRuntime::RockInput(bool Press) {
  if(!Rock) return true;
  Rock->bRockGuard=true;
  Rock->RockExtents=FVector(HalfHeight*.22f,Capsule->GetScaledCapsuleRadius()*1.04f,HalfHeight*.55f);
+ Rock->ImpactPower=16.f;
  Rock->SignalStyle=uint8(CultPrimary::ESignal::Stone);
- Rock->AbilityLook=uint8(CultAbilityFX::ELook::Abyss);
+ Rock->AbilityLook=uint8(CultAbilityFX::ELook::Stone);
  Rock->Windup=.10f;
  Rock->Radius=FMath::Min(float(Rock->RockExtents.Y),HalfHeight*.40f);
- Rock->Speed=6400;
- Rock->Reach=8600;
- Rock->Duration=1.4f;
+ Rock->Speed=7800;
+ Rock->Reach=11000;
+ Rock->Duration=1.45f;
  const TWeakObjectPtr<ACultUlhuPlayerPawn> Source(Owner);
  Rock->Hit=[Source](AActor* Target,FVector Point) {
   if(auto* Pawn=Source.Get()) {
-   float Damage=13.f;
+   float Damage=16.f;
    if(const auto* Match=ACultMatchDirector::Find(Pawn->GetWorld())) Damage*=Match->DamageMultiplier(Pawn);
    else if(auto* Hero=::Cast<ACultUlhuPlayerPawn>(Target)) Damage*=Hero->GetMaxHealth()/150.f;
    else Damage*=4.f;
@@ -64,9 +66,7 @@ bool FCultKitRuntime::RockInput(bool Press) {
   }
  };
  Rock->FinishSpawning(Transform);
- Rock->SetLifeSpan(3.25f);
  Owner->ActiveRock_=Rock;
- HeavyCooldown=10.f;
  Owner->MarkCombat();
  Owner->PlayAttackMotion(CultAttackMotion::EMove::RockLift,.30f,.64f);
  return true;
@@ -74,33 +74,34 @@ bool FCultKitRuntime::RockInput(bool Press) {
 
 void FCultKitRuntime::ReleaseRock() {
  auto* Rock=Owner->ActiveRock_.Get();
+ if(Owner->IsIncapacitated()&&Owner->GetHealth()>0) return;
  Owner->ActiveRock_=nullptr;
  if(!IsValid(Rock)) return;
- if(Owner->IsIncapacitated()||Owner->GetHealth()<=0) {
+ if(Owner->GetHealth()<=0) {
   Rock->Destroy();
   return;
  }
  Rock->ReleaseGuard(Owner->CameraAim().ImpactPoint);
+ HeavyCooldown=RockCooldown;
+ if(!Owner->IsBot()&&!Owner->IsLocallyControlled()) Owner->ClientAbilityCommitted(3,HeavyCooldown);
  Owner->MarkCombat();
  Owner->PlayAttackMotion(CultAttackMotion::EMove::RockThrow,Rock->Windup,.64f);
 }
 
 void FCultKitRuntime::TickRock() {
- auto* Rock=Owner->ActiveRock_.Get();
- if(!IsValid(Rock)) {
-  Owner->ActiveRock_=nullptr;
-  if(Owner->HasAttackHold(CultAttackMotion::EMove::RockLift)) Owner->PlayAttackMotion(CultAttackMotion::EMove::Lower,.12f,.46f);
-  return;
- }
- if(Owner->IsIncapacitated()||Owner->IsDashing()||Owner->GetHealth()<=0) {
-  Rock->Destroy();
-  Owner->ActiveRock_=nullptr;
-  Owner->PlayAttackMotion(CultAttackMotion::EMove::Lower,.12f,.46f);
- } else if(Rock->GetLifeSpan()>0&&Rock->GetLifeSpan()<.14f) {
-  DropHeldRock(Rock);
-  Owner->ActiveRock_=nullptr;
-  Owner->PlayAttackMotion(CultAttackMotion::EMove::Lower,.12f,.46f);
- }
+ if(Owner->HoldingRock()||!Owner->HasAttackHold(CultAttackMotion::EMove::RockLift)) return;
+ Owner->ActiveRock_=nullptr;
+ HeavyCooldown=RockCooldown;
+ if(!Owner->IsBot()&&!Owner->IsLocallyControlled()) Owner->ClientAbilityCommitted(3,HeavyCooldown);
+ Owner->PlayAttackMotion(CultAttackMotion::EMove::Lower,.12f,.46f);
+}
+
+void ACultSkillAttack::DamageGuard(float Amount) {
+ if(!HasAuthority()||!bRockGuard||IsActorBeingDestroyed()||Amount<=0) return;
+ GuardIntegrity-=Amount;
+ if(GuardIntegrity>0) return;
+ EmitAbilityFX(uint8(CultAbilityFX::EEvent::Contact),GetActorLocation(),FVector::UpVector,RockExtents.GetMax());
+ Destroy();
 }
 
 void ACultSkillAttack::OnRep_RockGuard() {
@@ -146,5 +147,6 @@ void ACultSkillAttack::ReleaseGuard(FVector Aim) {
  Origin=Previous=GetActorLocation();
  Direction=(Aim-Origin).GetSafeNormal();
  if(Direction.IsNearlyZero()) Direction=GetActorForwardVector();
+ if(Hit) SetActorRotation(Direction.Rotation());
  ForceNetUpdate();
 }

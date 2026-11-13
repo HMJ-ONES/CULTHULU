@@ -6,7 +6,7 @@
 void ACultUlhuPlayerPawn::MulticastMotionCue_Implementation(uint8 Kind,float Seconds) {
  if(!FMath::IsFinite(Seconds)||Seconds<=0||Seconds>5) return;
  if(Kind!=1&&Kind!=2) return;
- AttackPlayback_={};
+ AttackPlayback_=HeldAttack_;
  ACultCharacterModel::Cue(this,Kind==1?TEXT("dash"):TEXT("taunt"),Seconds);
 }
 
@@ -50,7 +50,7 @@ void ACultUlhuPlayerPawn::MulticastAbilityBurst_Implementation(uint8 Look,uint8 
 CultAttackMotion::FFrame ACultUlhuPlayerPawn::AttackFrame() const {
  using namespace CultAttackMotion;
  if(IsIncapacitated()||Control_.Stop) return {};
- if(IsDashing()&&!IsSurge(CharacterId_,AttackPlayback_.Move)) return {};
+ if(IsDashing()&&AttackPlayback_.Move!=EMove::Melee&&!IsHold(HeldAttack_.Move)&&!IsSurge(CharacterId_,AttackPlayback_.Move)) return {};
  const float Now=GetWorld()->GetTimeSeconds();
  const auto Active=Sample(CharacterId_,AttackPlayback_,Now);
  if(HeldAttack_.Move==EMove::None||IsHold(AttackPlayback_.Move)) return Active;

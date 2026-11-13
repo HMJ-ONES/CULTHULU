@@ -198,7 +198,7 @@ public:
    if(!TestRock.IsValid()) return true;
    At=W->GetTimeSeconds(); Phase=10; return false;
   }
-  if(Phase==10&&W->GetTimeSeconds()-At>.4f) {
+  if(Phase==10&&W->GetTimeSeconds()-At>3.55f) {
    if(!TestRock.IsValid()) { T->AddError(TEXT("The lifted rock disappeared before its guard window")); return true; }
    const FVector Chest=TestRock->GetActorLocation();
    T->TestTrue(TEXT("The live upper body stays braced with the collider raised"),P->AttackFrame().Limbs.X<-35);
@@ -211,14 +211,15 @@ public:
    T->TestFalse(TEXT("Releasing RMB removes the guard"),P->HoldingRock());
    T->TestTrue(TEXT("RMB release plays the lowering motion"),P->AttackPlayback().Move==CultAttackMotion::EMove::Lower);
    T->TestTrue(TEXT("RMB release disarms the falling rock"),TestRock.IsValid()&&!TestRock->Hit);
+   T->TestEqual(TEXT("Dropping the boulder leaves the rock ready"),FCultMobaMechanicsTestAccess::Cooldown(P),0.f);
    Pickup=Old; At=W->GetTimeSeconds(); Phase=11; return false;
   }
   if(Phase==11&&W->GetTimeSeconds()-At>.22f) {
    T->TestTrue(TEXT("Dropped rock moves downward without throwing forward"),
     TestRock.IsValid()&&TestRock->GetActorLocation().Z<Pickup.Z-40.f&&FVector::Dist2D(TestRock->GetActorLocation(),Pickup)<10);
-   FCultMobaMechanicsTestAccess::Ready(P);
    FCultMobaMechanicsTestAccess::Aim(P,P->FeetLocation()+FVector(4700,0,0));
    P->HeavyAttack();
+   T->TestTrue(TEXT("Cthulhu can immediately raise another rock after a drop"),P->HoldingRock());
    At=W->GetTimeSeconds(); Phase=12; return false;
   }
   if(Phase==12&&W->GetTimeSeconds()-At>.4f) {
@@ -227,6 +228,7 @@ public:
    Before=Victim->GetHealth();
    P->Smash();
    T->TestFalse(TEXT("LMB releases the live rock projectile"),P->HoldingRock());
+   T->TestTrue(TEXT("Throwing the boulder starts its cooldown"),FCultMobaMechanicsTestAccess::Cooldown(P)>0);
    T->TestTrue(TEXT("The throw uses its own release pose"),P->AttackPlayback().Move==CultAttackMotion::EMove::RockThrow);
    T->TestEqual(TEXT("The throw cue matches the rock windup"),P->AttackPlayback().Contact,.10f);
    T->TestEqual(TEXT("A thrown rock takes time to hit"),Victim->GetHealth(),Before);
@@ -234,7 +236,19 @@ public:
    At=W->GetTimeSeconds(); Phase=13; return false;
   }
   if(Phase==13&&W->GetTimeSeconds()-At>1.f) {
-   T->TestTrue(TEXT("LMB rock hits the aimed enemy for chip damage"),Victim->GetHealth()<Before&&Victim->GetHealth()>Before-18);
+   T->TestTrue(TEXT("The aimed boulder lands a balanced hit"),Victim->GetHealth()<Before&&Victim->GetHealth()>Before-23);
+   FCultMobaMechanicsTestAccess::Ready(P);
+   FCultMobaMechanicsTestAccess::Aim(P,P->FeetLocation()+FVector(4700,0,0));
+   P->HeavyAttack();
+   ACultSkillAttack* Guard=nullptr;
+   for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==P&&It->IsGuarding()) Guard=*It;
+   if(T->TestNotNull(TEXT("A third rock is held for durability checks"),Guard)) {
+    Guard->DamageGuard(20.f);
+    T->TestTrue(TEXT("The boulder withstands a single hit"),P->HoldingRock());
+    Guard->DamageGuard(40.f);
+    T->TestTrue(TEXT("Enough damage shatters the boulder"),Guard->IsActorBeingDestroyed());
+   }
+   P->ReleaseHeavy();
    Victim->RelocateMatch(FVector(-20000,-18000,0));
    const FTransform Spawn(P->FeetLocation()+FVector(4400,0,0));
    AcidCaster=W->SpawnActorDeferred<ACultUlhuPlayerPawn>(ACultUlhuPlayerPawn::StaticClass(),Spawn,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);

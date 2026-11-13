@@ -7,6 +7,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "CultCombatCredit.h"
 #include "CultUlhuPlayerPawn.h"
+#include "CultCharacterModel.h"
 #include "CultPopulation.h"
 #include "CultFeralBeast.h"
 #include "CultDestructible.h"
@@ -22,7 +23,10 @@
 
 namespace {
 bool FriendlyBody(AActor* Source,AActor* Other) {
- if(auto* Attack=Cast<ACultSkillAttack>(Other)) return Attack->IsGuarding()&&Attack->GetOwner()==Source;
+ if(auto* Attack=Cast<ACultSkillAttack>(Other)) {
+  if(!Attack->IsGuarding()) return false;
+  return Attack->GetOwner()==Source||(ACultSkillAttack::Alive(Attack->GetOwner())&&!ACultSkillAttack::Enemy(Source,Attack->GetOwner()));
+ }
  const auto* Unit=Cast<ACultMatchUnit>(Other);
  const bool Body=Cast<ACultUlhuPlayerPawn>(Other)||Cast<ACultPopulation>(Other)||(Unit&&!Unit->IsStructure());
  return Body&&ACultSkillAttack::Alive(Other)&&!ACultSkillAttack::Enemy(Source,Other);
@@ -85,6 +89,7 @@ void ACultSkillAttack::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
  DOREPLIFETIME_CONDITION(ACultSkillAttack,SignalStyle,COND_InitialOnly);
  DOREPLIFETIME_CONDITION(ACultSkillAttack,AbilityLook,COND_InitialOnly);
  DOREPLIFETIME_CONDITION(ACultSkillAttack,bTrackMuzzle,COND_InitialOnly);
+ DOREPLIFETIME_CONDITION(ACultSkillAttack,bLimbStrike,COND_InitialOnly);
  DOREPLIFETIME_CONDITION(ACultSkillAttack,RockExtents,COND_InitialOnly);
  DOREPLIFETIME_CONDITION(ACultSkillAttack,FadeAt,COND_InitialOnly);
  DOREPLIFETIME_CONDITION(ACultSkillAttack,FadeSeconds,COND_InitialOnly);
@@ -125,18 +130,29 @@ float ACultSkillAttack::WardReleaseRemaining() const {
 
 void ACultSkillAttack::ShowSegment(FVector A,FVector B,float Width) { Visual->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cylinder"))); Visual->SetWorldLocation((A+B)*.5); Visual->SetWorldRotation(FRotationMatrix::MakeFromZ(B-A).Rotator()); Visual->SetWorldScale3D(FVector(Width/50,Width/50,FVector::Dist(A,B)/100)); }
 void ACultSkillAttack::Sweep(FVector A,FVector B,float R) {
+ if(bLimbStrike&&LimbBlockedByGuard) return;
  FCollisionQueryParams Q(SCENE_QUERY_STAT(SkillSweep),false,GetOwner()); Q.AddIgnoredActor(this);
  for(TActorIterator<AActor> It(GetWorld());It;++It) if(FriendlyBody(GetOwner(),*It)||(TargetFilter&&Alive(*It)&&!TargetFilter(*It))) Q.AddIgnoredActor(*It);
- TArray<FHitResult> Hits; GetWorld()->SweepMultiByChannel(Hits,A,B,FQuat::Identity,ECC_Visibility,FCollisionShape::MakeSphere(R),Q);
+ const bool FlyingRock=Shape==EShape::Bolt&&RockExtents.X>0;
+ const auto Collision=FlyingRock?FCollisionShape::MakeBox(RockExtents*.87):FCollisionShape::MakeSphere(R);
+ TArray<FHitResult> Hits; GetWorld()->SweepMultiByChannel(Hits,A,B,FlyingRock?GetActorQuat():FQuat::Identity,ECC_Visibility,Collision,Q);
  // Tip chords can lie beyond a wall even when every radial trace is blocked.
  // A melee contact must also remain connected to the actual arm origin.
  for(const auto& H:Hits) {
   auto* Other=H.GetActor();
-  if(Enemy(GetOwner(),Other)&&!Struck.Contains(Other)&&(Shape!=EShape::Sweep||Clear(GetWorld(),Origin,H.ImpactPoint,GetOwner(),Other))) {
+  const FVector Contact=H.bStartPenetrating?A:FVector(H.ImpactPoint);
+  if(auto* Guard=Cast<ACultSkillAttack>(Other);Guard&&Guard->IsGuarding()) {
+   if(!Struck.Contains(Guard)) {
+    Struck.Add(Guard);
+    Guard->DamageGuard(ImpactPower);
+   }
+   if(bLimbStrike) LimbBlockedByGuard=true;
+  }
+  if(Enemy(GetOwner(),Other)&&!Struck.Contains(Other)&&(Shape!=EShape::Sweep||Clear(GetWorld(),Origin,Contact,GetOwner(),Other))) {
    Struck.Add(Other);
-   if(Hit) Hit(Other,H.ImpactPoint);
+   if(Hit) Hit(Other,Contact);
    if(Shape==EShape::Sweep&&Struck.Num()==1) {
-    EmitAbilityFX(uint8(CultAbilityFX::EEvent::Contact),H.ImpactPoint,-Direction,FMath::Max(130.f,Radius*3.2f));
+    EmitAbilityFX(uint8(CultAbilityFX::EEvent::Contact),Contact,-Direction,FMath::Max(130.f,Radius*3.2f));
    }
   }
   if(!H.bBlockingHit) continue;
@@ -158,6 +174,49 @@ void ACultSkillAttack::Sweep(FVector A,FVector B,float R) {
   }
   break;
  }
+}
+void ACultSkillAttack::UpdateLimbStrike() {
+ auto* Pawn=Cast<ACultUlhuPlayerPawn>(GetOwner());
+ if(!Pawn||Pawn->AttackPlayback().Move!=CultAttackMotion::EMove::Melee) return;
+ if(!StrikeModel.IsValid()) {
+  TArray<AActor*> Attached;
+  Pawn->GetAttachedActors(Attached);
+  for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
+   StrikeModel=Model;
+   for(const auto& Part:Model->Parts()) if(Part) AddTickPrerequisiteComponent(Part.Get());
+   break;
+  }
+ }
+ const int Stage=Pawn->AttackPlayback().Variant&3;
+ const bool FourArms=Pawn->GetCharacterId()==TEXT("yig");
+ const bool Active=Age>=Windup;
+ const bool WasActive=LastLimbAge>=Windup;
+ FVector Facing=Direction.GetSafeNormal2D();
+ if(Facing.IsNearlyZero()) Facing=Pawn->GetActorForwardVector();
+ for(int Index=0;Index<(FourArms?4:2);++Index) {
+  if(Stage<3?Index!=Stage-1:FourArms&&Index<2) continue;
+  FLimbSample Current;
+  Current.Valid=StrikeModel.IsValid()?StrikeModel->StrikeLimb(Index,Current.Elbow,Current.Hand):
+   Pawn->FallbackStrikeLimb(Index,Current.Elbow,Current.Hand);
+  if(!Current.Valid) continue;
+  auto& Last=LastLimbs[Index];
+  const bool InFront=FVector::DotProduct(Current.Hand-Pawn->GetActorLocation(),Facing)>0;
+  if(Active&&InFront) {
+   auto& Trail=HandTrails[Index];
+   if(Trail.IsEmpty()||!Trail.Last().Equals(Current.Hand,4.f)) Trail.Add(Current.Hand);
+   if(Trail.Num()>8) Trail.RemoveAt(0);
+   if(HasAuthority()) {
+    Origin=Current.Elbow;
+    Sweep(Current.Elbow,Current.Hand,Radius*.78f);
+    if(Last.Valid&&WasActive&&FVector::DistSquared(Last.Hand,Current.Hand)<FMath::Square(Reach)) {
+     Sweep(Last.Hand,Current.Hand,Radius);
+     Sweep((Last.Elbow+Last.Hand)*.5,(Current.Elbow+Current.Hand)*.5,Radius*.78f);
+    }
+   }
+  }
+  Last=Current;
+ }
+ LastLimbAge=Age;
 }
 bool ACultSkillAttack::AreaContact(EShape Shape,FVector Origin,FVector Direction,float Reach,float Radius,float HalfAngle,AActor* Target,FVector& Point) {
   Point=Target->GetActorLocation(); float Body=0; if(auto* C=Target->FindComponentByClass<UCapsuleComponent>()) {
@@ -182,6 +241,10 @@ bool ACultSkillAttack::AreaContact(EShape Shape,FVector Origin,FVector Direction
   return In;
 }
 void ACultSkillAttack::Area() {
+ for(TActorIterator<ACultSkillAttack> It(GetWorld());It;++It) if(It->IsGuarding()&&!FriendlyBody(GetOwner(),*It)) {
+  FVector Point;
+  if(AreaContact(Shape,Origin,Direction,Reach,Radius,HalfAngle,*It,Point)&&Clear(GetWorld(),Origin+FVector(0,0,40),Point,GetOwner(),*It)) It->DamageGuard(ImpactPower);
+ }
  for(TActorIterator<AActor> It(GetWorld());It;++It) if(Enemy(GetOwner(),*It)) {
   FVector Point;
   if(AreaContact(Shape,Origin,Direction,Reach,Radius,HalfAngle,*It,Point)&&Clear(GetWorld(),Origin+FVector(0,0,40),Point,GetOwner(),*It)&&!Struck.Contains(*It)) { Struck.Add(*It); if(Hit) Hit(*It,Point); }
@@ -189,6 +252,16 @@ void ACultSkillAttack::Area() {
 }
 void ACultSkillAttack::Tick(float Dt) {
  Super::Tick(Dt);
+ if(bLimbStrike) {
+  const auto* Pawn=Cast<ACultUlhuPlayerPawn>(GetOwner());
+  if(HasAuthority()&&(!Pawn||!Alive(GetOwner())||Pawn->IsIncapacitated()||Pawn->AttackPlayback().Move!=CultAttackMotion::EMove::Melee)) { Destroy(); return; }
+  if(FirstTick) { Dt=FMath::Min(Dt,FMath::Max(0.f,GetWorld()->GetTimeSeconds()-BornAt)); FirstTick=false; }
+  Age+=Dt;
+  UpdateLimbStrike();
+  UpdatePresentation();
+  if(HasAuthority()&&Age>=Windup+Duration) Destroy();
+  return;
+ }
  if(!HasAuthority()) {
   Age+=Dt;
   if(Shape==EShape::Bolt&&RockExtents.X<=0) { Previous=GetActorLocation(); Visual->SetWorldLocation(Previous); }
@@ -229,6 +302,18 @@ void ACultSkillAttack::Tick(float Dt) {
   if(auto* Capsule=Target->FindComponentByClass<UCapsuleComponent>()) { FVector Closest; if(Capsule->GetClosestPointOnCollision(Previous,Closest)>=0) Aim=Closest; }
   const float Step=Speed*(Age-FMath::Max(Old,Windup));
   Direction=(Aim-Previous).GetSafeNormal();
+  if(auto* Hero=Cast<ACultUlhuPlayerPawn>(Target);Hero&&Hero->HoldingRock()) {
+   FHitResult Block;
+   FCollisionQueryParams Query(SCENE_QUERY_STAT(CultWardGuard),false,GetOwner());
+   const FVector Next=Previous+Direction*FMath::Min(FVector::Dist(Previous,Aim),double(Step));
+   if(GetWorld()->SweepSingleByChannel(Block,Previous,Next,FQuat::Identity,ECC_Visibility,FCollisionShape::MakeSphere(Radius),Query)) {
+    if(auto* Guard=Cast<ACultSkillAttack>(Block.GetActor());Guard&&Guard->IsGuarding()&&Guard->GetOwner()==Target) {
+     Guard->DamageGuard(ImpactPower);
+     Destroy();
+     return;
+    }
+   }
+  }
   if(FVector::Dist(Previous,Aim)<=Step+Radius) { if(Hit) Hit(Target,Aim); if(Finished) Finished(Aim); Destroy(); return; }
   Previous+=Direction*Step; SetActorLocation(Previous); Visual->SetWorldLocation(Previous);
  } else if(Shape==EShape::Bolt) {

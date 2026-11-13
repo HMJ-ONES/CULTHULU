@@ -158,7 +158,7 @@ void ACultUlhuPlayerPawn::BeginPlay()
 			E->SetRelativeScale3D(FVector(S));
 		}
 	}
- ACultCharacterModel::AttachToPawn(this,CharacterId_);
+ if(!ACultCharacterModel::AttachToPawn(this,CharacterId_)&&!CultPrimary::Find(CharacterId_).Ranged()) CreateVesselArms();
 }
 
 bool ACultUlhuPlayerPawn::PlaceOnWalkableGround()
@@ -349,9 +349,10 @@ void ACultUlhuPlayerPawn::Smash()
  }
  if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) if(HUD->FaithVisible()||HUD->RegionMapVisible()||PC->IsInputKeyDown(EKeys::LeftAlt)) { HUD->CommandClick(); return; }
  if(Kit_ && Kit_->LeftClick()) return;
-	if(Control_.Stun || Control_.Fear || Control_.Stop || IsDashing()) return;
+	if(Control_.Stun || Control_.Fear || Control_.Stop) return;
  const auto Primary=Kit_?Kit_->Primary:CultPrimary::FProfile{};
  if(Primary.Ranged()) {
+  if(IsDashing()) return;
   if(SmashCooldown_<=0&&Kit_->LaunchPrimary()) SmashCooldown_=Primary.Recovery;
   return;
  }
@@ -458,13 +459,14 @@ void ACultUlhuPlayerPawn::UseAbility(int Slot)
 
 void ACultUlhuPlayerPawn::CommitAbility(int Slot)
 {
- if(!HasAuthority()||!Kit_||IsIncapacitated()) return;
+ if(!HasAuthority()||!Kit_||IsIncapacitated()||IsSwinging()) return;
  if(auto* M=ACultMatchDirector::Find(GetWorld())) if(!M->AbilityAvailable(this,Slot,true)) return;
  if(Kit_->Cast(Slot)&&!IsBot()&&!IsLocallyControlled()) ClientAbilityCommitted(Slot,Kit_->Cooldown(Slot));
 }
 
 void ACultUlhuPlayerPawn::ClientAbilityCommitted_Implementation(uint8 Slot,float Cooldown)
 {
+ if(Slot==3) { if(Kit_) Kit_->SetHeavyCooldown(Cooldown); return; }
  if(Kit_) Kit_->SetCooldown(Slot,Cooldown);
  if(CastPreviewSlot_==Slot) CastPreviewSlot_=INDEX_NONE;
 }
@@ -556,7 +558,7 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
 {
  CSV_SCOPED_TIMING_STAT(CultRuntime, HeroTick);
 	Super::Tick(DeltaSeconds);
- if(GetNetMode()!=NM_DedicatedServer) UpdateVesselMotion(DeltaSeconds);
+ if(GetNetMode()!=NM_DedicatedServer||!VesselArms_.IsEmpty()) UpdateVesselMotion(DeltaSeconds);
  if(bMatchDead_) { if(Kit_) Kit_->AdvanceCooldowns(DeltaSeconds); return; }
  Control_.Tick(DeltaSeconds); NoticeTime_=FMath::Max(0.f,NoticeTime_-DeltaSeconds);
  DashCooldown_=FMath::Max(0.f,DashCooldown_-DeltaSeconds); EvadeTime_=FMath::Max(0.f,EvadeTime_-DeltaSeconds); SwingTime_=FMath::Max(0.f,SwingTime_-DeltaSeconds); HitConfirmTime_=FMath::Max(0.f,HitConfirmTime_-DeltaSeconds);

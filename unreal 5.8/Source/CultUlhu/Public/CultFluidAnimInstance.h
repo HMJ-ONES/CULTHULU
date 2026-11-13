@@ -12,6 +12,8 @@ public:
  CultAttackMotion::FFrame Attack;
  float LateralLean=0;
  uint8 GestureRig=0;
+ uint8 MeleeStage=0;
+ float MeleeProgress=0, MeleePitch=0;
 protected:
  virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
 };

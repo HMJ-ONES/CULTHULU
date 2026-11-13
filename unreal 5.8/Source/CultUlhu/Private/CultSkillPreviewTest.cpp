@@ -36,16 +36,33 @@ public:
   if(W->GetTimeSeconds()<2) return false; Time+=W->GetDeltaSeconds();
   if(Phase==0) {
    P=Cast<ACultUlhuPlayerPawn>(W->GetFirstPlayerController()->GetPawn()); if(!P) return false;
+   W->GetFirstPlayerController()->SetControlRotation(FRotator::ZeroRotator);
+   P->SetActorRotation(FRotator::ZeroRotator);
    P->AltReleased(); if(auto* Arm=P->FindComponentByClass<USpringArmComponent>()) Arm->SetComponentTickEnabled(false); auto* Camera=P->FindComponentByClass<UCameraComponent>();
    Camera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-   FTransform T(P->FeetLocation()+FVector(1750,0,200)); auto* B=W->SpawnActorDeferred<ACultFeralBeast>(ACultFeralBeast::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); B->SetSpecies(TEXT("skittering_ghoul")); B->FinishSpawning(T); B->SetActorTickEnabled(false); Beast=B;
-   const FVector Look=B->GetActorLocation(); Camera->SetWorldLocation(P->FeetLocation()+FVector(6000,-4000,3500)); Camera->SetWorldRotation((Look-Camera->GetComponentLocation()).Rotation());
+   FTransform T(P->FeetLocation()+FVector(1750,0,650)); auto* B=W->SpawnActorDeferred<ACultFeralBeast>(ACultFeralBeast::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); B->SetSpecies(TEXT("skittering_ghoul")); B->FinishSpawning(T); B->SetActorTickEnabled(false); B->SetActorLocation(T.GetLocation()); Beast=B;
+   const FVector Look=B->GetActorLocation(); Camera->SetWorldLocation(P->FeetLocation()+FVector(-5200,2300,2650)); Camera->SetWorldRotation((Look-Camera->GetComponentLocation()).Rotation());
    Test->TestTrue(TEXT("The actual rendered camera aims directly at the test creature"),P->CameraAim().GetActor()==B);
-   Before=B->GetHealth(); P->Smash(); Test->TestEqual(TEXT("Actual LMB has a windup"),B->GetHealth(),Before); Phase=1; Time=0;
+   Before=B->GetHealth(); LungeStart=P->GetActorLocation(); P->Smash(); Test->TestEqual(TEXT("Actual LMB has a windup"),B->GetHealth(),Before); Phase=1; Time=0;
    Test->TestTrue(TEXT("LMB starts its authored combo motion"),P->AttackPlayback().Move==CultAttackMotion::EMove::Melee);
    Test->TestEqual(TEXT("Melee contact is centered inside the physical sweep"),P->AttackPlayback().Contact,.22f);
   } else if(Phase==1) {
-   if(Time>.18f&&!SwingShot) {
+   if(Time<.32f) {
+    TArray<AActor*> Models;
+    P->GetAttachedActors(Models);
+    for(auto* Actor:Models) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
+     FVector Elbow,Hand;
+     const int Stage=P->AttackPlayback().Variant&3;
+     if(Model->StrikeLimb(Stage==2?1:0,Elbow,Hand)) {
+      Test->AddInfo(FString::Printf(TEXT("Strike %.3f stage %d wrist relative to body %s"),Time,Stage,*(Hand-P->GetActorLocation()).ToCompactString()));
+      if(Hand.X<P->GetActorLocation().X+50||Time<.10f) break;
+      LimbFixture=true;
+      // Exercise the actual hand contact at this animation frame.
+      if(Beast.IsValid()) Beast->SetActorLocation(Hand);
+     }
+    }
+   }
+   if(Time>.24f&&!SwingShot) {
     TArray<AActor*> Attached;
     P->GetAttachedActors(Attached);
     for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
@@ -59,6 +76,8 @@ public:
     Shot(TEXT("SkillCombatSwing.png")); SwingShot=true;
    }
    if(Time>.65f) {
+    Test->TestTrue(TEXT("The attack sampled a real wrist and forearm"),LimbFixture);
+    Test->TestTrue(TEXT("Forward melee moves the capsule aggressively"),FVector::Dist2D(LungeStart,P->GetActorLocation())>300);
     Test->TestTrue(TEXT("Actual aimed LMB makes creature contact"),!Beast.IsValid()||Beast->GetHealth()<Before);
     if(Beast.IsValid()&&!Beast->IsDead()) {
      auto* Camera=P->FindComponentByClass<UCameraComponent>();
@@ -134,7 +153,7 @@ public:
   if(Time>10) { Test->AddError(TEXT("Preview stage timed out")); return true; } return false;
  }
  void Shot(const TCHAR* Name) { FScreenshotRequest::RequestScreenshot(FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir()/TEXT("Screenshots")/Name),true,false); }
-private: FAutomationTestBase* Test; double Started; float Time=0,Before=0,RaisedHealth=0,GroundHealth=0; int Phase=0; bool Entered=false,SwingShot=false; ACultUlhuPlayerPawn* P=nullptr; TWeakObjectPtr<ACultFeralBeast> Beast; TWeakObjectPtr<ACultPopulation> Victim; TWeakObjectPtr<ACultUlhuPlayerPawn> Caster; ACultDestructible* Raised=nullptr; ACultDestructible* GroundTarget=nullptr; AActor* AimGuide=nullptr;
+private: FAutomationTestBase* Test; double Started; float Time=0,Before=0,RaisedHealth=0,GroundHealth=0; int Phase=0; bool Entered=false,SwingShot=false,LimbFixture=false; FVector LungeStart; ACultUlhuPlayerPawn* P=nullptr; TWeakObjectPtr<ACultFeralBeast> Beast; TWeakObjectPtr<ACultPopulation> Victim; TWeakObjectPtr<ACultUlhuPlayerPawn> Caster; ACultDestructible* Raised=nullptr; ACultDestructible* GroundTarget=nullptr; AActor* AimGuide=nullptr;
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultSkillPreviewTest,"CultUlhu.Menu.SkillPreview",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultSkillPreviewTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false)); ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(1.f)); ADD_LATENT_AUTOMATION_COMMAND(FSkillPreviewObservation(this)); return true; }

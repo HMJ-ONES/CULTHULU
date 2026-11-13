@@ -137,6 +137,9 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
   const FVector Start=Bolts==2?Origin+Across*(I==0?-80.f:80.f):Origin;
   const FTransform T(Start); auto* A=Owner->GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Owner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); if(!A) return false;
   A->Shape=Kind; A->Direction=Bolts==2?(Aim-Start).GetSafeNormal():Direction; A->Windup=Delay; A->Reach=Reach; A->Radius=Radius; A->Speed=Speed; A->Duration=Life>0?Life:Reach/Speed+.05f; A->HalfAngle=Angle;
+  A->ImpactPower=Kind==Shape::Sweep?S.effectPower*(10.f/135.f):
+   FMath::Clamp(S.effectPower*.12f/Bolts,3.f,18.f);
+  A->bLimbStrike=Kind==Shape::Sweep;
   if(Kind==Shape::Bolt) A->ConfigureProjectileFlight(Reach,Id=="nerve_needle"||Id=="dream_pierce"||Id=="abyssal_harpoon"||Id=="gate_lash");
   A->AbilityLook=uint8(CultAbilityFX::ForSlot(UTF8_TO_TCHAR(Def.id.c_str()),Slot));
   cultulhu::SpellDef HitSpell=S; if(Bolts>1) HitSpell.effectPower*=.5f;
@@ -157,7 +160,10 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
  }
  const float Contact=Kind==Shape::Sweep?Delay+Life*.5f:Delay;
  const float Recovery=Slot==2?.47f:Slot<0?.36f:.31f;
- Owner->PlayAttackMotion(CultAttackMotion::AbilitySlot(Slot),Contact,Contact+Recovery);
+ if(Kind==Shape::Sweep) {
+  Owner->SwingTime_=Delay+Life;
+  Owner->PlayAttackMotion(CultAttackMotion::EMove::Melee,Contact,Contact+Recovery,3);
+ } else Owner->PlayAttackMotion(CultAttackMotion::AbilitySlot(Slot),Contact,Contact+Recovery);
  return true;
 }
 void FCultKitRuntime::ResolveSpatial(cultulhu::SpellDef S,AActor* Target,FVector Point,int Slot) {

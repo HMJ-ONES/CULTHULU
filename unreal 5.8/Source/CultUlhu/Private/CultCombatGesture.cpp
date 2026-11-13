@@ -3,6 +3,7 @@
 #include "CultFluidAnimInstance.h"
 #include "CultUlhuPlayerPawn.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
@@ -27,6 +28,9 @@ void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
  if(CharacterId_==TEXT("dagon")) Rig=4;
  if(CharacterId_==TEXT("nyarlathotep")) Rig=5;
  if(CharacterId_==TEXT("shoggoths")) Rig=6;
+ const auto& Motion=Pawn_->AttackPlayback();
+ const float Age=GetWorld()->GetTimeSeconds()-Motion.Began;
+ const bool Melee=Motion.Move==CultAttackMotion::EMove::Melee&&Age>=0&&Age<Motion.Duration&&!Pawn_->IsIncapacitated();
  for(UMeshComponent* Part:Parts_) {
   auto* Skin=Cast<USkeletalMeshComponent>(Part);
   auto* Anim=Skin?Cast<UCultFluidAnimInstance>(Skin->GetAnimInstance()):nullptr;
@@ -34,6 +38,9 @@ void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
   Anim->Attack=Pose;
   Anim->LateralLean=GuardWeight_;
   Anim->GestureRig=Rig;
+  Anim->MeleeStage=Melee?Motion.Variant&3:0;
+  Anim->MeleeProgress=(Age-Motion.Contact)/.10f;
+  Anim->MeleePitch=FMath::Clamp(FRotator::NormalizeAxis(Pawn_->AimRotation().Pitch),-53.f,45.f);
  }
 
  if(bOriginalOrb_&&Parts_.Num()==3) {
@@ -49,7 +56,15 @@ void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
  }
 
  const bool Yig=CharacterId_==TEXT("yig");
- if(!Yig&&CharacterId_!=TEXT("nodens")) return;
+ if(bOriginalOrb_) return;
+ if(!Yig&&CharacterId_!=TEXT("nodens")) {
+  if(StaticRest_.IsEmpty()) for(UMeshComponent* Part:Parts_) StaticRest_.Add(Part->GetRelativeTransform());
+  const FTransform Gesture(FRotator(-Pose.Body.X*.7,Pose.Body.Y*.62,Pose.Details.Z*.32),
+   FVector(Pose.Body.Z,0,Pose.Body.W*.7));
+  for(int Index=0;Index<Parts_.Num();++Index) if(Cast<UStaticMeshComponent>(Parts_[Index]))
+   Parts_[Index]->SetRelativeTransform(StaticRest_[Index]*Gesture);
+  return;
+ }
  if(StaticRest_.IsEmpty()) for(UMeshComponent* Part:Parts_) StaticRest_.Add(Part->GetRelativeTransform());
  const float Speed=Pawn_->GetVelocity().Size2D();
  const float WheelRoll=FMath::Sin(GetWorld()->GetTimeSeconds()*6.3f)*FMath::Clamp(Speed/800.f,0.f,1.f);

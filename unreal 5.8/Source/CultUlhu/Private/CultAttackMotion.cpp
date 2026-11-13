@@ -217,7 +217,7 @@ float Ease(float T) { T=FMath::Clamp(T,0.f,1.f); return T*T*(3-2*T); }
 FFrame EvaluateBeats(const FBeats& Motion,float Age,float Contact,float Duration,bool Held) {
  const float Strike=FMath::Max(.036f,Contact);
  const float Carry=FMath::Min(Motion.Carry,FMath::Max(.03f,(Duration-Strike)*.48f));
- const float Gather=Strike*.74f;
+ const float Gather=Strike*(Held?.74f:.82f);
  if(Age<Gather) return Blend({},Motion.Gather,Ease(Age/Gather));
  if(Age<Strike) return Blend(Motion.Gather,Motion.Contact,Ease((Age-Gather)/(Strike-Gather)));
  if(Age<Strike+Carry) return Blend(Motion.Contact,Motion.Follow,Ease((Age-Strike)/Carry));
@@ -275,9 +275,9 @@ FFrame Sample(const FString& Id,const FPlayback& Playback,float Now) {
  Frame.Details*=Style.Strength;
  const bool Braced=Held||Style.Form==F::Lower;
  if(!Braced) {
-  Frame.Body*=FVector4(1.24,1.29,1.24,1.34);
-  Frame.Limbs*=FVector4(1.14,1.30,1.15,1.17);
-  Frame.Details*=FVector4(1.18,1.30,1.19,1.14);
+  Frame.Body*=FVector4(1.52,1.57,1.33,1.43);
+  Frame.Limbs*=FVector4(1.29,1.48,1.28,1.28);
+  Frame.Details*=FVector4(1.31,1.44,1.29,1.16);
  }
  Frame.Body.Y*=Style.Lead;
  Frame.Details.Z*=Style.Lead;
