@@ -1,3 +1,5 @@
+> Legacy implementation reference. Use [the current UE 5.8 runbook](IntegrationGuide.md) for setup; existing authored maps and native input need no regeneration.
+
 # Windows setup runbook (do once, then after big C++ changes)
 
 ## One-shot setup (PowerShell)
@@ -5,7 +7,7 @@
 1. In **Git Bash**, sync the repo:
    `cd ~/Documents/CULTHULU && git pull origin game-core`
 2. In **PowerShell**, run:
-   `powershell -ExecutionPolicy Bypass -File "C:\Users\H\Documents\CULTHULU\unreal\Tools\SetupCultUlhu.ps1"`
+   `powershell -ExecutionPolicy Bypass -File "C:\Users\H\Documents\CULTHULU\unreal 5.8\Tools\SetupCultUlhu.ps1"`
    It decodes assets, generates project files, and compiles the C++ module.
    If it fails, send the full error text back — do not fight it.
 3. Open the editor with the exact command:

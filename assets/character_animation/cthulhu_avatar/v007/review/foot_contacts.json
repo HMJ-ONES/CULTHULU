@@ -1,0 +1,44 @@
+{
+  "blendSha256": "bf4cb3ba027589b1d2d80657fbd7853342f7e3260bd25373c3f3d934f5173035",
+  "scope": "central planted stance at normalized 2m authoring height; game playback not calibrated",
+  "measurements": {
+    "walk": {
+      "authoredStanceSpeedMetresPerSecond": 0.38461538461538464,
+      "soles": {
+        "L": {
+          "vertices": 888,
+          "stanceSamples": 69,
+          "minimumZ": 0.0019834041595458984,
+          "maximumZ": 0.0020239856094121933,
+          "maximumStanceSlideMetres": 0.00302152340419784
+        },
+        "R": {
+          "vertices": 926,
+          "stanceSamples": 69,
+          "minimumZ": 0.0019973269663751125,
+          "maximumZ": 0.0020044133998453617,
+          "maximumStanceSlideMetres": 0.0008021094478093405
+        }
+      }
+    },
+    "run": {
+      "authoredStanceSpeedMetresPerSecond": 1.212121212121212,
+      "soles": {
+        "L": {
+          "vertices": 888,
+          "stanceSamples": 33,
+          "minimumZ": 0.0019030515104532242,
+          "maximumZ": 0.0022059064358472824,
+          "maximumStanceSlideMetres": 0.006309488506028221
+        },
+        "R": {
+          "vertices": 926,
+          "stanceSamples": 33,
+          "minimumZ": 0.0018090736120939255,
+          "maximumZ": 0.002172812120988965,
+          "maximumStanceSlideMetres": 0.0016336215264870502
+        }
+      }
+    }
+  }
+}

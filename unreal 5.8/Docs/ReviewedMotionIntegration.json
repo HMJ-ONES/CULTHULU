@@ -1,0 +1,1661 @@
+{
+  "canonicalProject": "unreal 5.8/CultUlhu.uproject",
+  "selection": {
+    "dagon": {
+      "title": "Dagon",
+      "revision": "v006",
+      "kind": "anatomical"
+    },
+    "cthulhu_avatar": {
+      "title": "Cthulhu",
+      "revision": "v008",
+      "kind": "anatomical"
+    },
+    "nyarlathotep": {
+      "title": "Nyarlathotep",
+      "revision": "v005",
+      "kind": "anatomical"
+    },
+    "yog_sothoth": {
+      "title": "YogSothoth",
+      "revision": "v002",
+      "kind": "anatomical"
+    },
+    "shoggoths": {
+      "title": "Shoggoths",
+      "revision": "v005",
+      "kind": "anatomical"
+    },
+    "mi_go": {
+      "title": "MiGo",
+      "revision": "v004",
+      "kind": "supplied",
+      "dash": "original supplied Prowl"
+    },
+    "yig": {
+      "title": "Yig",
+      "revision": "v003",
+      "kind": "native_recipe"
+    },
+    "sghllor": {
+      "title": "Sghllor",
+      "revision": "v001",
+      "kind": "native_procedural"
+    }
+  },
+  "activation": {
+    "owner": "CultUlhu.ReviewedMotion.20261106",
+    "characters": {
+      "dagon": {
+        "sets": 1,
+        "roles": [
+          "attack",
+          "dash",
+          "idle",
+          "jump",
+          "land",
+          "melee_1",
+          "melee_2",
+          "melee_3",
+          "preview",
+          "run",
+          "taunt",
+          "walk"
+        ],
+        "sourceArtPreserved": true
+      },
+      "cthulhu_avatar": {
+        "sets": 1,
+        "roles": [
+          "attack",
+          "dash",
+          "idle",
+          "jump",
+          "land",
+          "melee_1",
+          "melee_2",
+          "melee_3",
+          "melee_back_1",
+          "melee_back_2",
+          "melee_back_3",
+          "preview",
+          "run",
+          "taunt",
+          "walk"
+        ],
+        "sourceArtPreserved": true
+      },
+      "nyarlathotep": {
+        "sets": 1,
+        "roles": [
+          "attack",
+          "dash",
+          "idle",
+          "jump",
+          "land",
+          "melee_1",
+          "melee_2",
+          "melee_3",
+          "preview",
+          "run",
+          "taunt",
+          "walk"
+        ],
+        "sourceArtPreserved": true
+      },
+      "yog_sothoth": {
+        "sets": 1,
+        "roles": [
+          "attack",
+          "dash",
+          "idle",
+          "jump",
+          "land",
+          "melee_1",
+          "melee_2",
+          "melee_3",
+          "preview",
+          "run",
+          "taunt",
+          "walk"
+        ],
+        "sourceArtPreserved": true
+      },
+      "shoggoths": {
+        "sets": 1,
+        "roles": [
+          "attack",
+          "dash",
+          "idle",
+          "jump",
+          "land",
+          "melee_1",
+          "melee_2",
+          "melee_3",
+          "preview",
+          "run",
+          "taunt",
+          "walk"
+        ],
+        "sourceArtPreserved": true
+      },
+      "mi_go": {
+        "sets": 1,
+        "roles": [
+          "attack",
+          "cast",
+          "dash",
+          "idle",
+          "jump",
+          "land",
+          "melee_1",
+          "melee_2",
+          "melee_3",
+          "preview",
+          "run",
+          "taunt",
+          "walk"
+        ],
+        "sourceArtPreserved": true
+      },
+      "yig": {
+        "sets": 3,
+        "roles": [
+          "attack",
+          "cast",
+          "dash",
+          "idle",
+          "jump",
+          "land",
+          "melee_1",
+          "melee_2",
+          "melee_3",
+          "preview",
+          "run",
+          "taunt",
+          "walk"
+        ],
+        "sourceArtPreserved": true
+      }
+    },
+    "sghllor": "original native core/mist basic motions",
+    "nodens": "unchanged; excluded from animation work",
+    "registrySha256": "dce47073dea820cb505ad9ad90d8e6bef3d3e769e76fe23ba88590a94274e5ec",
+    "desktop": "same canonical project, no duplicate build"
+  },
+  "nativePoseTest": [
+    [
+      "Success",
+      "CultUlhu.Art.ApprovedCharacterModels"
+    ],
+    [
+      "Success",
+      "CultUlhu.Art.FluidMotion"
+    ],
+    [
+      "Success",
+      "CultUlhu.Art.ReviewedCharacterMotion"
+    ],
+    [
+      "Success",
+      "CultUlhu.Menu.CrosshairAimAndMotion"
+    ],
+    [
+      "Success",
+      "CultUlhu.Menu.SkillCombat"
+    ]
+  ],
+  "sourceArchives": [
+    {
+      "character": "dagon",
+      "revision": "v006",
+      "sha256": "0f72b09f2c33b3ce1ffff27d6397140cc5ea27b142b5211cfdac7acb223e3356",
+      "archive": "assets/character_animation/archive/Dagon_BasicMotion_v006.blend.b64"
+    },
+    {
+      "character": "mi_go",
+      "revision": "v004",
+      "sha256": "bc97d5845c719c77c1a1220897599b7d70498783239caf95d60c9218489cc035",
+      "archive": "assets/character_animation/archive/MiGo_BasicMotion_v004.blend.b64"
+    }
+  ],
+  "standaloneDotgooHostGuest": [
+    {
+      "ok": true,
+      "mode": 2,
+      "role": "host",
+      "phase": 5,
+      "movement": true,
+      "creepsMove": false,
+      "combat": true,
+      "localMenu": true,
+      "hostReplacedByBot": true,
+      "reason": ""
+    },
+    {
+      "ok": true,
+      "mode": 2,
+      "role": "guest",
+      "phase": 8,
+      "movement": true,
+      "creepsMove": true,
+      "combat": true,
+      "localMenu": true,
+      "hostReplacedByBot": true,
+      "reason": ""
+    }
+  ],
+  "yigRecipeVerification": {
+    "passed": true,
+    "fourWeaponGripsMaxErrorSourceUnits": 3.989278263346563e-12,
+    "tailGroundHeightMaxErrorSourceUnits": 2.8421709430404007e-13,
+    "loopClosureMaxErrorSourceUnits": 5.684341886080802e-14,
+    "comboTrajectoryRmsSeparationSourceUnits": {
+      "melee_1/melee_2": 37.99006285886236,
+      "melee_1/melee_3": 37.47910232443924,
+      "melee_2/melee_3": 32.000141399502276
+    },
+    "scope": "measured skeletal transforms; native rendered and artistic review still required"
+  },
+  "pendingBindings": {
+    "dagon": {
+      "owner": "CultUlhu.ReviewedMotion.20261106",
+      "character": "dagon",
+      "revision": "v006",
+      "studySha256": "0f72b09f2c33b3ce1ffff27d6397140cc5ea27b142b5211cfdac7acb223e3356",
+      "meshes": [
+        "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/SK_dagon_v006.SK_dagon_v006"
+      ],
+      "skeleton": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/SK_dagon_v006_Skeleton.SK_dagon_v006_Skeleton",
+      "roles": {
+        "idle": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_idle.A_dagon_idle",
+        "walk": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_walk.A_dagon_walk",
+        "run": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_run.A_dagon_run",
+        "melee_1": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_1.A_dagon_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_2.A_dagon_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_3.A_dagon_melee_3",
+        "jump": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_jump.A_dagon_jump",
+        "dash": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_dash.A_dagon_dash",
+        "taunt": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_taunt.A_dagon_taunt",
+        "land": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_land.A_dagon_land",
+        "preview": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_idle.A_dagon_idle",
+        "attack": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_1.A_dagon_melee_1"
+      },
+      "checks": {
+        "idle": {
+          "seconds": 3.200000047683716,
+          "tracks": 40
+        },
+        "walk": {
+          "seconds": 1.1333333253860474,
+          "tracks": 40
+        },
+        "run": {
+          "seconds": 0.7333333492279053,
+          "tracks": 40
+        },
+        "melee_1": {
+          "seconds": 0.5666666626930237,
+          "tracks": 40
+        },
+        "melee_2": {
+          "seconds": 0.5666666626930237,
+          "tracks": 40
+        },
+        "melee_3": {
+          "seconds": 0.7333333492279053,
+          "tracks": 40
+        },
+        "jump": {
+          "seconds": 0.8999999761581421,
+          "tracks": 40
+        },
+        "dash": {
+          "seconds": 0.36666667461395264,
+          "tracks": 40
+        },
+        "taunt": {
+          "seconds": 2.4000000953674316,
+          "tracks": 40
+        },
+        "land": {
+          "seconds": 0.30000001192092896,
+          "tracks": 40
+        }
+      },
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "reference_bounds": [
+        -69.49921417236328,
+        -53.617252349853516,
+        0.0,
+        69.49921417236328,
+        53.61724853515625,
+        200.0
+      ],
+      "originalMaterials": [
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/Materials/Material_0.Material_0"
+      ],
+      "originalAssetsUnchanged": {
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_10.Object_10": "6df2f004cb713214d146fad04477b52fe0cd8c7b4854d2cffb99df1137168a3c",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_11.Object_11": "c26913c48535c80969d7a13a6bad47128c9b7927bb7223afc8adc1e0dac51673",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_12.Object_12": "47a040090286b9e60c345cdd08ed55a602ca971a0a54076095b7607de38f8513",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_13.Object_13": "619f302c0d65f3235a6061c14d40d4e5f5b0396af71bdb56d09a011195911275",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_14.Object_14": "165a0370e19535e3c519db8d05dfde6f77c8481954a448586e84ef293eea2445",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_4.Object_4": "d04b4cb75860a4dcff91a0b9474e04cd3d84d234d3b378a8c839508c15f221e9",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_5.Object_5": "28eda6031464548ae36096eba62a61b5514be1e222502953c2509b3eb5b3f967",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_6.Object_6": "d83a642b4600312e9537271f73a25b25f322a5d952222b54528183f0e3269fd5",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_7.Object_7": "f19fc0981c38f09f381465b197d0dd6f8115e46ebb43679c4d5d4d21d02e1afd",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_8.Object_8": "89c341a2104ecac99fae840306ec1020bcee630d53beedd8d16224f4f93daac6",
+        "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_9.Object_9": "3b63de0e081dff06a8f87fb6915a4ab550942ff2bbc43e2d275a1e609cdde0a0"
+      },
+      "rootTravelNeedsIntegration": false
+    },
+    "cthulhu_avatar": {
+      "owner": "CultUlhu.ReviewedMotion.20261106",
+      "character": "cthulhu_avatar",
+      "revision": "v008",
+      "studySha256": "8021afee59282634c5274921ec3a4e3ed993c05783c8be9f52ef7f8c1326b86d",
+      "meshes": [
+        "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SK_cthulhu_avatar_v008.SK_cthulhu_avatar_v008"
+      ],
+      "skeleton": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SK_cthulhu_avatar_v008_Skeleton.SK_cthulhu_avatar_v008_Skeleton",
+      "roles": {
+        "idle": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_idle.A_cthulhu_avatar_idle",
+        "walk": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_walk.A_cthulhu_avatar_walk",
+        "run": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_run.A_cthulhu_avatar_run",
+        "melee_1": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_1.A_cthulhu_avatar_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_2.A_cthulhu_avatar_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_3.A_cthulhu_avatar_melee_3",
+        "jump": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_jump.A_cthulhu_avatar_jump",
+        "dash": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_dash.A_cthulhu_avatar_dash",
+        "taunt": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_taunt.A_cthulhu_avatar_taunt",
+        "land": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_land.A_cthulhu_avatar_land",
+        "melee_back_1": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_1.A_cthulhu_avatar_melee_back_1",
+        "melee_back_2": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_2.A_cthulhu_avatar_melee_back_2",
+        "melee_back_3": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_3.A_cthulhu_avatar_melee_back_3",
+        "preview": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_idle.A_cthulhu_avatar_idle",
+        "attack": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_1.A_cthulhu_avatar_melee_1"
+      },
+      "checks": {
+        "idle": {
+          "seconds": 4.0,
+          "tracks": 52
+        },
+        "walk": {
+          "seconds": 1.600000023841858,
+          "tracks": 52
+        },
+        "run": {
+          "seconds": 0.8999999761581421,
+          "tracks": 52
+        },
+        "melee_1": {
+          "seconds": 0.4333333373069763,
+          "tracks": 52
+        },
+        "melee_2": {
+          "seconds": 0.5,
+          "tracks": 52
+        },
+        "melee_3": {
+          "seconds": 0.6000000238418579,
+          "tracks": 52
+        },
+        "jump": {
+          "seconds": 1.0499999523162842,
+          "tracks": 52
+        },
+        "dash": {
+          "seconds": 0.4833333194255829,
+          "tracks": 52
+        },
+        "taunt": {
+          "seconds": 3.200000047683716,
+          "tracks": 52
+        },
+        "land": {
+          "seconds": 0.38333332538604736,
+          "tracks": 52
+        },
+        "melee_back_1": {
+          "seconds": 0.4833333194255829,
+          "tracks": 52
+        },
+        "melee_back_2": {
+          "seconds": 0.5333333611488342,
+          "tracks": 52
+        },
+        "melee_back_3": {
+          "seconds": 0.6333333253860474,
+          "tracks": 52
+        }
+      },
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "reference_bounds": [
+        -43.4714469909668,
+        -69.55819702148438,
+        0.0,
+        43.4714469909668,
+        69.55819702148438,
+        200.0
+      ],
+      "originalMaterials": [
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/Materials/Material_0.Material_0"
+      ],
+      "originalAssetsUnchanged": {
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_10.Object_10": "2a2aa813f1b5a1adf3b772ba3fe9810f8bbd9bb9418131b23fa053f53aa4f632",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_11.Object_11": "dfb9de08b23f459b3a44283215efae560df2bb71955732fd64b3e230ec9dfeee",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_12.Object_12": "a686581e4aa8d9a917bf5f25eaa86b6e69dd8757c5a60552c16343117825be36",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_13.Object_13": "a823329e09af87cc1bd39d37696eb01d8f771738761149efd00ce11bf0947553",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_14.Object_14": "4a913cafc1443e07d45733e9d90ff30d316b8247f08a5806c2c3c435e7f3d592",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_15.Object_15": "847ffa73c5c592ec8b4df12b5db75332d4527c5e86db0e4dc8a95ed1b99662d5",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_16.Object_16": "c7726bf4db2b85f28cde6f3a7addd581ba6027a21b1ca03b993963ae3e6758d6",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_17.Object_17": "576b011c3cb491d44d25d53d3789cd4439e75e671a146be9a87cec64ba7ee922",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_18.Object_18": "748792863b1027eb0701f4b71fe154d4c4f0b53903c1ce16b644f1ab3d558ed9",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_4.Object_4": "1aa54a182b39003f5a7cc4e72bbe653d4dbc21e041d1d0ffb916f02564f6b153",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_5.Object_5": "aa26b566a5ea2361a9d17b006f2fddd0eaae57b14e76524ab38d21d840ca305c",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_6.Object_6": "2b4053b15c0273f8577cb1c43d6ace361a3508d0f427b0048babe451e7b89e83",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_7.Object_7": "3a4a7336e6b2821c5b31d888dac27259e6396d099079101a5e77c891cf139c67",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_8.Object_8": "425219e2dd637994b2e3ea527532b412dc8a48ef4b74b718b386cc9a41ef41ad",
+        "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_9.Object_9": "59864c8b8e9754a677ed68a90b1f26503411421b6f088583d7a6596146c76e0d"
+      },
+      "rootTravelNeedsIntegration": true
+    },
+    "nyarlathotep": {
+      "owner": "CultUlhu.ReviewedMotion.20261106",
+      "character": "nyarlathotep",
+      "revision": "v005",
+      "studySha256": "92241c03fa1f94ba6b7827feb62766dea27eb54de0fe11be3047e4d7a2fad738",
+      "meshes": [
+        "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005.SK_nyarlathotep_v005"
+      ],
+      "skeleton": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton",
+      "roles": {
+        "idle": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+        "walk": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_walk.A_nyarlathotep_walk",
+        "run": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_run.A_nyarlathotep_run",
+        "melee_1": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_2.A_nyarlathotep_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_3.A_nyarlathotep_melee_3",
+        "jump": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_jump.A_nyarlathotep_jump",
+        "dash": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_dash.A_nyarlathotep_dash",
+        "taunt": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_taunt.A_nyarlathotep_taunt",
+        "land": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_land.A_nyarlathotep_land",
+        "preview": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+        "attack": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1"
+      },
+      "checks": {
+        "idle": {
+          "seconds": 3.4000000953674316,
+          "tracks": 31
+        },
+        "walk": {
+          "seconds": 1.600000023841858,
+          "tracks": 31
+        },
+        "run": {
+          "seconds": 0.8999999761581421,
+          "tracks": 31
+        },
+        "melee_1": {
+          "seconds": 0.6666666865348816,
+          "tracks": 31
+        },
+        "melee_2": {
+          "seconds": 0.699999988079071,
+          "tracks": 31
+        },
+        "melee_3": {
+          "seconds": 0.8666666746139526,
+          "tracks": 31
+        },
+        "jump": {
+          "seconds": 1.0,
+          "tracks": 31
+        },
+        "dash": {
+          "seconds": 0.46666666865348816,
+          "tracks": 31
+        },
+        "taunt": {
+          "seconds": 2.5999999046325684,
+          "tracks": 31
+        },
+        "land": {
+          "seconds": 0.3333333432674408,
+          "tracks": 31
+        }
+      },
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "reference_bounds": [
+        -112.5626449584961,
+        -52.25135803222656,
+        0.0,
+        112.5626449584961,
+        52.25135803222656,
+        199.99998474121094
+      ],
+      "originalMaterials": [
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/Materials/Material.Material",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/Materials/Sphere_0.Sphere_0"
+      ],
+      "originalAssetsUnchanged": {
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0.Cube_001_0": "af9f31470d50ef601c8e029729fa1f83846b6c22a583247beb0e16fb67854745",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_2aeace0882f12c8daef6e6c7022030c1.Cube_001_0_2aeace0882f12c8daef6e6c7022030c1": "efcceec111eb0cc48ae014992ddacd8363602670ef562fad9d4a983b1868df55",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_6e50ba541f3ae5be772bbaaa3bf8195f.Cube_001_0_6e50ba541f3ae5be772bbaaa3bf8195f": "bcce01dd63d195c49560d78d91fa7ef78683c0849e3704ee65543da0efda6e45",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_6ef5c57ec206b42d1fbf3336a8872c5a.Cube_001_0_6ef5c57ec206b42d1fbf3336a8872c5a": "5b1ce5c8dde4e111adaab1ad168c0bc20e011fcce06043e1275ed1d1082b3982",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_9eba5deb8f4bcccd419bdd46fc50676a.Cube_001_0_9eba5deb8f4bcccd419bdd46fc50676a": "62c3eac68920510c3c5c6e8f10bf4f57288939f27730809eccbc4ecb529b47aa",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_c25c61886fbfce5cc660ebae0b436d9b.Cube_001_0_c25c61886fbfce5cc660ebae0b436d9b": "0144bb209016c5d3a510c0415facb5963486a31ae2cf65c5cabf77ca22a7f4dc",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_f58560948651a5897b58ce5d63cd8e4b.Cube_001_0_f58560948651a5897b58ce5d63cd8e4b": "24d6d38e8892afee0b54a4c287a1de6663a5062fc08134af208b941741750b9f",
+        "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Sphere_0.Sphere_0": "b8c7fe7f881c48ed83c11fd266a4e8c0dab822af3a4fa97c561786fbd830478f"
+      },
+      "rootTravelNeedsIntegration": false
+    },
+    "yog_sothoth": {
+      "owner": "CultUlhu.ReviewedMotion.20261106",
+      "character": "yog_sothoth",
+      "revision": "v002",
+      "studySha256": "e5ff9671e604367eacdb8f09bd1c4ed6862b445d6a78ab70561c017ea9fd358e",
+      "meshes": [
+        "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SK_yog_sothoth_v002.SK_yog_sothoth_v002"
+      ],
+      "skeleton": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SK_yog_sothoth_v002_Skeleton.SK_yog_sothoth_v002_Skeleton",
+      "roles": {
+        "idle": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_idle.A_yog_sothoth_idle",
+        "walk": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_walk.A_yog_sothoth_walk",
+        "run": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_run.A_yog_sothoth_run",
+        "melee_1": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_1.A_yog_sothoth_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_2.A_yog_sothoth_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_3.A_yog_sothoth_melee_3",
+        "jump": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_jump.A_yog_sothoth_jump",
+        "dash": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_dash.A_yog_sothoth_dash",
+        "taunt": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_taunt.A_yog_sothoth_taunt",
+        "land": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_land.A_yog_sothoth_land",
+        "preview": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_idle.A_yog_sothoth_idle",
+        "attack": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_1.A_yog_sothoth_melee_1"
+      },
+      "checks": {
+        "idle": {
+          "seconds": 4.400000095367432,
+          "tracks": 53
+        },
+        "walk": {
+          "seconds": 1.7999999523162842,
+          "tracks": 53
+        },
+        "run": {
+          "seconds": 1.100000023841858,
+          "tracks": 53
+        },
+        "melee_1": {
+          "seconds": 0.75,
+          "tracks": 53
+        },
+        "melee_2": {
+          "seconds": 0.8500000238418579,
+          "tracks": 53
+        },
+        "melee_3": {
+          "seconds": 1.0,
+          "tracks": 53
+        },
+        "jump": {
+          "seconds": 1.100000023841858,
+          "tracks": 53
+        },
+        "dash": {
+          "seconds": 0.5166666507720947,
+          "tracks": 53
+        },
+        "taunt": {
+          "seconds": 3.4000000953674316,
+          "tracks": 53
+        },
+        "land": {
+          "seconds": 0.4166666567325592,
+          "tracks": 53
+        }
+      },
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "reference_bounds": [
+        -53.46918487548828,
+        -61.85243225097656,
+        0.0,
+        53.46918487548828,
+        61.85243225097656,
+        200.0
+      ],
+      "originalMaterials": [
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/Materials/Material_0.Material_0"
+      ],
+      "originalAssetsUnchanged": {
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_10.Object_10": "228e0c955873cc4411267dee9bd99ca9b94c81d7c5d7441110cc87ec7c733118",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_11.Object_11": "6aae6c955099c09ba941e7b857e3a72e156939a27b6ea04b3742ddd0b55a2c8d",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_12.Object_12": "ce253234934dd0d98163ee694f03780c3851632a690e899e4eac9f68751b13c5",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_13.Object_13": "56a6c47245f8c6edc07f084178e274cb510314826831a6c65d50f4a44222f07a",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_14.Object_14": "8707a99f579a25f9085f331995948d5ce82a92d2419b212718e5ac95298803e8",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_15.Object_15": "7f27ef444530e85874c9f458609e804da43b9e41606a324b7554ae2ebf80a141",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_16.Object_16": "7d71728059d08e58d982256212b639e6f18984d11e0df0658dd3794b76bd2a54",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_17.Object_17": "b58a558563b98140b9bea56e3eeb2263d34be9139a881954423ccebfbd564243",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_18.Object_18": "6923e55d5c82d71e8c0d17caa1458f965584fce703efb329e94402804e34396c",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_4.Object_4": "cb109b07081fed1870a34f2f1dcf63557a807dc2b41c35a37e8690b9d2f71cca",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_5.Object_5": "a65559475b3c70a7a29918ac56e81d6ed18c536b947200950b099833d3bacda6",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_6.Object_6": "f206530e21f339b27c76dd8322b57ec132604229caf5ee3608e50a3521484047",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_7.Object_7": "d62527a3ddd2ffbf8ad3ad3f8d245ea320b4c5b81a0b84086960f7544bdffade",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_8.Object_8": "68f9c04e6532c8a0dc9c5a48e7f549aef444a84acc65c030fcccc053a49c6bc4",
+        "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_9.Object_9": "c970991887b68d1b2a5e1ad93a10afbe147c24ea5ebbf28f97f7e3608d622f1c"
+      },
+      "rootTravelNeedsIntegration": false
+    },
+    "shoggoths": {
+      "owner": "CultUlhu.ReviewedMotion.20261106",
+      "character": "shoggoths",
+      "revision": "v005",
+      "studySha256": "b02306d481e86b50fd067123b796d674735563dcb14741c34f62381145c2fd67",
+      "meshes": [
+        "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SK_shoggoths_v005.SK_shoggoths_v005"
+      ],
+      "skeleton": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SK_shoggoths_v005_Skeleton.SK_shoggoths_v005_Skeleton",
+      "roles": {
+        "idle": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_idle.A_shoggoths_idle",
+        "walk": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_walk.A_shoggoths_walk",
+        "run": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_run.A_shoggoths_run",
+        "melee_1": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_1.A_shoggoths_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_2.A_shoggoths_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_3.A_shoggoths_melee_3",
+        "jump": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_jump.A_shoggoths_jump",
+        "dash": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_dash.A_shoggoths_dash",
+        "taunt": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_taunt.A_shoggoths_taunt",
+        "land": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_land.A_shoggoths_land",
+        "preview": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_idle.A_shoggoths_idle",
+        "attack": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_1.A_shoggoths_melee_1"
+      },
+      "checks": {
+        "idle": {
+          "seconds": 3.799999952316284,
+          "tracks": 45
+        },
+        "walk": {
+          "seconds": 1.600000023841858,
+          "tracks": 45
+        },
+        "run": {
+          "seconds": 1.0,
+          "tracks": 45
+        },
+        "melee_1": {
+          "seconds": 0.7833333611488342,
+          "tracks": 45
+        },
+        "melee_2": {
+          "seconds": 0.8999999761581421,
+          "tracks": 45
+        },
+        "melee_3": {
+          "seconds": 0.8500000238418579,
+          "tracks": 45
+        },
+        "jump": {
+          "seconds": 1.100000023841858,
+          "tracks": 45
+        },
+        "dash": {
+          "seconds": 0.5166666507720947,
+          "tracks": 45
+        },
+        "taunt": {
+          "seconds": 2.799999952316284,
+          "tracks": 45
+        },
+        "land": {
+          "seconds": 0.4000000059604645,
+          "tracks": 45
+        }
+      },
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "reference_bounds": [
+        -99.07266235351562,
+        -124.71125793457031,
+        0.0,
+        99.0726547241211,
+        124.71124267578125,
+        200.0
+      ],
+      "originalMaterials": [
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/Materials/Default_Material.Default_Material",
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/Materials/Material.Material",
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/Materials/Material_2.Material_2",
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/Materials/Material_3.Material_3"
+      ],
+      "originalAssetsUnchanged": {
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group28166_Default_Material_0.Group28166_Default_Material_0": "82e23b96e36249d41c358e0f39892682b3203b4663080228f0007c99d066bca8",
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group29013_Material_0.Group29013_Material_0": "0b383a79a80f56c3bafcd562f061e5d3373a122e96d9b6eb960c9e327503e79e",
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group33359_Material_3_0.Group33359_Material_3_0": "a210d26a4afcf874321685373e27a52cbdc043cd6e02e46d8f972467ed1d75a6",
+        "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group63675_Material_2_0.Group63675_Material_2_0": "03c23b4eff6532ce45edc49c504c71e218c07cb4e4aa1bf331313468e5ed33f7"
+      },
+      "rootTravelNeedsIntegration": false
+    },
+    "mi_go": {
+      "owner": "CultUlhu.ReviewedMotion.20261106",
+      "character": "mi_go",
+      "skeleton": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Skeleton.MiGo_Skeleton",
+      "studySha256": "bc97d5845c719c77c1a1220897599b7d70498783239caf95d60c9218489cc035",
+      "roles": {
+        "dash": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+        "preview": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+        "idle": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_idle.A_MiGo_idle",
+        "walk": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_walk.A_MiGo_walk",
+        "run": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_run.A_MiGo_run",
+        "melee_1": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_1.A_MiGo_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_2.A_MiGo_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_3.A_MiGo_melee_3",
+        "jump": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_jump.A_MiGo_jump",
+        "land": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_land.A_MiGo_land",
+        "taunt": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_taunt.A_MiGo_taunt"
+      },
+      "checks": {
+        "idle": {
+          "seconds": 3.200000047683716,
+          "tracks": 85
+        },
+        "walk": {
+          "seconds": 1.2000000476837158,
+          "tracks": 85
+        },
+        "run": {
+          "seconds": 0.699999988079071,
+          "tracks": 85
+        },
+        "melee_1": {
+          "seconds": 0.46666666865348816,
+          "tracks": 85
+        },
+        "melee_2": {
+          "seconds": 0.5166666507720947,
+          "tracks": 85
+        },
+        "melee_3": {
+          "seconds": 0.6333333253860474,
+          "tracks": 85
+        },
+        "jump": {
+          "seconds": 0.8999999761581421,
+          "tracks": 85
+        },
+        "land": {
+          "seconds": 0.30000001192092896,
+          "tracks": 85
+        },
+        "taunt": {
+          "seconds": 2.5999999046325684,
+          "tracks": 85
+        }
+      },
+      "originalAssetsUnchanged": {
+        "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo.MiGo": "39dbe783230fe4fe15cf84bca928eade675f482ec3a83d3af6c784ab3a972c2c",
+        "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim": "1eaa504d2aeb96f12d3404007a542397b20f2d2bb81910efbff065b79a6fb0e5",
+        "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Skeleton.MiGo_Skeleton": "c877906bd3d6b3dcd5a26d5ecefe1acdda88b6d8af6769b34930e64594fbaf3d"
+      }
+    },
+    "yig": {
+      "character": "yig",
+      "owner": "CultUlhu.ReviewedMotion.20261106",
+      "recipeSha256": "a89dac6b0c55241f84de2b3ca8ac9f1056cbf47ac23aac394703b933f17189cf",
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Skeleton.Armor_Side_LP_003_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_idle.A_Armor_Side_LP_003_idle",
+            "preview": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_idle.A_Armor_Side_LP_003_idle",
+            "cast": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Armor_Side_LP_003_cast.A_Armor_Side_LP_003_cast",
+            "walk": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_walk.A_Armor_Side_LP_003_walk",
+            "run": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_run.A_Armor_Side_LP_003_run",
+            "melee_1": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_1.A_Armor_Side_LP_003_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_2.A_Armor_Side_LP_003_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_3.A_Armor_Side_LP_003_melee_3",
+            "jump": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_jump.A_Armor_Side_LP_003_jump",
+            "dash": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_dash.A_Armor_Side_LP_003_dash",
+            "taunt": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_taunt.A_Armor_Side_LP_003_taunt",
+            "land": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_land.A_Armor_Side_LP_003_land",
+            "attack": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_1.A_Armor_Side_LP_003_melee_1"
+          }
+        },
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Skeleton.Sword_scimitar_LP__005_Skinned_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_idle.A_Sword_scimitar_LP__005_Skinned_idle",
+            "preview": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_idle.A_Sword_scimitar_LP__005_Skinned_idle",
+            "cast": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Sword_scimitar_LP__005_Skinned_cast.A_Sword_scimitar_LP__005_Skinned_cast",
+            "walk": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_walk.A_Sword_scimitar_LP__005_Skinned_walk",
+            "run": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_run.A_Sword_scimitar_LP__005_Skinned_run",
+            "melee_1": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_1.A_Sword_scimitar_LP__005_Skinned_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_2.A_Sword_scimitar_LP__005_Skinned_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_3.A_Sword_scimitar_LP__005_Skinned_melee_3",
+            "jump": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_jump.A_Sword_scimitar_LP__005_Skinned_jump",
+            "dash": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_dash.A_Sword_scimitar_LP__005_Skinned_dash",
+            "taunt": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_taunt.A_Sword_scimitar_LP__005_Skinned_taunt",
+            "land": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_land.A_Sword_scimitar_LP__005_Skinned_land",
+            "attack": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_1.A_Sword_scimitar_LP__005_Skinned_melee_1"
+          }
+        },
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Skeleton.Tail_3_LP__001_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_idle.A_Tail_3_LP__001_idle",
+            "preview": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_idle.A_Tail_3_LP__001_idle",
+            "cast": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Tail_3_LP__001_cast.A_Tail_3_LP__001_cast",
+            "walk": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_walk.A_Tail_3_LP__001_walk",
+            "run": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_run.A_Tail_3_LP__001_run",
+            "melee_1": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_1.A_Tail_3_LP__001_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_2.A_Tail_3_LP__001_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_3.A_Tail_3_LP__001_melee_3",
+            "jump": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_jump.A_Tail_3_LP__001_jump",
+            "dash": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_dash.A_Tail_3_LP__001_dash",
+            "taunt": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_taunt.A_Tail_3_LP__001_taunt",
+            "land": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_land.A_Tail_3_LP__001_land",
+            "attack": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_1.A_Tail_3_LP__001_melee_1"
+          }
+        }
+      ],
+      "checks": [
+        {
+          "role": "idle",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_idle.A_Armor_Side_LP_003_idle",
+          "seconds": 3.799999952316284
+        },
+        {
+          "role": "walk",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_walk.A_Armor_Side_LP_003_walk",
+          "seconds": 1.350000023841858
+        },
+        {
+          "role": "run",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_run.A_Armor_Side_LP_003_run",
+          "seconds": 0.75
+        },
+        {
+          "role": "melee_1",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_1.A_Armor_Side_LP_003_melee_1",
+          "seconds": 0.5
+        },
+        {
+          "role": "melee_2",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_2.A_Armor_Side_LP_003_melee_2",
+          "seconds": 0.5666666626930237
+        },
+        {
+          "role": "melee_3",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_3.A_Armor_Side_LP_003_melee_3",
+          "seconds": 0.6833333373069763
+        },
+        {
+          "role": "jump",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_jump.A_Armor_Side_LP_003_jump",
+          "seconds": 1.0
+        },
+        {
+          "role": "dash",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_dash.A_Armor_Side_LP_003_dash",
+          "seconds": 0.28333333134651184
+        },
+        {
+          "role": "taunt",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_taunt.A_Armor_Side_LP_003_taunt",
+          "seconds": 2.5999999046325684
+        },
+        {
+          "role": "land",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_land.A_Armor_Side_LP_003_land",
+          "seconds": 0.30000001192092896
+        },
+        {
+          "role": "idle",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_idle.A_Sword_scimitar_LP__005_Skinned_idle",
+          "seconds": 3.799999952316284
+        },
+        {
+          "role": "walk",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_walk.A_Sword_scimitar_LP__005_Skinned_walk",
+          "seconds": 1.350000023841858
+        },
+        {
+          "role": "run",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_run.A_Sword_scimitar_LP__005_Skinned_run",
+          "seconds": 0.75
+        },
+        {
+          "role": "melee_1",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_1.A_Sword_scimitar_LP__005_Skinned_melee_1",
+          "seconds": 0.5
+        },
+        {
+          "role": "melee_2",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_2.A_Sword_scimitar_LP__005_Skinned_melee_2",
+          "seconds": 0.5666666626930237
+        },
+        {
+          "role": "melee_3",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_3.A_Sword_scimitar_LP__005_Skinned_melee_3",
+          "seconds": 0.6833333373069763
+        },
+        {
+          "role": "jump",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_jump.A_Sword_scimitar_LP__005_Skinned_jump",
+          "seconds": 1.0
+        },
+        {
+          "role": "dash",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_dash.A_Sword_scimitar_LP__005_Skinned_dash",
+          "seconds": 0.28333333134651184
+        },
+        {
+          "role": "taunt",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_taunt.A_Sword_scimitar_LP__005_Skinned_taunt",
+          "seconds": 2.5999999046325684
+        },
+        {
+          "role": "land",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_land.A_Sword_scimitar_LP__005_Skinned_land",
+          "seconds": 0.30000001192092896
+        },
+        {
+          "role": "idle",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_idle.A_Tail_3_LP__001_idle",
+          "seconds": 3.799999952316284
+        },
+        {
+          "role": "walk",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_walk.A_Tail_3_LP__001_walk",
+          "seconds": 1.350000023841858
+        },
+        {
+          "role": "run",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_run.A_Tail_3_LP__001_run",
+          "seconds": 0.75
+        },
+        {
+          "role": "melee_1",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_1.A_Tail_3_LP__001_melee_1",
+          "seconds": 0.5
+        },
+        {
+          "role": "melee_2",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_2.A_Tail_3_LP__001_melee_2",
+          "seconds": 0.5666666626930237
+        },
+        {
+          "role": "melee_3",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_3.A_Tail_3_LP__001_melee_3",
+          "seconds": 0.6833333373069763
+        },
+        {
+          "role": "jump",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_jump.A_Tail_3_LP__001_jump",
+          "seconds": 1.0
+        },
+        {
+          "role": "dash",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_dash.A_Tail_3_LP__001_dash",
+          "seconds": 0.28333333134651184
+        },
+        {
+          "role": "taunt",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_taunt.A_Tail_3_LP__001_taunt",
+          "seconds": 2.5999999046325684
+        },
+        {
+          "role": "land",
+          "asset": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_land.A_Tail_3_LP__001_land",
+          "seconds": 0.30000001192092896
+        }
+      ],
+      "originalAssetsUnchanged": {
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Anim.Tail_3_LP__001_Anim": "44053c0c33fdc25456036aa59cc9937d19dad4965a6c43af5c15e2705f8a5848",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Anim.Sword_scimitar_LP__005_Skinned_Anim": "34ebf2f81e99833776a4660effeb1642df666023604dc9ed6b5e92e66bbeca80",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Anim.Armor_Side_LP_003_Anim": "ee66199413681fbaf5f53e35bbc9528c9c39022b5ce5e69b82ce2f8154dd1bca",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003.Armor_Side_LP_003": "6c3af768e25b9f7dbe0c933e6644e12a87f72ead31008572088763f8cc8c3bb2",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned.Sword_scimitar_LP__005_Skinned": "99ebc0f3d8f7befe66265a7e1f340dd5a228f9b1794c095692b0dd7bc40983e4",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001.Tail_3_LP__001": "0d50b60aa78c26cb55e7c7ce715f37067d7646c304ebce8fdd39f520e2c67730"
+      },
+      "abilitiesAuthored": false
+    }
+  },
+  "runtimeAssets": [
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_dash.uasset",
+      "bytes": 160428,
+      "sha256": "8e53cbf99bcd3074853490391ea0bb09322f111dad7ba0d407fc9463327d3f58"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_idle.uasset",
+      "bytes": 672751,
+      "sha256": "8d9270223a98e97bca4d4630ca911f2aebb0603189543c5c4f13234b49adb106"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_jump.uasset",
+      "bytes": 274924,
+      "sha256": "f1654a101a7abb57aae9d400bcea24e31f4eafdc20cc4bf615d8aea83bd1f17c"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_land.uasset",
+      "bytes": 129516,
+      "sha256": "233dbe0f3dc16ff68ba08417d06adee5841fe9598ca4b626315be5b997b43314"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_1.uasset",
+      "bytes": 168989,
+      "sha256": "19e2cb3465e8948f74b6a04ad3f4512e3db4908298fcf0db077532ddd4ccdf62"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_2.uasset",
+      "bytes": 182781,
+      "sha256": "fb8857fcc053c945d600f5de5b4a8fc476b11c531917362646d842080f9b4824"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_3.uasset",
+      "bytes": 213277,
+      "sha256": "32b3b7f422300e9f5c72cdfe8b1912f2127d67e94e603afbb6ca0a2a88d4b0dd"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_1.uasset",
+      "bytes": 181600,
+      "sha256": "3360a21024edc9452692f30537761d8a791f647f616409c2a35fcf4610ee4a65"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_2.uasset",
+      "bytes": 191008,
+      "sha256": "74f0b56c1140411c3b2229b922c831f0d0071e4198e7bde5a8281d99bc61145a"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_3.uasset",
+      "bytes": 221824,
+      "sha256": "17fe0ee642e0c94a31e342ff6eff23bf06232fb9bcfa918903ba11f8da170a90"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_run.uasset",
+      "bytes": 263461,
+      "sha256": "fa41ff8432d6c8e09657f53fe5e41af1bbdb35ea1a6820740845c4435be915de"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_taunt.uasset",
+      "bytes": 617814,
+      "sha256": "566286a7f6a5357e7970abd08a1f12299965c1be84b1836a12bd26418f604f73"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_walk.uasset",
+      "bytes": 418956,
+      "sha256": "0dbeac78ed0fe7d858ee535b20002685a3ff41ba2c08fa6591f57dca1a53e41a"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SK_cthulhu_avatar_v008.uasset",
+      "bytes": 15142570,
+      "sha256": "28192315756b12e8bc8e357471f0cd2f41a50af12897ee6dc27c9e26be693bef"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SK_cthulhu_avatar_v008_Skeleton.uasset",
+      "bytes": 12738,
+      "sha256": "0b2f66a31e27429b8c8a665736d205965ae621dc39b432349ab991aec288578e"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SourceMaterials/M_Default_54bd2060.uasset",
+      "bytes": 88412,
+      "sha256": "ce3a34e93fb06df9fecc192898bf108cfad1ea8bd287a0763137c44821ed2e3b"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SourceMaterials/Material_0_03c8cf6c.uasset",
+      "bytes": 68238,
+      "sha256": "00635293c0ff0c5f09cfed219355128a14242fdbfc6f260e27fa1a8a00d3ad27"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SourceMaterials/MI_Default_Opaque_DS_a53f40f3.uasset",
+      "bytes": 5688,
+      "sha256": "9b39320debd89ad8fc9e2fe2b8f19914f99a35784218dd6655636bdd9f512661"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_dash.uasset",
+      "bytes": 78179,
+      "sha256": "2de6704eb0c49b55eced3da3141ad0d462dffa3e186e9a9897a6de08634c58a6"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_idle.uasset",
+      "bytes": 341510,
+      "sha256": "8015b0951d53fbc9b6ac53ad0fe46189414a61549f96a48d47155d632e7e4fde"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_jump.uasset",
+      "bytes": 124259,
+      "sha256": "e7f218930e8675edc0a714b9fdfa453ac5773a8e382800abdb6344844eb14b37"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_land.uasset",
+      "bytes": 72419,
+      "sha256": "f2eb9451f6a0bcbaccd8830bbf56bab2613845c4804195a43c025b35713f6281"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_1.uasset",
+      "bytes": 141396,
+      "sha256": "eda6967fa7a3796babe6d7ee6733efe0848bb501af38106d89c5be8edd94d21a"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_2.uasset",
+      "bytes": 141396,
+      "sha256": "a2d5c96d0da3bcd5fd3992a7d730468c95e793bb2f5f2a193a289581e0fa7ae2"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_3.uasset",
+      "bytes": 163156,
+      "sha256": "9922f92eda5415edb2f4d84499a2f12bcc0c871941de3ca0c37f2f5e36f83643"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_run.uasset",
+      "bytes": 137212,
+      "sha256": "882d0764f92fd9493313fc9c16ac24588e958f78cb29640380eceb085f0140e3"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_taunt.uasset",
+      "bytes": 448749,
+      "sha256": "ba0325f7fbc86ea2347c5ac9962cda91786c5a0f531239665c5ab9bc23e8cae6"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_walk.uasset",
+      "bytes": 181955,
+      "sha256": "a212b145e37eba2995d77f0d61be4e6c1091b7e461bf3f7782b8e20b4a91ef96"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/SK_dagon_v006.uasset",
+      "bytes": 11401338,
+      "sha256": "a9fc7e49593627082ad7d1c54725e0b0be9543814aec891ec55b31b0afb1f4b1"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/SK_dagon_v006_Skeleton.uasset",
+      "bytes": 10077,
+      "sha256": "d424c37a984e4b52bfb869fb699efa11c84b50ca22d3ff799923edfe026697da"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/SourceMaterials/M_Default_54bd2060.uasset",
+      "bytes": 88286,
+      "sha256": "3fa5eaec441d4b26c196a8cebd43432046ce9c62dc7dbbd107ca8985635acdfb"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/SourceMaterials/Material_0_50c8913c.uasset",
+      "bytes": 68112,
+      "sha256": "ff1ddad624a391af99324d2fceca0c5a1a2f3b45bd93a5951d9a85001e18fd93"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/dagon/ReviewedMotion_v006/SourceMaterials/MI_Default_Opaque_DS_a53f40f3.uasset",
+      "bytes": 5652,
+      "sha256": "10769605b97c40ccd7ca3735eb243130cea2371a6a0c84cefddb88b312140f14"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_idle.uasset",
+      "bytes": 788606,
+      "sha256": "4b28ba57adc163192d3901473213782ce8b8c4af91132144b90018da6a7ea166"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_jump.uasset",
+      "bytes": 334458,
+      "sha256": "b99c48f45717af2836538fb23526c6f3ee313f69f2a3fc465d624e0585786407"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_land.uasset",
+      "bytes": 166618,
+      "sha256": "ed2aaa76d1350b03f8eed8e3b2241eda86fd84575f573e99008c0f9006382547"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_1.uasset",
+      "bytes": 222830,
+      "sha256": "f45e897d1dbb91a70e9eb336f9d49c1f35e1f6f7b4bd788bf73d0ad659df33b3"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_2.uasset",
+      "bytes": 248398,
+      "sha256": "d0c2aaa0b2e8db93e8ad28494cd3fc459245121e5fb0574967bb5330b5448867"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_3.uasset",
+      "bytes": 274254,
+      "sha256": "23ec70c461e40e6470c092b1f72353aa927c25fb4210b9015ef6bc8886091c4a"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_run.uasset",
+      "bytes": 304690,
+      "sha256": "3a4e65b31728b7780b877a9d7d907eb7f01065534109241524f7b56895abc55f"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_taunt.uasset",
+      "bytes": 838150,
+      "sha256": "b3317fffb6b36ede26f4ab5381337d9cf86b9cbda75a5aa73f431c9548d7fda0"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_walk.uasset",
+      "bytes": 455963,
+      "sha256": "2a9a5ee69337745f131ea74b52a6c493af43067a857e1f9c5d103eace4440dd6"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_dash.uasset",
+      "bytes": 74401,
+      "sha256": "116e8ce7a2a66fcf28bcc9b23635fb37785d84e0fde870aaf26dcfa6582a6b9a"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.uasset",
+      "bytes": 135684,
+      "sha256": "7979489e77618a93ad1f59090a3b921ec1d62cdd3106397ed836e6ba5cb27b21"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_jump.uasset",
+      "bytes": 113409,
+      "sha256": "23e26b9bcaeb251565ecf6e4ab4dbfb97275bce358d375d1c8a6a245a09f08a3"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_land.uasset",
+      "bytes": 63489,
+      "sha256": "2013189abfc6103f8573fce884157b70299ff10e40476b71ec6534e00253c0c2"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.uasset",
+      "bytes": 72722,
+      "sha256": "b0d26cca76dec4adb283058ad2c0688b9c1d1cab71c9d8c4c5140e194e081714"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_2.uasset",
+      "bytes": 74450,
+      "sha256": "7c10ca200ec96e403eb594a9b654270d424349e02e34f00d65611b707a45a587"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_3.uasset",
+      "bytes": 74610,
+      "sha256": "db6dda47ef0f5214f19bc151ab36400c46584163ad76cd72b4fb1ae183b4dca5"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_run.uasset",
+      "bytes": 109434,
+      "sha256": "dd346066e081e35d9fc5e3619a67e98f0a26c5f3b312995a5bd1bcff1188b792"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_taunt.uasset",
+      "bytes": 177963,
+      "sha256": "b0fa1c1b05e60d57e3f03cf42825414553738ccf2495fd62ad457a174fe387e1"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_walk.uasset",
+      "bytes": 164545,
+      "sha256": "f6f5e6d2f78a1f9e85a0824dca207d0235d31357d3c9add822fcc7c796ecdb32"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005.uasset",
+      "bytes": 19659212,
+      "sha256": "8316514e830d946550fa75ed8f59c0b94f36c307d512a1d18508018205004266"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.uasset",
+      "bytes": 8361,
+      "sha256": "b2d6eb55a61ebd8836fe174cedd68a203af12f3e8d18460053c8e54063b5bd00"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SourceMaterials/M_Default_54bd2060.uasset",
+      "bytes": 88384,
+      "sha256": "d73bedad5199ee644bf91c77c23567e937dc044e585c74d8a14dc56e48b8fe5a"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SourceMaterials/Material_019c202c.uasset",
+      "bytes": 65084,
+      "sha256": "04c8843b99237a47a57b59cf65f8af00a40b46a1b8b4b59e7de403ea444c38a7"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SourceMaterials/MI_Default_Opaque_DS_a53f40f3.uasset",
+      "bytes": 5680,
+      "sha256": "3e1778552c5f093d3162c2312ba9ded3b0e3ea5aba9e9dc582355fe18a36d09a"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SourceMaterials/Sphere_0_6826ad8b.uasset",
+      "bytes": 64557,
+      "sha256": "be7d8e8283e9608651e75a31155a7fa5ac1af877a3abdcd32158f4fe8e90ffce"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_dash.uasset",
+      "bytes": 174500,
+      "sha256": "487b4459d836fd7a00f1c5bb2045a4dfc8c86bb3331468232fdebc698bc0880b"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_idle.uasset",
+      "bytes": 775047,
+      "sha256": "7ee5dbfac4e8d8f9377b9d0c099acfb52c4dcf95f84f49265bcd0df4ec6131a4"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_jump.uasset",
+      "bytes": 311140,
+      "sha256": "50468f8f00b962ff740c4c8bd31bd78a7434765c15eebefcce01a8d5d912bea6"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_land.uasset",
+      "bytes": 141572,
+      "sha256": "3c95938dd213c468864e1528a6b45984274d8b036fac344b716de6845059cb51"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_1.uasset",
+      "bytes": 207797,
+      "sha256": "a979d900725080e26681daad638f665319ce6ee66057da3ea897fd2717ab0596"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_2.uasset",
+      "bytes": 218549,
+      "sha256": "0ab57e17d66def3348bf8d16c691ea7509fc29c772c9ad22b52c57a6e5ec1c57"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_3.uasset",
+      "bytes": 252597,
+      "sha256": "c5203fa0531dfd5dde9172ee76f866e8d5f8656fc19ae870bc34e24cfa491250"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_run.uasset",
+      "bytes": 295517,
+      "sha256": "f4d1d1fbb74889cf4679d7358b06093ccd64a741e4c1775dd5be57a6520d68aa"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_taunt.uasset",
+      "bytes": 725583,
+      "sha256": "076feda6942a2aeb5bfe2c05b1dc8baae687bedfb31aa731da621178e645a3cf"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_walk.uasset",
+      "bytes": 440676,
+      "sha256": "3c4290d76d9ddb10db21a404a9e71ea6f378796da0fc899608b51793406991a9"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SK_shoggoths_v005.uasset",
+      "bytes": 3378502,
+      "sha256": "1ef982409b801ca694cffc7bf6edbb757c9e4ba469e829f9fd3b708c5837bc45"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SK_shoggoths_v005_Skeleton.uasset",
+      "bytes": 11268,
+      "sha256": "bf5466c2ac4bbdd6b7c52871ddc9ecab24f69150ffa2a94bf311b0832f21d0f0"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SourceMaterials/Default_Material_78a84c12.uasset",
+      "bytes": 73660,
+      "sha256": "5ab9b56ad6b80431064de8146a3f410b4703962c31d0cba3bbbb025424e79ec1"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SourceMaterials/M_SpecularGlossiness_7bcb964a.uasset",
+      "bytes": 58369,
+      "sha256": "f8d568e80e7fd22bb299a59c8245645fd59d93c277486d090a9255ecab642757"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SourceMaterials/Material_2_1a04ab0e.uasset",
+      "bytes": 73510,
+      "sha256": "1bc7a053643ff06b1b0702abad9f4d80634f64ba27a5c3a1f11785885c578898"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SourceMaterials/Material_3_ca7c816b.uasset",
+      "bytes": 70853,
+      "sha256": "1ed26ba8ba3120e14b0cf25dcfde68bf64c0b0ece2137d772242b8d69a90db40"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SourceMaterials/Material_5e2ddfc5.uasset",
+      "bytes": 64773,
+      "sha256": "52a986d98b82ac2104792e62cec370d07e096fcdd4c15358346569e4a559c9a3"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SourceMaterials/MI_SpecularGlossiness_Opaque_DS_c7a4b3b0.uasset",
+      "bytes": 5812,
+      "sha256": "2212df58f2777dbebe7785f4ea2d74c4e6b8f9566ead872000912c78319f122f"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SourceMaterials/MI_SpecularGlossiness_Opaque_f2f2af60.uasset",
+      "bytes": 5628,
+      "sha256": "2b319cb5a4f1a01b4ad0820054619388c8cd2fc1391d455b40a1112f257ba39e"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_dash.uasset",
+      "bytes": 106940,
+      "sha256": "eebc27e6b697eeb1687fd3044e0af490f336a42af976127470bb191041fe4b99"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_idle.uasset",
+      "bytes": 370271,
+      "sha256": "5b25108b114cf804d8ee0a1220dadb2b0c76cefa7d929fbea0a6492d0e02d6ed"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_jump.uasset",
+      "bytes": 160604,
+      "sha256": "a74d618210dc96230f5571bce53a6b0da42d7bb531da8d76f47b86a53508d232"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_land.uasset",
+      "bytes": 108188,
+      "sha256": "198eda58e103ef11f9cdfbce3fc895295c2461bb28fe233c96cadbb8b1762e1b"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_1.uasset",
+      "bytes": 123178,
+      "sha256": "a9f785844dd3c4384ae7717068a343b69b3c1c2ce3fa30e9e937fe572e137925"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_2.uasset",
+      "bytes": 128170,
+      "sha256": "72b5fd4fc8e057dca9efe6e65e54ad09e77d18fe3e019c66e6bb0d46dfdde00b"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_3.uasset",
+      "bytes": 136906,
+      "sha256": "696965afaf4facfed47512258febf556749c62456669d177fdebd19d96835bc7"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_run.uasset",
+      "bytes": 141878,
+      "sha256": "b0281ebfa6b96dd87ecd10f929631e9893804458a26a732877c904db3552f260"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_taunt.uasset",
+      "bytes": 280421,
+      "sha256": "4d09e09f35e215f072b0334d97dc7cb05d5469e6768a79e32de5bbc1f6cee19e"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_walk.uasset",
+      "bytes": 186812,
+      "sha256": "4e5d53ce4c0a0a8d907553f539f97059af69c8b59bb5559ed8ba060acbcc89ba"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_dash.uasset",
+      "bytes": 21820,
+      "sha256": "a69d0bdf4f251bce359818684e58b62a2258c81fc37ac0a2079fc6e086bcf93f"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_idle.uasset",
+      "bytes": 102847,
+      "sha256": "0334f353591c2231abbd139c34ec251492164a0d0b08d91572ba2adad7d90fe0"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_jump.uasset",
+      "bytes": 38332,
+      "sha256": "141b094b3d81ae862c70c66f7839e6c882b51aa211031585480b92d9696742e2"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_land.uasset",
+      "bytes": 22204,
+      "sha256": "540aa1b98612db9e53c59605a2ed485bc7e0cc63c67df09fafc40a16b02c6ec9"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_1.uasset",
+      "bytes": 38730,
+      "sha256": "b2a2bf8306682fc4f0a40099df0eb1f90905b3ad6af7f92f4db20c24713e3544"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_2.uasset",
+      "bytes": 41802,
+      "sha256": "9e33d9d2d5fd81dc2785e2af23faff368ba03ce2208b7869851577531a912f7d"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_3.uasset",
+      "bytes": 47178,
+      "sha256": "af9d05b742d87d70ba2aca49c535af7798b7fee4e0867d9b1ea7d5723872ffaa"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_run.uasset",
+      "bytes": 50230,
+      "sha256": "73bef7c1626ba4868bc0eb3c9a09ae7324afbe5fb861e1f20f2468207b121116"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_taunt.uasset",
+      "bytes": 135493,
+      "sha256": "ebdc40a9ca281a5ba96d0ae2a6cbcd2aa15bdf80e1d5b1145d96c87f8051f369"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_walk.uasset",
+      "bytes": 77884,
+      "sha256": "96f76e30d2a6f0ca9213466c6f8b897c2d08b5230c7a692d908dcd002922c177"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_dash.uasset",
+      "bytes": 84092,
+      "sha256": "6abd0bbd4c43c7163bf9d4cfc34b1069d594f6a20873860be41e88c123c6f5d3"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_idle.uasset",
+      "bytes": 411167,
+      "sha256": "d49add0eea5708a0a36e38fb98decf63354fdc20c8d9c0f7e1731fa1e645d824"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_jump.uasset",
+      "bytes": 195548,
+      "sha256": "269a4c1c5b2f1d10491a2fb88957bbfe39bfbe0b699deaf7146ddda190c86bff"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_land.uasset",
+      "bytes": 86684,
+      "sha256": "10f9f6bbc6447022091c265a2240ea80213c0fd350733c1373d8db7cf4345277"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_1.uasset",
+      "bytes": 117802,
+      "sha256": "040af4b6c5003d70acc2acc81d6745fc0e4ac070b58a04b6b296ad66fff030fa"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_2.uasset",
+      "bytes": 128170,
+      "sha256": "a323ea0f8bb6d791bf7ca45856a76a1df1766f199d22374e06a456e11e8acabf"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_3.uasset",
+      "bytes": 146314,
+      "sha256": "be50af6b78ff9ff9877f30fcfa8da9b16c647c946f96ca60323847c65b4d617e"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_run.uasset",
+      "bytes": 156662,
+      "sha256": "f68a97f5e2ef92ca4fc0f8329892ad41233c4fd11c1005eee2fd0ddf84bad003"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_taunt.uasset",
+      "bytes": 444389,
+      "sha256": "d4450259c258ee824a718c3b9e5538f1b01cd92baee7615aed0da1b99e32f39b"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_walk.uasset",
+      "bytes": 249981,
+      "sha256": "1a5cc8ed42c86706db08659fa7e64058bcd7811610b077341ea118ec8bbbef8a"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_dash.uasset",
+      "bytes": 234895,
+      "sha256": "f1b5a817df60883789f24d52a4fab6debec0bb828d9c84a66edacb0d3994514e"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_idle.uasset",
+      "bytes": 1540722,
+      "sha256": "fa1c5916632881866019fd161fb259bcc1fe2ba979986fc73a25c2438e3c6140"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_jump.uasset",
+      "bytes": 434063,
+      "sha256": "a6de2a4c8cf69916991b3a3443d34e874b327fc698d48ecf83fcd0043e1eba5c"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_land.uasset",
+      "bytes": 203151,
+      "sha256": "a8442ce68c7b362e2a54c61b1205b4c6130fe9b62d59398ba635b37deb42c847"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_1.uasset",
+      "bytes": 317280,
+      "sha256": "31cdc90a4a06ec72ced48fedcd9f697a4199f3f890028eff32f84f6b61ea94b7"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_2.uasset",
+      "bytes": 351264,
+      "sha256": "92116fbe4dffba1c8c3194eb2f18c961facd56d42a79bae0e840850d525e40ad"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_3.uasset",
+      "bytes": 392480,
+      "sha256": "d3d771ec156adcf66709cef7b307491ac6bb0d4c5b89e5490860245cc13be3f6"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_run.uasset",
+      "bytes": 434056,
+      "sha256": "19c263d69d23da7e4971cc7a9163901c72151bf5252cc9ca94eec4b12ae46421"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_taunt.uasset",
+      "bytes": 1211289,
+      "sha256": "cb9d7a4be67a36896a551d0986d6dae5e2cb99a58b85bc28c1f0d0dcc8f3bd33"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_walk.uasset",
+      "bytes": 670610,
+      "sha256": "f13dd6d34da595041fbb76024581c15254420afae99016aa3a040be062b37287"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SK_yog_sothoth_v002.uasset",
+      "bytes": 15449272,
+      "sha256": "8ece7a0050b1edaa1d7513cc630c66724e24d00f8060e28963d1d004401d73c0"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SK_yog_sothoth_v002_Skeleton.uasset",
+      "bytes": 13132,
+      "sha256": "ece8e9a9c070892c30c95707c78619196ffa176bbeb3677da6f558e38a916e5e"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SourceMaterials/M_Default_54bd2060.uasset",
+      "bytes": 88370,
+      "sha256": "ad078872dfb9e13098dcf6a4ff6f966c9340675102a187214f01f81bf141d2e4"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SourceMaterials/Material_0_afe42f63.uasset",
+      "bytes": 68205,
+      "sha256": "9b0da9a425a58f2fa6ad33fb84e8d4121686e9a296a0987a08ccdfe16d963401"
+    },
+    {
+      "path": "unreal 5.8/Content/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SourceMaterials/MI_Default_Opaque_DS_a53f40f3.uasset",
+      "bytes": 5676,
+      "sha256": "219d502721e93b361115593389d21012575a981395b35fbd8f714252d39fd4ce"
+    }
+  ],
+  "limitations": [
+    "Initial gameplay motion requires continued artistic review.",
+    "Shoggoths knuckle sliding and slight authoring subframe penetration remain polish items.",
+    "Projected UVs on retopologized sculptures need artist inspection.",
+    "No new ability animations; Nodens unchanged."
+  ]
+}

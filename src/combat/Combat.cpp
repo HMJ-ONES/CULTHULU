@@ -40,6 +40,9 @@ bool dealDamage(Entity& target, float dmg, EventBus& bus,
         bus.publish(m);
     }
     if (killed) {
+        // The old generic spell caller used CivilianSlain even for buildings and monsters.
+        if (killedEvent == EventType::CivilianSlain && target.type() != EntityType::Civilian)
+            killedEvent = target.type() == EntityType::Cultist ? EventType::EnemyCultistSlain : EventType::Count;
         GameEvent e(killedEvent);
         e.targetId = target.id();
         e.faction = target.faction();
@@ -49,7 +52,7 @@ bool dealDamage(Entity& target, float dmg, EventBus& bus,
         // world origin. The match-pipeline kill sites already do this;
         // free-roam's combat path did not.
         e.pos = target.position();
-        bus.publish(e);
+        if (killedEvent != EventType::Count) bus.publish(e);
         // Wave 16: species-tagged monstrosity slay (e.g. "dhole").
         if (target.type() == EntityType::Monstrosity) {
             GameEvent m(EventType::MonstrositySlain);

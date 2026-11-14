@@ -1,0 +1,141 @@
+{
+  "character": "cthulhu_avatar",
+  "revision": "v008",
+  "source": "assets/retopology/cthulhu_avatar_retopology.obj",
+  "sourceSha256": "4c3f1763bbeea913caf243f4c128180ee1af61604ba56494d5ba2aa0fd8aad88",
+  "blend": "assets/character_animation/cthulhu_avatar/v008/Cthulhu_BasicMotion.blend",
+  "blendSha256": "8021afee59282634c5274921ec3a4e3ed993c05783c8be9f52ef7f8c1326b86d",
+  "skinning": {
+    "method": "surface-geodesic anatomical regions / joint proximity",
+    "regions": [
+      "body",
+      "head",
+      "tail",
+      "arm_L",
+      "leg_L",
+      "wing_L",
+      "tendril_inner_L",
+      "tendril_outer_L",
+      "arm_R",
+      "leg_R",
+      "wing_R",
+      "tendril_inner_R",
+      "tendril_outer_R"
+    ],
+    "maxInfluences": 4,
+    "vertices": 33945,
+    "disconnectedFallbackVertices": 8,
+    "surfaceSmoothingIterations": 10,
+    "anatomicalRegionMasks": true,
+    "regionProximityFraction": 0.25,
+    "normalizationMaxError": 2.220446049250313e-16
+  },
+  "boneCount": 51,
+  "sampleRate": 60,
+  "actions": {
+    "idle": {
+      "frames": 241,
+      "seconds": 4.0,
+      "minimumSurfaceZ": 0.002000004518777132,
+      "worstP995EdgeStretch": 1.1297070439068295,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "walk": {
+      "frames": 97,
+      "seconds": 1.6,
+      "minimumSurfaceZ": 0.0019999765790998936,
+      "worstP995EdgeStretch": 1.3684728027968993,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "run": {
+      "frames": 55,
+      "seconds": 0.9,
+      "minimumSurfaceZ": 0.0019999765790998936,
+      "worstP995EdgeStretch": 1.5131371485480969,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_1": {
+      "frames": 27,
+      "seconds": 0.43333333333333335,
+      "minimumSurfaceZ": 0.0019999805372208357,
+      "worstP995EdgeStretch": 2.15496826684149,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_2": {
+      "frames": 31,
+      "seconds": 0.5,
+      "minimumSurfaceZ": 0.001999977743253112,
+      "worstP995EdgeStretch": 2.3769172035686146,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_3": {
+      "frames": 37,
+      "seconds": 0.6,
+      "minimumSurfaceZ": 0.001999975647777319,
+      "worstP995EdgeStretch": 2.704855860334486,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_back_1": {
+      "frames": 30,
+      "seconds": 0.48333333333333334,
+      "minimumSurfaceZ": 0.001999990316107869,
+      "worstP995EdgeStretch": 2.161570233662885,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_back_2": {
+      "frames": 33,
+      "seconds": 0.5333333333333333,
+      "minimumSurfaceZ": 0.0019999861251562834,
+      "worstP995EdgeStretch": 2.372382318361091,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_back_3": {
+      "frames": 39,
+      "seconds": 0.6333333333333333,
+      "minimumSurfaceZ": 0.0019999812357127666,
+      "worstP995EdgeStretch": 2.726673614377729,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "jump": {
+      "frames": 64,
+      "seconds": 1.05,
+      "minimumSurfaceZ": 0.001999972853809595,
+      "worstP995EdgeStretch": 1.544646034622247,
+      "endpointMaxVertexDistance": 0.27870723605155945
+    },
+    "dash": {
+      "frames": 30,
+      "seconds": 0.48333333333333334,
+      "minimumSurfaceZ": 0.00199997890740633,
+      "worstP995EdgeStretch": 1.8318356059457492,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "taunt": {
+      "frames": 193,
+      "seconds": 3.2,
+      "minimumSurfaceZ": 0.002000004518777132,
+      "worstP995EdgeStretch": 2.43862907401177,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "land": {
+      "frames": 24,
+      "seconds": 0.38333333333333336,
+      "minimumSurfaceZ": 0.001999990548938513,
+      "worstP995EdgeStretch": 1.264596106985232,
+      "endpointMaxVertexDistance": 0.0
+    }
+  },
+  "abilities": false,
+  "sourceArt": {
+    "meshParts": 1,
+    "uvLayersPerPart": [
+      0
+    ],
+    "materialsPerPart": [
+      0
+    ],
+    "joinedUVLayers": 0,
+    "joinedMaterials": 0
+  },
+  "status": "anatomical motion study; visual/deformation review required; not game integrated"
+}

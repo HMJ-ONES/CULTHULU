@@ -1,6 +1,6 @@
 // CULT-ULHU destructible building: a city structure with hit points.
 //
-// Spawned by unreal 5.8/Tools/BuildDarkWilds.py for the razed-city structures
+// Spawned by unreal/Tools/BuildDarkWilds.py for the razed-city structures
 // (columns, walls, towers, crypts, arches, obelisks). The pawn's smash
 // (ACultUlhuPlayerPawn::Smash) calls ApplyDamage; at zero HP the building
 // collapses: the intact mesh hides, a rubble mound stays behind, debris
@@ -35,13 +35,16 @@ public:
 
 	// Deals damage; HitLocation is informational (dust/debris origin bias).
 	UFUNCTION(BlueprintCallable, Category = "CultUlhu|Destruction")
-	void ApplyDamage(float Amount, FVector HitLocation);
+	void ApplyDamage(float Amount, FVector HitLocation,int32 Attacker=-1,AActor* Agent=nullptr);
+ float GetMaxHealth() const { return MaxHealth_; }
+ void RepairHealth(float Hp) { if(!bDestroyed_) Health_=FMath::Clamp(Hp,0.f,MaxHealth_); }
 
 	UFUNCTION(BlueprintCallable, Category = "CultUlhu|Destruction")
 	bool IsDestroyed() const { return bDestroyed_; }
 
 	UFUNCTION(BlueprintCallable, Category = "CultUlhu|Destruction")
 	float GetHealth() const { return Health_; }
+ int32 GetFaction() const { for(int32 F=0;F<3;++F) if(ActorHasTag(FName(*FString::Printf(TEXT("Faction%d"),F)))) return F; return -1; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "CultUlhu|Destruction")
@@ -52,6 +55,7 @@ protected:
 	float HealthMultiplier_ = 1.0f;
 
 private:
+ friend struct FCultSaveAccess;
 	void Collapse(FVector HitLocation);
 	void SpawnDebris(FVector Center, float RadiusCm);
 	static UStaticMesh* SharedMesh(const TCHAR* Path);

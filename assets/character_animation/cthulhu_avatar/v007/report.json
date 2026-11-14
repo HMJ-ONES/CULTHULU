@@ -1,0 +1,109 @@
+{
+  "character": "cthulhu_avatar",
+  "revision": "v007",
+  "source": "assets/retopology/cthulhu_avatar_retopology.obj",
+  "sourceSha256": "4c3f1763bbeea913caf243f4c128180ee1af61604ba56494d5ba2aa0fd8aad88",
+  "blend": "assets/character_animation/cthulhu_avatar/v007/Cthulhu_BasicMotion.blend",
+  "blendSha256": "bf4cb3ba027589b1d2d80657fbd7853342f7e3260bd25373c3f3d934f5173035",
+  "skinning": {
+    "method": "surface-geodesic anatomical regions / joint proximity",
+    "regions": [
+      "body",
+      "head",
+      "tail",
+      "arm_L",
+      "leg_L",
+      "wing_L",
+      "tendril_inner_L",
+      "tendril_outer_L",
+      "arm_R",
+      "leg_R",
+      "wing_R",
+      "tendril_inner_R",
+      "tendril_outer_R"
+    ],
+    "maxInfluences": 4,
+    "vertices": 33945,
+    "disconnectedFallbackVertices": 8,
+    "surfaceSmoothingIterations": 10,
+    "anatomicalRegionMasks": true,
+    "regionProximityFraction": 0.25,
+    "normalizationMaxError": 2.220446049250313e-16
+  },
+  "boneCount": 51,
+  "sampleRate": 60,
+  "actions": {
+    "idle": {
+      "frames": 241,
+      "seconds": 4.0,
+      "minimumSurfaceZ": 0.002000004518777132,
+      "worstP995EdgeStretch": 1.1297080054666904,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "walk": {
+      "frames": 97,
+      "seconds": 1.6,
+      "minimumSurfaceZ": 0.001999977044761181,
+      "worstP995EdgeStretch": 1.368473548918618,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "run": {
+      "frames": 55,
+      "seconds": 0.9,
+      "minimumSurfaceZ": 0.0019999768119305372,
+      "worstP995EdgeStretch": 1.5131374171011291,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_1": {
+      "frames": 44,
+      "seconds": 0.7166666666666667,
+      "minimumSurfaceZ": 0.0019999765790998936,
+      "worstP995EdgeStretch": 2.158630360695195,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_2": {
+      "frames": 52,
+      "seconds": 0.85,
+      "minimumSurfaceZ": 0.0019999791402369738,
+      "worstP995EdgeStretch": 2.377904728788847,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "melee_3": {
+      "frames": 58,
+      "seconds": 0.95,
+      "minimumSurfaceZ": 0.0019999761134386063,
+      "worstP995EdgeStretch": 2.708018115619577,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "jump": {
+      "frames": 64,
+      "seconds": 1.05,
+      "minimumSurfaceZ": 0.0019999730866402388,
+      "worstP995EdgeStretch": 1.5446431791226058,
+      "endpointMaxVertexDistance": 0.27870726585388184
+    },
+    "dash": {
+      "frames": 30,
+      "seconds": 0.48333333333333334,
+      "minimumSurfaceZ": 0.0019999761134386063,
+      "worstP995EdgeStretch": 1.8318330079661016,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "taunt": {
+      "frames": 193,
+      "seconds": 3.2,
+      "minimumSurfaceZ": 0.002000004518777132,
+      "worstP995EdgeStretch": 2.438628890717474,
+      "endpointMaxVertexDistance": 0.0
+    },
+    "land": {
+      "frames": 24,
+      "seconds": 0.38333333333333336,
+      "minimumSurfaceZ": 0.0019999907817691565,
+      "worstP995EdgeStretch": 1.2645961365896439,
+      "endpointMaxVertexDistance": 0.0
+    }
+  },
+  "abilities": false,
+  "status": "anatomical motion study; visual/deformation review required; not game integrated"
+}

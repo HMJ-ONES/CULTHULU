@@ -1,3 +1,5 @@
+> Legacy implementation reference. Use [the current UE 5.8 runbook](IntegrationGuide.md) for setup; existing authored maps and native input need no regeneration.
+
 # Dark Wilds — in-editor runbook
 
 The stretched-cube ground is gone. The dark wilds are real terrain now:

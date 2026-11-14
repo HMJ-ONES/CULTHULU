@@ -1,0 +1,146 @@
+{
+  "blend": "assets/character_animation/shoggoths/v005/Shoggoths_BasicMotion.blend",
+  "sourceSha256": "b02306d481e86b50fd067123b796d674735563dcb14741c34f62381145c2fd67",
+  "requiredRoles": [
+    "idle",
+    "walk",
+    "run",
+    "melee_1",
+    "melee_2",
+    "melee_3",
+    "jump",
+    "dash",
+    "taunt"
+  ],
+  "actions": {
+    "idle": {
+      "sampleStepFrames": 0.5,
+      "samples": 457,
+      "minimumSurfaceZ": 0.001999419182538986,
+      "maximumVertexHalfFrameTravel": 0.00035129429306834936,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 3.8,
+      "reviewMovie": "assets/character_animation/shoggoths/v005/review/idle.mp4"
+    },
+    "walk": {
+      "sampleStepFrames": 0.5,
+      "samples": 193,
+      "minimumSurfaceZ": -0.026997700333595276,
+      "maximumVertexHalfFrameTravel": 0.10503101348876953,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 1.6,
+      "reviewMovie": "assets/character_animation/shoggoths/v005/review/walk.mp4"
+    },
+    "run": {
+      "sampleStepFrames": 0.5,
+      "samples": 121,
+      "minimumSurfaceZ": -0.0061971088871359825,
+      "maximumVertexHalfFrameTravel": 0.2999977767467499,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 1.0,
+      "reviewMovie": "assets/character_animation/shoggoths/v005/review/run.mp4"
+    },
+    "melee_1": {
+      "sampleStepFrames": 0.5,
+      "samples": 95,
+      "minimumSurfaceZ": 0.000505104660987854,
+      "maximumVertexHalfFrameTravel": 0.2511369287967682,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.7833333333333333,
+      "reviewMovie": "assets/character_animation/shoggoths/v005/review/melee_1.mp4"
+    },
+    "melee_2": {
+      "sampleStepFrames": 0.5,
+      "samples": 109,
+      "minimumSurfaceZ": 0.0012383833527565002,
+      "maximumVertexHalfFrameTravel": 0.5397462844848633,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.9,
+      "reviewMovie": "assets/character_animation/shoggoths/v005/review/melee_2.mp4"
+    },
+    "melee_3": {
+      "sampleStepFrames": 0.5,
+      "samples": 103,
+      "minimumSurfaceZ": 0.0007802918553352356,
+      "maximumVertexHalfFrameTravel": 0.040646735578775406,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.85,
+      "reviewMovie": "assets/character_animation/shoggoths/v005/review/melee_3.mp4"
+    },
+    "jump": {
+      "sampleStepFrames": 0.5,
+      "samples": 133,
+      "minimumSurfaceZ": 0.0013644099235534668,
+      "maximumVertexHalfFrameTravel": 0.04325225576758385,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.2583783268928528,
+      "loopClosurePass": null,
+      "durationSeconds": 1.1,
+      "reviewMovie": "assets/character_animation/shoggoths/v005/review/jump.mp4"
+    },
+    "dash": {
+      "sampleStepFrames": 0.5,
+      "samples": 63,
+      "minimumSurfaceZ": -0.00290308753028512,
+      "maximumVertexHalfFrameTravel": 0.04041539132595062,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.5166666666666667,
+      "reviewMovie": "assets/character_animation/shoggoths/v005/review/dash.mp4"
+    },
+    "taunt": {
+      "sampleStepFrames": 0.5,
+      "samples": 337,
+      "minimumSurfaceZ": -0.0006243817042559385,
+      "maximumVertexHalfFrameTravel": 0.3998110592365265,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 2.8,
+      "reviewMovie": "assets/character_animation/shoggoths/v005/review/taunt.mp4"
+    },
+    "land": {
+      "sampleStepFrames": 0.5,
+      "samples": 49,
+      "minimumSurfaceZ": 0.001512765884399414,
+      "maximumVertexHalfFrameTravel": 0.01952481083571911,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.4,
+      "reviewMovie": "assets/character_animation/shoggoths/v005/review/land.mp4"
+    }
+  },
+  "abilitiesAuthored": false,
+  "status": "independent sampling and native rendered review; artistic acceptance pending",
+  "meleeDistinctness": {
+    "samplePhases": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "pairwiseSurfaceRmsMetres": {
+      "melee_1 / melee_2": 0.37622806429862976,
+      "melee_1 / melee_3": 0.28254434466362,
+      "melee_2 / melee_3": 0.31791236996650696
+    },
+    "scope": "physical pose difference, not artistic acceptance"
+  },
+  "reviewCamera": {
+    "orthographicScale": 4.5838189125061035,
+    "fit": "all sampled skinned geometry across every required role"
+  }
+}

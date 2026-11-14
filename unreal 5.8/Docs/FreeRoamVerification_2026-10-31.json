@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "date": "2026-10-31",
+  "engine": "UE 5.8.3",
+  "canonical_project": "unreal 5.8/CultUlhu.uproject",
+  "engine_linked_core_tests": {
+    "passed": 18,
+    "total": 18
+  },
+  "headless_core_tests": {
+    "passed": 109,
+    "total": 109
+  },
+  "native_regressions": [
+    {
+      "name": "CultUlhu.FreeRoam.Persistence",
+      "result": "Success"
+    },
+    {
+      "name": "CultUlhu.Menu.CameraFraming.DominationCthulhu",
+      "result": "Success"
+    },
+    {
+      "name": "CultUlhu.Menu.ConsolidationFlow",
+      "result": "Success"
+    },
+    {
+      "name": "CultUlhu.Menu.MobaMechanics",
+      "result": "Success"
+    }
+  ],
+  "persistence": {
+    "bytes": 124095,
+    "cities": 7,
+    "full_map_reload": true,
+    "crc_rejection_before_mutation": true,
+    "backup_recovery": true,
+    "actual_escape_key": true,
+    "damaged_player_and_buildings": true,
+    "destroyed_buildings": true,
+    "captives_and_loyalty": true,
+    "belief_adoption_and_wars": true,
+    "ability_and_dash_cooldowns": true,
+    "stamina": true,
+    "corpse_expiry_seconds": {
+      "domination": 2,
+      "dotgoo": 2,
+      "free_roam": 5
+    }
+  },
+  "ui_layout_sizes": [
+    [
+      960,
+      540
+    ],
+    [
+      1280,
+      720
+    ]
+  ],
+  "multiplayer": {
+    "transport": "Two independent processes over 127.0.0.1:7777",
+    "players": 2,
+    "host": {
+      "ok": true,
+      "guestConnected": true,
+      "serverConfirmedMeleeKill": true,
+      "serverConfirmedMovement": true,
+      "worldSaved": true,
+      "seed": 314159
+    },
+    "guest": {
+      "ok": true,
+      "replicatedBuildings": true,
+      "replicatedPopulation": true,
+      "observedServerDeath": true,
+      "dashMovement": true,
+      "sharedFaithAuthoritative": true,
+      "seed": 314159
+    },
+    "wan_or_separate_pc_tested": false
+  },
+  "local_logs": [
+    "Saved/FreeRoamVerifiedRegression.log",
+    "Saved/FreeRoamCoreTestsVerified.log",
+    "Saved/FreeRoamCanonicalCore.log",
+    "Saved/CoopHostVerified.log",
+    "Saved/CoopClientVerified.log"
+  ]
+}

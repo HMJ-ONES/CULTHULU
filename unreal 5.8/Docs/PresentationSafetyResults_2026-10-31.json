@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-31",
+  "engine": "UE 5.8.3",
+  "canonical_project": "unreal 5.8/CultUlhu.uproject",
+  "native_checks": [
+    {
+      "path": "CultUlhu.CameraSafety.Domination",
+      "result": "Success",
+      "log": "Saved/PresentationCameraVerified.log"
+    },
+    {
+      "path": "CultUlhu.CameraSafety.Dotgoo",
+      "result": "Success",
+      "log": "Saved/PresentationCameraVerified.log"
+    },
+    {
+      "path": "CultUlhu.CameraSafety.FreeRoam",
+      "result": "Success",
+      "log": "Saved/PresentationCameraVerified.log"
+    },
+    {
+      "path": "CultUlhu.FreeRoam.Persistence",
+      "result": "Success",
+      "log": "Saved/PresentationRegression.log"
+    },
+    {
+      "path": "CultUlhu.Menu.CameraFraming.DominationCthulhu",
+      "result": "Success",
+      "log": "Saved/PresentationRegression.log"
+    },
+    {
+      "path": "CultUlhu.Menu.CameraFraming.DominationMiGo",
+      "result": "Success",
+      "log": "Saved/PresentationRegression.log"
+    },
+    {
+      "path": "CultUlhu.Menu.CameraFraming.MobaCthulhu",
+      "result": "Success",
+      "log": "Saved/PresentationRegression.log"
+    },
+    {
+      "path": "CultUlhu.Menu.CameraFraming.MobaMiGo",
+      "result": "Success",
+      "log": "Saved/PresentationRegression.log"
+    }
+  ],
+  "standalone_menu_to_play": {
+    "ok": true,
+    "cases": [
+      {
+        "mode": "Domination",
+        "ok": true,
+        "walking": true,
+        "movement_input": true,
+        "focused": true,
+        "initial_spawn_errors": 0
+      },
+      {
+        "mode": "Dotgoo",
+        "ok": true,
+        "walking": true,
+        "movement_input": true,
+        "focused": true,
+        "initial_spawn_errors": 0
+      },
+      {
+        "mode": "FreeRoam",
+        "ok": true,
+        "walking": true,
+        "movement_input": true,
+        "focused": true,
+        "initial_spawn_errors": 0
+      }
+    ]
+  },
+  "headless_tests": {
+    "passed": 109,
+    "total": 109
+  },
+  "engine_core_tests": {
+    "passed": 18,
+    "total": 18
+  },
+  "restricted_file_io_tests": {
+    "passed": 2,
+    "total": 2
+  },
+  "forced_io_failure": [
+    {
+      "test": "cultulhu_tests_wave2",
+      "forced_temp_failure_exit_code": 1,
+      "no_access_violation": true
+    },
+    {
+      "test": "cultulhu_tests_wave26",
+      "forced_temp_failure_exit_code": 1,
+      "no_access_violation": true
+    }
+  ],
+  "art_assets_changed": false,
+  "new_large_downloads": false
+}

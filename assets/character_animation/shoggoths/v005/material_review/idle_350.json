@@ -1,0 +1,89 @@
+{
+  "blendSha256": "b02306d481e86b50fd067123b796d674735563dcb14741c34f62381145c2fd67",
+  "role": "idle",
+  "phase": 0.35,
+  "renderer": "Cycles CPU 16 samples; original source materials",
+  "packedImages": [
+    {
+      "name": "Image_0",
+      "packedBytes": 1655887,
+      "sha256": "48f7956021fe6d173353779845da12bdd97fff2a0a300a8e805408126a5ce30e"
+    },
+    {
+      "name": "Image_1",
+      "packedBytes": 1159740,
+      "sha256": "7c3718ef539cb95a7758589db230a251f70fb92c30578734ecbdb52019eb36fa"
+    },
+    {
+      "name": "Image_1.001",
+      "packedBytes": 1280319,
+      "sha256": "d4d2db6329aa82aadeb25e39729253100ca9fdb26676bd01c31ff9ef69858bd8"
+    },
+    {
+      "name": "Image_10",
+      "packedBytes": 1546004,
+      "sha256": "55774d47e777bcf8a2c467a17223fd2d1a717354f508301bf870b5c192f650d5"
+    },
+    {
+      "name": "Image_10.001",
+      "packedBytes": 1621207,
+      "sha256": "36a22fbb2b886af3af8c076aad4379733baa859d944373f73e59c5bd411ed315"
+    },
+    {
+      "name": "Image_11",
+      "packedBytes": 1412536,
+      "sha256": "057fd09ed73db6919a6d1fb8ac80e8ae8117521f3138e6ef220191d443870236"
+    },
+    {
+      "name": "Image_2",
+      "packedBytes": 1576662,
+      "sha256": "ac75e9914bbd3eeb368f9f16749be7e44b025e4c70e24eba86b66b8bf1ff2473"
+    },
+    {
+      "name": "Image_3",
+      "packedBytes": 493100,
+      "sha256": "2a4b1ff8e3269d754d1e9399baea88561f402c2833d54f7aa4c18c119a9f3bf6"
+    },
+    {
+      "name": "Image_4",
+      "packedBytes": 34516,
+      "sha256": "876c0b103b012fbb3b7045b0c2dd4a0c0e243006bb25e1365196fde21f7b423c"
+    },
+    {
+      "name": "Image_4.001",
+      "packedBytes": 56514,
+      "sha256": "c6ad3595a44eef972fb23582b50075a55b99bd73e2264616b6efa49857809e88"
+    },
+    {
+      "name": "Image_5",
+      "packedBytes": 1434275,
+      "sha256": "a3bba54d26be28a4263b8b0de208a86288d12b99d76ab5d74161aa1755265347"
+    },
+    {
+      "name": "Image_6",
+      "packedBytes": 657026,
+      "sha256": "155ad5f8b77342deda04b8ae5482278068db22e45e72bc30d54ce28c62f51742"
+    },
+    {
+      "name": "Image_6.001",
+      "packedBytes": 730827,
+      "sha256": "abcec23dce89de43298d283b987713f56d5766951ae6a6bcfe4a311c9642e454"
+    },
+    {
+      "name": "Image_7",
+      "packedBytes": 1291045,
+      "sha256": "b33fa28c9997999ec5e97d19a4782d29ce78878c346a8a415fbf778e575a4db8"
+    },
+    {
+      "name": "Image_8",
+      "packedBytes": 505358,
+      "sha256": "2e31e325e3b0e8931dc6c80f295b771d6f42518a8da3bef6565027c97cceef27"
+    },
+    {
+      "name": "Image_9",
+      "packedBytes": 1221171,
+      "sha256": "29ed7f15bc31ec44df57f949684f9468fd9a423347e84914ef5e100d1c58c6b3"
+    }
+  ],
+  "preview": "assets/character_animation/shoggoths/v005/material_review/idle_350.png"
+}

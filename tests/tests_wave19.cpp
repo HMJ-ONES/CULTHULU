@@ -87,7 +87,7 @@ static void testModelBudgets() {
     uint64_t maxWorldTris = 0, maxActorTris = 0;
     for (auto it = fs::recursive_directory_iterator(prefix + "assets");
          it != fs::recursive_directory_iterator(); ++it) {
-        const std::string p = it->path().string();
+        const std::string p = it->path().generic_string();
         const std::string ext = it->path().extension().string();
         if (ext == ".b64") continue;  // sidecars don't ship decoded
         if (ext == ".glb") {

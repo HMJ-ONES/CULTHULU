@@ -25,15 +25,15 @@ power = 120
 range = 8
 
 [f]
-id = curse_of_sarnath
-name = Curse of Sarnath
-flavor = Marked, as that drowned city was marked.
-cooldown = 15
+id = sarnath_veil
+name = Sarnath Veil
+flavor = Raise a translucent ward from the drowned city.
+cooldown = 16
 stamina_cost = 35
 mana_cost = 0
-effect = debuff
-power = 5
-range = 12
+effect = chaos_shield
+power = 75
+range = 75
 
 [r]
 id = wrath_of_the_lizard

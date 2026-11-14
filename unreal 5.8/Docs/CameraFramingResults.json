@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-21",
+  "scope": "Native UE 5.8 Editor menu-entry camera, collision, input and match regressions; not a standalone executable or human fun test",
+  "canonical_editor_build": "Succeeded; validator passed; final build 18.08 seconds",
+  "runs": {
+    "baseline": {
+      "log": "unreal 5.8/Saved/Logs/CameraFramingBefore.log",
+      "sha256": "7623831ea88b1890d16eee6383d31e8c9475c5d91d7288b01ecca03c6205e9c9",
+      "results": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.DominationCthulhu"
+        },
+        {
+          "result": "Fail",
+          "path": "CultUlhu.Menu.CameraFraming.DominationMiGo"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.MobaCthulhu"
+        },
+        {
+          "result": "Fail",
+          "path": "CultUlhu.Menu.CameraFraming.MobaMiGo"
+        }
+      ],
+      "automation_errors": [
+        "[2026.10.22-02.04.58:042][589]LogAutomationController: Error: Test Completed. Result={Fail} Name={DominationMiGo} Path={CultUlhu.Menu.CameraFraming.DominationMiGo}",
+        "[2026.10.22-02.04.58:042][589]LogAutomationController: Error: Expected 'Initial crosshair has no allied vessel directly blocking the battle view' to be false. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultCameraFramingTest.cpp(38)]",
+        "[2026.10.22-02.05.01:397][705]LogAutomationController: Error: Test Completed. Result={Fail} Name={MobaMiGo} Path={CultUlhu.Menu.CameraFraming.MobaMiGo}",
+        "[2026.10.22-02.05.01:398][705]LogAutomationController: Error: Expected 'Initial crosshair has no allied vessel directly blocking the battle view' to be false. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultCameraFramingTest.cpp(38)]"
+      ],
+      "observations": [
+        "Camera cthulhu_avatar mode=1 player=V(X=-20400.00, Y=-3000.00, Z=1468.82) eye=V(X=-24586.66, Y=-1500.00, Z=3714.30) arm=4333.3 fixed=0 aim=StaticMeshActor_51",
+        "Camera wall distance 4592.4 -> 2063.7; scale 16.667 capsuleHalf 1466.7",
+        "Camera mi_go mode=1 player=V(X=-20400.00, Y=-3000.00, Z=979.93) eye=V(X=-23191.11, Y=-2000.00, Z=2476.92) arm=2888.9 fixed=0 aim=CultUlhuPlayerPawn_1",
+        "Camera wall distance 3061.6 -> 1298.3; scale 11.111 capsuleHalf 977.8",
+        "Camera cthulhu_avatar mode=2 player=V(X=-27400.00, Y=-3000.00, Z=1468.82) eye=V(X=-31586.66, Y=-1500.00, Z=3714.30) arm=4333.3 fixed=0 aim=StaticMeshActor_2",
+        "Camera wall distance 4592.4 -> 2063.7; scale 16.667 capsuleHalf 1466.7",
+        "Camera mi_go mode=2 player=V(X=-27400.00, Y=-3000.00, Z=979.93) eye=V(X=-30191.11, Y=-2000.00, Z=2476.92) arm=2888.9 fixed=0 aim=CultUlhuPlayerPawn_1",
+        "Camera wall distance 3061.6 -> 1298.3; scale 11.111 capsuleHalf 977.8"
+      ]
+    },
+    "intermediate": {
+      "log": "unreal 5.8/Saved/Logs/CameraFramingAfter.log",
+      "sha256": "b01c67fbad847de1582ae235a91ba41ee38675efdd6f6cd3e9ac7af1740a654e",
+      "results": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.DominationCthulhu"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.DominationMiGo"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.MobaCthulhu"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.MobaMiGo"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.DominationMatch"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.EditorInputSafety"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaMatch"
+        }
+      ],
+      "automation_errors": [],
+      "observations": [
+        "Camera cthulhu_avatar mode=1 player=V(X=-20400.00, Y=3000.00, Z=1468.82) eye=V(X=-24586.66, Y=4500.00, Z=3714.30) arm=4333.3 fixed=0 aim=StaticMeshActor_39",
+        "Camera wall distance 4592.4 -> 2063.7; scale 16.667 capsuleHalf 1466.7",
+        "Camera mi_go mode=1 player=V(X=-20400.00, Y=3000.00, Z=979.93) eye=V(X=-23191.11, Y=4000.00, Z=2476.92) arm=2888.9 fixed=0 aim=StaticMeshActor_13",
+        "Camera wall distance 3061.6 -> 1298.3; scale 11.111 capsuleHalf 977.8",
+        "Camera cthulhu_avatar mode=2 player=V(X=-27400.00, Y=3000.00, Z=1468.82) eye=V(X=-31586.66, Y=4500.00, Z=3714.30) arm=4333.3 fixed=0 aim=StaticMeshActor_6",
+        "Camera wall distance 4592.4 -> 2063.7; scale 16.667 capsuleHalf 1466.7",
+        "Camera mi_go mode=2 player=V(X=-27400.00, Y=3000.00, Z=979.93) eye=V(X=-30191.11, Y=4000.00, Z=2476.92) arm=2888.9 fixed=0 aim=StaticMeshActor_2",
+        "Camera wall distance 3061.6 -> 1298.3; scale 11.111 capsuleHalf 977.8",
+        "Objective bots: 4 allied and 5 enemy seal participants; 2120.4 real damage",
+        "Backward attack travel: 782.3 cm",
+        "Assigned-lane entries observed: 9 / 9 bots",
+        "Live MOBA: 28 advanced minions, 13 combined hero kills/deaths after 70.0s"
+      ]
+    },
+    "final": {
+      "log": "unreal 5.8/Saved/Logs/CameraFramingFinal.log",
+      "sha256": "2ce2e238dce8a144699a4326654532ef868333e90a9c387675ee3c36670e8ff5",
+      "results": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.DominationCthulhu"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.DominationMiGo"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.MobaCthulhu"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.MobaMiGo"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.DominationMatch"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.EditorInputSafety"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaMatch"
+        }
+      ],
+      "automation_errors": [],
+      "observations": [
+        "Camera cthulhu_avatar mode=1 player=V(X=-20400.00, Y=1500.00, Z=1468.82) eye=V(X=-24586.66, Y=3000.00, Z=3714.30) arm=4333.3 fixed=0 aim=StaticMeshActor_52",
+        "Camera wall distance 4592.4 -> 2063.7; scale 16.667 capsuleHalf 1466.7",
+        "Camera mi_go mode=1 player=V(X=-20400.00, Y=1500.00, Z=979.93) eye=V(X=-23191.11, Y=2500.00, Z=2476.92) arm=2888.9 fixed=0 aim=StaticMeshActor_13",
+        "Camera wall distance 3061.6 -> 1298.3; scale 11.111 capsuleHalf 977.8",
+        "Camera cthulhu_avatar mode=2 player=V(X=-27400.00, Y=1500.00, Z=1468.82) eye=V(X=-31586.66, Y=3000.00, Z=3714.30) arm=4333.3 fixed=0 aim=StaticMeshActor_2",
+        "Camera wall distance 4592.4 -> 2063.7; scale 16.667 capsuleHalf 1466.7",
+        "Camera mi_go mode=2 player=V(X=-27400.00, Y=1500.00, Z=979.93) eye=V(X=-30191.11, Y=2500.00, Z=2476.92) arm=2888.9 fixed=0 aim=StaticMeshActor_2",
+        "Camera wall distance 3061.6 -> 1298.3; scale 11.111 capsuleHalf 977.8",
+        "Objective bots: 4 allied and 5 enemy seal participants; 2180.8 real damage",
+        "Backward attack travel: 720.0 cm",
+        "Assigned-lane entries observed: 9 / 9 bots",
+        "Live MOBA: 28 advanced minions, 11 combined hero kills/deaths after 70.0s"
+      ]
+    }
+  },
+  "final_entry_frames": [
+    {
+      "path": "unreal 5.8/Saved/Screenshots/DominationHUD.png",
+      "sha256": "1e5b74a25d28d1b556f43aeda693b5b476cdf95ad171ed4e7b5aa2119b735bc1",
+      "bytes": 520538,
+      "reviewed": true,
+      "scope": "Ordinary editor frame; includes editor chrome, not an exact-size HUD test"
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/MobaHUD.png",
+      "sha256": "92ac428dd4eef4e8d6a4ce50411722bd40cb9955c4743cf2c34116639c42db57",
+      "bytes": 679543,
+      "reviewed": true,
+      "scope": "Ordinary editor frame; includes editor chrome, not an exact-size HUD test"
+    }
+  ],
+  "storage": {
+    "new_downloads_or_standalone_packages": false,
+    "temporary_staged_and_cooked_game_outputs_present": false,
+    "durable_changes": "C++ and small text records only"
+  },
+  "limitations": [
+    "Mi-Go and Cthulhu camera samples only",
+    "Nearby placeholder bodies remain in lower-left view",
+    "Other camera angles, all roster, crowd visibility and Free Roam not covered by camera fixture",
+    "Later edits not cooked into an independent executable"
+  ]
+}

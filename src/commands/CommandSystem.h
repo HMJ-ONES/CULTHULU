@@ -65,6 +65,9 @@ public:
     CommandSystem(EventBus& bus, RNG& rng, BeliefSystem& beliefs,
                   CultManager& cult);
 
+    // A physical engine performs actual conversions/raids after obedience.
+    void setExternalExecution(bool external) { externalExecution_ = external; }
+
     // Issue a directive toward 'target' (and optionally an enemy faction).
     // Rolls the obedience model, publishes DirectiveIssued/Resolved plus any
     // consequence events, and applies automatic side effects for Obeyed.
@@ -87,6 +90,7 @@ private:
     void publishIssuedResolved(DirectiveType d, CommandOutcome o, float chance,
                                FactionId targetFaction);
 
+    bool externalExecution_ = false;
     EventBus& bus_;
     RNG& rng_;
     BeliefSystem& beliefs_;

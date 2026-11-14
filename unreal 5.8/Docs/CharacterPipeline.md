@@ -1,3 +1,32 @@
+# Current approved-model integration (2026-10-22)
+
+The active playable pawn is **ACultUlhuPlayerPawn** in the sole project,
+`unreal 5.8/CultUlhu.uproject`. Its **ACultCharacterModel** child supplies
+rendering only. The pawn keeps its existing canonical kit, collision,
+movement, health and camera. The original sixteen-character release allowlist
+still applies; the four deferred characters remain excluded.
+
+Start with [the simple next-steps guide](CharacterModels_NextSteps.md).
+Approved sources, acquisition evidence, animation roles and artist work are
+recorded in `unreal 5.8/Config/ApprovedCharacterModels.json`.
+`unreal 5.8/Tools/ImportSelectedCharacterAssets.py` imports locally staged
+sources into owned source-hash directories. It preserves source rigs and
+animations and never applies humanoid retargeting to these creatures.
+The generated runtime binding is
+`unreal 5.8/Content/CharacterModels/registry.json`; attribution is staged
+beside it as `CREDITS.md`. Character selection uses native model previews
+and portraits captured from those same meshes.
+
+Dense sculpture render LODs preserve LOD0 and the original downloads.
+Editor-only posed-vertex measurements can be persisted with
+`Tools/ApplyCharacterCalibration.py`, allowing runtime builds to normalize
+the model without CPU skinning. Actual clips remain separate from missing
+animation roles. A model with no clip is static, not automatically animated.
+
+The older Data Asset / humanoid mapping reference below describes a separate
+legacy pipeline. It does **not** select the visible model on the current
+playable pawn, and should not be followed for the approved nonhuman models.
+
 # Character Pipeline — `assets/characters/<name>/` → UE5
 
 How a plug-and-play character package becomes a playable UE5 character.

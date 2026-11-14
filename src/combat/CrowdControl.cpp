@@ -21,7 +21,8 @@ const char* ccTypeName(CCType type) {
 void ActiveEffects::apply(uint64_t entityId, CCType type,
                           float baseDurationSeconds,
                           const BeliefSystem& beliefs, EventBus& bus) {
-    float duration = combat::ccDuration(baseDurationSeconds, beliefs);
+    const BeliefSystem* defender = victimBeliefs_ ? victimBeliefs_(entityId) : &beliefs;
+    float duration = defender ? combat::ccDuration(baseDurationSeconds, *defender) : baseDurationSeconds;
     if (duration <= 0.0f) return;
 
     CCEffect& eff = fx_[entityId][static_cast<int>(type)];

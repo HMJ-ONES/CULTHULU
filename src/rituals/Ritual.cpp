@@ -3,11 +3,11 @@
 
 namespace cultulhu {
 
-void Ritual::interrupt() {
+void Ritual::interrupt(bool notify) {
     if (!active_) return;
     active_ = false;
     interrupted_ = true;
-    onInterrupted();
+    if (notify) onInterrupted();
 }
 
 bool Ritual::update(double dt) {

@@ -1,0 +1,362 @@
+{
+  "date_local": "2026-10-21",
+  "engine": "UE 5.8.3",
+  "target": "CultUlhuEditor Win64 Development",
+  "final_build_result": "Succeeded",
+  "final_build_seconds": 9.67,
+  "final_run": {
+    "log": "HeroReadabilityFinal.log",
+    "sha256": "0695a211d2dbe92d62429d98b1af83b8b0b93f45cb02ba9194d7a26c833a9fcc",
+    "queue_completed": true,
+    "tests": [
+      {
+        "path": "CultUlhu.Menu.HeroPlates.Domination",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.HeroPlates.Moba",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.CombatFeel",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.DominationEventReadability",
+        "result": "Success"
+      },
+      {
+        "path": "CultUlhu.Menu.MobaEventReadability",
+        "result": "Success"
+      }
+    ],
+    "automation_errors": []
+  },
+  "earlier_evidence": [
+    {
+      "log": "HeroPlatesInitial.log",
+      "sha256": "bea37fcd1f44f54f3000c878469f3fb2db832fda8f342d0e33d9e4178f2b0c74",
+      "queue_completed": false,
+      "tests": [
+        {
+          "path": "CultUlhu.Menu.HeroPlates.Domination",
+          "result": "Fail"
+        }
+      ],
+      "automation_errors": [
+        "Expected 'Visible competitive heroes receive actual rendered identity plates' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultHeroPlatesTest.cpp(81)]",
+        "Expected 'A visible damaged combat focus survives plate priority selection' to be not null. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultHeroPlatesTest.cpp(83)]",
+        "Hero plate render check timed out [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultHeroPlatesTest.cpp(41)]"
+      ]
+    },
+    {
+      "log": "HeroPlatesProjection.log",
+      "sha256": "91957695397dc66238678f18e2eafa47ab97e4a913dbb8be2466fc1281a6667a",
+      "queue_completed": true,
+      "tests": [
+        {
+          "path": "CultUlhu.Menu.HeroPlates.Domination",
+          "result": "Fail"
+        },
+        {
+          "path": "CultUlhu.Menu.HeroPlates.Moba",
+          "result": "Fail"
+        }
+      ],
+      "automation_errors": [
+        "Expected 'A visible damaged combat focus survives plate priority selection' to be not null. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultHeroPlatesTest.cpp(87)]",
+        "Expected 'A visible damaged combat focus survives plate priority selection' to be not null. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultHeroPlatesTest.cpp(87)]"
+      ]
+    },
+    {
+      "log": "HeroPlatesFinal.log",
+      "sha256": "796458ac04108f32de5fe091aa23ada36433fcb30ed1bade76e65187db4847a2",
+      "queue_completed": true,
+      "tests": [
+        {
+          "path": "CultUlhu.Menu.HeroPlates.Domination",
+          "result": "Fail"
+        },
+        {
+          "path": "CultUlhu.Menu.HeroPlates.Moba",
+          "result": "Fail"
+        },
+        {
+          "path": "CultUlhu.Menu.CombatFeel",
+          "result": "Success"
+        },
+        {
+          "path": "CultUlhu.Menu.DominationEventReadability",
+          "result": "Success"
+        },
+        {
+          "path": "CultUlhu.Menu.MobaEventReadability",
+          "result": "Success"
+        }
+      ],
+      "automation_errors": [
+        "Expected 'A visible damaged combat focus survives plate priority selection' to be not null. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultHeroPlatesTest.cpp(87)]",
+        "Expected 'A visible damaged combat focus survives plate priority selection' to be not null. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultHeroPlatesTest.cpp(87)]"
+      ]
+    },
+    {
+      "log": "HeroPlatesVerified.log",
+      "sha256": "e56e0b76513a43e932dd306a026f800ea5cf5d13c05210a4739f5e81da1c664e",
+      "queue_completed": true,
+      "tests": [
+        {
+          "path": "CultUlhu.Menu.HeroPlates.Domination",
+          "result": "Success"
+        },
+        {
+          "path": "CultUlhu.Menu.HeroPlates.Moba",
+          "result": "Fail"
+        },
+        {
+          "path": "CultUlhu.Menu.CombatFeel",
+          "result": "Success"
+        },
+        {
+          "path": "CultUlhu.Menu.DominationEventReadability",
+          "result": "Success"
+        },
+        {
+          "path": "CultUlhu.Menu.MobaEventReadability",
+          "result": "Success"
+        }
+      ],
+      "automation_errors": [
+        "Expected 'A visible damaged combat focus survives plate priority selection' to be not null. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultHeroPlatesTest.cpp(87)]"
+      ]
+    },
+    {
+      "log": "HeroPlatesComplete.log",
+      "sha256": "8b9cb80b637ca813516134ed744d0d69cd1336780ea068b62527f95e0af6c24a",
+      "queue_completed": true,
+      "tests": [
+        {
+          "path": "CultUlhu.Menu.HeroPlates.Domination",
+          "result": "Success"
+        },
+        {
+          "path": "CultUlhu.Menu.HeroPlates.Moba",
+          "result": "Success"
+        },
+        {
+          "path": "CultUlhu.Menu.CombatFeel",
+          "result": "Success"
+        },
+        {
+          "path": "CultUlhu.Menu.DominationEventReadability",
+          "result": "Success"
+        },
+        {
+          "path": "CultUlhu.Menu.MobaEventReadability",
+          "result": "Success"
+        }
+      ],
+      "automation_errors": []
+    }
+  ],
+  "initial_run_interruption": "Specific task-owned process stopped after the actual constrained Canvas proved the wide-size wait impossible; initial Domination failures and partial second test retained.",
+  "fully_passing_but_visually_revised_run": "HeroPlatesComplete.log: leaders subsequently moved beneath all cards.",
+  "captures": [
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Domination_0_1280x720.png",
+      "image_size": [
+        1280,
+        720
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        1280,
+        720
+      ],
+      "sha256": "4753bbb3489f7ad3f0bba45d096938c2c8a133b53373bbdf673db2cb06cb7ef8",
+      "bytes": 982197,
+      "observed_native_card_count": 0
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Domination_1_1280x720.png",
+      "image_size": [
+        1280,
+        720
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        1280,
+        720
+      ],
+      "sha256": "7f5a04c7cfac5fd120e35239aaf96ea4530d7a306b84d6d91a50f3db5d875f4a",
+      "bytes": 980158,
+      "observed_native_card_count": 4
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Domination_2_640x360.png",
+      "image_size": [
+        640,
+        360
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        640,
+        360
+      ],
+      "sha256": "990178fc31deb0d14beac61f7b91d69d75735d48b8f526deefc40c7d6c1c05de",
+      "bytes": 251153,
+      "observed_native_card_count": 2
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Domination_3_1920x720.png",
+      "image_size": [
+        1920,
+        720
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        1920,
+        720
+      ],
+      "sha256": "1c493febb419b3874edf000561a4bfeb5efb946f2696bdfbd1a948bad65f8bcd",
+      "bytes": 1516132,
+      "observed_native_card_count": 4
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Domination_4_1280x720.png",
+      "image_size": [
+        1280,
+        720
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        1280,
+        720
+      ],
+      "sha256": "0150acf99866c70cda2d8ee8d35f5d55d128cce0927cc6a6a538ed382c3adf77",
+      "bytes": 901810,
+      "observed_native_card_count": 2
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Domination_5_1920x720.png",
+      "image_size": [
+        1920,
+        720
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        1280,
+        720
+      ],
+      "sha256": "d433964eab9eefd2a7fcbcf9dab2efffbfc53a83231a6449c803a0b7ac93da33",
+      "bytes": 1023526,
+      "observed_native_card_count": 4
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Moba_0_1280x720.png",
+      "image_size": [
+        1280,
+        720
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        1280,
+        720
+      ],
+      "sha256": "285dcfad30f2cf245dd9e4dfbd06b0b971b84ec19fae6ff081d992adf9e4741a",
+      "bytes": 924751,
+      "observed_native_card_count": 0
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Moba_1_1280x720.png",
+      "image_size": [
+        1280,
+        720
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        1280,
+        720
+      ],
+      "sha256": "2dc59f7c07b8084a917d13372fb2e32864c1a5bd463e3860151d8da936dc9c6d",
+      "bytes": 920562,
+      "observed_native_card_count": 4
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Moba_2_640x360.png",
+      "image_size": [
+        640,
+        360
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        640,
+        360
+      ],
+      "sha256": "aa8e63b1bba666cfa4479cdc413f6873da05dbfeff5892dbccd595ab19625fc6",
+      "bytes": 237832,
+      "observed_native_card_count": 2
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Moba_3_1920x720.png",
+      "image_size": [
+        1920,
+        720
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        1920,
+        720
+      ],
+      "sha256": "57a253a049e7f92a5968bb46a871118cd60251f792ffc0892c5643645805a273",
+      "bytes": 1370597,
+      "observed_native_card_count": 4
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Moba_4_1280x720.png",
+      "image_size": [
+        1280,
+        720
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        1280,
+        720
+      ],
+      "sha256": "e1b08ef30dd9cae625087a020ef196ba2012672241bb44d1fb5939fc8350ae2d",
+      "bytes": 864008,
+      "observed_native_card_count": 2
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/HeroPlates_Moba_5_1920x720.png",
+      "image_size": [
+        1920,
+        720
+      ],
+      "canvas_size_asserted_by_native_probe": [
+        1280,
+        720
+      ],
+      "sha256": "7b1495ceb7a06a4704e0c3ce826d482bbbc1b482123a1cf3144f866968a87945",
+      "bytes": 960822,
+      "observed_native_card_count": 4
+    }
+  ],
+  "capture_summary_dimension_note": "Native summary text uses canvas= for requested PNG size. Distinct runtime assertions validate actual Canvas dimensions; pillarbox image 1920x720 contains Canvas1280x720.",
+  "review_images": [
+    "unreal 5.8/Docs/Images/HeroReadability_Before_20261021.png",
+    "unreal 5.8/Docs/Images/HeroReadability_After_20261021.png"
+  ],
+  "source_sha256": {
+    "Private/CultHeroPlates.h": "7612dce8cd9b30899776b39c22478635f99458794d127d54ac047112734f980d",
+    "Private/CultHeroPlates.cpp": "e6411d552bfb8f45f11447582956ede0f911f68ed2a547a00258d64e543ffbaf",
+    "Private/CultHeroPlatesTest.cpp": "b554f8fec87bfef37586009b6ee66b2e76c5f9ca77761263aaa0d5f448989167",
+    "Private/CultHUDProjection.h": "16375a65c14453574484d5af56bb3b2b935887150595101748835d317045de41",
+    "Private/CultMatchHUD.cpp": "9da26db1cee8eba9d2c60f4f49ab7a16363d7cdfbd503f138e7af5d69c581b01",
+    "Private/CultCombatFeelHUD.cpp": "23339f6a7a2856059f711c9b389d9c410a19edfd0c28419a01f763041948cbd5"
+  },
+  "unchanged_inputs": {
+    "base": "ab3ee27c0aa3ca6175675a4a1054311787da1803",
+    "counts": {
+      "content_byte_identical": 423,
+      "character_byte_identical": 5,
+      "character_line_endings_only": 110
+    },
+    "substantive_differences": []
+  },
+  "scope": "Prepared paused native match scene with real hero damage and real cover; not a human firefight or all-kit/terrain proof.",
+  "limits": [
+    "Placeholder entity art and blockout architecture remain.",
+    "Small-screen layout success does not establish text comfort or accessibility.",
+    "No sustained performance, crowded-fight stability or human fun measurements.",
+    "No independent executable produced for this phase."
+  ]
+}

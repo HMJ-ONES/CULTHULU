@@ -1,0 +1,45 @@
+{
+  "scope": "Canonical Editor native character movement on actual low-beam, blocked-surround and incline collision; existing army/order/control/combat/cliff checks. No standalone, all-world-navigation or performance claim for this later steering change.",
+  "runs": [
+    {
+      "log": "PopulationClearanceBefore.log",
+      "sha256": "6bde0ca20a74cb8f71fb8f164c436a329163baadd423c768f818b876d7c99400",
+      "results": [
+        [
+          "Fail",
+          "CultUlhu.Menu.PopulationClearance"
+        ]
+      ],
+      "clearance_observation": [
+        "beam=V(X=600115.88, Z=45100.15) boxed=V(X=604055.88, Z=45100.15) input=V(X=1.00) ramp=V(X=608892.85, Y=75.23, Z=45099.94) feet=45011.9"
+      ],
+      "motion_observation": [],
+      "automation_error_count": 5
+    },
+    {
+      "log": "PopulationClearanceAfter.log",
+      "sha256": "f8bd3dca0fafb71aa463fc458c99e16eb3d69aad96d5f6a2c33ece3644aae72a",
+      "results": [
+        [
+          "Success",
+          "CultUlhu.Menu.ArmyCommands"
+        ],
+        [
+          "Success",
+          "CultUlhu.Menu.PopulationClearance"
+        ],
+        [
+          "Success",
+          "CultUlhu.Menu.PopulationMotion"
+        ]
+      ],
+      "clearance_observation": [
+        "beam=V(X=600870.65, Y=61.09, Z=45100.15) boxed=V(X=604000.00, Z=45100.15) input=V(0) ramp=V(X=608872.66, Y=42.56, Z=45392.15) feet=45304.1"
+      ],
+      "motion_observation": [
+        "reversal, control interruption/recovery, physical combat and cliff stop verified; final X=2805.2"
+      ],
+      "automation_error_count": 0
+    }
+  ]
+}

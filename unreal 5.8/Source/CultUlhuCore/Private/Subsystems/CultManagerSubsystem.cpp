@@ -1,11 +1,20 @@
 // CULT-ULHU cult manager subsystem implementation.
 #include "Subsystems/CultManagerSubsystem.h"
+#include "Engine/World.h"
+#include "Engine/GameInstance.h"
 #include "Subsystems/CultBeliefSubsystem.h"
 
 void UCultManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-	UCultBeliefSubsystem* Core = GetGameInstance()->GetSubsystem<UCultBeliefSubsystem>();
+	UWorld* World = GetWorld();
+        if (!World || !World->IsGameWorld()) return;
+
+        UGameInstance* GameInstance = World->GetGameInstance();
+        if (!GameInstance) return;
+
+        UCultBeliefSubsystem* Core = GameInstance->GetSubsystem<UCultBeliefSubsystem>();
+        if (!Core) return;
 	// VERIFY IN EDITOR: world subsystems initialize after game-instance
 	// subsystems, so Core must be non-null here.
 	check(Core);

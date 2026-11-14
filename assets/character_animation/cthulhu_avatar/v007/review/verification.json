@@ -1,0 +1,133 @@
+{
+  "blend": "assets/character_animation/cthulhu_avatar/v007/Cthulhu_BasicMotion.blend",
+  "sourceSha256": "bf4cb3ba027589b1d2d80657fbd7853342f7e3260bd25373c3f3d934f5173035",
+  "requiredRoles": [
+    "idle",
+    "walk",
+    "run",
+    "melee_1",
+    "melee_2",
+    "melee_3",
+    "jump",
+    "dash",
+    "taunt"
+  ],
+  "actions": {
+    "idle": {
+      "sampleStepFrames": 0.5,
+      "samples": 481,
+      "minimumSurfaceZ": 0.002000004518777132,
+      "maximumVertexHalfFrameTravel": 0.0003450485528446734,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 4.0,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v007/review/idle.mp4"
+    },
+    "walk": {
+      "sampleStepFrames": 0.5,
+      "samples": 193,
+      "minimumSurfaceZ": 0.0019671712070703506,
+      "maximumVertexHalfFrameTravel": 0.025600042194128036,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 1.6,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v007/review/walk.mp4"
+    },
+    "run": {
+      "sampleStepFrames": 0.5,
+      "samples": 109,
+      "minimumSurfaceZ": 0.0005987897166050971,
+      "maximumVertexHalfFrameTravel": 0.03705038130283356,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 0.9,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v007/review/run.mp4"
+    },
+    "melee_1": {
+      "sampleStepFrames": 0.5,
+      "samples": 87,
+      "minimumSurfaceZ": 0.0019996333867311478,
+      "maximumVertexHalfFrameTravel": 0.10815919190645218,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.7166666666666667,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v007/review/melee_1.mp4"
+    },
+    "melee_2": {
+      "sampleStepFrames": 0.5,
+      "samples": 103,
+      "minimumSurfaceZ": 0.0019997928757220507,
+      "maximumVertexHalfFrameTravel": 0.12003090232610703,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.85,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v007/review/melee_2.mp4"
+    },
+    "melee_3": {
+      "sampleStepFrames": 0.5,
+      "samples": 115,
+      "minimumSurfaceZ": 0.0017522871494293213,
+      "maximumVertexHalfFrameTravel": 0.06984587758779526,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.95,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v007/review/melee_3.mp4"
+    },
+    "jump": {
+      "sampleStepFrames": 0.5,
+      "samples": 127,
+      "minimumSurfaceZ": 0.0014302153140306473,
+      "maximumVertexHalfFrameTravel": 0.02708887867629528,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.27870726585388184,
+      "loopClosurePass": null,
+      "durationSeconds": 1.05,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v007/review/jump.mp4"
+    },
+    "dash": {
+      "sampleStepFrames": 0.5,
+      "samples": 59,
+      "minimumSurfaceZ": 0.001997122773900628,
+      "maximumVertexHalfFrameTravel": 0.018802538514137268,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.48333333333333334,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v007/review/dash.mp4"
+    },
+    "taunt": {
+      "sampleStepFrames": 0.5,
+      "samples": 385,
+      "minimumSurfaceZ": 0.002000004518777132,
+      "maximumVertexHalfFrameTravel": 0.021452683955430984,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 3.2,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v007/review/taunt.mp4"
+    },
+    "land": {
+      "sampleStepFrames": 0.5,
+      "samples": 47,
+      "minimumSurfaceZ": 0.001992424950003624,
+      "maximumVertexHalfFrameTravel": 0.011520159430801868,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.38333333333333336,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v007/review/land.mp4"
+    }
+  },
+  "abilitiesAuthored": false,
+  "status": "independent sampling and native rendered review; artistic acceptance pending",
+  "reviewCamera": {
+    "orthographicScale": 3.062737464904785,
+    "fit": "all sampled skinned geometry across every required role"
+  }
+}

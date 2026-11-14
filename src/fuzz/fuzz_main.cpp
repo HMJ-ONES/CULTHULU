@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <filesystem>
 #ifndef _WIN32
 #include <unistd.h>  // not used directly here; kept for POSIX builds
 #endif
@@ -34,6 +35,21 @@ constexpr uint64_t kSeed3 = 0xC0FFEE3u;
 constexpr size_t kDefaultIterations = 50000;
 
 bool makeSandbox() {
+#ifdef _WIN32
+    std::error_code error;
+    const auto base=std::filesystem::temp_directory_path(error);
+    if(error) return false;
+    for(int attempt=0;attempt<100;++attempt) {
+        const auto name="cultulhu_fuzz_"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count())+"_"+std::to_string(attempt);
+        const auto path=base/name;
+        if(!std::filesystem::create_directory(path,error)) { error.clear(); continue; }
+        std::filesystem::current_path(path,error);
+        if(error) return false;
+        fuzz::logf("[fuzz] sandbox dir: %s\n",path.string().c_str());
+        return true;
+    }
+    return false;
+#else
     char dir[] = "/tmp/cultulhu_fuzz_XXXXXX";
     if (::mkdtemp(dir) == nullptr) {
         fuzz::logf("[fuzz] mkdtemp failed\n");
@@ -45,6 +61,7 @@ bool makeSandbox() {
     }
     fuzz::logf("[fuzz] sandbox dir: %s\n", dir);
     return true;
+#endif
 }
 
 } // namespace

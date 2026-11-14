@@ -31,6 +31,8 @@ public:
     // scaling (single vs multiple deities) stays correct.
     void syncBeliefs(BeliefSystem& beliefs) const;
 
+    template<class Visitor> void visitPersistentState(Visitor& v) { v(wars_, kills_); }
+
 private:
     EventBus& bus_;
     std::vector<FactionId> wars_;

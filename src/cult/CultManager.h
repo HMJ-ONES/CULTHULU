@@ -60,6 +60,8 @@ public:
     // Returns true if a revolt triggered this tick.
     bool update(double dt);
 
+    template<class Visitor> void visitPersistentState(Visitor& v) { v(risk_, conversionEff_, campaignActive_, campaignTarget_, campaignRemaining_); }
+
 private:
     EventBus& bus_;
     GameClock& clock_;

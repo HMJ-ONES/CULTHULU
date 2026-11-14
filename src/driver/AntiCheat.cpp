@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
+#include <filesystem>
 #include <sstream>
 
 namespace {
@@ -35,8 +36,9 @@ void AntiCheat::load() {
 
 void AntiCheat::save() const {
     std::string dir = homeDir() + "/.cultulhu";
-    std::string mk = "mkdir -p " + dir + " 2>/dev/null";
-    std::system(mk.c_str());
+    std::error_code error;
+    std::filesystem::create_directories(dir,error);
+    if(error) return;
     std::ofstream f(dataPath());
     if (!f) return;
     f << "warnings=" << warnings_ << "\n";

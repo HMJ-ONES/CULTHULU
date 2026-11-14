@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <unordered_map>
 
 namespace cultulhu {
@@ -36,6 +37,7 @@ struct CCEffect {
 // the movement factor down to a 0.2 floor.
 class ActiveEffects {
 public:
+    void setVictimBeliefs(std::function<const BeliefSystem*(uint64_t)> resolver) { victimBeliefs_ = std::move(resolver); }
     // Apply a CC effect. The base duration is scaled by belief modifiers
     // (combat::ccDuration: Magic shortens foe CC). Publishes CCApplied with
     // tag=ccTypeName, amount=final duration, targetId=entityId.
@@ -57,6 +59,7 @@ public:
     size_t activeCount() const;
 
 private:
+    std::function<const BeliefSystem*(uint64_t)> victimBeliefs_;
     // entity id -> (cc type index -> effect)
     std::unordered_map<uint64_t, std::unordered_map<int, CCEffect>> fx_;
 

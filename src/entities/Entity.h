@@ -61,6 +61,7 @@ public:
     // Wave 27: wards — damage is absorbed by the ward before touching HP.
     // Used by shield-kind kit abilities (e.g. Rhan-Tegoth's Chitin Wall).
     void addWard(float amount) { ward_ += amount; }
+    void clearWard() { ward_ = 0.0f; }
     float ward() const { return ward_; }
 
     // Bring a dead entity back at 'hp' (clamped to maxHp). Used by the

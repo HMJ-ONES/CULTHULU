@@ -1,3 +1,4 @@
+#include <memory>
 // CULT-ULHU: generic entity actor.
 //
 // AActor wrapper around a core cultulhu::Entity. The core object owns all

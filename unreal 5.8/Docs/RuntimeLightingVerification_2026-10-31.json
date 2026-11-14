@@ -1,0 +1,1126 @@
+{
+  "date": "2026-10-31",
+  "project": "unreal 5.8/CultUlhu.uproject",
+  "canonicalValidation": "Passed",
+  "build": {
+    "target": "CultUlhuEditor Win64 Development",
+    "result": "Succeeded",
+    "log": "Saved/LightingMobilityBuild.log"
+  },
+  "baseline": {
+    "mode": "DOTGOO",
+    "archive": "Saved/Automation/LightingBeforeMoba",
+    "measurements": {
+      "directory": "Saved\\Automation\\LightingBeforeMoba",
+      "views": [
+        {
+          "view": 0,
+          "width": 1280,
+          "height": 720,
+          "regions": {
+            "playArea": {
+              "host": {
+                "samples": 105472,
+                "meanSrgb255": 55.796,
+                "p10Srgb255": 19.03,
+                "medianSrgb255": 56.04,
+                "p90Srgb255": 90.339,
+                "nearBlackFractionBelow8": 0.00033
+              },
+              "guest": {
+                "samples": 105472,
+                "meanSrgb255": 41.299,
+                "p10Srgb255": 1.0,
+                "medianSrgb255": 43.669,
+                "p90Srgb255": 73.606,
+                "nearBlackFractionBelow8": 0.18725
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 14.508
+            },
+            "ground": {
+              "host": {
+                "samples": 58880,
+                "meanSrgb255": 58.178,
+                "p10Srgb255": 35.691,
+                "medianSrgb255": 55.252,
+                "p90Srgb255": 89.551,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "guest": {
+                "samples": 58880,
+                "meanSrgb255": 44.062,
+                "p10Srgb255": 9.797,
+                "medianSrgb255": 42.954,
+                "p90Srgb255": 73.109,
+                "nearBlackFractionBelow8": 0.09783
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 14.116
+            },
+            "grayLeft": {
+              "host": {
+                "samples": 195,
+                "meanSrgb255": 29.24,
+                "p10Srgb255": 28.949,
+                "medianSrgb255": 28.949,
+                "p90Srgb255": 29.736,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "guest": {
+                "samples": 195,
+                "meanSrgb255": 7.072,
+                "p10Srgb255": 7.072,
+                "medianSrgb255": 7.072,
+                "p90Srgb255": 7.072,
+                "nearBlackFractionBelow8": 1.0
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 22.168
+            },
+            "grayRight": {
+              "host": {
+                "samples": 195,
+                "meanSrgb255": 53.227,
+                "p10Srgb255": 31.664,
+                "medianSrgb255": 47.528,
+                "p90Srgb255": 84.958,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "guest": {
+                "samples": 195,
+                "meanSrgb255": 32.523,
+                "p10Srgb255": 7.072,
+                "medianSrgb255": 28.507,
+                "p90Srgb255": 70.588,
+                "nearBlackFractionBelow8": 0.33846
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 20.704
+            }
+          }
+        },
+        {
+          "view": 1,
+          "width": 1280,
+          "height": 720,
+          "regions": {
+            "playArea": {
+              "host": {
+                "samples": 105472,
+                "meanSrgb255": 54.952,
+                "p10Srgb255": 16.456,
+                "medianSrgb255": 55.967,
+                "p90Srgb255": 90.551,
+                "nearBlackFractionBelow8": 4e-05
+              },
+              "guest": {
+                "samples": 105472,
+                "meanSrgb255": 40.442,
+                "p10Srgb255": 0.86,
+                "medianSrgb255": 43.669,
+                "p90Srgb255": 74.181,
+                "nearBlackFractionBelow8": 0.21176
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 14.52
+            },
+            "ground": {
+              "host": {
+                "samples": 58880,
+                "meanSrgb255": 55.401,
+                "p10Srgb255": 16.243,
+                "medianSrgb255": 55.04,
+                "p90Srgb255": 89.696,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "guest": {
+                "samples": 58880,
+                "meanSrgb255": 41.252,
+                "p10Srgb255": 0.787,
+                "medianSrgb255": 42.954,
+                "p90Srgb255": 73.322,
+                "nearBlackFractionBelow8": 0.16833
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 14.149
+            },
+            "grayLeft": {
+              "host": {
+                "samples": 195,
+                "meanSrgb255": 61.623,
+                "p10Srgb255": 35.596,
+                "medianSrgb255": 58.103,
+                "p90Srgb255": 94.818,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "guest": {
+                "samples": 195,
+                "meanSrgb255": 37.758,
+                "p10Srgb255": 7.072,
+                "medianSrgb255": 36.366,
+                "p90Srgb255": 76.588,
+                "nearBlackFractionBelow8": 0.26154
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 23.865
+            },
+            "grayRight": {
+              "host": {
+                "samples": 195,
+                "meanSrgb255": 33.482,
+                "p10Srgb255": 33.524,
+                "medianSrgb255": 33.524,
+                "p90Srgb255": 33.596,
+                "nearBlackFractionBelow8": 0.0
+              },
+              "guest": {
+                "samples": 195,
+                "meanSrgb255": 7.072,
+                "p10Srgb255": 7.072,
+                "medianSrgb255": 7.072,
+                "p90Srgb255": 7.072,
+                "nearBlackFractionBelow8": 1.0
+              },
+              "hostGuestMeanAbsoluteDifferenceSrgb255": 26.41
+            }
+          }
+        }
+      ]
+    },
+    "sourceDifference": "Host used specified DaylightAmbientCubemap; guest used captured scene with no cubemap.",
+    "failsCurrentLightingGate": true,
+    "configurations": {
+      "host": {
+        "mode": 2,
+        "role": "host",
+        "fov": 75,
+        "directional": [
+          {
+            "name": "DirectionalLight_0",
+            "intensity": 2.5,
+            "visible": true,
+            "hidden": false,
+            "pitch": -30.0,
+            "yaw": 0.0
+          }
+        ],
+        "sky": [
+          {
+            "name": "SkyLight_0",
+            "intensity": 0.6,
+            "sourceType": 1,
+            "cubemap": "/Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap",
+            "visible": true,
+            "hidden": false
+          }
+        ],
+        "unboundGrades": [
+          {
+            "priority": 100.0,
+            "manualExposure": true,
+            "exposureBias": 0.75
+          }
+        ]
+      },
+      "guest": {
+        "mode": 2,
+        "role": "guest",
+        "fov": 75,
+        "directional": [
+          {
+            "name": "DirectionalLight_0",
+            "intensity": 2.5,
+            "visible": true,
+            "hidden": false,
+            "pitch": -30.0,
+            "yaw": 0.0
+          }
+        ],
+        "sky": [
+          {
+            "name": "SkyLight_0",
+            "intensity": 0.6,
+            "sourceType": 0,
+            "cubemap": "None",
+            "visible": true,
+            "hidden": false
+          }
+        ],
+        "unboundGrades": [
+          {
+            "priority": 100.0,
+            "manualExposure": true,
+            "exposureBias": 0.75
+          }
+        ]
+      }
+    }
+  },
+  "finalNetworkRuns": [
+    {
+      "mode": 0,
+      "label": "Free Roam",
+      "runnerExitCode": 0,
+      "command": "Tools/RunRoomNetworkProbe.py --mode 0 --lighting",
+      "sameComputerTwoProcesses": true,
+      "movementCombatAndMenuClock": "Passed",
+      "configurations": {
+        "host": {
+          "mode": 0,
+          "role": "host",
+          "fov": 75,
+          "directional": [
+            {
+              "name": "DirectionalLight_0",
+              "intensity": 2.5,
+              "visible": true,
+              "hidden": false,
+              "pitch": -32.0,
+              "yaw": -35.0
+            }
+          ],
+          "sky": [
+            {
+              "name": "SkyLight_0",
+              "intensity": 0.55,
+              "sourceType": 1,
+              "cubemap": "/Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap",
+              "visible": true,
+              "hidden": false
+            }
+          ],
+          "unboundGrades": [
+            {
+              "priority": 100.0,
+              "manualExposure": true,
+              "exposureBias": 1.0
+            }
+          ]
+        },
+        "guest": {
+          "mode": 0,
+          "role": "guest",
+          "fov": 75,
+          "directional": [
+            {
+              "name": "DirectionalLight_0",
+              "intensity": 2.5,
+              "visible": true,
+              "hidden": false,
+              "pitch": -32.0,
+              "yaw": -35.0
+            }
+          ],
+          "sky": [
+            {
+              "name": "SkyLight_0",
+              "intensity": 0.55,
+              "sourceType": 1,
+              "cubemap": "/Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap",
+              "visible": true,
+              "hidden": false
+            }
+          ],
+          "unboundGrades": [
+            {
+              "priority": 100.0,
+              "manualExposure": true,
+              "exposureBias": 1.0
+            }
+          ]
+        }
+      },
+      "measurements": {
+        "directory": "Saved\\Automation",
+        "views": [
+          {
+            "view": 0,
+            "width": 1280,
+            "height": 720,
+            "regions": {
+              "playArea": {
+                "host": {
+                  "samples": 105472,
+                  "meanSrgb255": 26.255,
+                  "p10Srgb255": 12.366,
+                  "medianSrgb255": 20.941,
+                  "p90Srgb255": 44.124,
+                  "nearBlackFractionBelow8": 0.09421
+                },
+                "guest": {
+                  "samples": 105472,
+                  "meanSrgb255": 26.259,
+                  "p10Srgb255": 12.366,
+                  "medianSrgb255": 20.941,
+                  "p90Srgb255": 44.091,
+                  "nearBlackFractionBelow8": 0.09426
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.22
+              },
+              "ground": {
+                "host": {
+                  "samples": 58880,
+                  "meanSrgb255": 18.196,
+                  "p10Srgb255": 13.869,
+                  "medianSrgb255": 17.656,
+                  "p90Srgb255": 25.941,
+                  "nearBlackFractionBelow8": 0.06834
+                },
+                "guest": {
+                  "samples": 58880,
+                  "meanSrgb255": 18.195,
+                  "p10Srgb255": 13.869,
+                  "medianSrgb255": 17.656,
+                  "p90Srgb255": 25.941,
+                  "nearBlackFractionBelow8": 0.06829
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.133
+              },
+              "grayLeft": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 35.355,
+                  "p10Srgb255": 35.235,
+                  "medianSrgb255": 35.235,
+                  "p90Srgb255": 35.95,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 35.423,
+                  "p10Srgb255": 35.235,
+                  "medianSrgb255": 35.235,
+                  "p90Srgb255": 35.95,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.142
+              },
+              "grayRight": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 41.953,
+                  "p10Srgb255": 37.954,
+                  "medianSrgb255": 41.597,
+                  "p90Srgb255": 46.601,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 41.948,
+                  "p10Srgb255": 37.742,
+                  "medianSrgb255": 41.597,
+                  "p90Srgb255": 46.601,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.192
+              }
+            }
+          },
+          {
+            "view": 1,
+            "width": 1280,
+            "height": 720,
+            "regions": {
+              "playArea": {
+                "host": {
+                  "samples": 105472,
+                  "meanSrgb255": 85.0,
+                  "p10Srgb255": 13.009,
+                  "medianSrgb255": 19.728,
+                  "p90Srgb255": 209.836,
+                  "nearBlackFractionBelow8": 0.05169
+                },
+                "guest": {
+                  "samples": 105472,
+                  "meanSrgb255": 84.929,
+                  "p10Srgb255": 13.009,
+                  "medianSrgb255": 19.728,
+                  "p90Srgb255": 209.767,
+                  "nearBlackFractionBelow8": 0.05182
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.86
+              },
+              "ground": {
+                "host": {
+                  "samples": 58880,
+                  "meanSrgb255": 95.411,
+                  "p10Srgb255": 13.081,
+                  "medianSrgb255": 82.804,
+                  "p90Srgb255": 209.262,
+                  "nearBlackFractionBelow8": 0.00165
+                },
+                "guest": {
+                  "samples": 58880,
+                  "meanSrgb255": 95.442,
+                  "p10Srgb255": 13.081,
+                  "medianSrgb255": 82.931,
+                  "p90Srgb255": 208.691,
+                  "nearBlackFractionBelow8": 0.00165
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.973
+              },
+              "grayLeft": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 120.518,
+                  "p10Srgb255": 98.963,
+                  "medianSrgb255": 122.679,
+                  "p90Srgb255": 141.819,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 120.603,
+                  "p10Srgb255": 98.963,
+                  "medianSrgb255": 122.538,
+                  "p90Srgb255": 141.819,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.333
+              },
+              "grayRight": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 106.734,
+                  "p10Srgb255": 106.032,
+                  "medianSrgb255": 106.959,
+                  "p90Srgb255": 107.104,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 106.725,
+                  "p10Srgb255": 106.032,
+                  "medianSrgb255": 106.959,
+                  "p90Srgb255": 107.104,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.394
+              }
+            }
+          }
+        ]
+      },
+      "archive": "Saved/Automation/LightingFinalFreeRoam"
+    },
+    {
+      "mode": 1,
+      "label": "Domination",
+      "runnerExitCode": 0,
+      "command": "Tools/RunRoomNetworkProbe.py --mode 1 --lighting",
+      "sameComputerTwoProcesses": true,
+      "movementCombatAndMenuClock": "Passed",
+      "configurations": {
+        "host": {
+          "mode": 1,
+          "role": "host",
+          "fov": 75,
+          "directional": [
+            {
+              "name": "DirectionalLight_0",
+              "intensity": 2.5,
+              "visible": true,
+              "hidden": false,
+              "pitch": -30.0,
+              "yaw": 0.0
+            }
+          ],
+          "sky": [
+            {
+              "name": "SkyLight_0",
+              "intensity": 0.6,
+              "sourceType": 1,
+              "cubemap": "/Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap",
+              "visible": true,
+              "hidden": false
+            }
+          ],
+          "unboundGrades": [
+            {
+              "priority": 100.0,
+              "manualExposure": true,
+              "exposureBias": 0.75
+            }
+          ]
+        },
+        "guest": {
+          "mode": 1,
+          "role": "guest",
+          "fov": 75,
+          "directional": [
+            {
+              "name": "DirectionalLight_0",
+              "intensity": 2.5,
+              "visible": true,
+              "hidden": false,
+              "pitch": -30.0,
+              "yaw": 0.0
+            }
+          ],
+          "sky": [
+            {
+              "name": "SkyLight_0",
+              "intensity": 0.6,
+              "sourceType": 1,
+              "cubemap": "/Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap",
+              "visible": true,
+              "hidden": false
+            }
+          ],
+          "unboundGrades": [
+            {
+              "priority": 100.0,
+              "manualExposure": true,
+              "exposureBias": 0.75
+            }
+          ]
+        }
+      },
+      "measurements": {
+        "directory": "Saved\\Automation",
+        "views": [
+          {
+            "view": 0,
+            "width": 1280,
+            "height": 720,
+            "regions": {
+              "playArea": {
+                "host": {
+                  "samples": 105472,
+                  "meanSrgb255": 90.478,
+                  "p10Srgb255": 84.618,
+                  "medianSrgb255": 91.334,
+                  "p90Srgb255": 100.193,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 105472,
+                  "meanSrgb255": 90.483,
+                  "p10Srgb255": 84.618,
+                  "medianSrgb255": 91.334,
+                  "p90Srgb255": 100.193,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.296
+              },
+              "ground": {
+                "host": {
+                  "samples": 58880,
+                  "meanSrgb255": 88.883,
+                  "p10Srgb255": 84.546,
+                  "medianSrgb255": 90.334,
+                  "p90Srgb255": 96.193,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 58880,
+                  "meanSrgb255": 88.884,
+                  "p10Srgb255": 84.546,
+                  "medianSrgb255": 90.334,
+                  "p90Srgb255": 96.265,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.282
+              },
+              "grayLeft": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 89.581,
+                  "p10Srgb255": 88.546,
+                  "medianSrgb255": 90.334,
+                  "p90Srgb255": 93.334,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 89.591,
+                  "p10Srgb255": 88.406,
+                  "medianSrgb255": 90.406,
+                  "p90Srgb255": 93.691,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.391
+              },
+              "grayRight": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 89.102,
+                  "p10Srgb255": 87.261,
+                  "medianSrgb255": 90.618,
+                  "p90Srgb255": 93.121,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 89.141,
+                  "p10Srgb255": 87.261,
+                  "medianSrgb255": 90.618,
+                  "p90Srgb255": 93.121,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.348
+              }
+            }
+          },
+          {
+            "view": 1,
+            "width": 1280,
+            "height": 720,
+            "regions": {
+              "playArea": {
+                "host": {
+                  "samples": 105472,
+                  "meanSrgb255": 93.618,
+                  "p10Srgb255": 85.759,
+                  "medianSrgb255": 95.406,
+                  "p90Srgb255": 102.768,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 105472,
+                  "meanSrgb255": 93.621,
+                  "p10Srgb255": 85.831,
+                  "medianSrgb255": 95.406,
+                  "p90Srgb255": 102.768,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.294
+              },
+              "ground": {
+                "host": {
+                  "samples": 58880,
+                  "meanSrgb255": 93.571,
+                  "p10Srgb255": 88.334,
+                  "medianSrgb255": 95.265,
+                  "p90Srgb255": 102.053,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 58880,
+                  "meanSrgb255": 93.57,
+                  "p10Srgb255": 88.334,
+                  "medianSrgb255": 95.265,
+                  "p90Srgb255": 102.053,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.284
+              },
+              "grayLeft": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 101.34,
+                  "p10Srgb255": 94.406,
+                  "medianSrgb255": 104.053,
+                  "p90Srgb255": 105.84,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 101.351,
+                  "p10Srgb255": 94.193,
+                  "medianSrgb255": 104.053,
+                  "p90Srgb255": 105.84,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.332
+              },
+              "grayRight": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 87.996,
+                  "p10Srgb255": 86.402,
+                  "medianSrgb255": 89.261,
+                  "p90Srgb255": 92.193,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 87.975,
+                  "p10Srgb255": 85.831,
+                  "medianSrgb255": 89.261,
+                  "p90Srgb255": 92.193,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.324
+              }
+            }
+          }
+        ]
+      },
+      "archive": "Saved/Automation/LightingFinalDomination",
+      "competitiveBotHandoff": "Passed"
+    },
+    {
+      "mode": 2,
+      "label": "DOTGOO",
+      "runnerExitCode": 0,
+      "command": "Tools/RunRoomNetworkProbe.py --mode 2 --lighting",
+      "sameComputerTwoProcesses": true,
+      "movementCombatAndMenuClock": "Passed",
+      "configurations": {
+        "host": {
+          "mode": 2,
+          "role": "host",
+          "fov": 75,
+          "directional": [
+            {
+              "name": "DirectionalLight_0",
+              "intensity": 2.5,
+              "visible": true,
+              "hidden": false,
+              "pitch": -30.0,
+              "yaw": 0.0
+            }
+          ],
+          "sky": [
+            {
+              "name": "SkyLight_0",
+              "intensity": 0.6,
+              "sourceType": 1,
+              "cubemap": "/Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap",
+              "visible": true,
+              "hidden": false
+            }
+          ],
+          "unboundGrades": [
+            {
+              "priority": 100.0,
+              "manualExposure": true,
+              "exposureBias": 0.75
+            }
+          ]
+        },
+        "guest": {
+          "mode": 2,
+          "role": "guest",
+          "fov": 75,
+          "directional": [
+            {
+              "name": "DirectionalLight_0",
+              "intensity": 2.5,
+              "visible": true,
+              "hidden": false,
+              "pitch": -30.0,
+              "yaw": 0.0
+            }
+          ],
+          "sky": [
+            {
+              "name": "SkyLight_0",
+              "intensity": 0.6,
+              "sourceType": 1,
+              "cubemap": "/Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap",
+              "visible": true,
+              "hidden": false
+            }
+          ],
+          "unboundGrades": [
+            {
+              "priority": 100.0,
+              "manualExposure": true,
+              "exposureBias": 0.75
+            }
+          ]
+        }
+      },
+      "measurements": {
+        "directory": "Saved\\Automation",
+        "views": [
+          {
+            "view": 0,
+            "width": 1280,
+            "height": 720,
+            "regions": {
+              "playArea": {
+                "host": {
+                  "samples": 105472,
+                  "meanSrgb255": 55.792,
+                  "p10Srgb255": 19.03,
+                  "medianSrgb255": 56.04,
+                  "p90Srgb255": 90.339,
+                  "nearBlackFractionBelow8": 0.00036
+                },
+                "guest": {
+                  "samples": 105472,
+                  "meanSrgb255": 55.792,
+                  "p10Srgb255": 18.958,
+                  "medianSrgb255": 56.04,
+                  "p90Srgb255": 90.339,
+                  "nearBlackFractionBelow8": 0.0004
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.254
+              },
+              "ground": {
+                "host": {
+                  "samples": 58880,
+                  "meanSrgb255": 58.194,
+                  "p10Srgb255": 35.818,
+                  "medianSrgb255": 55.252,
+                  "p90Srgb255": 89.551,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 58880,
+                  "meanSrgb255": 58.188,
+                  "p10Srgb255": 35.759,
+                  "medianSrgb255": 55.252,
+                  "p90Srgb255": 89.551,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.25
+              },
+              "grayLeft": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 29.246,
+                  "p10Srgb255": 28.949,
+                  "medianSrgb255": 28.949,
+                  "p90Srgb255": 29.736,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 29.236,
+                  "p10Srgb255": 28.949,
+                  "medianSrgb255": 28.949,
+                  "p90Srgb255": 29.736,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.17
+              },
+              "grayRight": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 53.263,
+                  "p10Srgb255": 31.736,
+                  "medianSrgb255": 47.528,
+                  "p90Srgb255": 85.171,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 53.285,
+                  "p10Srgb255": 31.736,
+                  "medianSrgb255": 47.456,
+                  "p90Srgb255": 85.026,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.229
+              }
+            }
+          },
+          {
+            "view": 1,
+            "width": 1280,
+            "height": 720,
+            "regions": {
+              "playArea": {
+                "host": {
+                  "samples": 105472,
+                  "meanSrgb255": 54.935,
+                  "p10Srgb255": 16.456,
+                  "medianSrgb255": 55.967,
+                  "p90Srgb255": 90.411,
+                  "nearBlackFractionBelow8": 2e-05
+                },
+                "guest": {
+                  "samples": 105472,
+                  "meanSrgb255": 54.937,
+                  "p10Srgb255": 16.456,
+                  "medianSrgb255": 55.967,
+                  "p90Srgb255": 90.479,
+                  "nearBlackFractionBelow8": 2e-05
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.236
+              },
+              "ground": {
+                "host": {
+                  "samples": 58880,
+                  "meanSrgb255": 55.387,
+                  "p10Srgb255": 16.243,
+                  "medianSrgb255": 55.04,
+                  "p90Srgb255": 89.624,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 58880,
+                  "meanSrgb255": 55.388,
+                  "p10Srgb255": 16.243,
+                  "medianSrgb255": 55.04,
+                  "p90Srgb255": 89.624,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.239
+              },
+              "grayLeft": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 61.641,
+                  "p10Srgb255": 35.596,
+                  "medianSrgb255": 58.103,
+                  "p90Srgb255": 94.818,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 61.669,
+                  "p10Srgb255": 35.596,
+                  "medianSrgb255": 58.03,
+                  "p90Srgb255": 94.818,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.215
+              },
+              "grayRight": {
+                "host": {
+                  "samples": 195,
+                  "meanSrgb255": 33.486,
+                  "p10Srgb255": 33.524,
+                  "medianSrgb255": 33.524,
+                  "p90Srgb255": 33.596,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "guest": {
+                  "samples": 195,
+                  "meanSrgb255": 33.489,
+                  "p10Srgb255": 33.524,
+                  "medianSrgb255": 33.524,
+                  "p90Srgb255": 33.596,
+                  "nearBlackFractionBelow8": 0.0
+                },
+                "hostGuestMeanAbsoluteDifferenceSrgb255": 0.079
+              }
+            }
+          }
+        ]
+      },
+      "archive": "Saved/Automation/LightingFinalMoba",
+      "competitiveBotHandoff": "Passed",
+      "movingCreeps": "Passed",
+      "wardCountdown": {
+        "chargeSeconds": 8,
+        "guestRemaining": 7.8845,
+        "serverRemaining": 7.9667
+      }
+    }
+  ],
+  "nativeRegression": {
+    "test": "CultUlhu.Menu.WildsPresentation",
+    "result": "Success",
+    "log": "Saved/SharedLightingNativeTests.log",
+    "scope": [
+      "courtyard/cave rendered comparison",
+      "player transform preservation",
+      "floor collision preservation",
+      "sky does not block gameplay visibility traces"
+    ]
+  },
+  "correctionBeforeDelivery": {
+    "freeRoamMoonDirectionMismatch": {
+      "host": {
+        "pitch": -32,
+        "yaw": -35
+      },
+      "guestBeforeMobilityFix": {
+        "pitch": -30,
+        "yaw": 0
+      },
+      "final": "Matched after explicit movable-light setup",
+      "rejectedRunArchive": "Saved/Automation/LightingFreeMismatch"
+    }
+  },
+  "screenshots": [
+    {
+      "path": "Saved/Automation/LightingFinalFreeRoam/Room0_lighting_host_0.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "17f0c20f48d315bdbc6a6fe584bba7c6d51a37ac180adaf5c45c12580c2a41f3"
+    },
+    {
+      "path": "Saved/Automation/LightingFinalFreeRoam/Room0_lighting_host_1.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d063ffef6d56dc3c3c30ed57bad3c28a91d33abff23876ba52042641324306a8"
+    },
+    {
+      "path": "Saved/Automation/LightingFinalFreeRoam/Room0_lighting_guest_0.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "f9d2ee99b09d5489e22907b7bef9b4247c62d0a83233c006b10ce06bc072bdc9"
+    },
+    {
+      "path": "Saved/Automation/LightingFinalFreeRoam/Room0_lighting_guest_1.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "c55adcc1003df7b129b56293a2f517ad82805031179db22ec049e72896f439b8"
+    },
+    {
+      "path": "Saved/Automation/LightingFinalDomination/Room1_lighting_host_0.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "bc6ff759a1a99423ea5c52db067f724ada5caf6e72b9b9e8052e8f688f141471"
+    },
+    {
+      "path": "Saved/Automation/LightingFinalDomination/Room1_lighting_host_1.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "a8fbe46f6c36197f90a1fd58649b08de7d50abb3169ddd183d8dfd1c429af981"
+    },
+    {
+      "path": "Saved/Automation/LightingFinalDomination/Room1_lighting_guest_0.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "a53c569b2a8668696a571000f879e2e6d5453786926a3765b41f517f46f11cb0"
+    },
+    {
+      "path": "Saved/Automation/LightingFinalDomination/Room1_lighting_guest_1.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "ae782f68c52ba4b2b301c7a26da7827c1a952b6b43d07eb8534e4cd21859bb96"
+    },
+    {
+      "path": "Saved/Automation/LightingFinalMoba/Room2_lighting_host_0.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "87f57dc39950e45b96e11b34d32e18ac344633a2757cefc60397533f7c3dcbef"
+    },
+    {
+      "path": "Saved/Automation/LightingFinalMoba/Room2_lighting_host_1.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "f0e073e5a90b26cdfc1bc72594ca8c2ccac037c306b096ea1b638f82cc075c70"
+    },
+    {
+      "path": "Saved/Automation/LightingFinalMoba/Room2_lighting_guest_0.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "bc41d5046906187275078684cd669b8d6dc0c6757dd6d99c835f1fc47f43d925"
+    },
+    {
+      "path": "Saved/Automation/LightingFinalMoba/Room2_lighting_guest_1.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "77558946b62d9f96ddfde1fef5bfd258d02ca3ef661e89ba3bfd167655f93a32"
+    }
+  ],
+  "visuallyInspected": [
+    "Baseline DOTGOO south host and guest",
+    "Final DOTGOO south guest",
+    "Final Free Roam north host and guest"
+  ],
+  "newAssetDownloads": 0,
+  "sourceSha256": {
+    "Source/CultUlhu/Private/CultSceneLighting.h": "e54f8c11a27faf55def4ca4203e11ddd8322f548239764ab98bcaeb4c8b42dab",
+    "Source/CultUlhu/Private/CultSceneLighting.cpp": "9b960be013a9d7c705a77bbcb6ac1a9f29358217aad786a80f904e927bab8aec",
+    "Source/CultUlhu/Private/CultMatchArena.cpp": "7f3353500a49a115b175d93bf0b7b5f2f59f4fc9bdce40bcaf44c341b777d6a7",
+    "Source/CultUlhu/Private/CultUlhuPlayGameMode.cpp": "b80e9085b090666c8ba816d4c721aa4a11b08b8220b702ecb24ed7e6124b0c7f",
+    "Source/CultUlhu/Private/CultWildsPresentation.cpp": "19d95edc96df981a4835d88633efec439a4e962b54d16d80702a6077de4b32b0",
+    "Source/CultUlhu/Private/CultFreeRoamNetwork.cpp": "109b133ac0f9f7d477b1b14491c66b39ca2315e3be02dca6cf0c22e820a25115",
+    "Source/CultUlhu/Private/CultMatchLightingProbe.h": "f3ae94e78eaa7039ed6b9be2b34ffc1ccdcb382a1fd46959d35d79cbfa06eca3",
+    "Source/CultUlhu/Private/CultMatchLightingProbe.cpp": "6de9af2c1ef96d93b9552bb7a8cc5c421c850ec6737bcad38f24fee76d6eca92",
+    "Source/CultUlhu/Private/CultRoomProbe.cpp": "7125f1e08521d77cbe8df7dfcd4b0817c6e2ee06ff2e15a02b6d8cfac4ad9f31",
+    "Tools/RunRoomNetworkProbe.py": "7deade7d6decbda9b07a4711a7d6c3de67fbb7f3b51fe15a65920a65c168ded5",
+    "Tools/AnalyzeMatchLighting.py": "491ec595dbf9ae439bd12d8aa6cc07c7f592a10abb96865dd5e4d29e3f11baaf"
+  },
+  "limitations": [
+    "Two matched views per mode, not complete scene/creature contrast coverage.",
+    "Pixel statistics use weighted sRGB bytes, not calibrated radiance or beauty scores.",
+    "Same-computer network checks; different-PC/adverse-network and packaged-build certification not performed.",
+    "No complete human-controlled match, audio review or low-spec performance certification in this pass.",
+    "Broader map art, route landmarks, camera composition, HUD density and animation review remain open."
+  ]
+}

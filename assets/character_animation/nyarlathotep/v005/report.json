@@ -1,0 +1,67 @@
+{
+  "character": "nyarlathotep",
+  "sourceSha256": "48fbd279340f482636095b4beb81c78e8d3d3b2700dc76c9d0e92dfca63a6863",
+  "blendSha256": "92241c03fa1f94ba6b7827feb62766dea27eb54de0fe11be3047e4d7a2fad738",
+  "bones": 30,
+  "skinning": {
+    "method": "surface-geodesic anatomical regions / joint proximity",
+    "regions": [
+      "body",
+      "head",
+      "arm_L",
+      "arm_R",
+      "leg_L",
+      "leg_R",
+      "leg_rear"
+    ],
+    "maxInfluences": 4,
+    "vertices": 25832,
+    "disconnectedFallbackVertices": 21,
+    "surfaceSmoothingIterations": 10,
+    "normalizationMaxError": 2.220446049250313e-16
+  },
+  "actions": {
+    "idle": {
+      "frames": 103,
+      "minimumSurfaceZ": 0.0
+    },
+    "walk": {
+      "frames": 49,
+      "minimumSurfaceZ": 0.0
+    },
+    "run": {
+      "frames": 28,
+      "minimumSurfaceZ": 0.0
+    },
+    "melee_1": {
+      "frames": 21,
+      "minimumSurfaceZ": 0.0
+    },
+    "melee_2": {
+      "frames": 22,
+      "minimumSurfaceZ": 0.0
+    },
+    "melee_3": {
+      "frames": 27,
+      "minimumSurfaceZ": 0.0
+    },
+    "jump": {
+      "frames": 31,
+      "minimumSurfaceZ": 0.0
+    },
+    "dash": {
+      "frames": 15,
+      "minimumSurfaceZ": 0.0
+    },
+    "taunt": {
+      "frames": 79,
+      "minimumSurfaceZ": 0.0
+    },
+    "land": {
+      "frames": 11,
+      "minimumSurfaceZ": 0.0
+    }
+  },
+  "abilities": false,
+  "status": "first anatomical motion study; requires visual and deformation review; not game integrated"
+}

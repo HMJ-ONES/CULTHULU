@@ -21,7 +21,12 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#ifdef _WIN32
+#include <filesystem>
+#include <chrono>
+#else
 #include <unistd.h>
+#endif
 
 static int failures = 0;
 #define CHECK(cond)                                        \
@@ -33,20 +38,35 @@ static int failures = 0;
         }                                                  \
     } while (0)
 
-static void isolate_home(char* dir, std::string& oldHome) {
+static void isolate_home(const char* dir, std::string& oldHome) {
     const char* h = std::getenv("HOME");
     oldHome = h ? h : "";
+#ifdef _WIN32
+    _putenv_s("HOME",dir);
+#else
     setenv("HOME", dir, 1);
+#endif
 }
 
 static void restore_home(const std::string& oldHome) {
+#ifdef _WIN32
+    _putenv_s("HOME",oldHome.c_str());
+#else
     if (oldHome.empty()) unsetenv("HOME");
     else setenv("HOME", oldHome.c_str(), 1);
+#endif
 }
 
 static void anticheat_checks() {
+#ifdef _WIN32
+    const auto directory=std::filesystem::temp_directory_path()/("cultulhu_ac_test_"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    CHECK(std::filesystem::create_directory(directory));
+    const std::string temporary=directory.string();
+    const char* tmpl=temporary.c_str();
+#else
     char tmpl[] = "/tmp/cultulhu_ac_test_XXXXXX";
     CHECK(mkdtemp(tmpl) != nullptr);
+#endif
     std::string oldHome;
     isolate_home(tmpl, oldHome);
 

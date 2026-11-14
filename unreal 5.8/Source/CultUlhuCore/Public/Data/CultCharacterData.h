@@ -5,7 +5,7 @@
 // -> this asset (see Docs/CharacterPipeline.md). The game reads stats from
 // here; ACultUlhuCharacter::ToCoreDef() converts back to the core struct.
 //
-// Field-for-field mapping is validated by unreal 5.8/Tests/validate_binding.py.
+// Field-for-field mapping is validated by unreal/Tests/validate_binding.py.
 #pragma once
 
 #include "CoreMinimal.h"

@@ -9,6 +9,11 @@ Run in the editor: Tools -> Execute Python Script -> BuildMainMenu.py
 Idempotent: existing maps are left alone.
 """
 import unreal
+from pathlib import Path
+
+project = Path(__file__).resolve().parents[1]
+assert project.name == 'unreal 5.8' and (project/'CultUlhu.uproject').is_file()
+assert Path(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())).resolve() == project
 
 ellt = unreal.EditorLevelLibrary
 eal = unreal.EditorAssetLibrary

@@ -1,3 +1,5 @@
+> Current playable Unreal project: [UE 5.8 setup](unreal%205.8/README.md). [Consolidation and verification review](unreal%205.8/Docs/ConsolidationReview_2026-10-27.md).
+
 # CULT-ULHU — Playable Beta (free roam + Dreams + driver)
 
 Cosmic-horror ARPG (first/third person) core: choose your cosmic horror

@@ -1,4 +1,4 @@
-// CULT-ULHU character select: grid of the 20 playable entities.
+// CULT-ULHU character select: released entity roster and original kit details.
 // Pure C++ UMG. SetMode() before RebuildGrid(); SelectCharacter() is
 // called by the cards; OnPlay starts the game via the game instance.
 #pragma once
@@ -17,6 +17,7 @@ class UScrollBox;
 class UButton;
 class UTextBlock;
 class UCultCharacterCardWidget;
+class UCultCharacterPreviewWidget;
 
 UCLASS()
 class CULTULHU_API UCultCharacterSelectWidget : public UUserWidget
@@ -41,6 +42,7 @@ protected:
 	UFUNCTION() void OnPlayClicked();
 
 private:
+	friend struct FCultCharacterSelectionTestAccess;
 	void BuildLayout();
 	void RefreshSelection();
 
@@ -51,6 +53,13 @@ private:
 	UPROPERTY() UUniformGridPanel* Grid_ = nullptr;
 	UPROPERTY() UTextBlock* TitleText_ = nullptr;
 	UPROPERTY() UTextBlock* DetailText_ = nullptr;
+	UPROPERTY() UTextBlock* DetailSubtitle_ = nullptr;
+	UPROPERTY() UTextBlock* DetailFlavor_ = nullptr;
+	UPROPERTY() UTextBlock* DetailStats_ = nullptr;
+ UPROPERTY() UCultCharacterPreviewWidget* Preview_=nullptr;
+	UPROPERTY() UTextBlock* ModeHint_ = nullptr;
+	UPROPERTY() TArray<UTextBlock*> AbilityNames_;
+	UPROPERTY() TArray<UTextBlock*> AbilityMeta_;
 	UPROPERTY() UButton* BackButton_ = nullptr;
 	UPROPERTY() UButton* PlayButton_ = nullptr;
 	UPROPERTY() TArray<UCultCharacterCardWidget*> Cards_;

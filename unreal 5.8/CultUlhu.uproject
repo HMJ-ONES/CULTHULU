@@ -1,27 +1,44 @@
 {
-	"FileVersion": 3,
-	"EngineAssociation": "5.8",
-	"Category": "",
-	"Description": "CULT-ULHU — cosmic-horror ARPG. Engine-agnostic C++17 core in ../src, UE5 presentation binding in unreal 5.8/.",
-	"Modules": [
-		{
-			"Name": "CultUlhuCore",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		},
-		{
-			"Name": "CultUlhu",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		}
-	],
-	"Plugins": [
-		{
-			"Name": "EnhancedInput",
-			"Enabled": true
-		}
-	],
-	"TargetPlatforms": [
-		"Windows"
-	]
+  "FileVersion": 3,
+  "EngineAssociation": "{0E8B0ECB-4210-8E59-F05B-A4BFB8E3FF5D}",
+  "Category": "",
+  "Description": "CULT-ULHU — cosmic-horror ARPG. Engine-agnostic C++17 core in ../src, UE5 presentation binding in unreal/.",
+  "Modules": [
+    {
+      "Name": "CultUlhuCore",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "CultUlhu",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "Plugins": [
+    { "Name": "ProceduralMeshComponent", "Enabled": true },
+    {
+      "Name": "EnhancedInput",
+      "Enabled": true
+    },
+    {
+      "Name": "ModelContextProtocol",
+      "Enabled": true
+    },
+    {
+      "Name": "EditorToolset",
+      "Enabled": true
+    },
+    {
+      "Name": "AutomationTestToolset",
+      "Enabled": true
+    },
+    {
+      "Name": "PythonScriptPlugin",
+      "Enabled": true
+    }
+  ],
+  "TargetPlatforms": [
+    "Windows"
+  ]
 }

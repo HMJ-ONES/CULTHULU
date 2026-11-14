@@ -2,6 +2,7 @@
 // expanded MOBA. Run via ctest or directly.
 
 #include "ai/AI.h"
+#include "TestScratch.h"
 #include "beliefs/BeliefSystem.h"
 #include "breeding/BreedingSystem.h"
 #include "core/EventBus.h"
@@ -51,14 +52,22 @@ static void test_save_load() {
     e2.pos = Vec3(-3, 1, 2); e2.hp = 1000; e2.maxHp = 1000;
     s.entities = {e1, e2};
 
-    const char* path = "/tmp/cultulhu_wave2_save.txt";
-    CHECK(SaveSystem::save(s, path));
+    TestScratch scratch("wave2");
+    CHECK(scratch.valid());
+    if (!scratch.valid()) return;
+    const std::string path = scratch.file("save.txt");
+    const bool saved = SaveSystem::save(s, path);
+    CHECK(saved);
+    if (!saved) return;
 
     GameState out;
-    CHECK(SaveSystem::load(path, out));
+    const bool loaded = SaveSystem::load(path, out);
+    CHECK(loaded);
+    if (!loaded) return;
     CHECK_CLOSE(out.clockTime, 123.5, 0.001);
     CHECK_CLOSE(out.power, 250.0f, 0.001f);
     CHECK(out.activeBeliefs.size() == 2);
+    if (out.activeBeliefs.size() != 2 || out.entities.size() != 2) { CHECK(false); return; }
     CHECK(out.activeBeliefs[0] == Belief::Torture);
     CHECK(out.activeBeliefs[1] == Belief::War);
     CHECK_CLOSE(out.insurrectionRisk, 12.5f, 0.001f);
@@ -69,8 +78,8 @@ static void test_save_load() {
 
     // Missing file -> false, no crash.
     GameState junk;
-    CHECK(!SaveSystem::load("/tmp/cultulhu_nope_missing.txt", junk));
-    std::remove(path);
+    CHECK(!SaveSystem::load(scratch.file("missing.txt"), junk));
+    std::remove(path.c_str());
 }
 
 static void test_breeding() {
