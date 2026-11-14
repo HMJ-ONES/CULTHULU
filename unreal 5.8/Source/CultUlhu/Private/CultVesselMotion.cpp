@@ -20,10 +20,12 @@ void ACultUlhuPlayerPawn::UpdateTeamAura()
  if(!Viewer) return;
  const int Relation=Viewer==this?-1:int(Viewer->GetFaction()==GetFaction());
  if(AuraRelation_==Relation) return;
+ static TWeakObjectPtr<UMaterialInterface> RimAsset;
+ if(Relation>=0&&!RimAsset.IsValid())
+  RimAsset=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_CompetitiveTeamRim"));
+ if(Relation>=0&&!RimAsset.IsValid()) return;
+ auto* Rim=Relation<0?nullptr:UMaterialInstanceDynamic::Create(RimAsset.Get(),this);
  AuraRelation_=Relation;
- static UMaterialInterface* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_CompetitiveTeamRim"));
- if(!Base) return;
- auto* Rim=Relation<0?nullptr:UMaterialInstanceDynamic::Create(Base,this);
  if(Rim) Rim->SetVectorParameterValue(TEXT("TeamColor"),TeamColorFor(Viewer->GetFaction()));
  TArray<AActor*> Attached;
  GetAttachedActors(Attached);
@@ -83,8 +85,8 @@ void ACultUlhuPlayerPawn::UpdateVesselMotion(float DeltaSeconds) {
  const float Age=Time-Motion.Began;
  const bool Striking=Motion.Move==CultAttackMotion::EMove::Melee&&Age>=0&&Age<Motion.Duration&&!IsIncapacitated();
  const float Contact=FMath::Max(.02f,Motion.Contact);
- const float Sweep=FMath::Clamp((Age-(Contact-.10f))/.20f,0.f,1.f);
- const float Recovery=1-FMath::SmoothStep(Motion.Duration-.09f,Motion.Duration,Age);
+ const float Sweep=FMath::SmoothStep(Contact-.145f,Contact+.145f,Age);
+ const float Recovery=1-FMath::SmoothStep(Motion.Duration-CultAttackMotion::MeleeFollowThrough,Motion.Duration,Age);
  const auto Facing=FRotator(0,AimRotation().Yaw-GetActorRotation().Yaw,0);
  for(int Index=0;Index<2;++Index) {
   const float Side=Index==0?-1.f:1.f;
@@ -92,7 +94,7 @@ void ACultUlhuPlayerPawn::UpdateVesselMotion(float DeltaSeconds) {
   const FVector Shoulder(0,Side*28,30), Rest(15,Side*46,-30);
   const float Angle=FMath::DegreesToRadians(Side*FMath::Lerp(72.f,-38.f,Sweep));
   const FVector Strike(69*FMath::Cos(Angle),69*FMath::Sin(Angle),-8+32*FMath::Clamp(AimRotation().Pitch/55.f,-1.f,1.f));
-  const FVector Hand=Active?FMath::Lerp(Rest,Facing.RotateVector(Strike),FMath::SmoothStep(0.f,.10f,Age)*Recovery):Rest;
+  const FVector Hand=Active?FMath::Lerp(Rest,Facing.RotateVector(Strike),FMath::SmoothStep(0.f,.17f,Age)*Recovery):Rest;
   const FVector Elbow=FMath::Lerp(Shoulder,Hand,.49)+FVector(-6,Side*8,-5);
   const FVector Points[]={Shoulder,Elbow,Hand};
   for(int Segment=0;Segment<2;++Segment) {

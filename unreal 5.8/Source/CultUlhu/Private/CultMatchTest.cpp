@@ -99,8 +99,13 @@ struct FCultMatchTestAccess {
   T->TestTrue(TEXT("The distant occupant receives fear from the aimed zone"),Enemy->Control_.Fear);
  }
  static void VerifyBotMeleeReach(FAutomationTestBase* T,ACultMatchDirector* M) {
-  auto* W=M->GetWorld(); M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false; HoldBots(M,true); Park(M); Unshield(M);
+  auto* W=M->GetWorld(); M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false;
+  auto& Fighter=M->State_->Fighters[5];
+  if(Fighter.Pawn.IsValid()) Fighter.Pawn->Destroy();
+  Fighter.Pawn=nullptr; Fighter.Kit=TEXT("rhan_tegoth"); M->SpawnFighter(5);
+  HoldBots(M,true); Park(M); Unshield(M);
   auto* Bot=M->Fighters()[5].Pawn.Get(); auto* Enemy=M->Fighters()[0].Pawn.Get(); Bot->bBotControlled_=true;
+  Bot->Kit_->SetHeavyCooldown(999.f);
   auto Reset=[&](FVector EnemyFeet) {
    for(TActorIterator<ACultSkillAttack> It(W);It;++It) It->Destroy();
    Bot->RelocateMatch(FVector(0,0,60000)); Enemy->RelocateMatch(EnemyFeet);
@@ -113,7 +118,14 @@ struct FCultMatchTestAccess {
   T->TestEqual(TEXT("A twenty-metre bot preserves its swing when the target is beyond actual melee reach"),Swings().Num(),0);
   Reset(FVector(1000,0,60000)); const float Before=Enemy->GetHealth(); M->BotThink(5,.016f); auto Close=Swings();
   T->TestEqual(TEXT("The same bot commits a swing against a physically reachable target"),Close.Num(),1);
-  for(auto* A:Close) { A->Tick(0); A->Tick(.22f); }
+  for(auto* A:Close) {
+   A->Tick(0);
+   for(int Frame=1;Frame<=30&&IsValid(A);++Frame) {
+    Bot->AttackPlayback_.Began=W->GetTimeSeconds()-Frame*.016f;
+    Bot->UpdateVesselMotion(.016f);
+    A->Tick(.016f);
+   }
+  }
   T->TestTrue(TEXT("Reachable control swing causes real physical contact damage"),Enemy->GetHealth()<Before);
   if(M->State_->Moba) {
    Reset(M->Base(0));

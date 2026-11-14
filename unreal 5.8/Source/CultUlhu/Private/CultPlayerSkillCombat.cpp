@@ -63,7 +63,7 @@ void ACultUlhuPlayerPawn::StartMelee(float Damage,float Range,float Windup,float
  const bool Retreat=FVector::DotProduct(MovementDirection,AimRotation().Vector().GetSafeNormal2D())<-.25f;
  const uint8 Combo=uint8(Kit_?FMath::Clamp(Kit_->MeleeStage(),1,3):1);
  const uint8 Variant=Combo|(Retreat?4:0)|(A->HalfAngle<0?8:0);
- PlayAttackMotion(CultAttackMotion::EMove::Melee,Windup+Duration*.5f,SwingTime_+.09f,Variant);
+ PlayAttackMotion(CultAttackMotion::EMove::Melee,Windup+Duration*.5f,SwingTime_+CultAttackMotion::MeleeFollowThrough,Variant);
  auto* Movement=GetCharacterMovement();
  if(!MovementDirection.IsNearlyZero()&&!IsDashing()&&Movement->IsMovingOnGround()) {
   Movement->RemoveRootMotionSource(TEXT("CultMeleeStep"));

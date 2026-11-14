@@ -46,6 +46,7 @@ private:
  bool bRunning_=false;
  TArray<FTransform> StaticRest_;
  void UpdateCombatGesture(float DeltaSeconds);
+ void BindYigWeapons();
  void PlayRole(const FString& Role);
  void UpdateOriginalOrb();
  float AuthoredMeleePhase(float Progress) const;

@@ -104,7 +104,8 @@ public:
  bool IsSwinging() const { return SwingTime_>0; }
  bool FallbackStrikeLimb(int Index,FVector& Elbow,FVector& Hand) const;
  FCultCombatHUDData CombatHUD() const;
- void StartMelee(float Damage,float Range=0,float Windup=.12f,float Duration=.20f);
+
+ void StartMelee(float Damage,float Range=0,float Windup=CultAttackMotion::MeleeWindup,float Duration=CultAttackMotion::MeleeActive);
  void HitConfirm() { HitConfirmTime_=.15f; }
  void RecordCombatHit(AActor* Target,FVector Point,float Damage,bool Killed);
  void ConfirmEvade();

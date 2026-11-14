@@ -208,8 +208,8 @@ void ACultSkillAttack::UpdateLimbStrike() {
  }
  const int Stage=Pawn->AttackPlayback().Variant&3;
  const bool FourArms=Pawn->GetCharacterId()==TEXT("yig");
- const bool Active=Age>=Windup;
- const bool WasActive=LastLimbAge>=Windup;
+ const bool Active=Age>=Windup&&Age<=Windup+Duration;
+ const bool WasActive=LastLimbAge>=Windup&&LastLimbAge<=Windup+Duration;
  FVector Facing=Direction.GetSafeNormal2D();
  if(Facing.IsNearlyZero()) Facing=Pawn->GetActorForwardVector();
  for(int Index=0;Index<(FourArms?4:2);++Index) {
@@ -279,8 +279,9 @@ void ACultSkillAttack::Tick(float Dt) {
   if(FirstTick) { Dt=FMath::Min(Dt,FMath::Max(0.f,GetWorld()->GetTimeSeconds()-BornAt)); FirstTick=false; }
   Age+=Dt;
   UpdateLimbStrike();
+  UpdateFirstPersonSwing();
   UpdatePresentation();
-  if(HasAuthority()&&Age>=Windup+Duration) Destroy();
+  if(HasAuthority()&&Age>=Windup+Duration+CultAttackMotion::MeleeFollowThrough) Destroy();
   return;
  }
  if(!HasAuthority()) {

@@ -40,7 +40,7 @@ void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
   Anim->LateralLean=GuardWeight_;
   Anim->GestureRig=Rig;
   Anim->MeleeStage=Melee?Motion.Variant&3:0;
-  Anim->MeleeProgress=(Age-Motion.Contact)/.10f;
+  Anim->MeleeProgress=(Age-Motion.Contact)/.145f;
   Anim->MeleePitch=FMath::Clamp(FRotator::NormalizeAxis(Pawn_->AimRotation().Pitch),-53.f,45.f);
  }
 
@@ -78,11 +78,9 @@ void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
  if(Yig) {
   USkeletalMeshComponent* Torso=nullptr;
   USkeletalMeshComponent* Tail=nullptr;
-  USkeletalMeshComponent* Weapons=nullptr;
   for(const auto& Part:Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part.Get())) {
    if(Skin->GetBoneIndex(TEXT("hips"))!=INDEX_NONE) Torso=Skin;
    if(Skin->GetBoneIndex(TEXT("tail01"))!=INDEX_NONE) Tail=Skin;
-   if(Skin->GetBoneIndex(TEXT("weaponsroot"))!=INDEX_NONE) Weapons=Skin;
   }
   if(Torso&&Tail) {
    // Follow the torso's animated hip displacement while retaining the
@@ -99,13 +97,39 @@ void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
     Anim->TailPhase=GetWorld()->GetTimeSeconds()*6.f;
    }
   }
-  if(Torso&&Weapons) if(auto* Anim=Cast<UCultFluidAnimInstance>(Weapons->GetAnimInstance())) {
+ }
+}
+
+void ACultCharacterModel::BindYigWeapons() {
+ USkeletalMeshComponent* Torso=nullptr;
+ USkeletalMeshComponent* Weapons=nullptr;
+ for(const auto& Part:Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part.Get())) {
+  if(Skin->GetBoneIndex(TEXT("lefthand"))!=INDEX_NONE) Torso=Skin;
+  if(Skin->GetBoneIndex(TEXT("weaponsroot"))!=INDEX_NONE) Weapons=Skin;
+ }
+ if(!Torso||!Weapons) return;
+ Weapons->AddTickPrerequisiteComponent(Torso);
+ Weapons->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+ const TWeakObjectPtr<USkeletalMeshComponent> Body(Torso),Blades(Weapons);
+ auto Refresh=[Body,Blades]() {
+  if(!Body.IsValid()||!Blades.IsValid()) return;
+  if(auto* Anim=Cast<UCultFluidAnimInstance>(Blades->GetAnimInstance())) {
    static const FName Hands[]={TEXT("lefthand"),TEXT("righthand"),TEXT("lefthand_001"),TEXT("righthand_001")};
+   // The imported swords were baked into a common mesh around the origin.
+   // These are grip coordinates in that bind mesh, not sword bone pivots.
+   static const FVector Grips[]={{221.34,-168.53,387.54},{63.12,-404.28,437.32},
+     {313.81,-281.57,311.60},{75.15,-471.12,316.00}};
+   static const FQuat BindHand[]={{-.654077,-.119692,.472118,-.578759},{.719623,.580875,.348673,-.152164},
+     {.830391,-.097219,.334078,.435192},{.432194,.563309,-.235759,.663558}};
    Anim->GripMask=0;
-   for(int Index=0;Index<4;++Index) if(Torso->GetBoneIndex(Hands[Index])!=INDEX_NONE) {
-    Anim->GripTargets[Index]=Weapons->GetComponentTransform().InverseTransformPosition(Torso->GetBoneLocation(Hands[Index]));
+   for(int Index=0;Index<4;++Index) if(Body->GetBoneIndex(Hands[Index])!=INDEX_NONE) {
+    const FTransform Hand=Body->GetSocketTransform(Hands[Index],RTS_Component);
+    const FQuat Turn=(Hand.GetRotation()*BindHand[Index].Inverse()).GetNormalized();
+    Anim->GripTargets[Index]=FTransform(Turn,Hand.GetLocation()-Turn.RotateVector(Grips[Index]));
     Anim->GripMask|=1<<Index;
    }
   }
- }
+ };
+ Torso->RegisterOnBoneTransformsFinalizedDelegate(FOnBoneTransformsFinalizedMultiCast::FDelegate::CreateWeakLambda(this,Refresh));
+ Refresh();
 }

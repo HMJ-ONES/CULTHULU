@@ -7,13 +7,13 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
  explicit FCultFluidProxy(UAnimInstance* Instance):FAnimSingleNodeInstanceProxy(Instance) {}
  TArray<FTransform> LastPose,FromPose;
  float BlendAge=1.f,BlendLength=.14f,LastTime=0;
- UAnimationAsset* LastAsset=nullptr;
+ TWeakObjectPtr<UAnimationAsset> LastAsset;
  CultAttackMotion::FFrame Attack;
  float Lean=0;
  uint8 GestureRig=0;
  uint8 MeleeStage=0;
  float MeleeProgress=0, MeleePitch=0;
- FVector GripTargets[4]={};
+ FTransform GripTargets[4];
  uint8 GripMask=0;
  float TailMotion=0, TailPhase=0;
  FVector Right=FVector::RightVector,Up=FVector::UpVector,Forward=FVector::ForwardVector;
@@ -31,7 +31,8 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
   for(int Index=0;Index<4;++Index) if(GripMask&(1<<Index)) GripTargets[Index]=Motion->GripTargets[Index];
   TailMotion=Motion->TailMotion;
   TailPhase=Motion->TailPhase;
-  const FQuat Relative=Instance->GetSkelMeshComponent()->GetRelativeRotation().Quaternion();
+  const auto* Mesh=Instance->GetSkelMeshComponent();
+  const FQuat Relative=IsValid(Mesh)?Mesh->GetRelativeRotation().Quaternion():FQuat::Identity;
   Right=Relative.UnrotateVector(FVector::RightVector);
   Up=Relative.UnrotateVector(FVector::UpVector);
   Forward=Relative.UnrotateVector(FVector::ForwardVector);
@@ -52,8 +53,16 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
     const auto Bone=Find(Swords[Index]);
     if(Bone.GetInt()==INDEX_NONE) continue;
     const auto Parent=Pose.GetParentBoneIndex(Bone);
-    if(Parent.GetInt()!=INDEX_NONE)
-     Pose[Bone].SetTranslation(Component.GetComponentSpaceTransform(Parent).InverseTransformPosition(GripTargets[Index]));
+    if(Parent.GetInt()!=INDEX_NONE) {
+     const FTransform Base=Component.GetComponentSpaceTransform(Parent);
+     const FTransform Delta=GripTargets[Index];
+     FTransform Bind=Pose.GetRefPose(Bone);
+     for(auto Ancestor=Parent;Ancestor.GetInt()!=INDEX_NONE;Ancestor=Pose.GetParentBoneIndex(Ancestor))
+      Bind=Bind*Pose.GetRefPose(Ancestor);
+     const FTransform Posed((Delta.GetRotation()*Bind.GetRotation()).GetNormalized(),
+      Delta.TransformPosition(Bind.GetLocation()),Bind.GetScale3D());
+     Pose[Bone]=Posed.GetRelativeTransform(Base);
+    }
    }
   }
   if(TailMotion>0) for(int Index=2;Index<=16;++Index) {
@@ -201,7 +210,7 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
   }
  }
  virtual void SetAnimationAsset(UAnimationAsset* Asset,USkeletalMeshComponent* Mesh,bool Loop,float Rate) override {
-  if(Asset!=LastAsset) { FromPose=LastPose; BlendAge=0; BlendLength=.14f; LastTime=0; LastAsset=Asset; }
+  if(Asset!=LastAsset.Get()) { FromPose=LastPose; BlendAge=0; BlendLength=.14f; LastTime=0; LastAsset=Asset; }
   FAnimSingleNodeInstanceProxy::SetAnimationAsset(Asset,Mesh,Loop,Rate);
  }
  virtual void UpdateAnimationNode(const FAnimationUpdateContext& Context) override {
@@ -210,7 +219,7 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
  virtual bool Evaluate(FPoseContext& Output) override {
   const bool Result=FAnimSingleNodeInstanceProxy::Evaluate(Output);
   const float Time=GetCurrentTime();
-  if(auto* Clip=Cast<UAnimSequence>(LastAsset)) if(IsLooping()&&LastPose.Num()>0&&Clip->GetPlayLength()>0&&FMath::Abs(Time-LastTime)>Clip->GetPlayLength()*.5f) {
+  if(auto* Clip=Cast<UAnimSequence>(LastAsset.Get())) if(IsLooping()&&LastPose.Num()>0&&Clip->GetPlayLength()>0&&FMath::Abs(Time-LastTime)>Clip->GetPlayLength()*.5f) {
    FromPose=LastPose; BlendAge=0; BlendLength=.1f;
   }
   LastTime=Time;

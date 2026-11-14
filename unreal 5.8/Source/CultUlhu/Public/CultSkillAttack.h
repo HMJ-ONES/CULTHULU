@@ -80,6 +80,8 @@ private:
  struct FLimbSample { FVector Elbow,Hand; bool Valid=false; };
  FLimbSample LastLimbs[4];
  TArray<FVector> HandTrails[4];
+ UPROPERTY() TObjectPtr<class UProceduralMeshComponent> FirstPersonSwing;
+ void UpdateFirstPersonSwing();
  float LastLimbAge=-1.f;
  UPROPERTY() class UProceduralMeshComponent* Telegraph=nullptr;
  UPROPERTY() class UMaterialInstanceDynamic* SignalMaterial=nullptr;

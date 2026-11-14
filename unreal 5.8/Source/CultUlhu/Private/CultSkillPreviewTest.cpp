@@ -45,7 +45,8 @@ public:
    Test->TestTrue(TEXT("The actual rendered camera aims directly at the test creature"),P->CameraAim().GetActor()==B);
    Before=B->GetHealth(); LungeStart=P->GetActorLocation(); P->Smash(); Test->TestEqual(TEXT("Actual LMB has a windup"),B->GetHealth(),Before); Phase=1; Time=0;
    Test->TestTrue(TEXT("LMB starts its authored combo motion"),P->AttackPlayback().Move==CultAttackMotion::EMove::Melee);
-   Test->TestEqual(TEXT("Melee contact is centered inside the physical sweep"),P->AttackPlayback().Contact,.22f);
+   Test->TestEqual(TEXT("Melee contact is centered inside the physical sweep"),P->AttackPlayback().Contact,
+    CultAttackMotion::MeleeWindup+CultAttackMotion::MeleeActive*.5f);
   } else if(Phase==1) {
    if(Time<.42f&&!LimbFixture) {
     TArray<AActor*> Models;
@@ -63,7 +64,7 @@ public:
        if(It->GetOwner()==P&&It->Shape==ACultSkillAttack::EShape::Sweep) {
         LimbFixture=true;
         It->Tick(0);
-        if(!It->IsActorBeingDestroyed()) It->Tick(.22f);
+        if(!It->IsActorBeingDestroyed()) It->Tick(CultAttackMotion::MeleeWindup+.035f);
         break;
        }
      }

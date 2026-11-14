@@ -3,6 +3,9 @@
 #include "CoreMinimal.h"
 
 namespace CultAttackMotion {
+inline constexpr float MeleeWindup=.22f;
+inline constexpr float MeleeActive=.27f;
+inline constexpr float MeleeFollowThrough=.17f;
 enum class EMove : uint8 {
  None, Primary, Heavy, Q, F, R, Melee, RockLift, RockThrow, Lower,
  MinionLift, MinionThrow, Wave, WaveHold, WaveThrow, Count

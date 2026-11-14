@@ -210,6 +210,7 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  const float Scale=180.f/Bounds.GetSize().Z;
  const FVector Offset(-Bounds.GetCenter().X*Scale,-Bounds.GetCenter().Y*Scale,-Bounds.Min.Z*Scale);
  for(UMeshComponent* Part:Parts_) { Part->SetRelativeScale3D(FVector(Scale)); Part->SetRelativeLocation(Offset); }
+ if(Id==TEXT("yig")) BindYigWeapons();
  if(!Preview) PlayRole(TEXT("idle"));
  return true;
 }
@@ -364,19 +365,16 @@ bool ACultCharacterModel::UsesMeleeStep(ACultUlhuPlayerPawn* Pawn) {
 }
 
 float ACultCharacterModel::AuthoredMeleePhase(float Progress) const {
- // Default primary collision window is .12s windup + .20s sweep: its centre
- // crosses the crosshair at .22/.32 of the action. Align each creature's
- // authored contact pose there, retaining anticipation and a fast recovery.
+ // Align the authored contact pose with the center of the physical sweep.
  const auto* Playback=Pawn_?&Pawn_->AttackPlayback():nullptr;
  const float ContactTime=Playback&&Playback->Move==CultAttackMotion::EMove::Melee
-  ?FMath::Clamp(Playback->Contact/FMath::Max(.01f,Playback->Duration),.05f,.95f):.6875f;
+  ?FMath::Clamp(Playback->Contact/FMath::Max(.01f,Playback->Duration),.05f,.95f):.56f;
  if(Progress<=ContactTime) {
-  const float Gather=ContactTime*.60f;
-  if(Progress<=Gather) return MeleeContactPhase_*.31f*Progress/Gather;
-  return MeleeContactPhase_*FMath::Lerp(.31f,1.f,(Progress-Gather)/(ContactTime-Gather));
+  const float Approach=Progress/ContactTime;
+  return MeleeContactPhase_*(Approach*Approach*(1.45f-.45f*Approach));
  }
  const float Follow=FMath::Clamp((Progress-ContactTime)/(1-ContactTime),0.f,1.f);
- return MeleeContactPhase_+(1-MeleeContactPhase_)*(1-FMath::Square(1-Follow));
+ return MeleeContactPhase_+(1-MeleeContactPhase_)*Follow*(1.6f-.6f*Follow);
 }
 
 void ACultCharacterModel::Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds,float Age) {

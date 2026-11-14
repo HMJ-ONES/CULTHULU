@@ -214,10 +214,10 @@ FBeats Beats(EForm Form) {
 
 float Ease(float T) { T=FMath::Clamp(T,0.f,1.f); return T*T*(3-2*T); }
 
-FFrame EvaluateBeats(const FBeats& Motion,float Age,float Contact,float Duration,bool Held) {
+FFrame EvaluateBeats(const FBeats& Motion,float Age,float Contact,float Duration,bool Held,bool Melee) {
  const float Strike=FMath::Max(.036f,Contact);
  const float Carry=FMath::Min(Motion.Carry,FMath::Max(.03f,(Duration-Strike)*.48f));
- const float Gather=Strike*(Held?.74f:.82f);
+ const float Gather=Strike*(Melee?.60f:Held?.74f:.82f);
  if(Age<Gather) return Blend({},Motion.Gather,Ease(Age/Gather));
  if(Age<Strike) return Blend(Motion.Gather,Motion.Contact,Ease((Age-Gather)/(Strike-Gather)));
  if(Age<Strike+Carry) return Blend(Motion.Contact,Motion.Follow,Ease((Age-Strike)/Carry));
@@ -249,9 +249,10 @@ FFrame Sample(const FString& Id,const FPlayback& Playback,float Now) {
 
  const FDesign Style=Design(Id,Playback);
  const FBeats Motion=Beats(Style.Form);
- auto Frame=EvaluateBeats(Motion,Age,Playback.Contact,Playback.Duration,Held);
+ const bool Melee=Playback.Move==EMove::Melee;
+ auto Frame=EvaluateBeats(Motion,Age,Playback.Contact,Playback.Duration,Held,Melee);
  // Head, feelers and wing tips settle a fraction behind the body impulse.
- const auto Secondary=EvaluateBeats(Motion,FMath::Max(0.f,Age-.045f),Playback.Contact,Playback.Duration,Held);
+ const auto Secondary=EvaluateBeats(Motion,FMath::Max(0.f,Age-.045f),Playback.Contact,Playback.Duration,Held,Melee);
  Frame.Details=Secondary.Details*(Held?1.f:Ease((Playback.Duration-Age)/.045f));
  const bool Ability=Playback.Move>=EMove::Heavy&&Playback.Move<=EMove::R;
  if(Ability&&Age>Playback.Contact) {

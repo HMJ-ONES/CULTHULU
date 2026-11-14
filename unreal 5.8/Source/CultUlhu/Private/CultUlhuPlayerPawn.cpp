@@ -386,7 +386,7 @@ void ACultUlhuPlayerPawn::Smash()
   return;
  }
  if (SmashCooldown_ > 0.0f || IsSwinging()) { if(!IsBot()&&SmashCooldown_<=.18f) MeleeBuffer_=.18f; return; }
- MeleeBuffer_=0; SmashCooldown_ = Primary.Recovery;
+ MeleeBuffer_=0; SmashCooldown_=FMath::Max(Primary.Recovery,CultAttackMotion::MeleeWindup+CultAttackMotion::MeleeActive+CultAttackMotion::MeleeFollowThrough);
  const float ComboMult=Kit_?Kit_->BeginMelee():1.f;
 
  StartMelee(Primary.Damage*9.f*ComboMult);
