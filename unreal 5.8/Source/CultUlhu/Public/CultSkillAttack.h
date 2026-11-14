@@ -38,6 +38,7 @@ public:
  TFunction<bool(AActor*)> TargetFilter;
  FVector ProjectilePosition() const { return Previous; }
  TFunction<void(AActor*,FVector)> Hit;
+ TFunction<void(const FHitResult&)> Impact;
  TFunction<void(FVector)> Finished;
  virtual void BeginPlay() override;
  virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;

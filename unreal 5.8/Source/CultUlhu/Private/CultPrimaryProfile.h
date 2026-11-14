@@ -18,6 +18,7 @@ struct FProfile {
  float Reach = 0.f;
  float Speed = 0.f;
  float Radius = 0.f;
+ float BlastRadius = 0.f;
  bool Ranged() const { return Delivery != EDelivery::Melee; }
 };
 
@@ -33,7 +34,7 @@ inline FProfile Find(const FString& Id) {
  if(Id == TEXT("yig")) return {TEXT("Coiled Blades"),D::Melee,A::Coil,S::Brine,.60f,.12f,8.5f};
  if(Id == TEXT("bokrug")) return {TEXT("Sarnath Spit"),D::CorrosiveArc,A::Lunge,S::Brine,1.04f,.21f,6.5f,4850,5100,74};
  if(Id == TEXT("mother_hydra")) return {TEXT("Caustic Brine"),D::CorrosiveArc,A::Chant,S::Brine,1.20f,.25f,6.5f,5000,4800,82};
- if(Id == TEXT("shub_niggurath")) return {TEXT("Rot Spore"),D::CorrosiveArc,A::Rake,S::Acid,1.13f,.24f,6.f,4900,6200,95};
+ if(Id == TEXT("shub_niggurath")) return {TEXT("Rot Spore Cannon"),D::Cannon,A::Recoil,S::Acid,.62f,.13f,9.f,6750,20000,110,1450};
  if(Id == TEXT("mi_go")) return {TEXT("Yuggoth Dart"),D::Bolt,A::Recoil,S::Acid,.76f,.17f,6.5f,5350,7100,43};
  if(Id == TEXT("nodens")) return {TEXT("Abyssal Harpoon"),D::Bolt,A::Lunge,S::Brine,.98f,.23f,8.f,5650,6800,54};
  if(Id == TEXT("hastur")) return {TEXT("Yellow Sign"),D::Bolt,A::Chant,S::Gold,1.02f,.27f,8.5f,5700,4600,82};

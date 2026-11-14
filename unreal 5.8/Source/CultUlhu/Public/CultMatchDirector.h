@@ -57,8 +57,13 @@ public:
  FVector Base(int Team) const;
  FVector Objective() const { return FVector::ZeroVector; }
  static FVector2D CaptureHalfExtent() { return FVector2D(5200,3700); }
- static FVector CapturePlatformTop() { return FVector(0,2250,2200); }
+ static FVector CapturePlatformTop() { return FVector(0,2250,4200); }
  static FVector2D CapturePlatformHalfExtent() { return FVector2D(4700,1250); }
+ static constexpr int CaptureRockCount=4;
+ static FVector CaptureRockTop(int Side,int Step) {
+  const auto Top=CapturePlatformTop();
+  return FVector(Side*(9250-1080*Step),Top.Y+(Step%2?95:-95),Top.Z*(Step+1)/(CaptureRockCount+1));
+ }
  static bool InsideCapture(FVector Feet) {
   const auto E=CaptureHalfExtent();
   if(FMath::Abs(Feet.Z)<150) return FMath::Abs(Feet.X)<=E.X&&FMath::Abs(Feet.Y)<=E.Y;

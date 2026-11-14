@@ -59,7 +59,7 @@ public:
     if(It->ActorHasTag(TEXT("MatchArena"))) { TInlineComponentArray<UPrimitiveComponent*> Parts(*It); for(auto* Mesh:Parts) Geometry.Add({Mesh,Mesh->GetComponentTransform(),Mesh->GetCollisionEnabled()}); }
    }
    Test->TestEqual(TEXT("Both balanced forward overlooks exist"),Overlooks,2); Test->TestEqual(TEXT("Distinct north/south skyline landmarks"),Landmarks,2); Test->TestEqual(TEXT("Merged keep skins and route inlay"),Skins,5);
-   Test->TestEqual(TEXT("Four jump rocks on either approach"),Steps,8);
+   Test->TestEqual(TEXT("Four jump rocks on either approach"),Steps,2*M->CaptureRockCount);
    Test->TestEqual(TEXT("One upper capture surface"),Platforms,1);
    const auto Upper=M->CapturePlatformTop();
    FHitResult Hit;
@@ -67,6 +67,18 @@ public:
    Test->TestTrue(TEXT("Real walkable surface matches the upper capture bounds"),Hit.GetActor()&&
     Hit.GetActor()->ActorHasTag(TEXT("CultDominationCapturePlatform"))&&M->InsideCapture(Hit.ImpactPoint));
    Test->TestFalse(TEXT("Air above the altar does not score"),M->InsideCapture(Upper+FVector(0,0,450)));
+   const auto* Capsule=P->GetCapsuleComponent();
+   const float Half=Capsule->GetScaledCapsuleHalfHeight();
+   const FVector FloorCenter(0,Upper.Y,Half+5);
+   const auto Body=FCollisionShape::MakeCapsule(Capsule->GetScaledCapsuleRadius(),Half);
+   FCollisionQueryParams Query(SCENE_QUERY_STAT(AltarHeadroom),false,P);
+   Test->TestFalse(TEXT("Full-size Cthulhu can pass underneath the altar"),W->SweepSingleByObjectType(Hit,
+    FloorCenter-FVector(0,1900,0),FloorCenter+FVector(0,1900,0),FQuat::Identity,
+    FCollisionObjectQueryParams(ECC_WorldStatic),Body,Query));
+   const auto* Movement=P->GetCharacterMovement();
+   const float Gravity=FMath::Abs(Movement->GetGravityZ());
+   Test->TestTrue(TEXT("Jump apex exceeds half of character height"),FMath::Square(Movement->JumpZVelocity)/(2*Gravity)>Half);
+   Test->TestTrue(TEXT("Jump reaches its apex in under half a second"),Movement->JumpZVelocity/Gravity<.5f);
    Test->TestTrue(TEXT("Original architecture remains a bounded low-poly addition"),Triangles>1000&&Triangles<12000); Test->AddInfo(FString::Printf(TEXT("Domination decoration: 7 merged components, %d triangles"),Triangles));
    // Start beside the first rock. The actual capsule, jump impulse and gravity
    // take the hero the rest of the way up, without relocating between steps.
@@ -76,16 +88,17 @@ public:
   if(Phase==9) {
    auto* Move=P->GetCharacterMovement();
    const FVector Feet=P->FeetLocation();
-   const FVector Goal(JumpIndex==4?-3850:-9250+1080*JumpIndex,
-    JumpIndex==4?2250:2250+(JumpIndex%2?95:-95),440*(JumpIndex+1));
+   const FVector Goal=JumpIndex==M->CaptureRockCount?
+    M->CapturePlatformTop()-FVector(3850,0,0):M->CaptureRockTop(-1,JumpIndex);
    const FVector Offset=Goal-Feet;
    const float Distance=Offset.Size2D();
    if(Move->IsMovingOnGround()) {
     // A kaiju capsule can settle above the center of a tread when its
     // rounded base is also supported by the edge of the next rock.
-    if(Offset.Z<=30&&Offset.Z>=-250&&Distance<250) {
+    const float LipAllowance=JumpIndex==M->CaptureRockCount?100.f:760.f;
+    if(Offset.Z<=30&&Offset.Z>=-LipAllowance&&Distance<250) {
      At=0;
-     if(++JumpIndex==5) {
+     if(++JumpIndex>M->CaptureRockCount) {
       Test->TestTrue(TEXT("Actual jumps from the outer rocks land on the scoring platform"),M->InsideCapture(Feet));
       P->RelocateMatch(FVector(0,12500,6000)); At=W->GetTimeSeconds(); Phase=2;
      }
@@ -98,7 +111,7 @@ public:
     P->Jump();
     if(At==0) At=W->GetTimeSeconds();
    }
-   const auto Speed=Offset.Z>30?FVector::ZeroVector:Offset.GetSafeNormal2D()*FMath::Min(3000.f,Distance*10.f);
+   const auto Speed=Offset.Z>30?FVector::ZeroVector:Offset.GetSafeNormal2D()*FMath::Min(4200.f,Distance*12.f);
    Move->Velocity.X=Speed.X;
    Move->Velocity.Y=Speed.Y;
    if(Move->IsFalling()) P->StopJumping();

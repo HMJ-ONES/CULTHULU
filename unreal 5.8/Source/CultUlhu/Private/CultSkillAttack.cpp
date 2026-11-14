@@ -167,6 +167,7 @@ void ACultSkillAttack::Sweep(FVector A,FVector B,float R) {
     return;
    }
    EmitAbilityFX(uint8(CultAbilityFX::EEvent::Contact),H.ImpactPoint,H.ImpactNormal,FMath::Clamp(Radius*3.2f,105.f,850.f));
+   if(Impact) Impact(H);
    if(Finished) Finished(H.ImpactPoint);
    Destroy();
   }

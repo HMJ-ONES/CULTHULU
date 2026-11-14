@@ -119,9 +119,9 @@ void ACultUlhuPlayerPawn::BeginPlay()
 	GetCharacterMovement()->MaxAcceleration = WalkSpeed_ * 3.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = WalkSpeed_ * 4.f;
 	GetCharacterMovement()->MaxStepHeight = 45.f * CharScale_;
-	GetCharacterMovement()->GravityScale = 2.f * FMath::Sqrt(CharScale_);
-	// A visible jump of 40% of body height, with a deliberate heavy landing.
-	GetCharacterMovement()->JumpZVelocity = FMath::Sqrt(2.f * FMath::Abs(GetCharacterMovement()->GetGravityZ()) * HeightM * 100.f * 0.4f);
+	GetCharacterMovement()->GravityScale = 3.8f * FMath::Sqrt(CharScale_);
+	const float JumpHeight=HeightM*100.f*.62f;
+	GetCharacterMovement()->JumpZVelocity = FMath::Sqrt(2.f*FMath::Abs(GetCharacterMovement()->GetGravityZ())*JumpHeight);
 	HomeLocation_ = LastSafeLocation_ = GetActorLocation();
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationYaw = !IsBot();

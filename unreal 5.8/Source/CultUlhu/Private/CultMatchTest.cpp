@@ -187,6 +187,56 @@ struct FCultMatchTestAccess {
   T->TestTrue(TEXT("An actual incoming flying projectile can trigger a delayed defensive dash"),Bot->DashTime_>0);
   T->AddInfo(FString::Printf(TEXT("Bot threat decisions mode=%d final dash=%.3f"),int(M->Mode()),Bot->DashTime_));
  }
+ static void VerifySporeCannon(FAutomationTestBase* T,ACultMatchDirector* M,ACultUlhuPlayerPawn* P) {
+  auto* World=M->GetWorld();
+  M->State_->Warmup=0;
+  Park(M); Unshield(M);
+  P->bBotControlled_=true;
+  P->RelocateMatch(FVector(0,0,20000));
+  auto* Direct=M->Fighters()[5].Pawn.Get();
+  auto* Nearby=M->Fighters()[6].Pawn.Get();
+  auto* Distant=M->Fighters()[7].Pawn.Get();
+  auto* Ally=M->Fighters()[1].Pawn.Get();
+  Direct->RelocateMatch(FVector(4500,0,20000));
+  Nearby->RelocateMatch(FVector(3650,1430,20000));
+  Distant->RelocateMatch(FVector(4500,4200,20000));
+  Ally->RelocateMatch(FVector(4500,-1750,20000));
+  const float NearHp=Nearby->GetHealth(), FarHp=Distant->GetHealth(), AllyHp=Ally->GetHealth(), DirectHp=Direct->GetHealth();
+  P->SetBotAim(Direct);
+  for(TActorIterator<ACultSkillAttack> It(World);It;++It) It->Destroy();
+  P->Smash();
+  ACultSkillAttack* Shot=nullptr;
+  for(TActorIterator<ACultSkillAttack> It(World);It;++It) if(It->GetOwner()==P) { Shot=*It; break; }
+  if(!T->TestNotNull(TEXT("Shub's normal LMB creates a physical projectile"),Shot)) return;
+  T->TestEqual(TEXT("Cannon flies at 270 m/s"),Shot->Speed,27000.f);
+  T->TestEqual(TEXT("Cannon can fire every 0.62 seconds"),P->SmashCooldown_,.62f);
+  T->TestEqual(TEXT("Cannon remains on its aimed line"),Shot->Gravity,0.f);
+  Shot->Tick(0); Shot->Tick(.38f);
+  const float DirectDamage=9.f*M->DamageMultiplier(P);
+  T->TestTrue(TEXT("A real collision damages the direct target once"),FMath::IsNearlyEqual(DirectHp-Direct->GetHealth(),DirectDamage,.05f));
+  T->TestTrue(TEXT("The nearby enemy takes reduced splash damage"),Nearby->GetHealth()<NearHp&&NearHp-Nearby->GetHealth()<DirectDamage);
+  T->TestEqual(TEXT("A distant enemy is beyond splash range"),Distant->GetHealth(),FarHp);
+  T->TestEqual(TEXT("The explosion never damages an ally"),Ally->GetHealth(),AllyHp);
+
+  auto* Wall=World->SpawnActor<AStaticMeshActor>(FVector(4500,0,21400),FRotator::ZeroRotator);
+  auto* Mesh=Wall->GetStaticMeshComponent();
+  Mesh->SetMobility(EComponentMobility::Movable);
+  Mesh->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube")));
+  Mesh->SetWorldScale3D(FVector(1,45,40));
+  Mesh->SetCollisionProfileName(TEXT("BlockAll"));
+  Direct->RelocateMatch(FVector(5600,0,20000));
+  Nearby->RelocateMatch(FVector(3480,1200,20000));
+  const float ShieldedHp=Direct->GetHealth(), ExposedHp=Nearby->GetHealth();
+  P->SmashCooldown_=0;
+  P->Smash();
+  for(TActorIterator<ACultSkillAttack> It(World);It;++It) if(It->GetOwner()==P) {
+   It->Tick(0); It->Tick(.38f);
+   break;
+  }
+  T->TestEqual(TEXT("Solid walls stop cannon splash from reaching the other side"),Direct->GetHealth(),ShieldedHp);
+  T->TestTrue(TEXT("A cannon shot hitting scenery still damages an exposed enemy"),Nearby->GetHealth()<ExposedHp);
+  Wall->Destroy();
+ }
  static void VerifySummonCredit(FAutomationTestBase* T,ACultMatchDirector* M,ACultUlhuPlayerPawn* P) {
   M->State_->Warmup=0; Unshield(M);
   auto* Enemy=M->Fighters()[5].Pawn.Get(); auto* Support=M->Fighters()[3].Pawn.Get();
@@ -747,21 +797,26 @@ public:
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaJungleReturnsTest,"CultUlhu.Menu.MobaJungleReturns",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultMobaJungleReturnsTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultMobaJungleReturnsObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 class FCultSummonCreditObservation:public IAutomationLatentCommand {
- FAutomationTestBase* Test; ECultPlayMode Mode; bool Entered=false; double Started=FPlatformTime::Seconds();
+ FAutomationTestBase* Test; ECultPlayMode Mode; bool Cannon,Entered=false; double Started=FPlatformTime::Seconds();
 public:
- FCultSummonCreditObservation(FAutomationTestBase* In,ECultPlayMode Choice):Test(In),Mode(Choice) {}
+ FCultSummonCreditObservation(FAutomationTestBase* In,ECultPlayMode Choice,bool CheckCannon=false):Test(In),Mode(Choice),Cannon(CheckCannon) {}
  bool Update() override {
   if(FPlatformTime::Seconds()-Started>90) { Test->AddError(TEXT("Summon credit verification timed out")); return true; }
   auto* W=GEditor->PlayWorld.Get(); if(!W||W->bIsTearingDown) return false;
   if(W->GetName().Contains(TEXT("L_MainMenu"))) { if(!Entered) { auto* GI=Cast<UCultUlhuGameInstance>(W->GetGameInstance()); GI->SelectedCharacterId=TEXT("shub_niggurath"); GI->OpenCharacterSelect(Mode); GI->OpenBeliefSelect(); Entered=true; } return false; }
   auto* M=ACultMatchDirector::Find(W); auto* P=Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(W,0)); if(!M||!P||W->GetTimeSeconds()<.5f) return false;
-  UGameplayStatics::SetGamePaused(W,true); FCultMatchTestAccess::VerifySummonCredit(Test,M,P); UGameplayStatics::SetGamePaused(W,false); return true;
+  UGameplayStatics::SetGamePaused(W,true);
+  if(Cannon) FCultMatchTestAccess::VerifySporeCannon(Test,M,P);
+  else FCultMatchTestAccess::VerifySummonCredit(Test,M,P);
+  UGameplayStatics::SetGamePaused(W,false); return true;
  }
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultMobaSummonCreditTest,"CultUlhu.Menu.SummonCombatCredit.Moba",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultMobaSummonCreditTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultSummonCreditObservation(this,ECultPlayMode::Dotgoo)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultDomSummonCreditTest,"CultUlhu.Menu.SummonCombatCredit.Domination",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FCultDomSummonCreditTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultSummonCreditObservation(this,ECultPlayMode::Domination)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultSporeCannonTest,"CultUlhu.Menu.SporeCannon",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultSporeCannonTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultSummonCreditObservation(this,ECultPlayMode::Domination,true)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 class FCultAlliedObjectiveRoutingObservation:public IAutomationLatentCommand {
  FAutomationTestBase* Test; int Phase=0; double Began=FPlatformTime::Seconds(); float At=0; TArray<TWeakObjectPtr<ACultMatchUnit>> Probes;
 public:

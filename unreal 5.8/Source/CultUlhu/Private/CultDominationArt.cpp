@@ -91,8 +91,9 @@ void CultDominationArt::Build(UWorld* W) {
 }
 FString CultDominationArt::RouteHint(FVector P) {
  const TCHAR* Keep=P.Y>=0?TEXT("CROWN"):TEXT("HOLLOW");
- if(P.Z>1900&&ACultMatchDirector::InsideCapture(P)) return TEXT("UPPER SEAL | Captures the same point as the floor");
- if(P.Y>1100&&P.Y<3400&&FMath::Abs(P.X)>5300&&FMath::Abs(P.X)<10000&&P.Z>=-100&&P.Z<1900)
+ const float AltarHeight=ACultMatchDirector::CapturePlatformTop().Z;
+ if(P.Z>AltarHeight-150&&ACultMatchDirector::InsideCapture(P)) return TEXT("UPPER SEAL | Captures the same point as the floor");
+ if(P.Y>1100&&P.Y<3400&&FMath::Abs(P.X)>5300&&FMath::Abs(P.X)<10000&&P.Z>=-100&&P.Z<AltarHeight)
   return TEXT("ALTAR STEPS | Jump up to the upper seal");
  if(P.Z<-800) return TEXT("CATACOMB | Keep exits return to the fight | Resurface to capture");
  if(P.Z>4800&&FMath::Abs(P.Y)>6200&&FMath::Abs(P.Y)<10800&&FMath::Abs(P.X)<3200) return TEXT("SEAL OVERLOOK | Cross above cover | Drop down to contest");

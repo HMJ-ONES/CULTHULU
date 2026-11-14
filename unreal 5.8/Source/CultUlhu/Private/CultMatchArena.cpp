@@ -132,10 +132,10 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   for(int Side:{-1,1}) {
    Box(Top+FVector(0,Side*(Upper.Y-55),10),FVector(Upper.X*2,80,20),Seal,false);
    Box(Top+FVector(Side*(Upper.X-60),0,10),FVector(80,Upper.Y*2,20),Seal,false);
-   Box(Top+FVector(Side*3100,940,-1100),FVector(420,320,2200),Stone);
-   for(int Step=0;Step<4;++Step) {
-    const float Height=440.f*(Step+1);
-    const FVector Crest(Side*(9250-1080*Step),Top.Y+(Step%2?95:-95),Height);
+   Box(FVector(Side*3100,Top.Y+940,Top.Z*.5f),FVector(420,320,Top.Z),Stone);
+   for(int Step=0;Step<CaptureRockCount;++Step) {
+    const FVector Crest=CaptureRockTop(Side,Step);
+    const float Height=Crest.Z;
     auto* Rock=WalkSurface(Crest-FVector(0,0,Height*.5f),FVector(1180,1950-100*Step,Height));
     Rock->Tags.Append({TEXT("CultDominationCaptureStep"),TEXT("CultMatchRockSurface")});
     Rock->GetStaticMeshComponent()->CanCharacterStepUpOn=ECB_No;
