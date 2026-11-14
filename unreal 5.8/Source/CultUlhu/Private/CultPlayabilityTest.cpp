@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS && WITH_EDITOR
 #include "CultAutomationPIE.h"
 #include "CultKitRuntime.h"
+#include "CultChaosShield.h"
 #include "CultMatchState.h"
 #include "CultMovementTuning.h"
 #include "CultPopulation.h"
@@ -247,7 +248,7 @@ public:
     E->GetCharacterMovement()->DisableMovement();
    }
    FVector Aim=E->GetActorLocation();
-   if(Healing||(Summon&&Mode!=ECultPlayMode::Domination)||(Action==1&&Cthulhu&&Mode!=ECultPlayMode::Dotgoo))
+   if(Healing||(Spell&&Spell->effectKind=="chaos_shield")||(Summon&&Mode!=ECultPlayMode::Domination)||(Action==1&&Cthulhu&&Mode!=ECultPlayMode::Dotgoo))
     Aim=Arena+FVector(600,2200,0);
    if(Action==1&&Cthulhu&&Mode==ECultPlayMode::Dotgoo) {
     SlingMinion=Access::Minion(Match,Arena+FVector(1700,1900,0));
@@ -312,6 +313,8 @@ public:
     const auto& Kind=Spell.effectKind;
     bool Observed=E->GetHealth()<Before;
     if(Kind=="heal") Observed=P->GetHealth()>Before;
+    if(Kind=="chaos_shield")
+     for(TActorIterator<ACultChaosShield> It(World);It;++It) Observed|=It->GetOwner()==P;
     if(Kind=="dash") Observed=FVector::Dist2D(P->FeetLocation(),Arena)>100.f;
     if(Kind=="stun"||Kind=="fear_aura"||Kind=="debuff") Observed=Access::Control(E,Kind);
     if(Kind=="pull") Observed=FVector::Dist2D(E->GetActorLocation(),BeforePosition)>100.f;

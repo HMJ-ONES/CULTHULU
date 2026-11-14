@@ -1,4 +1,5 @@
 #include "CultKitRuntime.h"
+#include "CultChaosShield.h"
 #include "CultSecondaryProfile.h"
 #include "CultAbilityFX.h"
 #include "CultActorLabels.h"
@@ -169,6 +170,7 @@ FCultCastArea FCultKitRuntime::CastArea(int Slot) const
  FCultCastArea Area;
  if(Slot<0||Slot>3) return Area;
  float Radius;
+ bool Shield=false;
  if(Slot==3) {
   const auto* Secondary=CultSecondary::Find(Def.id);
   if(!Secondary||Secondary->Delivery!=CultSecondary::EDelivery::Disk) return Area;
@@ -176,19 +178,38 @@ FCultCastArea FCultKitRuntime::CastArea(int Slot) const
  } else {
   const auto& Spell=Slot==0?Def.qAbility:Slot==1?Def.fAbility:Def.rAbility;
   const auto& Kind=Spell.effectKind;
-  if(Kind!="summon"&&Kind!="aoe_damage"&&Kind!="fear_aura"&&Kind!="pull"&&Spell.id!="fertile_rot") return Area;
+  Shield=Kind=="chaos_shield";
+  if(!Shield&&Kind!="summon"&&Kind!="aoe_damage"&&Kind!="fear_aura"&&Kind!="pull"&&Spell.id!="fertile_rot") return Area;
   Radius=Spell.range*100.f;
  }
  Area.Slot=Slot;
  Area.Radius=Radius*CultMovement::AbilityAreaMultiplier;
- const FHitResult Aim=Owner->CameraAim();
+ FHitResult Aim=Owner->CameraAim();
+ if(Shield&&Owner->IsBot()&&IsValid(Owner->GetBotAim())) {
+  const FVector Feet=Owner->FeetLocation();
+  const FVector Toward=Owner->GetBotAim()->GetActorLocation()-Feet;
+  const FVector Desired=Feet+Toward.GetSafeNormal2D()*FMath::Clamp(Toward.Size2D()*.52,850.0,3600.0);
+  FCollisionQueryParams Query(SCENE_QUERY_STAT(ChaosShieldGround),false,Owner);
+  Aim=FHitResult();
+  Owner->GetWorld()->LineTraceSingleByObjectType(Aim,Desired+FVector(0,0,500),Desired-FVector(0,0,1100),
+   FCollisionObjectQueryParams(ECC_WorldStatic),Query);
+ }
  Area.Center=Aim.ImpactPoint;
- Area.OutOfRange=Aim.bBlockingHit&&FVector::DistSquared(Owner->GetActorLocation(),Area.Center)>
-  FMath::Square(18000.f+Owner->GetSimpleCollisionRadius());
+ const float CastDistance=Shield?Radius:18000.f;
+ const FVector CastOrigin=Shield?Owner->FeetLocation():Owner->GetActorLocation();
+ Area.OutOfRange=Aim.bBlockingHit&&FVector::DistSquared(CastOrigin,Area.Center)>
+  FMath::Square(CastDistance+Owner->GetSimpleCollisionRadius());
  // A wall is not a cast floor. An actor hit can still anchor a disk at
  // crosshair height, including on a ledge or during a jump.
- const bool Surface=Aim.bBlockingHit&&(Aim.ImpactNormal.Z>.35f||ACultSkillAttack::Alive(Aim.GetActor()));
+ const bool Surface=Aim.bBlockingHit&&(Aim.ImpactNormal.Z>(Shield?.65f:.35f)||(!Shield&&ACultSkillAttack::Alive(Aim.GetActor())));
  Area.Valid=Surface&&!Area.OutOfRange;
+ if(Shield) {
+  Area.Radius=ACultChaosShield::HalfWidth;
+  Area.ShieldNormal=(Area.Center-Owner->FeetLocation()).GetSafeNormal2D();
+  if(Area.ShieldNormal.IsNearlyZero()) Area.ShieldNormal=Owner->AimRotation().Vector().GetSafeNormal2D();
+  if(Area.ShieldNormal.IsNearlyZero()) Area.ShieldNormal=Owner->GetActorForwardVector().GetSafeNormal2D();
+  Area.Valid&=!ACultSkillAttack::Alive(Aim.GetActor());
+ }
  return Area;
 }
 bool FCultKitRuntime::Cast(int Slot)
@@ -209,6 +230,21 @@ bool FCultKitRuntime::Cast(int Slot)
   }
  }
  if(S.effectKind=="heal") return CastHeal(S,Slot);
+ if(S.effectKind=="chaos_shield") {
+  const FTransform Transform(Area.ShieldNormal.Rotation(),Area.Center+FVector(0,0,ACultChaosShield::Height*.5f));
+  auto* Shield=Owner->GetWorld()->SpawnActorDeferred<ACultChaosShield>(
+   ACultChaosShield::StaticClass(),Transform,Owner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+  if(!Shield) return false;
+  Shield->Initialize(Owner->GetFaction(),S.effectPower);
+  Shield->FinishSpawning(Transform);
+  if(ChaosShield.IsValid()) ChaosShield->Destroy();
+  ChaosShield=Shield;
+  Cooldowns[Slot]=S.cooldownSec;
+  LastEffectLocation=Area.Center;
+  Owner->PlayAttackMotion(CultAttackMotion::AbilitySlot(Slot),0,.52f);
+  EmitCast(S,Slot);
+  return true;
+ }
  Owner->MarkCombat();
  if(S.effectKind=="projectile"||S.effectKind=="aoe_damage"||S.effectKind=="stun"||S.effectKind=="debuff"||S.effectKind=="fear_aura"||S.effectKind=="pull") {
   const FVector Point=Area.Slot!=INDEX_NONE?Area.Center:Owner->CameraAim().ImpactPoint;

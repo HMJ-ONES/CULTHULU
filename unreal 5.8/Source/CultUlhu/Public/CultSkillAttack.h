@@ -71,6 +71,7 @@ private:
  float FlightVisibility() const;
  float BornAt=0;
  bool FirstTick=true;
+ bool InstantDeliveryResolved=false;
  bool LimbBlockedByGuard=false;
  FVector Origin,Previous,SweepOffset;
  TSet<TWeakObjectPtr<AActor>> Struck;

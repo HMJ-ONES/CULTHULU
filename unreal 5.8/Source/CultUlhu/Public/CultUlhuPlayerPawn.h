@@ -26,6 +26,7 @@ struct FCultCastArea {
  int Slot=INDEX_NONE;
  FVector Center=FVector::ZeroVector;
  float Radius=0;
+ FVector ShieldNormal=FVector::ZeroVector;
  bool Valid=false, OutOfRange=false;
 };
 enum class ECultPlayerInput : uint8 { Jump, Primary, Heavy, Q, F, R, Interact, Stats, Command, Taunt, Count };

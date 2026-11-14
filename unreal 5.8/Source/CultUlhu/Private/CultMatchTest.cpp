@@ -19,13 +19,17 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Components/PoseableMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/StaticMeshComponent.h"
+#include "ProceduralMeshComponent.h"
+#include "Materials/MaterialInterface.h"
 #include "beliefs/BeliefSystem.h"
 #include "beliefs/Belief.h"
 #include "CultKitRuntime.h"
+#include "CultChaosShield.h"
 #include "CultPlayHUD.h"
 #include "CultPopulation.h"
 #include "CultFeralBeast.h"
@@ -470,6 +474,93 @@ struct FCultMatchTestAccess {
  static float Time(ACultMatchDirector* M) { return M->State_->Time; }
  static void WindClock(ACultMatchDirector* M,float Amount) { M->State_->Capture->update(Amount); }
 };
+class FCultChaosShieldObservation:public IAutomationLatentCommand {
+ FAutomationTestBase* Test;
+ bool Entered=false;
+ double Started=FPlatformTime::Seconds();
+public:
+ explicit FCultChaosShieldObservation(FAutomationTestBase* In):Test(In) {}
+ bool Update() override {
+  if(FPlatformTime::Seconds()-Started>90) { Test->AddError(TEXT("Chaos shield test timed out")); return true; }
+  auto* World=GEditor->PlayWorld.Get();
+  if(!World||World->bIsTearingDown) return false;
+  if(World->GetName().Contains(TEXT("L_MainMenu"))) {
+   if(!Entered) {
+    Entered=true;
+    auto* Game=Cast<UCultUlhuGameInstance>(World->GetGameInstance());
+    Game->SelectedCharacterId=TEXT("bokrug");
+    Game->OpenCharacterSelect(ECultPlayMode::Domination);
+    Game->StartPlay();
+   }
+   return false;
+  }
+  auto* Match=ACultMatchDirector::Find(World);
+  if(!Match||Match->Warmup()>0||Match->Fighters().Num()!=10) return false;
+  Match->SetActorTickEnabled(false);
+  auto* Tank=Match->Fighters()[0].Pawn.Get();
+  auto* Foe=Match->Fighters()[5].Pawn.Get();
+  const TPair<FString,int> ShieldKits[]={{TEXT("bokrug"),1},{TEXT("ghatanothoa"),1},{TEXT("rhan_tegoth"),0}};
+  for(const auto& Kit:ShieldKits) {
+   cultulhu::CharacterDef Def;
+   Test->TestTrue(Kit.Key+TEXT(" has its shield in the intended slot"),CultCanonicalKit::Load(Kit.Key,Def)&&
+    (Kit.Value==0?Def.qAbility:Def.fAbility).effectKind=="chaos_shield");
+  }
+  FCultMatchTestAccess::Park(Match);
+  for(TActorIterator<ACultSkillAttack> It(World);It;++It) It->Destroy();
+  Tank->RelocateMatch(FVector(-3000,-1600,0));
+  Foe->RelocateMatch(FVector(2800,-1600,0));
+  Tank->AltReleased();
+  if(auto* Arm=Tank->FindComponentByClass<USpringArmComponent>()) Arm->SetComponentTickEnabled(false);
+  auto* Camera=Tank->FindComponentByClass<UCameraComponent>();
+  Camera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+  Camera->SetWorldLocation(FVector(-1750,-1600,2600));
+  Camera->SetWorldRotation((FVector(0,-1600,0)-Camera->GetComponentLocation()).Rotation());
+  const auto Aim=Tank->CameraAim();
+  Tank->RoutePlayerInput(ECultPlayerInput::F,true);
+  const auto Area=Tank->CastAreaPreview();
+  Test->AddInfo(FString::Printf(TEXT("Tank %s, F %s, aim %s, normal %s, preview slot %d"),*Tank->GetCharacterId(),
+   *Tank->CombatHUD().AbilityNames[1],*Aim.ImpactPoint.ToCompactString(),*Aim.ImpactNormal.ToCompactString(),Area.Slot));
+  Test->TestTrue(TEXT("Holding F shows an aimed barrier preview"),Area.Valid&&!Area.ShieldNormal.IsNearlyZero());
+  Test->TestFalse(TEXT("Preview does not spawn a shield"),bool(TActorIterator<ACultChaosShield>(World)));
+  Tank->RoutePlayerInput(ECultPlayerInput::F,false);
+  TActorIterator<ACultChaosShield> ShieldIt(World);
+  auto* Shield=ShieldIt?*ShieldIt:nullptr;
+  if(!Test->TestNotNull(TEXT("Releasing Bokrug F places his shield"),Shield)) return true;
+  Test->TestEqual(TEXT("Shield starts at its authored integrity"),Shield->Durability(),75.f);
+  Test->TestTrue(TEXT("The shield expires after a short deployment"),Shield->GetLifeSpan()>9.9f&&Shield->GetLifeSpan()<=10.f);
+  auto* Veil=Shield->FindComponentByClass<UProceduralMeshComponent>();
+  Test->TestTrue(TEXT("An actual veil mesh uses the translucent effect material"),Veil&&Veil->GetNumSections()>0&&
+   Veil->GetMaterial(0)&&Veil->GetMaterial(0)->GetBlendMode()==BLEND_Additive);
+  const FVector Center=Shield->GetActorLocation(),Across=Shield->GetActorRightVector();
+  Test->TestTrue(TEXT("The shield is centered above the aimed ground point"),
+   Center.Equals(Area.Center+FVector(0,0,ACultChaosShield::Height*.5f),5.f));
+  auto Fire=[&](ACultUlhuPlayerPawn* Shooter,bool Ally,ACultSkillAttack::EShape Kind,float Power) {
+   const FVector Origin=Center+Across*850+Shield->GetActorForwardVector()*(Ally?-1800:1800);
+   const FTransform Transform(Origin);
+   auto* Shot=World->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),Transform,Shooter,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+   Shot->Direction=Shield->GetActorForwardVector()*(Ally?1:-1);
+   Shot->Shape=Kind; Shot->Radius=40; Shot->Reach=3700; Shot->Speed=11000;
+   Shot->Duration=1.f; Shot->Windup=0; Shot->ImpactPower=Power;
+   Shot->FinishSpawning(Transform);
+   Shot->Tick(0); Shot->Tick(.23f);
+   const bool Survived=IsValid(Shot);
+   if(Survived) Shot->Destroy();
+   return Survived;
+  };
+  Test->TestTrue(TEXT("A friendly projectile crosses the veil"),Fire(Tank,true,ACultSkillAttack::EShape::Bolt,25));
+  Test->TestEqual(TEXT("Allied fire does not spend integrity"),Shield->Durability(),75.f);
+  Test->TestFalse(TEXT("A hostile projectile stops at the veil"),Fire(Foe,false,ACultSkillAttack::EShape::Bolt,25));
+  Test->TestEqual(TEXT("Hostile projectiles wear down the veil"),Shield->Durability(),50.f);
+  Fire(Foe,false,ACultSkillAttack::EShape::Beam,25);
+  Test->TestEqual(TEXT("A hostile beam also stops and damages the veil"),Shield->Durability(),25.f);
+  Fire(Foe,false,ACultSkillAttack::EShape::Bolt,25);
+  Test->TestFalse(TEXT("The barrier breaks at zero durability"),IsValid(Shield));
+  Test->TestTrue(TEXT("The next enemy shot passes the destroyed veil"),Fire(Foe,false,ACultSkillAttack::EShape::Bolt,25));
+  return true;
+ }
+};
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultChaosShieldTest,"CultUlhu.Menu.ChaosShield",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FCultChaosShieldTest::RunTest(const FString&) { ADD_LATENT_AUTOMATION_COMMAND(FCultStartFreshPIE()); ADD_LATENT_AUTOMATION_COMMAND(FCultChaosShieldObservation(this)); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true; }
 class FCultMatchObservation:public IAutomationLatentCommand {
  FAutomationTestBase* Test; bool Moba; int Phase=0; double Began=FPlatformTime::Seconds(),At=0; TWeakObjectPtr<ACultMatchDirector> Previous; float InitialCore=0; int InitialWaves=0; bool IntroShot=false,LiveShot=false,CombatSignalShot=false; TWeakObjectPtr<ACameraActor> Overview; TWeakObjectPtr<ACultUlhuPlayerPawn> SurgeVictim; float LiveDamageStart=0,LivePointStart[10]={}; float SurgeBefore=0; float RouteProgress[2][3]={}; int BranchCase=0,BranchLeg=0; bool TunnelScoreChecked=false; bool TerrainDone=false; TWeakObjectPtr<ACultMatchUnit> TerrainUnit;
 public:

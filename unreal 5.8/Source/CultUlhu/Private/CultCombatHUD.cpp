@@ -1,4 +1,5 @@
 #include "CultPlayHUD.h"
+#include "CultChaosShield.h"
 #include "UI/CultUIStyle.h"
 #include "CultSkillAttack.h"
 #include "CultMatchDirector.h"
@@ -113,7 +114,16 @@ void DrawCultCombat(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C) {
  const bool Previewing=Area.Slot!=INDEX_NONE&&!HUD->Presentation().Expanded;
  const FLinearColor AimColor=!Previewing?FLinearColor::White:Area.Valid?FLinearColor(.34f,1.f,.9f):FLinearColor(1.f,.55f,.29f);
  if(Previewing) {
-  if(Area.Valid&&Area.Radius>0) {
+  if(Area.Valid&&!Area.ShieldNormal.IsNearlyZero()) {
+   const FVector End=FVector::CrossProduct(FVector::UpVector,Area.ShieldNormal)*Area.Radius;
+   const FVector Height(0,0,ACultChaosShield::Height);
+   const FVector Corners[]={Area.Center-End,Area.Center+End,Area.Center+End+Height,Area.Center-End+Height};
+   for(int I=0;I<4;++I) {
+    FVector2D A,B;
+    if(CultHUDProjection::Project(C,Corners[I],A)&&CultHUDProjection::Project(C,Corners[(I+1)%4],B))
+     HUD->DrawLine(A.X,A.Y,B.X,B.Y,FLinearColor(.76f,.53f,1.f,.95f),2.3f*S);
+   }
+  } else if(Area.Valid&&Area.Radius>0) {
    FVector2D Last=FVector2D::ZeroVector; bool LastVisible=false;
    for(int I=0;I<=48;++I) {
     const float Angle=I*(2.f*PI/48.f);

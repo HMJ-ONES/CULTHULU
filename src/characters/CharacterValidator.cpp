@@ -20,7 +20,7 @@ bool knownEffectKind(const std::string& k) {
     static const char* kinds[] = {"aoe_damage", "fear_aura", "summon",
                                   "buff",       "projectile", "heal",
                                   "shield",     "debuff",     "dash",
-                                  "pull",       "stun"};
+                                  "pull",       "stun",       "chaos_shield"};
     for (const char* c : kinds)
         if (k == c) return true;
     return false;

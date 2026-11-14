@@ -14,15 +14,15 @@ max_stamina = 100
 melee_combo = crab_flurry
 
 [q]
-id = crusher_claw
-name = Crusher Claw
-flavor = The pincer closes like a vault door.
-cooldown = 8
+id = fossil_veil
+name = Fossil Veil
+flavor = Raise a fossil ward veined with violet chaos.
+cooldown = 18
 stamina_cost = 30
 mana_cost = 0
-effect = aoe_damage
-power = 135
-range = 8
+effect = chaos_shield
+power = 84
+range = 75
 
 [f]
 id = chitin_spike

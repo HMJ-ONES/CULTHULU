@@ -79,6 +79,7 @@ private:
  std::unique_ptr<cultulhu::Entity> Caster;
  std::unique_ptr<cultulhu::Entity> WorldImpact;
  std::unique_ptr<cultulhu::RmbAbility> Rmb;
+ TWeakObjectPtr<class ACultChaosShield> ChaosShield;
  std::vector<Mirror> Mirrors;
  cultulhu::ActiveEffects Effects;
  cultulhu::StaminaGauge Stamina;

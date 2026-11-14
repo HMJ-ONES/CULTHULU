@@ -1,4 +1,5 @@
 #include "CultSkillAttack.h"
+#include "CultChaosShield.h"
 #include "CultAbilityFX.h"
 #include "CultReplicatedBody.h"
 #include "Net/UnrealNetwork.h"
@@ -138,6 +139,21 @@ void ACultSkillAttack::Sweep(FVector A,FVector B,float R) {
  const bool FlyingRock=Shape==EShape::Bolt&&RockExtents.X>0;
  const auto Collision=FlyingRock?FCollisionShape::MakeBox(RockExtents*.87):FCollisionShape::MakeSphere(R);
  TArray<FHitResult> Hits; GetWorld()->SweepMultiByChannel(Hits,A,B,FlyingRock?GetActorQuat():FQuat::Identity,ECC_Visibility,Collision,Q);
+ if(Shape==EShape::Bolt||Shape==EShape::Beam) {
+  FHitResult ShieldHit;
+  if(ACultChaosShield::FirstHostile(GetWorld(),GetOwner(),A,B,Collision,FlyingRock?GetActorQuat():FQuat::Identity,ShieldHit)) {
+   const int32 Blocking=Hits.IndexOfByPredicate([](const FHitResult& Hit) { return Hit.bBlockingHit; });
+   if(Blocking==INDEX_NONE||ShieldHit.Time<=Hits[Blocking].Time) {
+    CastChecked<ACultChaosShield>(ShieldHit.GetActor())->Absorb(ImpactPower);
+    if(auto* Pawn=Cast<ACultUlhuPlayerPawn>(GetOwner()))
+     Pawn->EmitAbilityBurst(uint8(CultAbilityFX::ELook::Dread),uint8(CultAbilityFX::EEvent::Contact),
+      ShieldHit.ImpactPoint,ShieldHit.ImpactNormal,FMath::Max(135.f,R*3.f));
+    if(Shape==EShape::Bolt) { Destroy(); return; }
+    Previous=ShieldHit.ImpactPoint;
+    return;
+   }
+  }
+ }
  // Tip chords can lie beyond a wall even when every radial trace is blocked.
  // A melee contact must also remain connected to the actual arm origin.
  for(const auto& H:Hits) {
@@ -150,7 +166,7 @@ void ACultSkillAttack::Sweep(FVector A,FVector B,float R) {
    }
    if(bLimbStrike) LimbBlockedByGuard=true;
   }
-  if(Enemy(GetOwner(),Other)&&!Struck.Contains(Other)&&(Shape!=EShape::Sweep||Clear(GetWorld(),Origin,Contact,GetOwner(),Other))) {
+ if(Enemy(GetOwner(),Other)&&!Struck.Contains(Other)&&(Shape!=EShape::Sweep||Clear(GetWorld(),Origin,Contact,GetOwner(),Other))) {
    Struck.Add(Other);
    if(Hit) Hit(Other,Contact);
    if(Shape==EShape::Sweep&&Struck.Num()==1) {
@@ -310,10 +326,16 @@ void ACultSkillAttack::Tick(float Dt) {
   }
   const float Step=Speed*(Age-FMath::Max(Old,Windup));
   Direction=(Aim-Previous).GetSafeNormal();
+  const FVector Next=Previous+Direction*FMath::Min(FVector::Dist(Previous,Aim),double(Step));
+  FHitResult ShieldHit;
+  if(ACultChaosShield::FirstHostile(GetWorld(),GetOwner(),Previous,Next,FCollisionShape::MakeSphere(Radius),FQuat::Identity,ShieldHit)) {
+   CastChecked<ACultChaosShield>(ShieldHit.GetActor())->Absorb(ImpactPower);
+   Destroy();
+   return;
+  }
   if(Hero&&Hero->HoldingRock()) {
    FHitResult Block;
    FCollisionQueryParams Query(SCENE_QUERY_STAT(CultWardGuard),false,GetOwner());
-   const FVector Next=Previous+Direction*FMath::Min(FVector::Dist(Previous,Aim),double(Step));
    if(GetWorld()->SweepSingleByChannel(Block,Previous,Next,FQuat::Identity,ECC_Visibility,FCollisionShape::MakeSphere(Radius),Query)) {
     if(auto* Guard=Cast<ACultSkillAttack>(Block.GetActor());Guard&&Guard->IsGuarding()&&Guard->GetOwner()==Target) {
      Guard->DamageGuard(ImpactPower);
@@ -350,7 +372,8 @@ void ACultSkillAttack::Tick(float Dt) {
   const int Steps=FMath::Max(1,FMath::CeilToInt((End-Start)/.012f));
   for(int I=0;I<=Steps;++I) { const float T=FMath::Lerp(Start,End,I/float(Steps))/Duration; FVector D=Direction.RotateAngleAxis(FMath::Lerp(-HalfAngle,HalfAngle,T),FVector::UpVector); FVector Tip=Origin+D*Reach; if(I>0) Sweep(Previous,Tip,Radius); Sweep(Origin+D*Radius,Tip,Radius);
    Previous=Tip; }
- } else if(Old<=Windup) {
+ } else if(!InstantDeliveryResolved&&Age>Old) {
+  InstantDeliveryResolved=true;
   if(Shape==EShape::Beam) {
    Previous=Origin+Direction*Reach;
    Sweep(Origin,Previous,Radius);
