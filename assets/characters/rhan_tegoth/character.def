@@ -25,15 +25,15 @@ power = 135
 range = 8
 
 [f]
-id = chitin_wall
-name = Chitin Wall
-flavor = Six hundred million years of saying 'no'.
+id = chitin_spike
+name = Chitin Spike
+flavor = A fossil barb knocks a target senseless on impact.
 cooldown = 16
 stamina_cost = 35
 mana_cost = 0
-effect = shield
-power = 150
-range = 0
+effect = stun
+power = 0.95
+range = 27
 
 [r]
 id = museum_wakes

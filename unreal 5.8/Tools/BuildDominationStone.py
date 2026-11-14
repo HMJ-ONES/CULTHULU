@@ -6,7 +6,7 @@ import unreal
 
 PROJECT = Path(__file__).resolve().parents[1]
 assert Path(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())).resolve() == PROJECT
-NAME = 'M_DominationStone_v1'
+NAME = 'M_DominationStone_v2'
 PATH = '/Game/CultUlhu/Materials/' + NAME
 assert not unreal.EditorAssetLibrary.does_asset_exist(PATH), 'Existing material preserved; author a new version instead'
 original = PROJECT / 'Content/CultUlhu/Materials/M_MatchStone.uasset'
@@ -29,7 +29,7 @@ for i, (name, value) in enumerate([('Masonry', 1.), ('SurfaceStyle', 0.)]):
     node.set_editor_property('default_value', value)
     nodes[name] = node
 shader = lib.create_material_expression(mat, unreal.MaterialExpressionCustom, -200, 0)
-shader.set_editor_property('description', 'Original broad slate / ashlar / cut trim / bronze')
+shader.set_editor_property('description', 'Original rain-dark slate with veins, chipping and pitting')
 source = PROJECT / 'Tools/DominationStone.hlsl'
 shader.set_editor_property('code', source.read_text(encoding='utf-8-sig'))
 shader.set_editor_property('output_type', unreal.CustomMaterialOutputType.CMOT_FLOAT3)
@@ -50,7 +50,7 @@ for name, node in nodes.items():
     assert lib.connect_material_expressions(node, '', shader, name)
 for output, prop in [('', unreal.MaterialProperty.MP_BASE_COLOR), ('StoneRoughness', unreal.MaterialProperty.MP_ROUGHNESS), ('StoneNormal', unreal.MaterialProperty.MP_NORMAL), ('StoneMetallic', unreal.MaterialProperty.MP_METALLIC)]:
     assert lib.connect_material_property(shader, output, prop)
-unreal.EditorAssetLibrary.set_metadata_tag(mat, 'CultUlhu.Generated', 'DominationStone_v1')
+unreal.EditorAssetLibrary.set_metadata_tag(mat, 'CultUlhu.Generated', 'DominationStone_v2')
 unreal.EditorAssetLibrary.set_metadata_tag(mat, 'CultUlhu.ShaderSHA256', sha(source))
 lib.recompile_material(mat)
 assert unreal.EditorAssetLibrary.save_loaded_asset(mat)

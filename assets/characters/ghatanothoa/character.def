@@ -16,13 +16,13 @@ melee_combo = volcano_flurry
 [q]
 id = petrifying_gaze
 name = Petrifying Gaze
-flavor = Stone is just flesh that stopped arguing.
+flavor = A pulse of volcanic light briefly turns flesh to stone.
 cooldown = 9
 stamina_cost = 25
 mana_cost = 0
 effect = stun
 power = 1.25
-range = 12
+range = 28
 
 [f]
 id = obsidian_shards

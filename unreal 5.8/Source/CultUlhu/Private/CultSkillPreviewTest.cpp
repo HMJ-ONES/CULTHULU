@@ -47,7 +47,7 @@ public:
    Test->TestTrue(TEXT("LMB starts its authored combo motion"),P->AttackPlayback().Move==CultAttackMotion::EMove::Melee);
    Test->TestEqual(TEXT("Melee contact is centered inside the physical sweep"),P->AttackPlayback().Contact,.22f);
   } else if(Phase==1) {
-   if(Time<.32f) {
+   if(Time<.42f&&!LimbFixture) {
     TArray<AActor*> Models;
     P->GetAttachedActors(Models);
     for(auto* Actor:Models) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
@@ -56,9 +56,16 @@ public:
      if(Model->StrikeLimb(Stage==2?1:0,Elbow,Hand)) {
       Test->AddInfo(FString::Printf(TEXT("Strike %.3f stage %d wrist relative to body %s"),Time,Stage,*(Hand-P->GetActorLocation()).ToCompactString()));
       if(Hand.X<P->GetActorLocation().X+50||Time<.10f) break;
-      LimbFixture=true;
-      // Exercise the actual hand contact at this animation frame.
-      if(Beast.IsValid()) Beast->SetActorLocation(Hand);
+      // Exercise the actual hand at the sampled animation pose, even when
+      // offscreen PIE advances more than one visual frame between polls.
+      if(Beast.IsValid()) Beast->SetActorLocation((Hand+Elbow)*.5);
+      for(TActorIterator<ACultSkillAttack> It(W);It;++It)
+       if(It->GetOwner()==P&&It->Shape==ACultSkillAttack::EShape::Sweep) {
+        LimbFixture=true;
+        It->Tick(0);
+        if(!It->IsActorBeingDestroyed()) It->Tick(.22f);
+        break;
+       }
      }
     }
    }
@@ -82,16 +89,16 @@ public:
     if(Beast.IsValid()&&!Beast->IsDead()) {
      auto* Camera=P->FindComponentByClass<UCameraComponent>();
      Camera->SetWorldRotation((Beast->GetActorLocation()-Camera->GetComponentLocation()).Rotation());
-     Before=Beast->GetHealth(); P->AbilityQ();
+     Before=Beast->GetHealth(); P->RoutePlayerInput(ECultPlayerInput::Q,true);
      const auto Preview=P->CastAreaPreview();
-     Test->TestTrue(TEXT("First press previews the exact crosshair impact with no damage"),Preview.Valid&&Preview.Center.Equals(P->CameraAim().ImpactPoint,1)&&Beast->GetHealth()==Before);
+     Test->TestTrue(TEXT("Holding Q previews the exact crosshair impact with no damage"),Preview.Valid&&Preview.Center.Equals(P->CameraAim().ImpactPoint,1)&&Beast->GetHealth()==Before);
      Test->TestFalse(TEXT("Preview does not start the cast motion"),P->AttackPlayback().Move==CultAttackMotion::EMove::Q);
      Shot(TEXT("SkillCastAreaPreview.png")); Phase=11; Time=0; return false;
     }
     Phase=2; Time=0;
    }
   } else if(Phase==11&&Time>.12f&&!FScreenshotRequest::IsScreenshotRequested()) {
-   P->AbilityQ();
+   P->RoutePlayerInput(ECultPlayerInput::Q,false);
    Test->TestTrue(TEXT("Tentacle Slam gets its own Q choreography"),P->AttackPlayback().Move==CultAttackMotion::EMove::Q);
    Test->TestEqual(TEXT("Tentacle Slam releases on its physical windup"),P->AttackPlayback().Contact,.5f);
    Test->TestEqual(TEXT("Native Q warns instead of instantly detonating"),Beast->GetHealth(),Before);

@@ -1,4 +1,5 @@
 #include "CultKitRuntime.h"
+#include "CultSecondaryProfile.h"
 #include "CultCharacterModel.h"
 #include "CultAbilityFX.h"
 #include "CultSkillAttack.h"
@@ -88,9 +89,11 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
  FVector Muzzle=Owner->FeetLocation()+FVector(0,0,H*.52f)+Owner->AimRotation().Vector()*Body*.8f;
  FVector Origin=Muzzle; Shape Kind=Shape::Bolt; float Delay=.20f,Life=0,Radius=35,Reach=S.range*100,Speed=2600,Angle=45;
  const auto& Id=S.id;
+ const auto* Secondary=Slot==-1&&FString(UTF8_TO_TCHAR(Id.c_str())).EndsWith(TEXT("_secondary"))?CultSecondary::Find(Def.id):nullptr;
  if(S.effectKind=="aoe_damage") { Kind=Shape::GroundDisk; Origin=Aim; Delay=Slot==2?.9f:.5f; Life=.06f; Radius=120.f; }
- if(S.effectKind=="fear_aura"||S.effectKind=="pull") { Kind=Shape::Sphere; Origin=Owner->FeetLocation()+FVector(0,0,100); Delay=.45f; Life=.06f; Radius=Reach; }
- if(S.effectKind=="domination_summon") { Kind=Shape::Cone; Origin=Muzzle; Delay=.5f; Life=.08f; Angle=45; }
+ if(S.effectKind=="fear_aura"||S.effectKind=="pull"||S.effectKind=="domination_summon") {
+  Kind=Shape::GroundDisk; Origin=Aim; Delay=Slot==2?.85f:.55f; Life=.06f; Radius=170.f;
+ }
  if(S.effectKind=="heavy") { if(Def.rightClick.kind==cultulhu::HeavyAttackKind::MeleeHeavy) { Kind=Shape::Sweep; Reach+=Body; Origin=Owner->FeetLocation()+FVector(0,0,FMath::Min(H*.48f,Reach*.55f)); Radius=FMath::Clamp(H*.04f,30.f,130.f); Delay=.24f; Life=.25f; } else { Radius=Def.rightClick.kind==cultulhu::HeavyAttackKind::AcidSpit?65:40; Speed=2200; Delay=.25f; } }
  // Individual source spells keep their identity: thin fast needles, wide slow cries,
  // paired fangs, a short piercing beam, and delayed ground impacts.
@@ -103,18 +106,26 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
  if(Id=="obsidian_shards") { Radius=70; Speed=2400; }
  if(Id=="serpent_strike") { Radius=28; Speed=3600; }
  if(Id=="blight_ray") { Kind=Shape::Beam; Delay=.35f; Life=.12f; Radius=25; }
- if(S.effectKind=="stun"||S.effectKind=="debuff") { Radius=40; Speed=2200; Delay=.25f; }
- if(Id=="claw_of_the_sphinx"||Id=="crushing_maw"||Id=="crusher_claw") { Kind=Shape::Cone; Origin=Muzzle; Delay=.30f; Life=.06f; Angle=Id=="crusher_claw"?28:45; }
+ if(Id=="petrifying_gaze") { Radius=85; Speed=4300; Delay=.34f; }
+ if(Id=="cylinder_stasis") { Radius=24; Speed=7800; Delay=.20f; }
+ if(Id=="chitin_spike") { Radius=65; Speed=5400; Delay=.29f; }
+ if(Id=="fertile_rot") { Kind=Shape::GroundDisk; Origin=Aim; Delay=.58f; Life=.06f; Radius=135.f; }
+ if(Secondary) {
+  using Delivery=CultSecondary::EDelivery;
+  Radius=Secondary->Radius;
+  Delay=Secondary->Windup;
+  if(Secondary->Speed>0) Speed=Secondary->Speed;
+  if(Secondary->Delivery==Delivery::Beam) { Kind=Shape::Beam; Life=.14f; }
+ }
  if(Kind==Shape::GroundDisk||Kind==Shape::Sphere||Kind==Shape::Cone) {
   Reach*=CultMovement::AbilityAreaMultiplier;
   if(Kind==Shape::Sphere||Kind==Shape::GroundDisk) Radius*=CultMovement::AbilityAreaMultiplier;
  } else if(Kind==Shape::Bolt||Kind==Shape::Beam) Radius*=1.25f;
- if(IsCasterGroundStrike(Id)) { Origin=Owner->FeetLocation()+FVector(0,0,12); Delay=.55f; }
  if(Owner->IsBot()&&Kind==Shape::Sweep) {
   FVector Committed=(Aim-Origin).GetSafeNormal(); if(Committed.IsNearlyZero()) Committed=Owner->AimRotation().Vector();
   if(!BotHeavyOpportunity(Owner,Origin,Committed,Reach,Radius,Angle,Life)) return false;
  }
- if(Owner->IsBot()&&(Kind==Shape::Sphere||Kind==Shape::Cone)) {
+ if(Owner->IsBot()&&(Kind==Shape::GroundDisk||Kind==Shape::Sphere||Kind==Shape::Cone)) {
   FVector Committed=(Aim-Origin).GetSafeNormal(); if(Committed.IsNearlyZero()) Committed=Owner->AimRotation().Vector();
   bool Useful=false;
   // Use the attack's real geometric and cover checks. Area opportunities may
@@ -129,32 +140,42 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
  if(Kind==Shape::Bolt&&Owner->IsBot()) {
   if(auto* Target=Owner->GetBotAim()) if(ACultSkillAttack::Enemy(Owner,Target)) if(auto* Collision=::Cast<UPrimitiveComponent>(Target->GetRootComponent())) {
    FVector Closest; const float Distance=Collision->GetClosestPointOnCollision(Origin,Closest);
-   if(Distance>=0&&Distance>Reach+Radius+5) return false;
+   const float ContactDistance=Distance>=0?Distance:FVector::Dist(Origin,Target->GetActorLocation())-Target->GetSimpleCollisionRadius();
+   if(ContactDistance>Reach+Radius+5) return false;
   }
   Aim=BotCommittedAim(Owner,Origin,Aim,Speed*CultMovement::ProjectileSpeedMultiplier,Delay,Reach);
  }
  FVector Direction=(Aim-Origin).GetSafeNormal(); if(Direction.IsNearlyZero()) Direction=Owner->AimRotation().Vector();
- LastEffectLocation=(S.effectKind=="fear_aura"||S.effectKind=="pull")?Owner->FeetLocation():Origin;
+ LastEffectLocation=Origin;
  TWeakObjectPtr<ACultUlhuPlayerPawn> Weak(Owner);
- const int Bolts=Id=="twin_fangs"?2:1;
+ const int Bolts=Secondary&&Secondary->Delivery==CultSecondary::EDelivery::Fan?3:
+  Id=="twin_fangs"||(Secondary&&Secondary->Delivery==CultSecondary::EDelivery::Pair)?2:1;
  const FVector Across=FVector::CrossProduct(FVector::UpVector,Direction).GetSafeNormal();
  for(int I=0;I<Bolts;++I) {
   const FVector Start=Bolts==2?Origin+Across*(I==0?-80.f:80.f):Origin;
   const FTransform T(Start); auto* A=Owner->GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Owner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); if(!A) return false;
   A->Shape=Kind; A->Direction=Bolts==2?(Aim-Start).GetSafeNormal():Direction; A->Windup=Delay; A->Reach=Reach; A->Radius=Radius; A->Speed=Speed; A->Duration=Life>0?Life:Reach/Speed+.05f; A->HalfAngle=Angle;
+  if(Bolts==3) A->Direction=Direction.RotateAngleAxis((I-1)*(Def.id=="dagon"?11.f:6.f),FVector::UpVector);
+  if(Secondary&&Secondary->Delivery==CultSecondary::EDelivery::Arc) {
+   A->PrimaryAim=Aim;
+   A->Gravity=Def.id=="bokrug"?5900.f:Def.id=="mi_go"?2500.f:4800.f;
+  }
   A->ImpactPower=Kind==Shape::Sweep?S.effectPower*(10.f/135.f):
    FMath::Clamp(S.effectPower*.12f/Bolts,3.f,18.f);
   A->bLimbStrike=Kind==Shape::Sweep;
-  if(Kind==Shape::Bolt) A->ConfigureProjectileFlight(Reach,Id=="nerve_needle"||Id=="dream_pierce"||Id=="abyssal_harpoon"||Id=="gate_lash");
+  if(Kind==Shape::Bolt) A->ConfigureProjectileFlight(Reach,(Secondary&&Secondary->LongFlight)||Id=="nerve_needle"||Id=="dream_pierce"||Id=="abyssal_harpoon"||Id=="gate_lash");
   A->AbilityLook=uint8(CultAbilityFX::ForSlot(UTF8_TO_TCHAR(Def.id.c_str()),Slot));
-  cultulhu::SpellDef HitSpell=S; if(Bolts>1) HitSpell.effectPower*=.5f;
+  cultulhu::SpellDef HitSpell=S; HitSpell.effectPower/=Bolts;
+  const bool Corrosive=Secondary&&Secondary->Corrosive;
   const TWeakObjectPtr<ACultSkillAttack> Projectile(A);
-  A->Hit=[Weak,Projectile,HitSpell,Slot,Origin,Reach](AActor* Target,FVector Point) {
+  A->Hit=[Weak,Projectile,HitSpell,Slot,Origin,Reach,Corrosive](AActor* Target,FVector Point) {
    if(!Weak.IsValid()) return;
    auto Impact=HitSpell;
    if(Impact.effectKind=="aoe_damage") Impact.effectPower*=1.f-.5f*FMath::Clamp(float(FVector::Dist2D(Origin,Point))/Reach,0.f,1.f);
    if(Impact.effectKind=="projectile"&&Projectile.IsValid()) Impact.effectPower*=Projectile->ProjectileDamageScale(Point);
-   Weak->ResolveSkillHit(Impact,Target,Point,Slot);
+   const float Before=Corrosive?ACultSkillAttack::HealthOf(Target):0;
+   Weak->ResolveSkillHit(Impact,Target,Impact.effectKind=="pull"?Origin:Point,Slot);
+   if(Corrosive&&IsValid(Target)&&ACultSkillAttack::HealthOf(Target)<Before) Weak->ApplyPrimaryCorrosion(Target);
   };
   if(!A->AbilityLook) {
    A->Finished=[Weak,Origin,Kind](FVector Point) {
@@ -177,7 +198,7 @@ void FCultKitRuntime::ResolveSpatial(cultulhu::SpellDef S,AActor* Target,FVector
  if(auto* U=::Cast<ACultMatchUnit>(Target)) if(U->IsStructure()&&(S.effectKind=="pull"||S.effectKind=="fear_aura"||S.effectKind=="stun"||S.effectKind=="debuff")) return;
  auto& T=*Found->Core; auto& B=D->Beliefs(Owner->GetFaction()); auto& Bus=D->Bus(Owner->GetFaction()); const auto& K=S.effectKind;
  if(K=="stun"||K=="debuff"||K=="fear_aura") Effects.apply(T.id(),K=="debuff"?cultulhu::CCType::Slow:K=="fear_aura"?cultulhu::CCType::Fear:cultulhu::CCType::Stun,S.effectPower,B,Bus);
- else if(K=="pull") { FVector Delta=(Owner->FeetLocation()-Target->GetActorLocation()).GetSafeNormal2D()*FMath::Min(S.effectPower*100.f,FVector::Dist2D(Owner->FeetLocation(),Target->GetActorLocation())); Target->SetActorLocation(Target->GetActorLocation()+Delta,true); T.setPosition(P(Target->GetActorLocation())); Found->BeforePosition=Target->GetActorLocation(); }
+ else if(K=="pull") { FVector Delta=(Point-Target->GetActorLocation()).GetSafeNormal2D()*FMath::Min(S.effectPower*100.f,FVector::Dist2D(Point,Target->GetActorLocation())); Target->SetActorLocation(Target->GetActorLocation()+Delta,true); T.setPosition(P(Target->GetActorLocation())); Found->BeforePosition=Target->GetActorLocation(); }
  else {
   float Base=S.effectPower;
   if(ACultMatchDirector::IsMatch(Owner->GetWorld())) Base*=K=="domination_summon"?9.f:K=="heavy"?10.f/135.f:.12f;

@@ -6,6 +6,7 @@
 #include "CultSkillAttack.h"
 #include "CultBotFocus.h"
 #include "CultPrimaryProfile.h"
+#include "CultSecondaryProfile.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -15,7 +16,8 @@ float WeaponRange(const FString& Id) {
  const auto Primary=CultPrimary::Find(Id);
  float R=Primary.Reach;
  for(const auto* S:{&D.qAbility,&D.fAbility}) if(S->effectKind=="projectile") R=FMath::Max(R,S->range*100.f);
- if(D.rightClick.kind==cultulhu::HeavyAttackKind::AcidSpit) R=FMath::Max(R,D.rightClick.range*100.f);
+ if(const auto* Secondary=CultSecondary::Find(D.id); Secondary&&Secondary->Delivery!=CultSecondary::EDelivery::Disk)
+  R=FMath::Max(R,Secondary->Reach);
  return R;
 }
 AActor* Reachable(ACultMatchDirector* M,ACultUlhuPlayerPawn* P,FVector Feet,float Range) {

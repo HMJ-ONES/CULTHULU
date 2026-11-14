@@ -28,6 +28,9 @@ public:
  bool CanHeal(AActor* Target) const;
  bool CastHeal(const cultulhu::SpellDef& Spell,int Slot);
  void Heavy(bool bPress);
+ FString HeavyHint() const;
+ bool HasAimedSecondary() const;
+ bool SecondaryReady() const { return HeavyCooldown<=0; }
  bool LeftClick(); // consumes LMB when the original RMB state machine owns it
  CultPrimary::FProfile Primary;
  bool LaunchPrimary();
@@ -102,7 +105,4 @@ private:
  void Apply();
  cultulhu::Entity* Target(float MaxRange, FVector& Aim);
  cultulhu::RmbContext Context();
- static bool IsCasterGroundStrike(const std::string& Id) {
-  return Id=="doomfall_stomp";
- }
 };

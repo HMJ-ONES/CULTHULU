@@ -33,7 +33,7 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
  auto& Settings=Grade->Settings;
  Settings.bOverride_AutoExposureMethod=true; Settings.AutoExposureMethod=AEM_Manual;
  Settings.bOverride_AutoExposureApplyPhysicalCameraExposure=true; Settings.AutoExposureApplyPhysicalCameraExposure=false;
- Settings.bOverride_AutoExposureBias=true; Settings.AutoExposureBias=.75f;
+ Settings.bOverride_AutoExposureBias=true; Settings.AutoExposureBias=Moba?.75f:.40f;
  Settings.bOverride_BloomIntensity=true; Settings.BloomIntensity=.25f;
  Settings.bOverride_VignetteIntensity=true; Settings.VignetteIntensity=.18f;
  bool Moon=false;
@@ -41,7 +41,7 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   auto* Light=It->GetLightComponent(); Light->SetMobility(EComponentMobility::Movable); Light->SetIntensity(Moon?0.f:2.5f);
   Light->SetLightColor(FLinearColor(.65f,.78f,.85f)); Moon=true;
  }
- CultSceneLighting::Ambient(W,.6f,FLinearColor(.72f,.82f,1.f));
+ CultSceneLighting::Ambient(W,Moba?.6f:.53f,FLinearColor(.72f,.82f,1.f));
  for(TActorIterator<ASkyAtmosphere> It(W);It;++It) It->GetComponent()->SetVisibility(false);
  bool Fog=false;
  auto SetFog=[](UExponentialHeightFogComponent* C) {
@@ -113,7 +113,7 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
    }
   }
  } else {
-  const FLinearColor Stone(.12f,.16f,.18f),Trim(.31f,.38f,.36f),Seal(.58f,.52f,.29f);
+  const FLinearColor Stone(.085f,.115f,.135f),Trim(.24f,.32f,.33f),Seal(.58f,.48f,.25f);
   auto Box=[&](FVector Center,FVector Size,FLinearColor Color,bool Solid=true) { return Mesh(TEXT("/Engine/BasicShapes/Cube"),Center,Size/100,Color,Solid); };
   auto WalkSurface=[&](FVector Center,FVector Size) { auto* A=Box(Center,Size,Stone); A->Tags.Add(TEXT("CultMatchWalkSurface")); return A; };
   // Objective paint is exactly the scoring rectangle, including its corners.
@@ -122,6 +122,28 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   for(int Side:{-1,1}) {
    Box(FVector(Side*E.X,0,16),FVector(65,E.Y*2,24),Seal,false);
    Box(FVector(0,Side*E.Y,16),FVector(E.X*2,65,24),Seal,false);
+  }
+  // One objective on two levels. The open southern approach still reaches the
+  // ground seal, while short rock jumps at either end reach the upper altar.
+  const auto Top=CapturePlatformTop();
+  const auto Upper=CapturePlatformHalfExtent();
+  auto* Altar=WalkSurface(Top-FVector(0,0,240),FVector(Upper.X*2,Upper.Y*2,480));
+  Altar->Tags.Add(TEXT("CultDominationCapturePlatform"));
+  for(int Side:{-1,1}) {
+   Box(Top+FVector(0,Side*(Upper.Y-55),10),FVector(Upper.X*2,80,20),Seal,false);
+   Box(Top+FVector(Side*(Upper.X-60),0,10),FVector(80,Upper.Y*2,20),Seal,false);
+   Box(Top+FVector(Side*3100,940,-1100),FVector(420,320,2200),Stone);
+   for(int Step=0;Step<4;++Step) {
+    const float Height=440.f*(Step+1);
+    const FVector Crest(Side*(9250-1080*Step),Top.Y+(Step%2?95:-95),Height);
+    auto* Rock=WalkSurface(Crest-FVector(0,0,Height*.5f),FVector(1180,1950-100*Step,Height));
+    Rock->Tags.Append({TEXT("CultDominationCaptureStep"),TEXT("CultMatchRockSurface")});
+    Rock->GetStaticMeshComponent()->CanCharacterStepUpOn=ECB_No;
+    Rock->SetActorRotation(FRotator(0,Side*(Step%2?5.f:-6.f),0));
+    auto* Scree=Mesh(TEXT("/Engine/BasicShapes/Sphere"),Crest+FVector(0,930,-Height*.55f),
+       FVector(6.f,4.f,Height*.004f),FLinearColor(.071f,.095f,.107f),false);
+    Scree->Tags.Append({TEXT("CultMatchStoneSurface"),TEXT("CultMatchRockSurface")});
+   }
   }
   // Broken nave walls split the exposed direct approach from two wide flanks.
   // Gaps are scaled for the largest 30m entity, rather than human-sized doors.

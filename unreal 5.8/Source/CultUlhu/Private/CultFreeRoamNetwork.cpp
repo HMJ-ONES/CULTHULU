@@ -8,6 +8,7 @@
 #include "CultLivingLandscape.h"
 #include "CultMatchDirector.h"
 #include "CultCanonicalKit.h"
+#include "CultKitRuntime.h"
 #include "CultSkillAttack.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -30,7 +31,11 @@ void ACultUlhuPlayerPawn::ServerCombatInput_Implementation(uint8 Action,bool Dow
  if(Origin.ContainsNaN()||Direction.ContainsNaN()||Direction.IsNearlyZero()||FVector::Dist(Origin,GetActorLocation())>GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*5) return;
  NetworkAimOrigin_=Origin; NetworkAimDirection_=FVector(Direction).GetSafeNormal(); NetworkAimAt_=GetWorld()->GetTimeSeconds();
  if(Action>=uint8(ECultPlayerInput::Q)&&Action<=uint8(ECultPlayerInput::R)) {
-  if(Down) CommitAbility(Action-uint8(ECultPlayerInput::Q));
+  if(!Down) CommitAbility(Action-uint8(ECultPlayerInput::Q));
+  return;
+ }
+ if(Action==uint8(ECultPlayerInput::Heavy)&&Kit_&&Kit_->HasAimedSecondary()) {
+  if(!Down) ReleaseHeavy();
   return;
  }
  RoutePlayerInput(ECultPlayerInput(Action),Down);

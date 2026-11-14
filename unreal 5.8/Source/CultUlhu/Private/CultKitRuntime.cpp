@@ -1,4 +1,5 @@
 #include "CultKitRuntime.h"
+#include "CultSecondaryProfile.h"
 #include "CultAbilityFX.h"
 #include "CultActorLabels.h"
 #include "ProfilingDebugging/CsvProfiler.h"
@@ -166,24 +167,28 @@ void FCultKitRuntime::Tick(float Dt)
 FCultCastArea FCultKitRuntime::CastArea(int Slot) const
 {
  FCultCastArea Area;
- if(Slot<0||Slot>2) return Area;
- const auto& Spell=Slot==0?Def.qAbility:Slot==1?Def.fAbility:Def.rAbility;
- const auto& Kind=Spell.effectKind;
- const auto* Match=ACultMatchDirector::Find(Owner->GetWorld());
- const bool Summon=Kind=="summon"&&(!Match||Match->Mode()!=ECultPlayMode::Domination);
- if(!Summon&&Kind!="aoe_damage"&&Kind!="fear_aura"&&Kind!="pull") return Area;
- Area.Slot=Slot;
- Area.Radius=Spell.range*100.f*CultMovement::AbilityAreaMultiplier;
- if(IsCasterGroundStrike(Spell.id)||Kind=="fear_aura"||Kind=="pull") {
-  Area.Center=Owner->FeetLocation()+FVector(0,0,IsCasterGroundStrike(Spell.id)?12:100);
-  Area.Valid=true;
-  return Area;
+ if(Slot<0||Slot>3) return Area;
+ float Radius;
+ if(Slot==3) {
+  const auto* Secondary=CultSecondary::Find(Def.id);
+  if(!Secondary||Secondary->Delivery!=CultSecondary::EDelivery::Disk) return Area;
+  Radius=Secondary->Reach;
+ } else {
+  const auto& Spell=Slot==0?Def.qAbility:Slot==1?Def.fAbility:Def.rAbility;
+  const auto& Kind=Spell.effectKind;
+  if(Kind!="summon"&&Kind!="aoe_damage"&&Kind!="fear_aura"&&Kind!="pull"&&Spell.id!="fertile_rot") return Area;
+  Radius=Spell.range*100.f;
  }
+ Area.Slot=Slot;
+ Area.Radius=Radius*CultMovement::AbilityAreaMultiplier;
  const FHitResult Aim=Owner->CameraAim();
  Area.Center=Aim.ImpactPoint;
- Area.OutOfRange=!Summon&&Aim.bBlockingHit&&FVector::DistSquared2D(Owner->FeetLocation(),Area.Center)>
+ Area.OutOfRange=Aim.bBlockingHit&&FVector::DistSquared(Owner->GetActorLocation(),Area.Center)>
   FMath::Square(18000.f+Owner->GetSimpleCollisionRadius());
- Area.Valid=Aim.bBlockingHit&&!Area.OutOfRange;
+ // A wall is not a cast floor. An actor hit can still anchor a disk at
+ // crosshair height, including on a ledge or during a jump.
+ const bool Surface=Aim.bBlockingHit&&(Aim.ImpactNormal.Z>.35f||ACultSkillAttack::Alive(Aim.GetActor()));
+ Area.Valid=Surface&&!Area.OutOfRange;
  return Area;
 }
 bool FCultKitRuntime::Cast(int Slot)
@@ -199,8 +204,8 @@ bool FCultKitRuntime::Cast(int Slot)
  if(auto* M=ACultMatchDirector::Find(Owner->GetWorld())) {
   M->OnAction(Owner);
   if(M->Mode()==ECultPlayMode::Domination&&S.effectKind=="summon") {
-   Owner->MarkCombat(); auto Surge=S; Surge.effectKind="domination_summon"; FVector Aim=Owner->CameraAim().ImpactPoint;
-   if(!LaunchSpatial(Surge,Slot,Aim)) return false; Cooldowns[Slot]=S.cooldownSec; EmitCast(S,Slot); return true;
+   Owner->MarkCombat(); auto Surge=S; Surge.effectKind="domination_summon";
+   if(!LaunchSpatial(Surge,Slot,Area.Center)) return false; Cooldowns[Slot]=S.cooldownSec; EmitCast(S,Slot); return true;
   }
  }
  if(S.effectKind=="heal") return CastHeal(S,Slot);
@@ -259,22 +264,51 @@ bool FCultKitRuntime::Cast(int Slot)
  }
  return true;
 }
+bool FCultKitRuntime::HasAimedSecondary() const { return CultSecondary::Find(Def.id)!=nullptr; }
+
+FString FCultKitRuntime::HeavyHint() const
+{
+ if(!HasAimedSecondary()) return MinionThrowHint();
+ if(HeavyCooldown>0) return FString::Printf(TEXT("RMB  %.0fs"),FMath::CeilToFloat(HeavyCooldown));
+ return FString::Printf(TEXT("RMB  %s"),UTF8_TO_TCHAR(CultSecondary::Find(Def.id)->Name));
+}
+
 void FCultKitRuntime::Heavy(bool Press)
 {
+ if(const auto* Secondary=CultSecondary::Find(Def.id)) {
+  if(Press||HeavyCooldown>0||!Caster||Owner->IsIncapacitated()||Owner->IsSwinging()||
+     !ACultWorldDirector::Find(Owner->GetWorld())) return;
+  auto* Match=ACultMatchDirector::Find(Owner->GetWorld());
+  if(Match&&!Match->CanAct(Owner)) return;
+  const auto Area=CastArea(3);
+  if(Area.Slot==3&&!Area.Valid) {
+   Owner->Notify(Area.OutOfRange?TEXT("Target out of range"):TEXT("Aim at a surface"));
+   return;
+  }
+  cultulhu::SpellDef S;
+  S.id=std::string(Secondary->Id)+"_secondary";
+  S.name=Secondary->Name;
+  S.effectKind=Area.Slot==3?"aoe_damage":"projectile";
+  S.effectPower=Secondary->Damage;
+  S.range=Secondary->Reach/100.f;
+  if(!LaunchSpatial(S,-1,Area.Slot==3?Area.Center:Owner->CameraAim().ImpactPoint)) return;
+  if(Match) Match->OnAction(Owner);
+  Owner->MarkCombat();
+  HeavyCooldown=Secondary->Cooldown;
+  if(!Owner->IsBot()&&!Owner->IsLocallyControlled()) Owner->ClientAbilityCommitted(3,HeavyCooldown);
+  EmitCast(S,-1);
+  return;
+ }
  if(UsesMinionThrow()&&MinionThrowInput(Press)) return;
  if(RockInput(Press)||UsesMinionThrow()) return;
  if(!Caster || !ACultWorldDirector::Find(Owner->GetWorld())) return; if(Press) Owner->MarkCombat(); Snapshot(); auto C=Context();
  if(Rmb) {
   if(!Press) { Rmb->onRelease(C); Apply(); UpdateDominationPose(); return; }
   if(HeavyCooldown>0||!Rmb->ready()) return;
-  if(C.targetedEntityId) { cultulhu::SpellDef S; S.id="wave_direct_stun"; S.name=Def.rightClick.name; S.effectKind="stun"; S.effectPower=2.5f; S.range=25; FVector Aim; Target(2500,Aim); if(LaunchSpatial(S,-1,Aim)) { EmitCast(S,-1); HeavyCooldown=7; } }
+  if(C.targetedEntityId) { cultulhu::SpellDef S; S.id="wave_direct"; S.name=Def.rightClick.name; S.effectKind="projectile"; S.effectPower=110; S.range=25; if(LaunchSpatial(S,-1,Owner->CameraAim().ImpactPoint)) { EmitCast(S,-1); HeavyCooldown=7; } }
   else { C.targetedEntityId=0; Rmb->onPress(C); Apply(); UpdateDominationPose(); }
   return;
  }
- if(!Press || HeavyCooldown>0) return;
- cultulhu::SpellDef S; S.id=Def.rmbAbilityId; S.name=Def.rightClick.name; S.effectKind="heavy"; S.effectPower=135.f*Def.rightClick.damageMult; S.range=Def.rightClick.range;
- FVector Aim=Owner->CameraAim().ImpactPoint; if(LaunchSpatial(S,-1,Aim)) { HeavyCooldown=6; EmitCast(S,-1); }
-
 }
 bool FCultKitRuntime::LeftClick()
 {

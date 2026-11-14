@@ -27,13 +27,13 @@ range = 16
 [f]
 id = blasphemous_pact
 name = Blasphemous Pact
-flavor = The twins agree with each other, loudly.
+flavor = Two shadows collide at the chosen site.
 cooldown = 16
 stamina_cost = 35
 mana_cost = 0
-effect = buff
-power = 6
-range = 0
+effect = aoe_damage
+power = 130
+range = 10
 
 [r]
 id = twins_unite

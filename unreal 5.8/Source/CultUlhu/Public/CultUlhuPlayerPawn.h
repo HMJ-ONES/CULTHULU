@@ -194,7 +194,7 @@ private:
 	void GuardTerrainBoundary();
 	void AreaAttack(FVector Center, float Radius, float Damage);
 	void PollMoveKeys(float DeltaSeconds);
- void UseAbility(int Slot);
+ void UseAbility(int Slot,bool Held);
  void CommitAbility(int Slot);
  int CastPreviewSlot_=INDEX_NONE;
 

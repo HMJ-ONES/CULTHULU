@@ -57,8 +57,14 @@ public:
  FVector Base(int Team) const;
  FVector Objective() const { return FVector::ZeroVector; }
  static FVector2D CaptureHalfExtent() { return FVector2D(5200,3700); }
+ static FVector CapturePlatformTop() { return FVector(0,2250,2200); }
+ static FVector2D CapturePlatformHalfExtent() { return FVector2D(4700,1250); }
  static bool InsideCapture(FVector Feet) {
-  const auto E=CaptureHalfExtent(); return FMath::Abs(Feet.X)<=E.X&&FMath::Abs(Feet.Y)<=E.Y&&FMath::Abs(Feet.Z)<150;
+  const auto E=CaptureHalfExtent();
+  if(FMath::Abs(Feet.Z)<150) return FMath::Abs(Feet.X)<=E.X&&FMath::Abs(Feet.Y)<=E.Y;
+  const auto Offset=Feet-CapturePlatformTop();
+  const auto Upper=CapturePlatformHalfExtent();
+  return FMath::Abs(Offset.Z)<150&&FMath::Abs(Offset.X)<=Upper.X&&FMath::Abs(Offset.Y)<=Upper.Y;
  }
  const TArray<FCultMatchFighter>& Fighters() const;
  const FCultMatchFighter* Fighter(const ACultUlhuPlayerPawn* P) const;

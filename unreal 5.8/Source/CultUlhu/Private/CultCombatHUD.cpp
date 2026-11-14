@@ -66,7 +66,7 @@ void DrawCultCombat(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C) {
   }
   return Result+Line;
  };
- const TCHAR* Keys[]={TEXT("Q"),TEXT("F"),TEXT("R")};
+ const TCHAR* Keys[]={TEXT("Q"),TEXT("F"),TEXT("R"),TEXT("RMB")};
  const FLinearColor LearnGold(1.f,.83f,.22f);
  FString Names[3],States[3],KeyLabels[3]; bool Ready[3]; float NameHeight=0,KeyHeight=0,StateHeight=0;
  for(int I=0;I<3;++I) {
@@ -74,7 +74,7 @@ void DrawCultCombat(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C) {
   KeyLabels[I]=Keys[I];
   States[I]=TEXT("");
   if(Fighter) { if(I==2&&Fighter->Level<6) States[I]=TEXT("LEVEL 6"); else if(I<2&&Fighter->Level<3&&Fighter->FirstPick!=I) States[I]=Fighter->FirstPick<0?TEXT("PICK THIS"):TEXT("LEVEL 3"); }
-  if(Area.Slot==I) States[I]=TEXT("CONFIRM");
+  if(Area.Slot==I) States[I]=TEXT("AIMING");
   if(!States[I].IsEmpty()) Ready[I]=false;
   NameHeight=FMath::Max(NameHeight,float(Measure->Measure(Names[I],AbilityFont).Y));
   KeyHeight=FMath::Max(KeyHeight,float(Measure->Measure(KeyLabels[I],CultUI::Font(20*S,true)).Y));
@@ -113,7 +113,7 @@ void DrawCultCombat(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C) {
  const bool Previewing=Area.Slot!=INDEX_NONE&&!HUD->Presentation().Expanded;
  const FLinearColor AimColor=!Previewing?FLinearColor::White:Area.Valid?FLinearColor(.34f,1.f,.9f):FLinearColor(1.f,.55f,.29f);
  if(Previewing) {
-  if(Area.Valid) {
+  if(Area.Valid&&Area.Radius>0) {
    FVector2D Last=FVector2D::ZeroVector; bool LastVisible=false;
    for(int I=0;I<=48;++I) {
     const float Angle=I*(2.f*PI/48.f);
@@ -131,8 +131,8 @@ void DrawCultCombat(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C) {
    }
   }
   FString Prompt=Area.OutOfRange?TEXT("OUT OF RANGE"):TEXT("AIM AT A SURFACE");
-  if(Area.Valid) Prompt=Learning?FString::Printf(TEXT("PRESS %s AGAIN TO LEARN AND CAST"),Keys[Area.Slot]):
-   FString::Printf(TEXT("PRESS %s AGAIN TO CAST"),Keys[Area.Slot]);
+  if(Area.Valid) Prompt=Learning&&Area.Slot<3?FString::Printf(TEXT("RELEASE %s TO LEARN AND CAST"),Keys[Area.Slot]):
+   FString::Printf(TEXT("RELEASE %s TO CAST"),Keys[Area.Slot]);
   const auto Size=Measure->Measure(Prompt,CultUI::Font(15*S,true));
   const float PromptX=Mid-Size.X*.5f, PromptY=CY+44*S;
   Rect(Ink,PromptX-7*S,PromptY-2*S,Size.X+14*S,Size.Y+4*S);

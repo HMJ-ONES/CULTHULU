@@ -237,12 +237,7 @@ public:
    const bool Cthulhu=Kit.Def.id=="cthulhu_avatar";
    const bool Healing=Spell&&Spell->effectKind=="heal";
    const bool Summon=Spell&&Spell->effectKind=="summon";
-   const bool Stomp=Spell&&(Spell->id=="doomfall_stomp"||Spell->id=="protoplasm_slam");
-   const bool CloseArea=Spell&&(Stomp||Spell->effectKind=="fear_aura");
-   // Use a close target for short auras and stomps. Distance is measured to
-   // the enemy capsule rather than to the center of the giant model.
-   const FVector Near=Arena+FVector(E->GetSimpleCollisionRadius()+(Spell?Spell->range*68.f:0.f),0,0);
-   E->RespawnMatch(CloseArea?Near:EnemyFeet);
+   E->RespawnMatch(EnemyFeet);
    E->GetCharacterMovement()->DisableMovement();
    if(Action==1&&Cthulhu&&Mode==ECultPlayMode::Domination) {
     const float Health=E->GetHealth();
@@ -252,7 +247,6 @@ public:
     E->GetCharacterMovement()->DisableMovement();
    }
    FVector Aim=E->GetActorLocation();
-   if(Stomp) Aim=P->GetActorLocation()+FVector(400,0,9000);
    if(Healing||(Summon&&Mode!=ECultPlayMode::Domination)||(Action==1&&Cthulhu&&Mode!=ECultPlayMode::Dotgoo))
     Aim=Arena+FVector(600,2200,0);
    if(Action==1&&Cthulhu&&Mode==ECultPlayMode::Dotgoo) {
@@ -275,6 +269,8 @@ public:
    const float ExpectedWard=Spell&&Spell->effectKind=="shield"?WardCapacity():0.f;
    if(Spell) Kit.SetCooldown(Action-2,0);
    P->RoutePlayerInput(Keys[Action],true);
+   if(Spell) Check(TEXT("Holding an ability does not start its cooldown"),Kit.Cooldown(Action-2)==0);
+   if(Spell||(Action==1&&!Cthulhu)) P->RoutePlayerInput(Keys[Action],false);
    Check(TEXT("action leaves the stamina gauge untouched"),FMath::IsNearlyEqual(Kit.StaminaValue(),StaminaBefore,.01f));
    if(Spell) {
     const float Cooldown=Kit.Cooldown(Action-2);
@@ -282,8 +278,8 @@ public:
     Check(*FString::Printf(TEXT("%s commits with legal aim and uses its cooldown"),UTF8_TO_TCHAR(Spell->id.c_str())),Committed);
     Casts+=Committed;
     Check(TEXT("ability begins its own cast animation"),P->AttackPlayback().Move==CultAttackMotion::AbilitySlot(Action-2));
-    P->RoutePlayerInput(Keys[Action],false);
     P->RoutePlayerInput(Keys[Action],true);
+    P->RoutePlayerInput(Keys[Action],false);
     Check(TEXT("a second input cannot reset the active cooldown"),Kit.Cooldown(Action-2)==Cooldown);
     if(Spell->effectKind=="shield") {
      Check(TEXT("ward is limited to one cast's capacity"),FMath::IsNearlyEqual(Kit.Ward(),ExpectedWard,.1f));
@@ -291,6 +287,7 @@ public:
      P->RoutePlayerInput(Keys[Action],false);
      const float ExpectedRecast=WardCapacity();
      P->RoutePlayerInput(Keys[Action],true);
+     P->RoutePlayerInput(Keys[Action],false);
      Check(TEXT("recasting cannot accumulate a second ward"),FMath::IsNearlyEqual(Kit.Ward(),ExpectedRecast,.1f));
     }
    } else if(Action==0) {

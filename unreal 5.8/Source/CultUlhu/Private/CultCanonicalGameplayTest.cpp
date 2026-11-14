@@ -4,6 +4,7 @@
 #include "EngineUtils.h"
 #include "Camera/CameraComponent.h"
 #include "CultCanonicalKit.h"
+#include "CultSecondaryProfile.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultUlhuGameInstance.h"
 #include "CultPopulation.h"
@@ -21,11 +22,24 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultCanonicalGameplayTest,"CultUlhu.CanonicalG
  EAutomationTestFlags::ClientContext | EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FCultCanonicalGameplayTest::RunTest(const FString& Parameters)
 {
+ int Stuns=0,Slows=0;
+ TSet<FString> SecondaryNames;
  for(const auto& Entry:UCultUlhuGameInstance::Roster()) {
+  if(!CultCanonicalKit::IsReleased(Entry.Id)) continue;
   cultulhu::CharacterDef D; if(!TestTrue(Entry.Id+TEXT(" loads original kit"),CultCanonicalKit::Load(Entry.Id,D))) continue;
   TestTrue(Entry.Id+TEXT(" has all three named abilities"),!D.qAbility.id.empty()&&!D.fAbility.id.empty()&&!D.rAbility.id.empty());
   TestTrue(Entry.Id+TEXT(" has no movement dash in the ability kit"),D.qAbility.effectKind!="dash"&&D.fAbility.effectKind!="dash"&&D.rAbility.effectKind!="dash");
+  for(const auto* Spell:{&D.qAbility,&D.fAbility,&D.rAbility}) {
+   Stuns+=Spell->effectKind=="stun"; Slows+=Spell->effectKind=="debuff";
+  }
+  if(Entry.Id!=TEXT("cthulhu_avatar")) {
+   const auto* Profile=CultSecondary::Find(D.id);
+   if(TestNotNull(Entry.Id+TEXT(" has a right-click ability"),Profile)) SecondaryNames.Add(UTF8_TO_TCHAR(Profile->Name));
+  }
  }
+ TestEqual(TEXT("Three released stun abilities"),Stuns,3);
+ TestEqual(TEXT("One released slow ability"),Slows,1);
+ TestEqual(TEXT("Each non-Cthulhu character has a distinct right-click name"),SecondaryNames.Num(),15);
  UWorld* W=nullptr; for(const auto& C:GEngine->GetWorldContexts()) if(C.World()&&C.World()->IsGameWorld()) W=C.World();
  if(!W) { AddError(TEXT("Dark Wilds game world required")); return false; }
  auto* Director=ACultWorldDirector::Find(W); if(!TestNotNull(TEXT("Living world director exists"),Director)) return false;
@@ -40,7 +54,8 @@ bool FCultCanonicalGameplayTest::RunTest(const FString& Parameters)
  auto* Building=W->SpawnActor<ACultDestructible>(Ground.ImpactPoint+FVector(0,0,50),FRotator::ZeroRotator,Spawn);
  Building->SetMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")));
  const auto Expected=Player->CameraAim(); const FVector Point=Expected.bBlockingHit?Expected.ImpactPoint:Expected.TraceEnd;
- const float Hp=Building->GetHealth(); Player->AbilityQ(); Player->AbilityQ();
+ const float Hp=Building->GetHealth();
+ Player->RoutePlayerInput(ECultPlayerInput::Q,true); Player->RoutePlayerInput(ECultPlayerInput::Q,false);
  TestTrue(TEXT("Tentacle Slam appears at the actual camera pick"),Player->GetLastEffectLocation().Equals(Point,1));
  bool RenderedAtPick=false;
  for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetActorLocation().Equals(Point,1)) {
@@ -49,9 +64,9 @@ bool FCultCanonicalGameplayTest::RunTest(const FString& Parameters)
  }
  TestTrue(TEXT("Actual spawned effect meshes appear at the camera pick, not world origin"),RenderedAtPick);
  TestTrue(TEXT("Tentacle Slam warning does not damage a structure instantly"),Building->GetHealth()==Hp);
- Player->AbilityF(); Player->AbilityF(); TestTrue(TEXT("Nightmare Veil stays at its documented caster location"),Player->GetLastEffectLocation().Equals(Player->FeetLocation(),1));
+ Player->AbilityF(); TestTrue(TEXT("Nightmare Veil casts at the aim point"),Player->GetLastEffectLocation().Equals(Point,1));
  int Before=0; for(TActorIterator<ACultPopulation> It(W);It;++It) if(It->GetFaction()==0) ++Before;
- Player->AbilityR(); int After=0; for(TActorIterator<ACultPopulation> It(W);It;++It) if(It->GetFaction()==0) ++After;
+ Player->RoutePlayerInput(ECultPlayerInput::R,true); int After=0; for(TActorIterator<ACultPopulation> It(W);It;++It) if(It->GetFaction()==0) ++After;
  TestEqual(TEXT("The summon preview does not create units"),After,Before);
  const float BuildingHp=Building->GetHealth(); Player->AbilityQ(); TestEqual(TEXT("Original cooldown blocks an immediate repeat cast"),Building->GetHealth(),BuildingHp);
  Building->Destroy();
@@ -61,13 +76,13 @@ bool FCultCanonicalGameplayTest::RunTest(const FString& Parameters)
  Pickable->Destroy();
  Camera->SetWorldLocation(Player->FeetLocation()+FVector(-1200,0,2500)); Camera->SetWorldRotation(FRotator(-45,0,0));
  for(int I=0;I<5;++I) Player->Tick(1.f);
- Player->AbilityR(); Player->AbilityR(); int Summons=0; for(TActorIterator<ACultPopulation> It(W);It;++It) if(It->IsSummoned()&&It->GetFaction()==0) ++Summons;
+ Player->RoutePlayerInput(ECultPlayerInput::R,false); int Summons=0; for(TActorIterator<ACultPopulation> It(W);It;++It) if(It->IsSummoned()&&It->GetFaction()==0) ++Summons;
  TestEqual(TEXT("Call of the Deep summons the original four allied creatures"),Summons,4);
  if(auto* Land=ACultLivingLandscape::Find(W)) {
   const FVector Cave=Land->CaveSites()[0]; FVector Floor;
   if(ACultLivingLandscape::Surface(W,Cave,Floor)) {
    Camera->SetWorldLocation(Floor+FVector(-1000,-1000,1000)); Camera->SetWorldRotation((Floor-Camera->GetComponentLocation()).Rotation());
-   Player->Tick(46.f); Player->AbilityR(); Player->AbilityR(); int Inside=0;
+   Player->Tick(46.f); Player->AbilityR(); int Inside=0;
    for(TActorIterator<ACultPopulation> It(W);It;++It) if(It->IsSummoned()&&It->GetFaction()==0&&FVector::Dist2D(It->GetActorLocation(),Floor)<2500&&FMath::Abs(It->GetActorLocation().Z-Floor.Z)<300) ++Inside;
    TestEqual(TEXT("Camera-aimed cavern summons stay inside on the floor, below the roof"),Inside,4);
   }

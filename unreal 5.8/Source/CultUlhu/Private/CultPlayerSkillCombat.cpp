@@ -43,7 +43,7 @@ bool ACultUlhuPlayerPawn::TryDash(FVector Direction) {
 }
 FCultCombatHUDData ACultUlhuPlayerPawn::CombatHUD() const {
  FCultCombatHUDData H; H.Health=GetHealth(); H.MaxHealth=GetMaxHealth(); H.DashCooldown=DashCooldown_; H.Swinging=IsSwinging();
- if(Kit_) { H.RmbHint=Kit_->MinionThrowHint(); H.Name=UTF8_TO_TCHAR(Kit_->Def.displayName.c_str()); H.Stamina=Kit_->StaminaValue(); H.MaxStamina=Kit_->Def.maxStamina; for(int I=0;I<3;++I) { const auto& S=I==0?Kit_->Def.qAbility:I==1?Kit_->Def.fAbility:Kit_->Def.rAbility; H.AbilityNames[I]=UTF8_TO_TCHAR(S.name.c_str()); H.Cooldowns[I]=Kit_->Cooldown(I); } } return H;
+ if(Kit_) { H.RmbHint=Kit_->HeavyHint(); H.Name=UTF8_TO_TCHAR(Kit_->Def.displayName.c_str()); H.Stamina=Kit_->StaminaValue(); H.MaxStamina=Kit_->Def.maxStamina; for(int I=0;I<3;++I) { const auto& S=I==0?Kit_->Def.qAbility:I==1?Kit_->Def.fAbility:Kit_->Def.rAbility; H.AbilityNames[I]=UTF8_TO_TCHAR(S.name.c_str()); H.Cooldowns[I]=Kit_->Cooldown(I); } } return H;
 }
 void ACultUlhuPlayerPawn::StartMelee(float Damage,float Range,float Windup,float Duration) {
  const auto Profile=CultMeleeGeometry::Describe(this,Range);

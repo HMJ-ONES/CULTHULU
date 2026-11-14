@@ -83,7 +83,7 @@ public:
   auto* P=Cast<ACultUlhuPlayerPawn>(UGameplayStatics::GetPlayerPawn(W,0)); auto* PC=W->GetFirstPlayerController();
   if(!P||!PC||W->GetTimeSeconds()<1||(GShaderCompilingManager&&GShaderCompilingManager->IsCompiling())) return false;
   if(Phase==1) {
-   auto* Stone=LoadObject<UMaterial>(nullptr,Finish?TEXT("/Game/CultUlhu/Materials/M_DominationStone_v1"):TEXT("/Game/CultUlhu/Materials/M_MatchStone")); Test->TestNotNull(TEXT("Original stone material is available"),Stone); if(!Stone) return true;
+   auto* Stone=LoadObject<UMaterial>(nullptr,Finish?TEXT("/Game/CultUlhu/Materials/M_DominationStone_v2"):TEXT("/Game/CultUlhu/Materials/M_MatchStone")); Test->TestNotNull(TEXT("Original stone material is available"),Stone); if(!Stone) return true;
    auto* Resource=Stone->GetMaterialResource(GMaxRHIShaderPlatform);
    Test->TestTrue(TEXT("Stone has a compiled non-fallback shader map"),Resource&&Resource->GetGameThreadShaderMap()&&Resource->GetCompileErrors().IsEmpty());
    if(Resource) for(const auto& Error:Resource->GetCompileErrors()) Test->AddError(Error);

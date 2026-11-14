@@ -284,7 +284,25 @@ void ACultUlhuPlayerPawn::RoutePlayerInput(ECultPlayerInput Action,bool Down) {
  }
  if(Action>=ECultPlayerInput::Q&&Action<=ECultPlayerInput::R) {
   InputHeld_[Index]=Down;
-  if(Down) UseAbility(Index-static_cast<int32>(ECultPlayerInput::Q));
+  UseAbility(Index-static_cast<int32>(ECultPlayerInput::Q),Down);
+  return;
+ }
+ if(Action==ECultPlayerInput::Heavy&&Kit_&&Kit_->HasAimedSecondary()) {
+  InputHeld_[Index]=Down;
+  if(auto* PC=Cast<APlayerController>(GetController()); PC&&PC->bShowMouseCursor) {
+   if(CastPreviewSlot_==3) CastPreviewSlot_=INDEX_NONE;
+   return;
+  }
+  if(Down) {
+   if(!IsIncapacitated()&&Kit_->SecondaryReady()) CastPreviewSlot_=3;
+   return;
+  }
+  if(CastPreviewSlot_!=3) return;
+  CastPreviewSlot_=INDEX_NONE;
+  if(!HasAuthority()) {
+   const auto Aim=CameraAim();
+   ServerCombatInput(uint8(Action),false,Aim.TraceStart,(Aim.ImpactPoint-Aim.TraceStart).GetSafeNormal());
+  } else ReleaseHeavy();
   return;
  }
  if(Down&&(Action==ECultPlayerInput::Primary||Action==ECultPlayerInput::Heavy||Action==ECultPlayerInput::Command)) CastPreviewSlot_=INDEX_NONE;
@@ -457,18 +475,25 @@ void ACultUlhuPlayerPawn::AreaAttack(FVector Center, float Radius, float Damage)
 
 void ACultUlhuPlayerPawn::HeavyAttack() { if(auto* M=ACultMatchDirector::Find(GetWorld())) { if(!M->CanAct(this)) return; M->OnAction(this); } if(Control_.Stun || Control_.Fear) return; if(auto* PC=Cast<APlayerController>(GetController())) if(PC->bShowMouseCursor) { if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) HUD->CloseCommands(); return; } bRmbHeld_=true; if(Kit_) Kit_->Heavy(true); }
 void ACultUlhuPlayerPawn::ReleaseHeavy() { bRmbHeld_=false; if(Kit_) Kit_->Heavy(false); }
-void ACultUlhuPlayerPawn::AbilityQ() { UseAbility(0); }
-void ACultUlhuPlayerPawn::AbilityF() { UseAbility(1); }
-void ACultUlhuPlayerPawn::AbilityR() { UseAbility(2); }
+void ACultUlhuPlayerPawn::AbilityQ() { CommitAbility(0); }
+void ACultUlhuPlayerPawn::AbilityF() { CommitAbility(1); }
+void ACultUlhuPlayerPawn::AbilityR() { CommitAbility(2); }
 
 FCultCastArea ACultUlhuPlayerPawn::CastAreaPreview() const
 {
- return Kit_&&!IsIncapacitated()?Kit_->CastArea(CastPreviewSlot_):FCultCastArea{};
+ if(!Kit_||IsIncapacitated()||CastPreviewSlot_==INDEX_NONE) return {};
+ auto Area=Kit_->CastArea(CastPreviewSlot_);
+ // Projectiles and targeted healing use the crosshair without a radius ring.
+ if(Area.Slot==INDEX_NONE) { Area.Slot=CastPreviewSlot_; Area.Valid=true; }
+ return Area;
 }
 
-void ACultUlhuPlayerPawn::UseAbility(int Slot)
+void ACultUlhuPlayerPawn::UseAbility(int Slot,bool Held)
 {
+ if(!Held&&CastPreviewSlot_!=Slot) return;
+ if(!Held) CastPreviewSlot_=INDEX_NONE;
  if(!Kit_||IsIncapacitated()) return;
+ if(auto* PC=Cast<APlayerController>(GetController())) if(PC->bShowMouseCursor) return;
  if(!IsBot()&&IsLocallyControlled()) {
   if(auto* M=ACultMatchDirector::Find(GetWorld())) {
    if(!M->CanAct(this)||M->IsPaused()) return;
@@ -480,15 +505,12 @@ void ACultUlhuPlayerPawn::UseAbility(int Slot)
    }
   }
   if(Kit_->Cooldown(Slot)>0) return;
+  if(Held) { CastPreviewSlot_=Slot; return; }
   const auto Area=Kit_->CastArea(Slot);
-  if(Area.Slot!=INDEX_NONE) {
-   if(CastPreviewSlot_!=Slot) { CastPreviewSlot_=Slot; return; }
-   if(!Area.Valid) return;
-  }
-  CastPreviewSlot_=INDEX_NONE;
+  if(Area.Slot!=INDEX_NONE&&!Area.Valid) { Notify(Area.OutOfRange?TEXT("Target out of range"):TEXT("Aim at a surface")); return; }
   if(!HasAuthority()) {
    const auto Aim=CameraAim();
-   ServerCombatInput(uint8(ECultPlayerInput::Q)+Slot,true,Aim.TraceStart,(Aim.ImpactPoint-Aim.TraceStart).GetSafeNormal());
+   ServerCombatInput(uint8(ECultPlayerInput::Q)+Slot,false,Aim.TraceStart,(Aim.ImpactPoint-Aim.TraceStart).GetSafeNormal());
    return;
   }
  }
@@ -627,7 +649,7 @@ void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
  TickCombatFeel(DeltaSeconds);
  if(IsBot()) { if(Kit_) Kit_->Sprint(false,DeltaSeconds); SetSprinting(false); return; }
  APlayerController* PC = Cast<APlayerController>(GetController());
- if(!HasAuthority()&&IsLocallyControlled()&&InputHeld_[static_cast<int32>(ECultPlayerInput::Heavy)]&&GetWorld()->GetTimeSeconds()-NetworkAimAt_>.1f) {
+ if(!HasAuthority()&&IsLocallyControlled()&&Kit_&&!Kit_->HasAimedSecondary()&&InputHeld_[static_cast<int32>(ECultPlayerInput::Heavy)]&&GetWorld()->GetTimeSeconds()-NetworkAimAt_>.1f) {
   NetworkAimAt_=GetWorld()->GetTimeSeconds(); const auto Aim=CameraAim(); const FVector Origin=Camera_->GetComponentLocation(); ServerCombatInput(uint8(ECultPlayerInput::Heavy),true,Origin,(Aim.ImpactPoint-Origin).GetSafeNormal());
  }
 	if (!PC || !PC->IsLocalController()) return;

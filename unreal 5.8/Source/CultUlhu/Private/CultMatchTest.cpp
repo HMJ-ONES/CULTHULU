@@ -18,6 +18,7 @@
 #include "Misc/Paths.h"
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
 #include "Components/PoseableMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMeshActor.h"
@@ -36,120 +37,62 @@ struct FCultMatchTestAccess {
  static void FinishForMenuTest(ACultMatchDirector* M) { M->Finish(0); }
  static void VerifyBotHeavyOpportunity(FAutomationTestBase* T,ACultMatchDirector* M) {
   auto* W=M->GetWorld(); M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false;
-  auto& F=M->State_->Fighters[5]; if(F.Pawn.IsValid()) F.Pawn->Destroy(); F.Pawn=nullptr; F.Kit=TEXT("dagon"); M->SpawnFighter(5);
-  HoldBots(M,true); Park(M); Unshield(M); F.Level=30; F.Lane=1; auto* Bot=F.Pawn.Get(); Bot->bBotControlled_=true;
+  auto& Fighter=M->State_->Fighters[5];
+  if(Fighter.Pawn.IsValid()) Fighter.Pawn->Destroy();
+  Fighter.Pawn=nullptr; Fighter.Kit=TEXT("dagon"); M->SpawnFighter(5);
+  HoldBots(M,true); Park(M); Unshield(M);
+  auto* Bot=Fighter.Pawn.Get();
   auto* Enemy=M->Fighters()[0].Pawn.Get();
-  auto Clear=[&]() { for(TActorIterator<ACultSkillAttack> It(W);It;++It) It->Destroy(); };
-  auto Place=[&](float Distance) {
-   Clear(); Bot->RelocateMatch(FVector(0,0,60000)); Enemy->RespawnMatch(FVector(Distance,0,60000));
-   Bot->SmashCooldown_=999; Bot->SwingTime_=Bot->DashTime_=Bot->DashCooldown_=0;
-   for(int Slot=0;Slot<3;++Slot) Bot->Kit_->SetCooldown(Slot,999);
-   F.RouteStep=2; F.Think=0; F.DomPath.Reset(); F.Retreating=false; F.NextTacticalMove=999; M->State_->BotThreats[5]=FCultBotThreatMemory();
+  Bot->bBotControlled_=true;
+  auto Shots=[&]() {
+   TArray<ACultSkillAttack*> Out;
+   for(TActorIterator<ACultSkillAttack> It(W);It;++It)
+    if(It->GetOwner()==Bot&&It->Shape==ACultSkillAttack::EShape::Bolt) Out.Add(*It);
+   return Out;
   };
-  auto Swings=[&]() { TArray<ACultSkillAttack*> Out; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Bot&&It->Shape==ACultSkillAttack::EShape::Sweep) Out.Add(*It); return Out; };
-  Place(2300); Bot->Kit_->AdvanceCooldowns(10); const float FarHp=Enemy->GetHealth(); M->BotThink(5,.016f); auto Far=Swings();
-  T->TestEqual(TEXT("An unreachable melee-heavy target does not consume a committed delivery"),Far.Num(),0);
-  for(auto* A:Far) { A->Tick(0); A->Tick(.5f); }
-  T->TestEqual(TEXT("Far baseline heavy cannot contact the target"),Enemy->GetHealth(),FarHp);
-  Place(600); const float NearHp=Enemy->GetHealth(); M->BotThink(5,.016f); auto Near=Swings();
-  T->TestEqual(TEXT("Preserved heavy cooldown is immediately available against a reachable target"),Near.Num(),1);
-  for(auto* A:Near) { A->Tick(0); A->Tick(.5f); }
-  T->TestTrue(TEXT("Reachable heavy control causes real physical damage"),Enemy->GetHealth()<NearHp);
-  T->AddInfo(FString::Printf(TEXT("Heavy opportunity: far deliveries %d; immediate near deliveries %d; real near damage %.1f"),Far.Num(),Near.Num(),NearHp-Enemy->GetHealth()));
-  Clear(); Bot->HeavyAttack(); Bot->ReleaseHeavy(); T->TestEqual(TEXT("A successful heavy still enforces its original cooldown"),Swings().Num(),0);
-  Place(2300); Bot->Kit_->AdvanceCooldowns(10); Bot->SetBotAim(Enemy);
-  const float HeavyReach=Bot->Kit_->Def.rightClick.range*100.f+Bot->GetCapsuleComponent()->GetScaledCapsuleRadius();
-  const FVector HeavyOrigin=Bot->FeetLocation()+FVector(0,0,FMath::Min(Bot->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*.96f,HeavyReach*.55f));
-  auto* Covered=M->AddUnit(0,1,0,-1,HeavyOrigin+FVector(HeavyReach,0,-153),100,0,0,0); Covered->SetActorTickEnabled(false);
-  auto* Wall=W->SpawnActor<AStaticMeshActor>(FVector(250,0,61500),FRotator::ZeroRotator); auto* Cover=Wall->GetStaticMeshComponent(); Cover->SetMobility(EComponentMobility::Movable); Cover->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube"))); Cover->SetWorldScale3D(FVector(.2f,100,40)); Cover->SetCollisionProfileName(TEXT("BlockAll"));
-  Bot->HeavyAttack(); Bot->ReleaseHeavy(); T->TestEqual(TEXT("Solid cover prevents committing a blocked melee-heavy swing"),Swings().Num(),0);
-  // Independently launch a physical sweep, bypassing bot choice. Tip chords
-  // must not hit a target on the far side of an unbroken wall.
-  Clear();
-  cultulhu::SpellDef Physical; Physical.id="cover_probe"; Physical.effectKind="heavy"; Physical.effectPower=135.f*Bot->Kit_->Def.rightClick.damageMult; Physical.range=Bot->Kit_->Def.rightClick.range;
-  Bot->Kit_->LaunchSpatial(Physical,-1,Covered->GetActorLocation());
-  T->TestEqual(TEXT("A committed arc aimed beyond cover is not a useful bot heavy"),Swings().Num(),0);
-  Clear(); Bot->bBotControlled_=false;
-  Bot->Kit_->LaunchSpatial(Physical,-1,Covered->GetActorLocation()); auto CoveredSwings=Swings();
-  T->TestEqual(TEXT("Physical cover control launches independently of bot decisions"),CoveredSwings.Num(),1);
-  for(auto* A:CoveredSwings) { A->Tick(0); A->Tick(.5f); }
-  T->TestEqual(TEXT("A physical arm sweep cannot damage a target through solid cover"),Covered->Health,100.f);
-  T->AddInfo(FString::Printf(TEXT("Heavy solid-cover control: target health %.1f; independent deliveries %d"),Covered->Health,CoveredSwings.Num()));
-  Bot->bBotControlled_=true; Wall->Destroy(); Clear(); Bot->SetBotAim(Covered);
-  Bot->HeavyAttack(); Bot->ReleaseHeavy(); auto OpenSwings=Swings();
-  T->TestEqual(TEXT("Removing cover leaves heavy immediately available"),OpenSwings.Num(),1);
-  const float OpenHp=Covered->Health; for(auto* A:OpenSwings) { A->Tick(0); A->Tick(.5f); }
-  T->TestTrue(TEXT("The same outer-arc target receives real damage after cover is removed"),Covered->Health<OpenHp);
-  Covered->Destroy();
-  Place(2300); Bot->Kit_->AdvanceCooldowns(10); Bot->SetBotAim(Enemy);
-  auto* Nearby=M->AddUnit(0,1,0,-1,FVector(550,0,60300),100,0,0,0); Nearby->SetActorTickEnabled(false);
-  Bot->HeavyAttack(); Bot->ReleaseHeavy(); auto Other=Swings();
-  T->TestEqual(TEXT("A different enemy inside the committed arc remains a useful heavy opportunity"),Other.Num(),1);
-  for(auto* A:Other) { A->Tick(0); A->Tick(.5f); }
-  T->TestTrue(TEXT("Heavy opportunity against a different body produces a real hit"),Nearby->Health<100);
-  Nearby->Destroy(); Place(2300); Bot->Kit_->AdvanceCooldowns(10); Bot->SetBotAim(Enemy);
-  auto* Side=M->AddUnit(0,1,0,-1,FVector(0,550,60300),100,0,0,0); Side->SetActorTickEnabled(false);
-  Bot->HeavyAttack(); Bot->ReleaseHeavy(); T->TestEqual(TEXT("A close enemy outside the committed arc does not justify a swing"),Swings().Num(),0);
-  Side->Destroy(); Place(2300); Bot->Kit_->AdvanceCooldowns(10); Bot->SetBotAim(Enemy);
-  auto* Friendly=M->AddUnit(1,1,0,-1,FVector(550,0,60000),100,0,0,0); Friendly->SetActorTickEnabled(false);
-  Bot->HeavyAttack(); Bot->ReleaseHeavy(); T->TestEqual(TEXT("An allied body alone does not justify a heavy swing"),Swings().Num(),0);
-  Friendly->Destroy(); Place(2300); Bot->Kit_->AdvanceCooldowns(10); Bot->bBotControlled_=false; Bot->SetBotAim(nullptr);
-  Bot->HeavyAttack(); Bot->ReleaseHeavy(); T->TestEqual(TEXT("Human melee-heavy input may still commit a deliberate miss"),Swings().Num(),1);
+  Bot->RelocateMatch(FVector(0,0,60000)); Enemy->RelocateMatch(FVector(10000,0,60000));
+  Bot->SetBotAim(Enemy); Bot->HeavyAttack(); Bot->ReleaseHeavy();
+  T->TestEqual(TEXT("An unreachable enemy does not consume the ranged secondary"),Shots().Num(),0);
+  T->TestTrue(TEXT("The missed opportunity leaves right-click ready"),Bot->Kit_->SecondaryReady());
+  Enemy->RelocateMatch(FVector(2000,0,60000));
+  const float Before=Enemy->GetHealth();
+  Bot->HeavyAttack();
+  T->TestEqual(TEXT("Holding Dagon's right-click does not fire"),Shots().Num(),0);
+  Bot->ReleaseHeavy();
+  auto Volley=Shots();
+  T->TestEqual(TEXT("Releasing right-click fires Dagon's three physical projectiles"),Volley.Num(),3);
+  for(auto* Shot:Volley) { Shot->Tick(0); Shot->Tick(.65f); }
+  T->TestTrue(TEXT("The released fan causes physical damage"),Enemy->GetHealth()<Before);
+  for(auto* Shot:Shots()) Shot->Destroy();
+  Bot->HeavyAttack(); Bot->ReleaseHeavy();
+  T->TestEqual(TEXT("The new secondary enforces its cooldown"),Shots().Num(),0);
  }
  static void VerifyBotAbilityOpportunity(FAutomationTestBase* T,ACultMatchDirector* M) {
   auto* W=M->GetWorld(); M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false;
-  auto Recreate=[&](const FString& Kit) {
-   auto& F=M->State_->Fighters[6]; if(F.Pawn.IsValid()) F.Pawn->Destroy(); F.Pawn=nullptr; F.Kit=Kit; M->SpawnFighter(6);
-   HoldBots(M,true); Park(M); Unshield(M); F.Pawn->bBotControlled_=true; F.Level=30; F.Lane=1;
-  };
+  auto& Fighter=M->State_->Fighters[6];
+  if(Fighter.Pawn.IsValid()) Fighter.Pawn->Destroy();
+  Fighter.Pawn=nullptr; Fighter.Kit=TEXT("cthulhu_avatar"); M->SpawnFighter(6);
+  HoldBots(M,true); Park(M); Unshield(M);
+  auto* Bot=Fighter.Pawn.Get();
   auto* Enemy=M->Fighters()[0].Pawn.Get();
-  auto Reset=[&](int Slot,float Separation) {
-   for(TActorIterator<ACultSkillAttack> It(W);It;++It) It->Destroy();
-   auto& F=M->State_->Fighters[6]; auto* Bot=F.Pawn.Get(); Bot->RespawnMatch(FVector(0,0,60000)); Enemy->RespawnMatch(FVector(Separation,0,60000));
-   Bot->SmashCooldown_=Bot->SwingTime_=Bot->DashTime_=Bot->DashCooldown_=0;
-   for(int I=0;I<3;++I) Bot->Kit_->SetCooldown(I,I==Slot?0:999);
-   F.RouteStep=2; F.Think=0; F.DomPath.Reset(); F.Retreating=false; M->State_->BotThreats[6]=FCultBotThreatMemory();
-  };
-  for(int Case=0;Case<2;++Case) {
-   const int Slot=Case?0:1; const auto Kind=Case?ACultSkillAttack::EShape::Cone:ACultSkillAttack::EShape::Sphere;
-   Recreate(Case?TEXT("dagon"):TEXT("cthulhu_avatar")); Reset(Slot,2300); auto* Bot=M->Fighters()[6].Pawn.Get();
-   const float Stamina=Bot->Kit_->StaminaValue(),Hp=Enemy->GetHealth(); M->BotThink(6,.016f);
-   TArray<ACultSkillAttack*> Far; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Bot&&It->Shape==Kind) Far.Add(*It);
-   const float FarCooldown=Bot->Kit_->Cooldown(Slot);
-   T->TestEqual(FString::Printf(TEXT("%s preserves cooldown when actual delivery cannot reach"),Case?TEXT("Crushing Maw"):TEXT("Nightmare Veil")),Bot->Kit_->Cooldown(Slot),0.f);
-   T->TestEqual(TEXT("An unreachable spell preserves stamina"),Bot->Kit_->StaminaValue(),Stamina);
-   T->TestEqual(TEXT("An unreachable spell does not emit a misleading warning"),Far.Num(),0);
-   for(auto* A:Far) { A->Tick(0); A->Tick(Case?.35f:.5f); }
-   Enemy->Control_.Tick(0);
-   T->TestEqual(TEXT("Unreachable baseline delivery cannot damage the control target"),Enemy->GetHealth(),Hp);
-   T->TestFalse(TEXT("Unreachable baseline aura cannot fear the control target"),Enemy->Control_.Fear);
-   Reset(Slot,1300); const float NearHp=Enemy->GetHealth(); M->BotThink(6,.016f);
-   TArray<ACultSkillAttack*> Near; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Bot&&It->Shape==Kind) Near.Add(*It);
-   T->TestEqual(TEXT("The same source ability emits a real delivery when reachable"),Near.Num(),1);
-   T->TestTrue(TEXT("A reachable source ability uses its real cooldown"),Bot->Kit_->Cooldown(Slot)>0);
-   for(auto* A:Near) { A->Tick(0); A->Tick(Case?.35f:.5f); }
-   Enemy->Control_.Tick(0);
-   T->TestTrue(TEXT("Reachable control produces actual damage or original fear control"),Case?Enemy->GetHealth()<NearHp:Enemy->Control_.Fear);
-   T->AddInfo(FString::Printf(TEXT("Opportunity %s: far deliveries %d cooldown %.1f; near deliveries %d, damage %.1f, fear %d"),Case?TEXT("crushing_maw"):TEXT("nightmare_veil"),Far.Num(),FarCooldown,Near.Num(),NearHp-Enemy->GetHealth(),Enemy->Control_.Fear));
-  }
-  Recreate(TEXT("cthulhu_avatar")); Reset(1,2300); auto* Bot=M->Fighters()[6].Pawn.Get();
-  auto* Nearby=M->AddUnit(0,1,0,-1,FVector(800,0,60000),120,0,0,0); Nearby->SetActorTickEnabled(false);
-  M->BotThink(6,.016f); int AreaCount=0;
-  for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Bot&&It->Shape==ACultSkillAttack::EShape::Sphere) { ++AreaCount; It->Tick(0); It->Tick(.5f); }
-  Nearby->Tick(0);
-  T->TestEqual(TEXT("A nearby vulnerable minion still makes an aura useful despite a distant selected hero"),AreaCount,1);
-  T->TestTrue(TEXT("The useful aura actually controls that different nearby victim"),Nearby->Stopped());
-  Reset(1,2300);
-  auto* Wall=W->SpawnActor<AStaticMeshActor>(FVector(400,0,61000),FRotator::ZeroRotator); auto* Cover=Wall->GetStaticMeshComponent(); Cover->SetMobility(EComponentMobility::Movable); Cover->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube"))); Cover->SetWorldScale3D(FVector(1,50,20)); Cover->SetCollisionProfileName(TEXT("BlockAll"));
-  M->BotThink(6,.016f);
-  T->TestEqual(TEXT("Solid cover prevents a false area opportunity"),Bot->Kit_->Cooldown(1),0.f);
-  T->TestEqual(TEXT("A covered area opportunity preserves stamina"),Bot->Kit_->StaminaValue(),100.f);
-  Wall->Destroy(); Nearby->Destroy(); Reset(1,2300);
-  auto* Structure=M->AddUnit(0,1,3,0,FVector(800,0,60000),3000,0,0,0); Bot->SetBotAim(Structure);
-  const float Stamina=Bot->Kit_->StaminaValue();
-  T->TestFalse(TEXT("A bot does not spend a control-only aura on an immune structure"),Bot->Kit_->Cast(1));
-  T->TestEqual(TEXT("Immune structure preserves control cooldown"),Bot->Kit_->Cooldown(1),0.f);
-  T->TestEqual(TEXT("Immune structure preserves control stamina"),Bot->Kit_->StaminaValue(),Stamina);
+  Bot->bBotControlled_=true;
+  M->GrantXP(6,300);
+  Bot->RelocateMatch(FVector(0,0,60000)); Enemy->RelocateMatch(FVector(23000,0,60000));
+  Bot->SetBotAim(Enemy);
+  T->TestFalse(TEXT("An out-of-range area cast preserves the cooldown"),Bot->Kit_->Cast(1));
+  T->TestEqual(TEXT("No cooldown is spent on an invalid aim point"),Bot->Kit_->Cooldown(1),0.f);
+  Enemy->RelocateMatch(FVector(3600,0,60000));
+  const auto Aim=Bot->CameraAim();
+  T->TestTrue(TEXT("The same bot casts Nightmare Veil at a valid distant target"),Bot->Kit_->Cast(1));
+  bool Disk=false;
+  for(TActorIterator<ACultSkillAttack> It(W);It;++It)
+   if(It->GetOwner()==Bot&&It->Shape==ACultSkillAttack::EShape::GroundDisk) {
+    Disk=It->GetActorLocation().Equals(Aim.ImpactPoint,1);
+    It->Tick(0); It->Tick(.7f);
+   }
+  Enemy->Control_.Tick(0);
+  T->TestTrue(TEXT("The bot's fear zone commits at the crosshair surface"),Disk);
+  T->TestTrue(TEXT("The distant occupant receives fear from the aimed zone"),Enemy->Control_.Fear);
  }
  static void VerifyBotMeleeReach(FAutomationTestBase* T,ACultMatchDirector* M) {
   auto* W=M->GetWorld(); M->SetActorTickEnabled(false); M->State_->Warmup=0; M->State_->Over=false; HoldBots(M,true); Park(M); Unshield(M);
@@ -531,8 +474,10 @@ public:
     P->RelocateMatch(FVector::ZeroVector); float Before=M->Score(0); M->Tick(1);
     Test->TestTrue(TEXT("Actual player presence earns one hold point per second"),FMath::IsNearlyEqual(M->Score(0)-Before,1.f,.02f));
     Test->TestTrue(TEXT("An uncontested holder receives the control announcement"),M->Announcement().Contains(TEXT("controls the seal")));
+    P->RelocateMatch(M->CapturePlatformTop()); Before=M->Score(0); M->Tick(1);
+    Test->TestTrue(TEXT("Standing on the upper altar awards the same hold score"),FMath::IsNearlyEqual(M->Score(0)-Before,1.f,.02f));
     auto* Enemy=M->Fighters()[5].Pawn.Get(); Enemy->RelocateMatch(FVector(1000,0,0)); M->Tick(.05f);
-    Test->TestTrue(TEXT("An enemy standing on the seal contests it"),M->Contested());
+    Test->TestTrue(TEXT("An enemy on the ground contests a hero on the altar"),M->Contested());
     Test->TestFalse(TEXT("Contesting the seal immediately clears a stale scoring announcement"),M->Announcement().Contains(TEXT("controls the seal")));
     Before=M->Score(0); M->Tick(.05f); Test->TestEqual(TEXT("Contested points stop scoring"),M->Score(0),Before);
     FCultMatchTestAccess::Unshield(M); int Deaths=M->Fighters()[5].Deaths;
@@ -547,17 +492,18 @@ public:
     M->Tick(5.1f); Test->TestTrue(TEXT("The same hero returns alive at its team temple"),Enemy->GetHealth()>0&&!Enemy->MatchDead()&&FVector::Dist2D(Enemy->FeetLocation(),M->Base(1))<6500);
     FCultMatchTestAccess::HoldBots(M,true); FCultMatchTestAccess::Park(M); P->RelocateMatch(FVector::ZeroVector); for(TActorIterator<ACultSkillAttack> It(W);It;++It) It->Destroy();
     SurgeVictim=M->Fighters()[6].Pawn; SurgeVictim->RelocateMatch(P->FeetLocation()+FVector(1200,0,0)); FCultMatchTestAccess::Unshield(M); SurgeBefore=SurgeVictim->GetHealth();
+    auto* PC=W->GetFirstPlayerController();
+    auto* Camera=P->FindComponentByClass<UCameraComponent>();
+    const FVector Ground(2200,-2600,0);
+    SurgeVictim->RelocateMatch(Ground);
+    const auto Look=(Ground-Camera->GetComponentLocation()).Rotation();
+    PC->SetControlRotation(Look); Camera->SetWorldRotation(Look);
+    const FVector Aimed=P->CameraAim().ImpactPoint;
     FCultMatchTestAccess::ReadySurge(P); P->AbilityR(); Test->TestEqual(TEXT("The Domination summon surge does not hit instantly"),SurgeVictim->GetHealth(),SurgeBefore);
-    bool Cone=false; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==P&&It->Shape==ACultSkillAttack::EShape::Cone&&It->IsWindingUp()) {
-     Cone=true;
-     // Stage a grounded victim inside the actual committed volume. A shoulder camera's
-     // crosshair is offset from the pawn axis; nearby +X alone is not an aimed hit.
-     const FVector Axis=It->GetActorLocation()+It->Direction*It->Reach*.6f;
-     SurgeVictim->RelocateMatch(FVector(Axis.X,Axis.Y,0));
-     Test->AddInfo(FString::Printf(TEXT("Surge volume origin %s direction %s target %s"),*It->GetActorLocation().ToCompactString(),*It->Direction.ToCompactString(),*SurgeVictim->GetActorLocation().ToCompactString()));
-     Test->TestTrue(TEXT("No unrelated body or world cover masks the isolated surge fixture"),ACultSkillAttack::Clear(W,It->GetActorLocation()+FVector(0,0,40),SurgeVictim->GetActorLocation(),P,SurgeVictim.Get()));
-    }
-    Test->TestTrue(TEXT("A canonical summon kit becomes its physical frontal mauling in Domination"),Cone);
+    bool Disk=false; for(TActorIterator<ACultSkillAttack> It(W);It;++It)
+     if(It->GetOwner()==P&&It->Shape==ACultSkillAttack::EShape::GroundDisk&&It->IsWindingUp())
+      Disk|=It->GetActorLocation().Equals(Aimed,5);
+    Test->TestTrue(TEXT("A canonical summon kit becomes an aimed delayed attack in Domination"),Disk);
     Phase=7; At=W->GetTimeSeconds(); return false;
    } else {
     Test->TestEqual(TEXT("Six towers per team"),M->TowersAlive(0),6); Test->TestEqual(TEXT("Six enemy towers"),M->TowersAlive(1),6); Test->TestEqual(TEXT("Original Great Old One HP"),M->CoreHealth(1),1500.f);

@@ -11,7 +11,7 @@ TAutoConsoleVariable<int32> DominationFinish(TEXT("cult.Domination.Refinement"),
 bool CultMatchSurfaces::Enabled() { return StoneEnabled.GetValueOnGameThread()!=0; }
 bool CultMatchSurfaces::RefinedDomination() { return DominationFinish.GetValueOnGameThread()!=0; }
 UMaterialInterface* CultMatchSurfaces::StoneMaterial(bool Domination) {
- if(Domination&&RefinedDomination()) if(auto* New=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_DominationStone_v1"))) return New;
+ if(Domination&&RefinedDomination()) if(auto* New=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_DominationStone_v2"))) return New;
  return LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_MatchStone"));
 }
 int CultMatchSurfaces::Apply(UWorld* World,bool Stone,bool Domination) {

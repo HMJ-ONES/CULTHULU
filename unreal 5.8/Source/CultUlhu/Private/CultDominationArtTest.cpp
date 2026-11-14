@@ -22,6 +22,7 @@
 #include "HAL/FileManager.h"
 class FCultDominationArtObservation:public IAutomationLatentCommand {
  FAutomationTestBase* Test; int Phase=0,Side=1,Shot=0,PerchIndex=0; float At=0; double Began=FPlatformTime::Seconds();
+ int JumpIndex=0;
  TWeakObjectPtr<ACultMatchUnit> Target; TWeakObjectPtr<ACameraActor> Camera; bool ShowHUD=true;
  struct FSnapshot { TWeakObjectPtr<UPrimitiveComponent> Mesh; FTransform Transform; ECollisionEnabled::Type Collision; };
  TArray<FSnapshot> Geometry;
@@ -38,9 +39,16 @@ public:
   if(Phase==1) {
    M->Tick(20); M->SetActorTickEnabled(false);
    for(const auto& F:M->Fighters()) if(auto* H=F.Pawn.Get()) if(H!=P) { H->GetCharacterMovement()->DisableMovement(); H->SetActorTickEnabled(false); }
-   int Landmarks=0,Skins=0,Triangles=0,Overlooks=0;
+   int Landmarks=0,Skins=0,Triangles=0,Overlooks=0,Steps=0,Platforms=0;
    for(TActorIterator<AActor> It(W);It;++It) {
     Overlooks+=It->ActorHasTag(TEXT("CultDominationOverlook"));
+    if(It->ActorHasTag(TEXT("CultDominationCaptureStep"))) {
+     ++Steps;
+     const auto Bounds=It->GetComponentsBoundingBox(true);
+     Test->TestTrue(TEXT("Each jump rock is solid and wholly outside the scoring boundary"),
+      FMath::Min(FMath::Abs(Bounds.Min.X),FMath::Abs(Bounds.Max.X))>M->CaptureHalfExtent().X&&It->GetActorEnableCollision());
+    }
+    Platforms+=It->ActorHasTag(TEXT("CultDominationCapturePlatform"));
     if(It->ActorHasTag(TEXT("CultDominationArt"))) {
      auto* Mesh=It->FindComponentByClass<UProceduralMeshComponent>();
      if(It->ActorHasTag(TEXT("CultDominationKeepSkin"))||It->ActorHasTag(TEXT("CultDominationRouteInlays"))) { ++Skins; Test->TestEqual(TEXT("Facade/inlay detail never blocks movement or attacks"),Mesh->GetCollisionEnabled(),ECollisionEnabled::NoCollision); }
@@ -51,8 +59,51 @@ public:
     if(It->ActorHasTag(TEXT("MatchArena"))) { TInlineComponentArray<UPrimitiveComponent*> Parts(*It); for(auto* Mesh:Parts) Geometry.Add({Mesh,Mesh->GetComponentTransform(),Mesh->GetCollisionEnabled()}); }
    }
    Test->TestEqual(TEXT("Both balanced forward overlooks exist"),Overlooks,2); Test->TestEqual(TEXT("Distinct north/south skyline landmarks"),Landmarks,2); Test->TestEqual(TEXT("Merged keep skins and route inlay"),Skins,5);
+   Test->TestEqual(TEXT("Four jump rocks on either approach"),Steps,8);
+   Test->TestEqual(TEXT("One upper capture surface"),Platforms,1);
+   const auto Upper=M->CapturePlatformTop();
+   FHitResult Hit;
+   W->LineTraceSingleByChannel(Hit,Upper+FVector(0,0,1000),Upper-FVector(0,0,1000),ECC_Visibility);
+   Test->TestTrue(TEXT("Real walkable surface matches the upper capture bounds"),Hit.GetActor()&&
+    Hit.GetActor()->ActorHasTag(TEXT("CultDominationCapturePlatform"))&&M->InsideCapture(Hit.ImpactPoint));
+   Test->TestFalse(TEXT("Air above the altar does not score"),M->InsideCapture(Upper+FVector(0,0,450)));
    Test->TestTrue(TEXT("Original architecture remains a bounded low-poly addition"),Triangles>1000&&Triangles<12000); Test->AddInfo(FString::Printf(TEXT("Domination decoration: 7 merged components, %d triangles"),Triangles));
-   P->RelocateMatch(FVector(0,12500,6000)); At=W->GetTimeSeconds(); Phase=2; return false;
+   // Start beside the first rock. The actual capsule, jump impulse and gravity
+   // take the hero the rest of the way up, without relocating between steps.
+   P->RelocateMatch(FVector(-9250,4100,0));
+   Phase=9; return false;
+  }
+  if(Phase==9) {
+   auto* Move=P->GetCharacterMovement();
+   const FVector Feet=P->FeetLocation();
+   const FVector Goal(JumpIndex==4?-3850:-9250+1080*JumpIndex,
+    JumpIndex==4?2250:2250+(JumpIndex%2?95:-95),440*(JumpIndex+1));
+   const FVector Offset=Goal-Feet;
+   const float Distance=Offset.Size2D();
+   if(Move->IsMovingOnGround()) {
+    // A kaiju capsule can settle above the center of a tread when its
+    // rounded base is also supported by the edge of the next rock.
+    if(Offset.Z<=30&&Offset.Z>=-250&&Distance<250) {
+     At=0;
+     if(++JumpIndex==5) {
+      Test->TestTrue(TEXT("Actual jumps from the outer rocks land on the scoring platform"),M->InsideCapture(Feet));
+      P->RelocateMatch(FVector(0,12500,6000)); At=W->GetTimeSeconds(); Phase=2;
+     }
+     return false;
+    }
+    if(At>0&&W->GetTimeSeconds()-At>2) {
+     Test->AddError(FString::Printf(TEXT("Capture rock jump %d ended at %s, goal %s"),JumpIndex,*Feet.ToCompactString(),*Goal.ToCompactString()));
+     return true;
+    }
+    P->Jump();
+    if(At==0) At=W->GetTimeSeconds();
+   }
+   const auto Speed=Offset.Z>30?FVector::ZeroVector:Offset.GetSafeNormal2D()*FMath::Min(3000.f,Distance*10.f);
+   Move->Velocity.X=Speed.X;
+   Move->Velocity.Y=Speed.Y;
+   if(Move->IsFalling()) P->StopJumping();
+   if(W->GetTimeSeconds()-At>12) { Test->AddError(TEXT("Capture rock traversal timed out")); return true; }
+   return false;
   }
   if(Phase==2) {
    const FVector Goal(0,Side*6800,6000); P->MoveMatchToward(Goal,.016f);
@@ -65,7 +116,7 @@ public:
    Test->TestFalse(TEXT("Upper players cannot capture from the overlook"),M->InsideCapture(P->FeetLocation()));
    Test->TestFalse(TEXT("Overlook slab supplies real cover below it"),ACultSkillAttack::Clear(W,FVector(0,Side*8500,500),FVector(0,Side*8500,8000),nullptr,nullptr));
    const FVector Origin=P->GetPawnViewLocation();
-   const FVector Aim(0,Side*2500,200);
+   const FVector Aim(0,Side*3650,200);
    Test->TestTrue(TEXT("Forward lip has an unobstructed physical firing line to the seal edge"),ACultSkillAttack::Clear(W,Origin,Aim,P,nullptr));
    const FTransform T(Aim); auto* Unit=W->SpawnActorDeferred<ACultMatchUnit>(ACultMatchUnit::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
    Unit->Team=1-P->GetFaction(); Unit->Health=Unit->MaxHealth=100; Unit->FinishSpawning(T); Unit->SetActorTickEnabled(false); Target=Unit;

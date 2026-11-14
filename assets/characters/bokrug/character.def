@@ -27,13 +27,13 @@ range = 8
 [f]
 id = curse_of_sarnath
 name = Curse of Sarnath
-flavor = Marked, as that drowned city was marked.
+flavor = A drowned city's curse erupts from the marked ground.
 cooldown = 15
 stamina_cost = 35
 mana_cost = 0
-effect = debuff
-power = 5
-range = 12
+effect = aoe_damage
+power = 115
+range = 9
 
 [r]
 id = wrath_of_the_lizard

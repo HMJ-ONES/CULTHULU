@@ -2,6 +2,7 @@
 #include "CultUlhuPlayerPawn.h"
 #include "CultMatchDirector.h"
 #include "CultKitRuntime.h"
+#include "CultSecondaryProfile.h"
 #include "CultMeleeGeometry.h"
 #include "CultSkillAttack.h"
 #include "Components/CapsuleComponent.h"
@@ -87,7 +88,8 @@ float ACultUlhuPlayerPawn::BotRangedReach() const {
   // Use the authored kit's delivery types, never invent a ranged attack.
   if(I<2&&(K=="projectile"||K=="damage"||K=="stun"||K=="debuff"||K=="aoe_damage")&&S.id!="crushing_maw"&&S.id!="crusher_claw"&&S.id!="claw_of_the_sphinx") Reach=FMath::Max(Reach,S.range*100.f);
  }
- if(Kit_->Def.rightClick.kind!=cultulhu::HeavyAttackKind::MeleeHeavy&&!Kit_->UsesMinionThrow()) Reach=FMath::Max(Reach,Kit_->Def.rightClick.range*100.f);
+ if(const auto* Secondary=CultSecondary::Find(Kit_->Def.id); Secondary&&Secondary->Delivery!=CultSecondary::EDelivery::Disk)
+  Reach=FMath::Max(Reach,Secondary->Reach);
  return Reach;
 }
 int ACultUlhuPlayerPawn::HealingAbilitySlot() const {
