@@ -1,6 +1,7 @@
 #include "CultSkillAttack.h"
 
 #include "CultAbilityFilaments.h"
+#include "CultPrimaryProfile.h"
 #include "CultUlhuPlayerPawn.h"
 #include "Camera/CameraComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -182,7 +183,9 @@ void ACultSkillAttack::UpdateAbilityFilaments() {
  } else {
   const FVector Head=HasAuthority()?Previous:GetActorLocation();
   AbilityFilaments->SetWorldLocation(Head);
-  if(FilamentPath.IsEmpty()||FVector::DistSquared(FilamentPath.Last(),Head)>FMath::Square(900.f)) FilamentPath.Reset();
+  const bool GateCannon=Look==ELook::Gate&&SignalStyle==uint8(CultPrimary::ESignal::Violet);
+  const float MaxSampleDistance=GateCannon?4200.f:900.f;
+  if(FilamentPath.IsEmpty()||FVector::DistSquared(FilamentPath.Last(),Head)>FMath::Square(MaxSampleDistance)) FilamentPath.Reset();
   if(FilamentPath.IsEmpty()||!FilamentPath.Last().Equals(Head,2.f)) FilamentPath.Add(Head);
   if(FilamentPath.Num()>9) FilamentPath.RemoveAt(0,FilamentPath.Num()-9,EAllowShrinking::No);
   const FVector Along=FilamentPath.Num()>1?(Head-FilamentPath[FilamentPath.Num()-2]).GetSafeNormal():Direction;

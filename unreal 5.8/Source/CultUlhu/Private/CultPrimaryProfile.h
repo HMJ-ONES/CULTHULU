@@ -41,7 +41,7 @@ inline FProfile Find(const FString& Id) {
  if(Id == TEXT("sghllor")) return {TEXT("Prismatic Pulse"),D::Bolt,A::Hover,S::Violet,.70f,.14f,6.f,5200,6300,49};
  if(Id == TEXT("ghatanothoa")) return {TEXT("Obsidian Cannon"),D::Cannon,A::Maul,S::Ember,1.95f,.47f,14.f,6600,5600,130};
  if(Id == TEXT("nug_and_yeb")) return {TEXT("Twin Embers"),D::Cannon,A::Coil,S::Ember,1.76f,.40f,13.f,6150,5400,98};
- if(Id == TEXT("yog_sothoth")) return {TEXT("Gate Collapse"),D::Cannon,A::Hover,S::Violet,2.08f,.52f,15.f,6900,5200,150};
+ if(Id == TEXT("yog_sothoth")) return {TEXT("Gate Collapse"),D::Cannon,A::Hover,S::Violet,.95f,.21f,17.f,7600,24000,150};
  return {};
 }
 }

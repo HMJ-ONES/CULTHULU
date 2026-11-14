@@ -23,6 +23,10 @@
 class FCultDominationArtObservation:public IAutomationLatentCommand {
  FAutomationTestBase* Test; int Phase=0,Side=1,Shot=0,PerchIndex=0; float At=0; double Began=FPlatformTime::Seconds();
  int JumpIndex=0;
+ int DirectionIndex=0;
+ float JumpStarted=0;
+ bool LeftGround=false;
+ FVector JumpStart;
  TWeakObjectPtr<ACultMatchUnit> Target; TWeakObjectPtr<ACameraActor> Camera; bool ShowHUD=true;
  struct FSnapshot { TWeakObjectPtr<UPrimitiveComponent> Mesh; FTransform Transform; ECollisionEnabled::Type Collision; };
  TArray<FSnapshot> Geometry;
@@ -82,8 +86,40 @@ public:
    Test->TestTrue(TEXT("Original architecture remains a bounded low-poly addition"),Triangles>1000&&Triangles<12000); Test->AddInfo(FString::Printf(TEXT("Domination decoration: 7 merged components, %d triangles"),Triangles));
    // Start beside the first rock. The actual capsule, jump impulse and gravity
    // take the hero the rest of the way up, without relocating between steps.
+   Phase=10; return false;
+  }
+  if(Phase==10) {
+   const FVector2D Directions[]={{0,1},{-1,0},{0,-1},{1,0}};
+   const float Yaws[]={-90,0,90,180};
+   P->RelocateMatch(FVector(-9250,3880,0));
+   PC->SetControlRotation(FRotator(0,Yaws[DirectionIndex],0));
+   P->AltReleased();
+   P->SetEnhancedMove(Directions[DirectionIndex]);
+   At=W->GetTimeSeconds(); Phase=11; return false;
+  }
+  if(Phase==11) {
+   if(W->GetTimeSeconds()-At<.28f) return false;
+   JumpStart=P->FeetLocation();
+   JumpStarted=W->GetTimeSeconds();
+   LeftGround=false;
+   P->RoutePlayerInput(ECultPlayerInput::Jump,true);
+   Phase=12;
+   return false;
+  }
+  if(Phase==12) {
+   const float AirTime=W->GetTimeSeconds()-JumpStarted;
+   auto* Move=P->GetCharacterMovement();
+   LeftGround|=Move->IsFalling();
+   if(AirTime>.09f) P->RoutePlayerInput(ECultPlayerInput::Jump,false);
+   if(!(LeftGround&&Move->IsMovingOnGround())&&AirTime<1.3f) return false;
+   const FVector Feet=P->FeetLocation();
+   Test->TestTrue(FString::Printf(TEXT("Directional jump %d clears the first stair and lands promptly (%s -> %s, %.2fs)"),
+    DirectionIndex,*JumpStart.ToCompactString(),*Feet.ToCompactString(),AirTime),
+    LeftGround&&Move->IsMovingOnGround()&&Feet.Z>720&&Feet.Y<JumpStart.Y-350&&AirTime<.94f);
+   P->SetEnhancedMove(FVector2D::ZeroVector);
+   if(++DirectionIndex<4) { Phase=10; return false; }
    P->RelocateMatch(FVector(-9250,4100,0));
-   Phase=9; return false;
+   At=0; Phase=9; return false;
   }
   if(Phase==9) {
    auto* Move=P->GetCharacterMovement();

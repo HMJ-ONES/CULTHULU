@@ -37,7 +37,7 @@ constexpr FCharacterMoves Roster[] = {
  {TEXT("shoggoths"),      {{F::Cut,1.04f,.85f},{F::Pull,1.22f,-.55f},{F::Hammer,1.22f,0},{F::Mend,1.12f,-.25f},{F::Ward,1.33f,.45f}}},
  {TEXT("shub_niggurath"), {{F::Spit,1.13f,.6f},{F::Cannon,.88f,-.55f},{F::Invoke,1,-.55f},{F::Lash,.88f,.65f},{F::Invoke,1.43f,.18f}}},
  {TEXT("yig"),            {{F::Cut,1,-.8f},{F::Bite,1.09f,.55f},{F::Lash,1.12f,-.7f},{F::Mend,.95f,.8f},{F::Gaze,1.35f,.45f}}},
- {TEXT("yog_sothoth"),    {{F::Cannon,1.16f,.05f},{F::Pull,.97f,.35f},{F::Lash,1.07f,-.55f},{F::Invoke,1.1f,.35f},{F::Pull,1.38f,-.2f}}},
+ {TEXT("yog_sothoth"),    {{F::Cannon,1.38f,.05f},{F::Pull,.97f,.35f},{F::Lash,1.07f,-.55f},{F::Invoke,1.1f,.35f},{F::Pull,1.38f,-.2f}}},
 };
 
 FDesign Design(const FString& Id,const FPlayback& Playback) {

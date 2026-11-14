@@ -252,6 +252,22 @@ struct FCultMatchTestAccess {
   T->TestEqual(TEXT("Solid walls stop cannon splash from reaching the other side"),Direct->GetHealth(),ShieldedHp);
   T->TestTrue(TEXT("A cannon shot hitting scenery still damages an exposed enemy"),Nearby->GetHealth()<ExposedHp);
   Wall->Destroy();
+  P->ConfigureBot(TEXT("yog_sothoth"),0);
+  P->RespawnMatch(FVector(0,0,20000));
+  Direct->RelocateMatch(FVector(4900,0,20000));
+  const float YogTargetHP=Direct->GetHealth();
+  P->SetBotAim(Direct);
+  for(TActorIterator<ACultSkillAttack> It(World);It;++It) It->Destroy();
+  P->Smash();
+  ACultSkillAttack* GateShot=nullptr;
+  for(TActorIterator<ACultSkillAttack> It(World);It;++It) if(It->GetOwner()==P) { GateShot=*It; break; }
+  if(!T->TestNotNull(TEXT("Yog's real primary creates a projectile"),GateShot)) return;
+  T->TestTrue(TEXT("Yog's gate round travels at 324 m/s"),FMath::IsNearlyEqual(GateShot->Speed,32400.f,.01f));
+  T->TestEqual(TEXT("Yog's primary recovers in .95 seconds"),P->SmashCooldown_,.95f);
+  T->TestEqual(TEXT("Yog's gate round retains a short windup"),GateShot->Windup,.21f);
+  GateShot->Tick(0); GateShot->Tick(.40f);
+  T->TestTrue(TEXT("Yog's gate round delivers its stronger direct hit"),
+   FMath::IsNearlyEqual(YogTargetHP-Direct->GetHealth(),17.f*M->DamageMultiplier(P),.05f));
  }
  static void VerifySummonCredit(FAutomationTestBase* T,ACultMatchDirector* M,ACultUlhuPlayerPawn* P) {
   M->State_->Warmup=0; Unshield(M);

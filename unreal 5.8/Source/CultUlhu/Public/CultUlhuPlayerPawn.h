@@ -62,7 +62,7 @@ public:
  const CultAttackMotion::FPlayback& AttackPlayback() const { return AttackPlayback_; }
  bool HasAttackHold(CultAttackMotion::EMove Move) const { return HeldAttack_.Move==Move; }
  CultAttackMotion::FFrame AttackFrame() const;
-	ACultUlhuPlayerPawn();
+ ACultUlhuPlayerPawn(const FObjectInitializer& ObjectInitializer=FObjectInitializer::Get());
  // Optional Enhanced Input and zero-asset keys share one physical press/release.
  void RoutePlayerInput(ECultPlayerInput Action,bool Down);
  bool IsHoldingInteract() const { return InputHeld_[static_cast<int32>(ECultPlayerInput::Interact)]; }
@@ -181,6 +181,8 @@ public:
 protected:
  bool InputHeld_[static_cast<int32>(ECultPlayerInput::Count)]={};
  FVector2D EnhancedMove_=FVector2D::ZeroVector;
+ FVector ReadMovementIntent() const;
+ float FlightReadyAt_=0;
  bool EnhancedSprint_=false;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 

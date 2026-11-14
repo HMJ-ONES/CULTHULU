@@ -216,7 +216,8 @@ void CastCue(ACultUlhuPlayerPawn* Pawn,const FString& Id,uint8 Move,float Windup
  using M=CultAttackMotion::EMove;
  ELook Look=ELook::None;
  const auto Motion=M(Move);
- if(Motion==M::Heavy) Look=ForSlot(Id,-1);
+ if(Motion==M::Primary&&Id==TEXT("yog_sothoth")) Look=ELook::Gate;
+ else if(Motion==M::Heavy) Look=ForSlot(Id,-1);
  else if(Motion>=M::Q&&Motion<=M::R) Look=ForSlot(Id,int(Motion)-int(M::Q));
  else if(Motion==M::RockLift||Motion==M::RockThrow) Look=ELook::Abyss;
  else if(Motion==M::Wave||Motion==M::WaveHold||Motion==M::WaveThrow) Look=ELook::Dread;

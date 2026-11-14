@@ -12,6 +12,7 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 #include "CultCombatCredit.h"
 #include "CultVesselSurface.h"
 #include "CultCharacterModel.h"
+#include "CultCharacterMovement.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "core/EventBus.h"
 
@@ -52,7 +53,8 @@ void FrameThirdPerson(USpringArmComponent& Arm,const FString& CharacterId,float 
 }
 }
 
-ACultUlhuPlayerPawn::ACultUlhuPlayerPawn()
+ACultUlhuPlayerPawn::ACultUlhuPlayerPawn(const FObjectInitializer& ObjectInitializer)
+ : Super(ObjectInitializer.SetDefaultSubobjectClass<UCultCharacterMovement>(ACharacter::CharacterMovementComponentName))
 {
  bReplicates=true; SetReplicateMovement(true); SetNetUpdateFrequency(10.f); SetNetCullDistanceSquared(100000.f*100000.f);
  CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody"));
@@ -119,7 +121,8 @@ void ACultUlhuPlayerPawn::BeginPlay()
 	GetCharacterMovement()->MaxAcceleration = WalkSpeed_ * 3.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = WalkSpeed_ * 4.f;
 	GetCharacterMovement()->MaxStepHeight = 45.f * CharScale_;
-	GetCharacterMovement()->GravityScale = 3.8f * FMath::Sqrt(CharScale_);
+	GetCharacterMovement()->GravityScale = 5.3f * FMath::Sqrt(CharScale_);
+ GetCharacterMovement()->AirControl=.82f;
 	const float JumpHeight=HeightM*100.f*.62f;
 	GetCharacterMovement()->JumpZVelocity = FMath::Sqrt(2.f*FMath::Abs(GetCharacterMovement()->GetGravityZ())*JumpHeight);
 	HomeLocation_ = LastSafeLocation_ = GetActorLocation();
@@ -424,6 +427,7 @@ void ACultUlhuPlayerPawn::UpdateFlight(bool Held,bool Boost,float DeltaSeconds)
  if(!Held) FlightNeedsRelease_=false;
  if(!CanFly()||!Kit_) return;
  const bool Allowed=Held&&!FlightNeedsRelease_&&!Control_.Stop&&!IsIncapacitated()&&!IsDashing();
+ if(Allowed&&GetWorld()->GetTimeSeconds()<FlightReadyAt_) return;
  if(Allowed&&Kit_->SpendFlight(Boost?38.f:24.f,DeltaSeconds)) {
   if(!Movement->IsFlying()) Movement->SetMovementMode(MOVE_Flying);
   Movement->MaxFlySpeed=WalkSpeed_*(Boost?1.7f:1.04f)*Control_.Speed;
@@ -611,7 +615,15 @@ void ACultUlhuPlayerPawn::Notify(const FString& Text) { Notice_=Text; NoticeTime
 void ACultUlhuPlayerPawn::AltPressed() { MeleeBuffer_=0; if(auto* PC=Cast<APlayerController>(GetController())) { PC->bShowMouseCursor=true; FInputModeGameAndUI M; M.SetHideCursorDuringCapture(false); PC->SetInputMode(M); } }
 void ACultUlhuPlayerPawn::CommandReleased() { if(auto* PC=Cast<APlayerController>(GetController())) if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) HUD->CommandRelease(); }
 void ACultUlhuPlayerPawn::AltReleased() { if(auto* PC=Cast<APlayerController>(GetController())) { if(auto* HUD=Cast<ACultPlayHUD>(PC->GetHUD())) { HUD->CloseCommands(); if(HUD->FaithVisible()||HUD->RegionMapVisible()) return; } PC->bShowMouseCursor=false; FInputModeGameOnly M; M.SetConsumeCaptureMouseDown(false); PC->SetInputMode(M); } }
-void ACultUlhuPlayerPawn::TryJump() { if(!Control_.Stop && !Control_.Fear && CanJump()) { Jump(); EvadeTime_=FMath::Max(EvadeTime_,.14f); } }
+void ACultUlhuPlayerPawn::TryJump() {
+ FlightReadyAt_=GetWorld()->GetTimeSeconds()+.18f;
+ if(Control_.Stop||IsIncapacitated()||!CanJump()) return;
+ if(auto* PC=Cast<APlayerController>(GetController()); PC&&PC->bShowMouseCursor) return;
+ const FVector Direction=ReadMovementIntent();
+ if(!Direction.IsNearlyZero()) AddMovementInput(Direction);
+ Jump();
+ EvadeTime_=FMath::Max(EvadeTime_,.14f);
+}
 void ACultUlhuPlayerPawn::ToggleStats() { bStats_=!bStats_; }
 
 void ACultUlhuPlayerPawn::Tick(float DeltaSeconds)
@@ -697,13 +709,7 @@ void ACultUlhuPlayerPawn::PollMoveKeys(float DeltaSeconds)
   if(Control_.Fear&&!Control_.Stop&&!PC->bShowMouseCursor) AddMovementInput((GetActorLocation()-Control_.Origin).GetSafeNormal2D(),1);
   return;
  }
- FVector Move = FVector::ZeroVector;
-	const FRotator Yaw(0.0f, PC->GetControlRotation().Yaw, 0.0f);
-	if (PC->IsInputKeyDown(EKeys::W) || PC->IsInputKeyDown(EKeys::Up))    Move += Yaw.Vector();
-	if (PC->IsInputKeyDown(EKeys::S) || PC->IsInputKeyDown(EKeys::Down))  Move -= Yaw.Vector();
-	if (PC->IsInputKeyDown(EKeys::D) || PC->IsInputKeyDown(EKeys::Right)) Move += FRotationMatrix(Yaw).GetScaledAxis(EAxis::Y);
-	if (PC->IsInputKeyDown(EKeys::A) || PC->IsInputKeyDown(EKeys::Left))  Move -= FRotationMatrix(Yaw).GetScaledAxis(EAxis::Y);
- if(Move.IsNearlyZero()) Move=Yaw.Vector()*EnhancedMove_.Y+FRotationMatrix(Yaw).GetScaledAxis(EAxis::Y)*EnhancedMove_.X;
+ const FVector Move=ReadMovementIntent();
  const bool Space=InputHeld_[static_cast<int32>(ECultPlayerInput::Jump)];
  const bool FlightInput=Space&&CanFly();
  const bool Sprint=ProcessShift(Shift,Move,DeltaSeconds,!FlightInput)&&!Move.IsNearlyZero();
@@ -715,6 +721,19 @@ void ACultUlhuPlayerPawn::PollMoveKeys(float DeltaSeconds)
   AddMovementInput(Move.GetSafeNormal(), 1.0f);
 }
 
+FVector ACultUlhuPlayerPawn::ReadMovementIntent() const {
+ const auto* PC=Cast<APlayerController>(GetController());
+ if(!PC||!PC->IsLocalController()) return FVector::ZeroVector;
+ const FRotator Yaw(0,PC->GetControlRotation().Yaw,0);
+ const FVector Forward=Yaw.Vector(),Right=FRotationMatrix(Yaw).GetScaledAxis(EAxis::Y);
+ FVector Direction=FVector::ZeroVector;
+ if(PC->IsInputKeyDown(EKeys::W)||PC->IsInputKeyDown(EKeys::Up)) Direction+=Forward;
+ if(PC->IsInputKeyDown(EKeys::S)||PC->IsInputKeyDown(EKeys::Down)) Direction-=Forward;
+ if(PC->IsInputKeyDown(EKeys::D)||PC->IsInputKeyDown(EKeys::Right)) Direction+=Right;
+ if(PC->IsInputKeyDown(EKeys::A)||PC->IsInputKeyDown(EKeys::Left)) Direction-=Right;
+ if(Direction.IsNearlyZero()) Direction=Forward*EnhancedMove_.Y+Right*EnhancedMove_.X;
+ return Direction.GetSafeNormal2D();
+}
 
 
 

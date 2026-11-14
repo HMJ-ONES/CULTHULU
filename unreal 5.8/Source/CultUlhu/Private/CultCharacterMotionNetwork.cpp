@@ -1,7 +1,9 @@
 #include "CultUlhuPlayerPawn.h"
 #include "CultCharacterModel.h"
 #include "CultAbilityFX.h"
+#include "CultCombatAudio.h"
 #include "GameFramework/GameStateBase.h"
+#include "TimerManager.h"
 
 void ACultUlhuPlayerPawn::MulticastMotionCue_Implementation(uint8 Kind,float Seconds) {
  if(!FMath::IsFinite(Seconds)||Seconds<=0||Seconds>5) return;
@@ -35,6 +37,15 @@ void ACultUlhuPlayerPawn::MulticastAttackMotion_Implementation(uint8 Move,uint8 
  }
  ACultCharacterModel::Cue(this,MotionRole,Seconds,Age);
  CultAbilityFX::CastCue(this,CharacterId_,Move,Contact,Age);
+ if(IsLocallyControlled()&&AttackMove==EMove::Primary&&CharacterId_==TEXT("yog_sothoth")) {
+  auto Kick=FTimerDelegate::CreateWeakLambda(this,[this,Began=AttackPlayback_.Began] {
+   if(AttackPlayback_.Began!=Began||MatchDead()||IsDashing()||IsIncapacitated()) return;
+   PlayCultCombatCue(GetWorld(),ECultCombatCue::GateCannon,.33f);
+   AddCameraKick(.27f);
+  });
+  if(Age>=Contact) Kick.ExecuteIfBound();
+  else { FTimerHandle Handle; GetWorldTimerManager().SetTimer(Handle,Kick,Contact-Age,false); }
+ }
 }
 
 void ACultUlhuPlayerPawn::EmitAbilityBurst(uint8 Look,uint8 Event,FVector Location,FVector Heading,float Size) {

@@ -34,6 +34,7 @@ bool FCultKitRuntime::LaunchPrimary() {
  Shot->ImpactPower = Primary.Damage;
  Shot->ConfigureProjectileFlight(Primary.Reach,Primary.Delivery==EDelivery::Cannon);
  Shot->SignalStyle = uint8(Primary.Signal);
+ if(Def.id=="yog_sothoth") Shot->AbilityLook=uint8(CultAbilityFX::ELook::Gate);
  Shot->bTrackMuzzle = true;
  Shot->PrimaryAim = Aim.ImpactPoint;
  const bool Corrosive = Primary.Delivery == EDelivery::CorrosiveArc;
