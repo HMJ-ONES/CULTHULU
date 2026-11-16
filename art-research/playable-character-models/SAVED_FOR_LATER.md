@@ -55,3 +55,11 @@ These are **saved for later**, not approved character selections; investigate pe
    - Mother Hydra reference only; free/download/license unverified.
 8. **Alien 6** — https://sketchfab.com/3d-models/alien-6-68d8814ae6bc4ac7b9463e976e315d53
    - Mother Hydra Blender-editing inspiration only; Fab store purchase flow, not verified free; FBX and 22 animations advertised.
+
+
+## Additional creature bookmarks — 2026-11-16
+
+Saved by the user as reference candidates, **not approved playable models**. Download status, ownership, commercial rights, mesh files and animations have not been verified; do not scrape protected previews.
+
+1. **Ivan Monster Design — Posed** — https://sketchfab.com/3d-models/ivan-monster-design-posed-7a8db7722fa647f0a050ddb4f313bedd
+2. **Monster Alien** — https://sketchfab.com/3d-models/monster-alien-7076e13f3562430f90fed0ab46dba39c
