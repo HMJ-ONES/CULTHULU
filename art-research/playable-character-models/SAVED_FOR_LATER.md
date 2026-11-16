@@ -33,3 +33,25 @@ These seven Sketchfab links were supplied by the user for later review, **mostly
 7. **Dimaxillosaurus (Animations)** — https://sketchfab.com/3d-models/dimaxillosaurus-animations-c568c97ac50845e298409a088b39ad16
 
 Do not assume these models are downloadable, licensed for commercial games, approved, or imported. Review individually before selection.
+
+
+## New miscellaneous creature bookmarks — 2026-11-16
+
+These are **saved for later**, not approved character selections; investigate permission and actual downloadable source packages before using them. The last three are Mother Hydra visual alternatives, **not definitive**.
+
+1. **Xenoflora Hunter - Hyper Vital** — https://sketchfab.com/3d-models/xenoflora-hunter-hyper-vital-3388e5dd81264388b6f28261295395e4
+   - general creature inspiration; source page did not establish a free download.
+2. **The Flayed Herald** — https://sketchfab.com/3d-models/the-flayed-herald-85c8c18a9af842349f43c2135ca3faac
+   - general creature inspiration; download/license unverified.
+3. **Alien 5** — https://sketchfab.com/3d-models/alien-5-f956e03f1afd49a9aa531eba1eafd417
+   - general creature inspiration; redirected to Fab store/buy-flow; free download not verified.
+4. **Karckmahre Animations** — https://sketchfab.com/3d-models/karckmahre-animations-dc32c945560749cc8fbb80ce82976a38
+   - general creature inspiration; title suggests animation but package unverified.
+5. **Echidna** — https://sketchfab.com/3d-models/echidna-41b1e7d7ad41468dbb7b86f17c2700fb
+   - general creature inspiration; download/license unverified.
+6. **Abyssal Siren** — https://sketchfab.com/3d-models/abyssal-siren-15a722e4246e48e787f3282674d74ec4
+   - Mother Hydra reference only; Sketchfab free-download CC BY, AI-generated Meshy; ~761k tris, no confirmed rig.
+7. **Water Genasi Siren** — https://sketchfab.com/3d-models/water-genasi-siren-088560bd120b42e48579038c075fc5f7
+   - Mother Hydra reference only; free/download/license unverified.
+8. **Alien 6** — https://sketchfab.com/3d-models/alien-6-68d8814ae6bc4ac7b9463e976e315d53
+   - Mother Hydra Blender-editing inspiration only; Fab store purchase flow, not verified free; FBX and 22 animations advertised.
