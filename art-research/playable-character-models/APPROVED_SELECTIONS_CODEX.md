@@ -18,7 +18,7 @@ This is the authoritative set of the user's current choices. They override the o
 | `yog_sothoth` | Yog-Sothoth — Lovecraft Lore, Brian Trepanier (option 2) | https://skfb.ly/pCABB | previously saved as user selection; non-humanoid VFX likely needed |
 | `bokrug` | **Four-Legged Frost Predator** (replaces 3DRT Lizard) | https://sketchfab.com/3d-models/four-legged-frost-predator-3ddc6f711201449cbc33617f430d1b20 | Sketchfab indexed as animated and freely downloadable; **license/commercial usage not yet verified**. Source may need Bokrug visual adjustments and animation assessment. |
 | `nodens` | **Eldritch Horror - Wagon** (replaces Roman chariot, wagon ONLY) | https://sketchfab.com/3d-models/eldritch-horror-wagon-4a1074b516dc4b8aaa8561f3a11abfbc | User selected wagon as vehicle/chariot prop; rider not approved. Download/license/rights unverified; do not use old Roman chariot. |
-| `ghatanothoa` | **Dark Young - Overlord (Rigged & Animated)** (user-selected new Ghatanothoa model) | https://sketchfab.com/3d-models/dark-young-overlord-rigged-animated-3c4975d1bf604c0f9fe91623634a4f5c | **HOLD for game distribution:** source specifically references *Overlord* third-party IP; a free download is not permission to commercialize another franchise's design. Review ownership; not yet import-approved. |
+| `ghatanothoa` | **PENDING NEW SELECTION — NO MODEL APPROVED** | — | User explicitly rejected the former **Dark Young - Overlord** model (third-party IP/copyright concern) on 2026-11-16. **Do not download, import, derive from, retopologize, or use the Overlord design.** Await a new user-selected model. |
 | `hastur` | **Plague Death Knight - Toxic Censer** (temporary choice; replaces M.O.T.H. King in Yellow) | https://sketchfab.com/3d-models/plague-death-knight-toxic-censer-c9fd2e31b72846019f4edc1f5e013fc1 | Sketchfab indexes downloadable, but Fab also lists a store version; commercial rights, exact free package, rig and usable clips not verified. Design needs adaptation to Hastur. |
 | `nug_and_yeb` | **Alien 9 + Alien 8** — two source creatures form one playable twin entity | https://sketchfab.com/3d-models/alien-9-7bf0ae9609084378b79eca707a10c9a8 ; https://sketchfab.com/3d-models/alien-8-00b6cc1964004810816da2d2eabef571 | Extract exactly one authorized creature mesh from EACH acquired package; position one floating diagonally above the other with independent subtle idle drift. Ecliptica Fab store links indicate purchase; **free availability unverified, do not scrape**. |
 
@@ -28,6 +28,7 @@ This is the authoritative set of the user's current choices. They override the o
 
 - `sghllor` — light-ball wrapped in drifting mist; best produced **procedurally** in Unreal using emissive sphere + material + Niagara/particles, not a downloaded body mesh. Build lightweight provisional preview and pawn effect as appropriate.
 - `mother_hydra` — no final model selected. Three new references saved in SAVED_FOR_LATER.md: Abyssal Siren, Water Genasi Siren, Alien 6. Any conversion/Blender work only after model acquisition and license verification.
+- `ghatanothoa` — awaiting a fresh, original, commercially usable selection; **do not use the Overlord Dark Young**.
 - `bast`, `elder_mind`, `howling_eye`, `hypnos` — user has **not chosen a final source**. Existing candidate folders are research, not approved selections. Preserve placeholders and show `pending model` until chosen.
 
 ## Codex implementation goals
@@ -49,7 +50,7 @@ This is the authoritative set of the user's current choices. They override the o
 
 ## Latest user reassignments (2026-11-16)
 
-The table above supersedes old choices for Ghatanothoa, Bokrug, Nug and Yeb, Nodens, Nyarlathotep, Shub-Niggurath, Hastur and Rhan-Tegoth. **Do not use superseded source links as their final assets.** Previous links remain in Git history for provenance. Ghatanothoa's Overlord Dark Young is explicitly a third-party franchise rights hold, despite being found in free-download search results.
+The latest user selection state is recorded in the table above. **Do not use superseded source links as final assets.** Previous links remain in Git history for provenance. **Ghatanothoa is no longer assigned any model:** the user explicitly rejected the Overlord-derived design due to infringement concerns, and will search for a new one. Do not use or adapt that design.
 
 For `nug_and_yeb`, build **one composite selectable/playable character** from one mesh in the Alien 9 package and one in the Alien 8 package. Make the bodies float at different heights with a clear diagonal offset; add gently independent sine/noise hover to their root transforms without tearing apart source animations; fit both within one consistent collision/gameplay pawn, and keep them both visible in selection thumbnails and gameplay. Their Fab listings show purchase-flow pages; there is no verified free entitlement.
 
