@@ -15,6 +15,7 @@ struct Trap {
     Vec3 pos;
     bool armed = true;
     int captured = 0;
+    template<class Visitor> void visitPersistentState(Visitor& v) { v(id,pos.x,pos.y,pos.z,armed,captured); }
 };
 
 // Trickery-belief trap system: traps capture civilians and adventurers.
@@ -31,6 +32,8 @@ public:
     // Returns true if the victim was captured. Only civilians and
     // adventurers can be captured; the trap disarms after springing.
     bool springTrap(uint64_t trapId, Entity& victim);
+
+    template<class Visitor> void visitPersistentState(Visitor& v) { v(traps_,nextId_); }
 
 private:
     EventBus& bus_;

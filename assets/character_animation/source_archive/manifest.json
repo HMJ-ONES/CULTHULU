@@ -1,0 +1,16 @@
+{
+  "mi_go": {
+    "decodedFile": "MiGo.fbx",
+    "sha256": "8fe329b50a5e47ca6979fb2e4d10b5734aa4d368e692003b9f0089ec31a09ae0",
+    "source": "Exact approved prepared_v2 FBX; DM-913, CC-BY-4.0; see ../CREDITS.md",
+    "provenance": "Original Bugoid2.blend PoseLib converted to prepared Prowl with floor-anchor adjustment by existing PrepareOriginalMiGoFBX.py; new studies preserve that prepared animation."
+  },
+  "yig": {
+    "decodedFile": "Yig.fbx",
+    "sha256": "919aafc98cc40806a0496a2b6f2b1aa3e64843d9ed8c4689da81b21a7c7f6149",
+    "source": "https://sketchfab.com/3d-models/naga-dragon-serpent-stylized-fantasy-monster-2fb96bd7a3c543eeabfb3868107ed4a4",
+    "author": "JoePrimal",
+    "license": "CC-BY-4.0",
+    "provenance": "Approved prepared_v3 FBX; original armor, weapon and tail rigs. See ../CREDITS.md."
+  }
+}

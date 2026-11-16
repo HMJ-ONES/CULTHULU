@@ -1,0 +1,300 @@
+{
+  "date": "2026-10-22",
+  "base": "0e235f8d1b79ed73df04ee1beebed68a886ca1f7",
+  "build": {
+    "engine": "5.8.3",
+    "target": "CultUlhuEditor Win64 Development",
+    "canonical_validation": true,
+    "success": true,
+    "seconds": 197.44
+  },
+  "baseline": {
+    "log": "BotAbilityOpportunityBaseline.log",
+    "sha256": "5723e29f0ebd5257a46c1fa74dab784740d0a22d13d6e08f2a38cd835033f2c8",
+    "tests": [
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotAbilityOpportunity.Domination"
+      },
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotAbilityOpportunity.Moba"
+      }
+    ],
+    "errors": [
+      "[2026.10.22-18.32.38:336][505]LogAutomationController: Error: Test Completed. Result={Fail} Name={Domination} Path={CultUlhu.Menu.BotAbilityOpportunity.Domination}",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'Nightmare Veil preserves cooldown when actual delivery cannot reach' to be 0.000000, but it was 15.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(56)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'An unreachable spell preserves stamina' to be 100.000000, but it was 65.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'An unreachable spell does not emit a misleading warning' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(59)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'Reachable control produces actual damage or original fear control' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(68)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'Crushing Maw preserves cooldown when actual delivery cannot reach' to be 0.000000, but it was 8.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(56)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'An unreachable spell preserves stamina' to be 100.000000, but it was 70.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'An unreachable spell does not emit a misleading warning' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(59)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'A bot does not spend a control-only aura on an immune structure' to be false. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(74)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'Immune structure preserves control cooldown' to be 0.000000, but it was 15.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(75)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'Immune structure preserves control stamina' to be 100.000000, but it was 65.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(76)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Test Completed. Result={Fail} Name={Moba} Path={CultUlhu.Menu.BotAbilityOpportunity.Moba}",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'Nightmare Veil preserves cooldown when actual delivery cannot reach' to be 0.000000, but it was 15.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(56)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'An unreachable spell preserves stamina' to be 100.000000, but it was 65.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'An unreachable spell does not emit a misleading warning' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(59)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'Reachable control produces actual damage or original fear control' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(68)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'Crushing Maw preserves cooldown when actual delivery cannot reach' to be 0.000000, but it was 8.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(56)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'An unreachable spell preserves stamina' to be 100.000000, but it was 70.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'An unreachable spell does not emit a misleading warning' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(59)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'A bot does not spend a control-only aura on an immune structure' to be false. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(74)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'Immune structure preserves control cooldown' to be 0.000000, but it was 15.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(75)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'Immune structure preserves control stamina' to be 100.000000, but it was 65.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(76)]"
+    ],
+    "observations": [
+      "Opportunity nightmare_veil: far deliveries 1 cooldown 15.0; near deliveries 1, damage 0.0, fear 0",
+      "Opportunity crushing_maw: far deliveries 1 cooldown 8.0; near deliveries 1, damage 32.2, fear 0",
+      "Opportunity nightmare_veil: far deliveries 1 cooldown 15.0; near deliveries 1, damage 0.0, fear 0",
+      "Opportunity crushing_maw: far deliveries 1 cooldown 8.0; near deliveries 1, damage 32.2, fear 0"
+    ],
+    "valid_resource_warning_errors": [
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'Nightmare Veil preserves cooldown when actual delivery cannot reach' to be 0.000000, but it was 15.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(56)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'An unreachable spell preserves stamina' to be 100.000000, but it was 65.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'An unreachable spell does not emit a misleading warning' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(59)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'Crushing Maw preserves cooldown when actual delivery cannot reach' to be 0.000000, but it was 8.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(56)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'An unreachable spell preserves stamina' to be 100.000000, but it was 70.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+      "[2026.10.22-18.32.38:337][505]LogAutomationController: Error: Expected 'An unreachable spell does not emit a misleading warning' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(59)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'Nightmare Veil preserves cooldown when actual delivery cannot reach' to be 0.000000, but it was 15.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(56)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'An unreachable spell preserves stamina' to be 100.000000, but it was 65.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'An unreachable spell does not emit a misleading warning' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(59)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'Crushing Maw preserves cooldown when actual delivery cannot reach' to be 0.000000, but it was 8.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(56)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'An unreachable spell preserves stamina' to be 100.000000, but it was 70.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+      "[2026.10.22-18.32.40:172][540]LogAutomationController: Error: Expected 'An unreachable spell does not emit a misleading warning' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(59)]"
+    ],
+    "excluded_fixture_assumptions": [
+      "Initial near-aura fear observation read aggregate control before normal projection Tick; corrected final fixture performs that update.",
+      "Initial immune-structure scene also retained a vulnerable hero nearby. That is a useful aura opportunity, not proof of wasted control; final fixture moves that hero out of range."
+    ]
+  },
+  "initial_batch": {
+    "log": "BotAbilityOpportunityFinal.log",
+    "sha256": "455712d6ebb2935a19f9e2bafeba3e1fc27c94f9ecd97270eae25f3639cb4549",
+    "tests": [
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotAbilityOpportunity.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotAbilityOpportunity.Moba"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotMeleeReach.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotMeleeReach.Moba"
+      },
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotThreatDecisions.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotThreatDecisions.Moba"
+      },
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.AttackSignals"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.DominationMatch"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.MobaMatch"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.SkillCombat"
+      }
+    ],
+    "errors": [
+      "[2026.10.22-19.51.03:290][337]LogAutomationController: Error: Test Completed. Result={Fail} Name={Domination} Path={CultUlhu.Menu.BotThreatDecisions.Domination}",
+      "[2026.10.22-19.51.03:292][337]LogAutomationController: Error: Fresh PIE session did not become ready [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultAutomationPIE.h(15)]",
+      "[2026.10.22-19.51.03:292][337]LogAutomationController: Error: Bot threat decision check timed out [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(721)]",
+      "[2026.10.22-19.51.11:787][674]LogAutomationController: Error: Test Completed. Result={Fail} Name={AttackSignals} Path={CultUlhu.Menu.AttackSignals}",
+      "[2026.10.22-19.51.11:787][674]LogAutomationController: Error: LogModelContextProtocol: Call to unknown method \"resources/templates/list\" [log] "
+    ],
+    "observations": [
+      "Opportunity nightmare_veil: far deliveries 0 cooldown 0.0; near deliveries 1, damage 0.0, fear 1",
+      "Opportunity crushing_maw: far deliveries 0 cooldown 0.0; near deliveries 1, damage 32.2, fear 0",
+      "Opportunity nightmare_veil: far deliveries 0 cooldown 0.0; near deliveries 1, damage 0.0, fear 1",
+      "Opportunity crushing_maw: far deliveries 0 cooldown 0.0; near deliveries 1, damage 32.2, fear 0"
+    ],
+    "interruption_notes": [
+      "Frame counter jumps from 333 at 19:05:37 to 337 at 19:51:03 UTC, exceeding readiness/observation timeouts. Cause of the frame gap is not established.",
+      "AttackSignals was marked failed by LogModelContextProtocol error for unsupported resources/templates/list; its signal checks logged 647 teal and 86 coral pixels."
+    ]
+  },
+  "isolated_retry": {
+    "log": "BotAbilityOpportunityIsolated.log",
+    "sha256": "a788cabfd2b1b556d843cc0529d9d50125f0fa11a3481836a0f703a9507823cd",
+    "tests": [
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotThreatDecisions.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.AttackSignals"
+      }
+    ],
+    "errors": [],
+    "observations": [],
+    "isolation": "Same compiled gameplay and assertions; -DisablePlugins=ModelContextProtocol only for retry process. Normal project MCP configuration remains enabled. MCP interoperability is not covered by isolated retry."
+  },
+  "accepted_unique_checks": [
+    "CultUlhu.Menu.AttackSignals",
+    "CultUlhu.Menu.BotAbilityOpportunity.Domination",
+    "CultUlhu.Menu.BotAbilityOpportunity.Moba",
+    "CultUlhu.Menu.BotMeleeReach.Domination",
+    "CultUlhu.Menu.BotMeleeReach.Moba",
+    "CultUlhu.Menu.BotThreatDecisions.Domination",
+    "CultUlhu.Menu.BotThreatDecisions.Moba",
+    "CultUlhu.Menu.DominationMatch",
+    "CultUlhu.Menu.MobaMatch",
+    "CultUlhu.Menu.SkillCombat"
+  ],
+  "accepted_unique_check_count": 10,
+  "initial_failed_checks": 2,
+  "isolated_retry_automation_errors": 0,
+  "physical_geometry_identity": {
+    "base": "0e235f8d1b79ed73df04ee1beebed68a886ca1f7",
+    "equivalent": true,
+    "scope": "Sphere/cone/ground-disk contact calculations are text-identical after iterator-to-target and local-to-output substitutions and whitespace normalization. Enemy/cover/once-per-target logic remains at Area call site.",
+    "normalized_geometry_sha256": "cc49266c8639cb280ccd1bdf6269506124592d86819bad187f5c46396e0f8293"
+  },
+  "content_byte_identical": 425,
+  "source_release_kits": [
+    {
+      "path": "assets/characters/bokrug/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/cthulhu_avatar/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/dagon/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/ghatanothoa/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/hastur/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/mi_go/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/mother_hydra/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/nodens/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/nug_and_yeb/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/nyarlathotep/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/rhan_tegoth/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/sghllor/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/shoggoths/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/shub_niggurath/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/yig/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    },
+    {
+      "path": "assets/characters/yog_sothoth/character.def",
+      "byte_identical": false,
+      "only_line_endings_differ": true
+    }
+  ],
+  "new_assets": 0,
+  "downloads": 0,
+  "sources": [
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Public/CultSkillAttack.h",
+      "bytes": 2092,
+      "sha256": "29331ca9a114f50ac592084d27fad5ebe39b6f4c21042a589b0e23b1cecee812"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultSkillAttack.cpp",
+      "bytes": 9016,
+      "sha256": "04c028674e72ed2133b40576cf85111f39ceb636917be1c20506a2b52acc8f59"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultKitSpatial.cpp",
+      "bytes": 10026,
+      "sha256": "0fbe2bfe79cbd344245ed05d18981e70bf9c508bc19a7a077404ff30cb039175"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultMatchTest.cpp",
+      "bytes": 79383,
+      "sha256": "7f942350321a35bf8660340d820ab2e7da11510dbabc382eb5e9fb34ed089741"
+    }
+  ],
+  "behavior": "Bot sphere/cone casts scan living hostile vulnerable victims using exact existing area-contact and cover checks before warning/cooldown/stamina commitment. Alternate nearby victims remain valid. Existing control-immune structures do not create false opportunities.",
+  "native_controls": [
+    "Both original spells skip far warning/resource waste in both modes",
+    "Actual near Nightmare Veil fear and Crushing Maw 32.2 damage in both mode fixtures",
+    "An aura affects a different nearby minion despite a distant selected hero",
+    "A real wall blocks the only nearby opportunity and preserves resources",
+    "An isolated control-immune structure preserves resources",
+    "Physical hitboxes, attack presentation, melee approach, defensive dodges and both match integrations have passing results across the recorded runs"
+  ],
+  "scope": "Controlled real BotThink and cast paths in paused worlds, with normal control projection update and physical delivery advancement. Match integration fixtures use short live windows and scripted transitions. Initial batch had two recorded infrastructure failures; it was not a clean ten-test run.",
+  "limits": [
+    "Gate covers bot spheres/cones; not complete spell/RMB tactics or role positioning",
+    "Opportunity uses current positions/cover, not guaranteed future contact or homing",
+    "Additional scan CPU cost has not been benchmarked",
+    "No uninterrupted human match, long-session balance/fun, all-kit tactical, multiplayer or low-spec certification",
+    "No fresh independent standalone package; human cast path/source kit stats retained",
+    "Normal MCP unsupported resource method remains an interoperability issue outside the isolated gameplay retry",
+    "Final art, animation, VFX/audio cohesion and reference-level production quality remain incomplete"
+  ]
+}

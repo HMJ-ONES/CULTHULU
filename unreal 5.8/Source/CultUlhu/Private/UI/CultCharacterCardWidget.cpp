@@ -1,20 +1,30 @@
+#include "UI/CultCharacterCardWidget.h"
+#include "Blueprint/WidgetTree.h"
 // CULT-ULHU character card implementation.
 #include "UI/CultCharacterCardWidget.h"
 
 #include "Components/Button.h"
+#include "Components/ButtonSlot.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Components/SizeBox.h"
+#include "Components/ScaleBox.h"
+#include "Components/ScaleBoxSlot.h"
+#include "Components/Image.h"
+#include "Engine/Texture2D.h"
+#include "CultCharacterModel.h"
+#include "CultUlhuGameInstance.h"
 
 #include "UI/CultCharacterSelectWidget.h"
 
-namespace
-{
-	const FLinearColor kCard(0.07f, 0.05f, 0.11f, 1.0f);
-	const FLinearColor kCardSel(0.30f, 0.18f, 0.48f, 1.0f);
-	const FLinearColor kCardHover(0.16f, 0.10f, 0.26f, 1.0f);
-	const FLinearColor kBone(0.82f, 0.80f, 0.74f, 1.0f);
-	const FLinearColor kDim(0.55f, 0.52f, 0.60f, 1.0f);
+#include "UI/CultUIStyle.h"
+namespace {
+void StyleCard(UButton* Button,bool Selected=false) {
+ CultUI::Button(Button,false,Selected); auto Style=Button->GetStyle();
+ Style.NormalPadding=FMargin(8,6); Style.PressedPadding=FMargin(8,7,8,5);
+ Button->SetStyle(Style); Button->SetColorAndOpacity(FLinearColor::White);
+}
 }
 
 void UCultCharacterCardWidget::NativeConstruct()
@@ -30,35 +40,44 @@ void UCultCharacterCardWidget::Setup(int32 InIndex, const FString& Name,
 	Parent_ = Parent;
 
 	CardButton_ = NewObject<UButton>(this);
-	FButtonStyle S = CardButton_->GetStyle();
-	S.Normal.TintColor = FSlateColor(kCard);
-	S.Hovered.TintColor = FSlateColor(kCardHover);
-	S.Pressed.TintColor = FSlateColor(kCardSel);
-	CardButton_->SetStyle(S);
+	StyleCard(CardButton_);
 	CardButton_->OnClicked.AddDynamic(this, &UCultCharacterCardWidget::OnCardClicked);
+	CardButton_->SetToolTipText(FText::FromString(Name+TEXT("\n")+Flavor));
+	FString Short=Name,Subtitle; int32 Comma;
+	if(Name.FindChar(',',Comma)) { Short=Name.Left(Comma); Subtitle=Name.Mid(Comma+1).TrimStartAndEnd(); }
 
 	UVerticalBox* V = NewObject<UVerticalBox>(CardButton_);
+ const auto& Roster=UCultUlhuGameInstance::Roster();
+ UTexture2D* Portrait=nullptr;
+ if(Roster.IsValidIndex(Index_)) { auto Path=ACultCharacterModel::PortraitPath(Roster[Index_].Id); if(!Path.IsEmpty()) Portrait=LoadObject<UTexture2D>(nullptr,*Path); }
+ if(Roster.IsValidIndex(Index_)) { const auto Credit=ACultCharacterModel::SourceCredit(Roster[Index_].Id); if(!Credit.IsEmpty()) CardButton_->SetToolTipText(FText::FromString(Name+TEXT("\n")+Flavor+TEXT("\n\n")+Credit)); }
+ if(Portrait) {
+  auto* Image=NewObject<UImage>(V); Image->SetBrushFromTexture(Portrait,true); Image->SetDesiredSizeOverride(FVector2D(76,38));
+  auto* ImageFit=NewObject<UScaleBox>(V); ImageFit->SetStretch(EStretch::ScaleToFit); ImageFit->AddChild(Image);
+  auto* ImageSize=NewObject<USizeBox>(V); ImageSize->SetWidthOverride(116); ImageSize->SetHeightOverride(34); ImageSize->AddChild(ImageFit); V->AddChildToVerticalBox(ImageSize);
+ }
 	NameText_ = NewObject<UTextBlock>(V);
-	NameText_->SetText(FText::FromString(Name));
-	FSlateFontInfo F = NameText_->GetFont();
-	F.Size = 18;
+	NameText_->SetText(FText::FromString(Short.ToUpper()));
+	FSlateFontInfo F = CultUI::Font(18,true);
 	NameText_->SetFont(F);
-	NameText_->SetColorAndOpacity(FSlateColor(kBone));
-	NameText_->SetJustification(ETextJustify::Center);
-	NameText_->SetAutoWrapText(true);
+	NameText_->SetColorAndOpacity(FSlateColor(CultUI::Bone));
+	NameText_->SetJustification(ETextJustify::Left);
+	NameText_->SetAutoWrapText(false);
 
 	UTextBlock* Fl = NewObject<UTextBlock>(V);
-	Fl->SetText(FText::FromString(Flavor));
-	FSlateFontInfo F2 = Fl->GetFont();
-	F2.Size = 12;
+	Fl->SetText(FText::FromString(TEXT("MODEL PENDING")));
+	FSlateFontInfo F2 = CultUI::Font(11);
 	Fl->SetFont(F2);
-	Fl->SetColorAndOpacity(FSlateColor(kDim));
-	Fl->SetJustification(ETextJustify::Center);
+	Fl->SetColorAndOpacity(FSlateColor(CultUI::Muted));
+	Fl->SetJustification(ETextJustify::Left);
 	Fl->SetAutoWrapText(true);
 
-	if (UVerticalBoxSlot* VS = V->AddChildToVerticalBox(NameText_)) VS->SetPadding(FMargin(10, 10, 10, 2));
-	if (UVerticalBoxSlot* VS = V->AddChildToVerticalBox(Fl)) VS->SetPadding(FMargin(10, 0, 10, 10));
-	CardButton_->AddChild(V);
+	auto* NameSize=NewObject<USizeBox>(V); NameSize->SetWidthOverride(116); NameSize->SetHeightOverride(26);
+	auto* Fit=NewObject<UScaleBox>(V); Fit->SetStretch(EStretch::ScaleToFit); Fit->SetStretchDirection(EStretchDirection::DownOnly); NameSize->AddChild(Fit);
+	if(auto* S=Cast<UScaleBoxSlot>(Fit->AddChild(NameText_))) { S->SetHorizontalAlignment(HAlign_Left); S->SetVerticalAlignment(VAlign_Center); }
+	if (UVerticalBoxSlot* VS = V->AddChildToVerticalBox(NameSize)) VS->SetPadding(FMargin(0));
+	if(!Portrait) V->AddChildToVerticalBox(Fl);
+	if(auto* ContentSlot=Cast<UButtonSlot>(CardButton_->AddChild(V))) ContentSlot->SetHorizontalAlignment(HAlign_Fill);
 
 	if (!WidgetTree)
 		WidgetTree = NewObject<UWidgetTree>(this, TEXT("WidgetTree"));
@@ -68,12 +87,12 @@ void UCultCharacterCardWidget::Setup(int32 InIndex, const FString& Name,
 void UCultCharacterCardWidget::SetSelected(bool bSelected)
 {
 	if (!CardButton_) return;
-	FButtonStyle S = CardButton_->GetStyle();
-	S.Normal.TintColor = FSlateColor(bSelected ? kCardSel : kCard);
-	CardButton_->SetStyle(S);
+	StyleCard(CardButton_,bSelected);
+ NameText_->SetColorAndOpacity(FSlateColor(bSelected?CultUI::Teal:CultUI::Bone));
 }
 
 void UCultCharacterCardWidget::OnCardClicked()
 {
 	if (Parent_) Parent_->SelectCharacter(Index_);
 }
+

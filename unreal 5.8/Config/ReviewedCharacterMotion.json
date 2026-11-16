@@ -1,0 +1,14 @@
+{
+  "owner": "CultUlhu.ReviewedMotion.20261106",
+  "policy": "One canonical project; preserve source rigs and artist revisions. No new ability animation. Nodens excluded.",
+  "characters": {
+    "dagon": {"title": "Dagon", "revision": "v006", "kind": "anatomical"},
+    "cthulhu_avatar": {"title": "Cthulhu", "revision": "v008", "kind": "anatomical"},
+    "nyarlathotep": {"title": "Nyarlathotep", "revision": "v005", "kind": "anatomical"},
+    "yog_sothoth": {"title": "YogSothoth", "revision": "v002", "kind": "anatomical"},
+    "shoggoths": {"title": "Shoggoths", "revision": "v005", "kind": "anatomical"},
+    "mi_go": {"title": "MiGo", "revision": "v004", "kind": "supplied", "dash": "original supplied Prowl"},
+    "yig": {"title": "Yig", "revision": "v003", "kind": "native_recipe"},
+    "sghllor": {"title": "Sghllor", "revision": "v001", "kind": "native_procedural"}
+  }
+}

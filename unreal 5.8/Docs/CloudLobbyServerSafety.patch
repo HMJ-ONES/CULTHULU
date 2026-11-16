@@ -1,0 +1,61 @@
+--- a/src/lib/cult/api.ts
++++ b/src/lib/cult/api.ts
+@@ -149,8 +149,12 @@
+ }
+ 
+ function encKey(env: ApiEnv) {
+-  // In preview without a configured key we fall back to a per-isolate random key (data is non-durable there anyway).
+-  return env.CONNECTION_ENCRYPTION_KEY || ((globalThis as any).__cultEphemeralKey ??= randomToken(32));
++  if (env.CONNECTION_ENCRYPTION_KEY) return env.CONNECTION_ENCRYPTION_KEY;
++  // Durable ciphertext must never depend on an isolate-local random key.
++  if (env.store.kind === "d1") {
++    throw new HttpError(503, "server_not_configured", "Lobby hosting is temporarily unavailable.");
++  }
++  return ((globalThis as any).__cultEphemeralKey ??= randomToken(32));
+ }
+ 
+ function buildConnect(c: ConnectionDescriptor): ConnectionDescriptor {
+@@ -261,21 +265,34 @@
+ 
+ async function reserveSlot(env: ApiEnv, lobby: LobbyRow, playerId: string, now: number): Promise<Reservation> {
+   const { store } = env;
++  // Validate/decrypt BEFORE consuming a seat or releasing a prior reservation.
++  // A failed decrypt must not change occupancy.
++  const connection: ConnectionDescriptor = lobby.connectionEnc
++    ? buildConnect(await decryptJson<ConnectionDescriptor>(lobby.connectionEnc, encKey(env)))
++    : { transport: lobby.transport };
++  const token = randomToken();
++  const id = randomId("res");
++  const expiresAt = now + RESERVATION_TTL_SEC * 1000;
++  const uri = launchUri(lobby.id, id, token);
+   const existing = await store.activeReservationFor(lobby.id, playerId);
+   if (existing) await store.setReservationStatus(existing.id, "released"), await store.releaseSlot(lobby.id);
+   if (!(await store.tryOccupySlot(lobby.id))) {
+     await store.logEvent(lobby.id, "reserve_rejected_full", null, now);
+     throw new HttpError(409, "lobby_full", "That ritual circle is full.");
+   }
+-  const token = randomToken();
+-  const id = randomId("res");
+-  const expiresAt = now + RESERVATION_TTL_SEC * 1000;
+-  await store.insertReservation({ id, lobbyId: lobby.id, playerId, tokenHash: await sha256(token), status: "pending", createdAt: now, expiresAt });
+-  await store.logEvent(lobby.id, "reserved", null, now);
+-  const connection: ConnectionDescriptor = lobby.connectionEnc
+-    ? buildConnect(await decryptJson<ConnectionDescriptor>(lobby.connectionEnc, encKey(env)))
+-    : { transport: lobby.transport };
+-  return { id, lobbyId: lobby.id, token, expiresAt, connection, launchUri: launchUri(lobby.id, id, token) };
++  let inserted = false;
++  try {
++    await store.insertReservation({ id, lobbyId: lobby.id, playerId, tokenHash: await sha256(token), status: "pending", createdAt: now, expiresAt });
++    inserted = true;
++    await store.logEvent(lobby.id, "reserved", null, now);
++    return { id, lobbyId: lobby.id, token, expiresAt, connection, launchUri: uri };
++  } catch (error) {
++    // Compensate post-occupancy failures rather than stranding an unseen seat.
++    // A future Store-level D1 transaction should make this path fully atomic.
++    if (inserted) await store.setReservationStatus(id, "released");
++    await store.releaseSlot(lobby.id);
++    throw error;
++  }
+ }
+ 
+ async function requireReservation(env: ApiEnv, body: unknown, lobbyId?: string) {

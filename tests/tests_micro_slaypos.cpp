@@ -11,8 +11,8 @@
 // The match-pipeline kill sites (Match::killPlayer) already stamp pos;
 // this pins the free-roam path to the same contract:
 //
-// 1. Monstrosity slain at a known position: the parent kill event AND
-//    MonstrositySlain both carry the corpse's position.
+// 1. Actual civilian deaths and species-tagged monster deaths carry the
+//    corpse position, without awarding civilian kills for other entity types.
 // 2. Avatar-vs-avatar kill: PlayerKilled carries the victim's position.
 // 3. Full pipeline: both events resolve through fxForEvent to aoe_damage
 //    (the visual the position stamp feeds).
@@ -79,7 +79,19 @@ int main() {
         seen.push_back({e.type, e.pos, e.targetId, e.tag});
     };
 
-    // ---------- 1. Monstrosity slain: kill event + MonstrositySlain stamped
+    {
+        EventBus bus;
+        seen.clear();
+        bus.subscribe(EventType::CivilianSlain,capture);
+        const Vec3 corpse{19.0f,0.0f,-5.0f};
+        Entity civilian(EntityType::Civilian,FACTION_NEUTRAL,corpse,10.0f);
+        CHECK(combat::dealDamage(civilian,9999.0f,bus,EventType::CivilianSlain,false,7,EntityType::EldritchAvatar));
+        CHECK(countType(seen,EventType::CivilianSlain)==1);
+        const Seen* slain=firstOf(seen,EventType::CivilianSlain);
+        CHECK(slain&&slain->targetId==civilian.id()&&samePos(slain->pos,corpse));
+    }
+
+    // ---------- 1. Monster death: species event, never civilian rewards
     {
         EventBus bus;
         seen.clear();
@@ -94,14 +106,11 @@ int main() {
                                               EventType::CivilianSlain, false,
                                               7, EntityType::EldritchAvatar);
         CHECK(killed);
-        CHECK(countType(seen, EventType::CivilianSlain) == 1);
+        CHECK(countType(seen, EventType::CivilianSlain) == 0);
         CHECK(countType(seen, EventType::MonstrositySlain) == 1);
         CHECK(countType(seen, EventType::PlayerKilled) == 0);
-        const Seen* slain = firstOf(seen, EventType::CivilianSlain);
         const Seen* mslain = firstOf(seen, EventType::MonstrositySlain);
-        CHECK(slain && slain->targetId == id);
         CHECK(mslain && mslain->targetId == id);
-        CHECK(slain && samePos(slain->pos, corpse));
         CHECK(mslain && samePos(mslain->pos, corpse));
     }
 
@@ -123,9 +132,7 @@ int main() {
         const Seen* pk = firstOf(seen, EventType::PlayerKilled);
         CHECK(pk && pk->targetId == vid);
         CHECK(pk && samePos(pk->pos, corpse));
-        // Parent kill beat stamped too.
-        const Seen* slain = firstOf(seen, EventType::CivilianSlain);
-        CHECK(slain && samePos(slain->pos, corpse));
+        CHECK(countType(seen,EventType::CivilianSlain)==0); // no false civilian reward
     }
 
     // ---------- 3. Full pipeline: stamped events resolve to aoe_damage --

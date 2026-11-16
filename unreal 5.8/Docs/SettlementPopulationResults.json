@@ -1,0 +1,111 @@
+{
+  "scope": "Canonical Editor: first initialized city snapshots across four RNG inputs, actual rotated footprint/body protection and spawned-mesh bounds. Layouts differ after changed random consumption. Not exhaustive procedural navigation, long-session or standalone proof.",
+  "runs": [
+    {
+      "log": "CityPopulationBefore.log",
+      "sha256": "94e5a7c971ae8a18d68ee83783726c0ef40709ddd95132d73964d8ca888ad13b",
+      "results": [
+        {
+          "result": "Fail",
+          "test": "CultUlhu.Menu.CityPopulationClearance"
+        }
+      ],
+      "city_snapshots": [
+        {
+          "rng_input": 11,
+          "world_time_seconds": 0.042,
+          "buildings": 161,
+          "people": 188,
+          "embedded_people": 0
+        },
+        {
+          "rng_input": 29,
+          "world_time_seconds": 0.4,
+          "buildings": 158,
+          "people": 170,
+          "embedded_people": 2
+        },
+        {
+          "rng_input": 73,
+          "world_time_seconds": 0.39,
+          "buildings": 153,
+          "people": 183,
+          "embedded_people": 0
+        },
+        {
+          "rng_input": 151,
+          "world_time_seconds": 0.392,
+          "buildings": 170,
+          "people": 190,
+          "embedded_people": 0
+        }
+      ],
+      "automation_error_count": 2
+    },
+    {
+      "log": "CityPopulationAfter.log",
+      "sha256": "5de13b118cbe438dfcf7bfddfdc4a0d947b1ec6c7c625720376554d81abe52d2",
+      "results": [
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.ArmyCommands"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.CityPopulationClearance"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.PopulationClearance"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.SettlementFootprints"
+        }
+      ],
+      "city_snapshots": [
+        {
+          "rng_input": 11,
+          "world_time_seconds": 0.042,
+          "buildings": 146,
+          "people": 180,
+          "embedded_people": 0
+        },
+        {
+          "rng_input": 29,
+          "world_time_seconds": 0.4,
+          "buildings": 169,
+          "people": 192,
+          "embedded_people": 0
+        },
+        {
+          "rng_input": 73,
+          "world_time_seconds": 0.374,
+          "buildings": 164,
+          "people": 189,
+          "embedded_people": 0
+        },
+        {
+          "rng_input": 151,
+          "world_time_seconds": 0.37,
+          "buildings": 174,
+          "people": 193,
+          "embedded_people": 0
+        }
+      ],
+      "automation_error_count": 0
+    },
+    {
+      "log": "CityFootprintBoundsFinal.log",
+      "sha256": "11f94371deff128f66db7d2d56a1e7441dafb6e9049e6bf295a30483730ba967",
+      "results": [
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.SettlementFootprints"
+        }
+      ],
+      "city_snapshots": [],
+      "automation_error_count": 0
+    }
+  ]
+}

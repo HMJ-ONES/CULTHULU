@@ -29,6 +29,7 @@ protected:
 	UFUNCTION() void OnCardClicked();
 
 private:
+	friend struct FCultCharacterSelectionTestAccess;
 	int32 Index_ = -1;
 	UPROPERTY() UButton* CardButton_ = nullptr;
 	UPROPERTY() UTextBlock* NameText_ = nullptr;

@@ -1,0 +1,761 @@
+{
+  "date": "2026-10-27",
+  "baseline": "8bf27e971313758ac2f3f7c239d6d90906670897",
+  "core_tests_passed": 109,
+  "canonical_core_suites_passed": 18,
+  "editor_build": "Success",
+  "binding_validation": "0 failures",
+  "native_latest": [
+    {
+      "result": "Success",
+      "test": "CultUlhu.Art.ApprovedCharacterModels"
+    },
+    {
+      "result": "Success",
+      "test": "CultUlhu.Art.LODRenderProfile"
+    },
+    {
+      "result": "Success",
+      "test": "CultUlhu.Input.EnhancedAndFallback"
+    },
+    {
+      "result": "Success",
+      "test": "CultUlhu.Menu.CameraFraming.DominationCthulhu"
+    },
+    {
+      "result": "Success",
+      "test": "CultUlhu.Menu.CameraFraming.DominationMiGo"
+    },
+    {
+      "result": "Success",
+      "test": "CultUlhu.Menu.CameraFraming.MobaCthulhu"
+    },
+    {
+      "result": "Success",
+      "test": "CultUlhu.Menu.CameraFraming.MobaMiGo"
+    },
+    {
+      "result": "Success",
+      "test": "CultUlhu.Menu.DominationMatch"
+    },
+    {
+      "result": "Success",
+      "test": "CultUlhu.Menu.EditorInputSafety"
+    },
+    {
+      "result": "Success",
+      "test": "CultUlhu.Menu.MobaMatch"
+    },
+    {
+      "result": "Success",
+      "test": "CultUlhu.Menu.ConsolidationFlow"
+    }
+  ],
+  "native_attempts": [
+    {
+      "log": "NativeTests.log",
+      "results": [
+        {
+          "result": "Success",
+          "test": "CultUlhu.Art.ApprovedCharacterModels"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Art.LODRenderProfile"
+        },
+        {
+          "result": "Fail",
+          "test": "CultUlhu.Input.EnhancedAndFallback"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.CameraFraming.DominationCthulhu"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.CameraFraming.DominationMiGo"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.CameraFraming.MobaCthulhu"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.CameraFraming.MobaMiGo"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.DominationMatch"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.EditorInputSafety"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.MobaMatch"
+        }
+      ],
+      "automation_errors": 2
+    },
+    {
+      "log": "NativeFocused.log",
+      "results": [
+        {
+          "result": "Success",
+          "test": "CultUlhu.Input.EnhancedAndFallback"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.CameraFraming.DominationCthulhu"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.CameraFraming.DominationMiGo"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.CameraFraming.MobaCthulhu"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.CameraFraming.MobaMiGo"
+        },
+        {
+          "result": "Success",
+          "test": "CultUlhu.Menu.ConsolidationFlow"
+        }
+      ],
+      "automation_errors": 0
+    }
+  ],
+  "content_files_byte_identical": 566,
+  "startup": {
+    "build_all": "PASSED_MAPS_PRESERVED",
+    "maps": {
+      "Content\\NewMap.umap": "f043aec988f19cd383aa8269faa09c82de8499961b7f764ddd4fa9988fe4dd5e",
+      "Content\\CultUlhu\\Generated\\CULTULHU.umap": "f933628002c3bab44ff9ead46257f33c32d35ff2d37de31292ea928c6d353318",
+      "Content\\CultUlhu\\Generated\\LV_RuinedCity.umap": "3972c3d7da9dd75ba4baf82310bd2a277d53d8a9030afe6eab6c7f4d0d3cb518",
+      "Content\\Maps\\L_DarkWilds.umap": "849e9cdbb865a47222002ba9ffd2a8f2e1cfd4c87e7a77e53f5827797414daed",
+      "Content\\Maps\\L_MainMenu.umap": "aced7556b436297a15939a0aeb4d78da27d77dd0db629ab187406270a06de3ec"
+    }
+  },
+  "characters": [
+    {
+      "id": "mi_go",
+      "kind": "skeletal",
+      "render_lod": 0,
+      "meshes": [],
+      "used_static_triangles": 0,
+      "used_triangles": 13156
+    },
+    {
+      "id": "cthulhu_avatar",
+      "kind": "static",
+      "render_lod": 1,
+      "meshes": [
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_10.Object_10",
+          "triangles_by_lod": [
+            111895,
+            11189
+          ],
+          "used_triangles": 11189
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_11.Object_11",
+          "triangles_by_lod": [
+            111091,
+            11109
+          ],
+          "used_triangles": 11109
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_12.Object_12",
+          "triangles_by_lod": [
+            107275,
+            10728
+          ],
+          "used_triangles": 10728
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_13.Object_13",
+          "triangles_by_lod": [
+            100003,
+            10000
+          ],
+          "used_triangles": 10000
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_14.Object_14",
+          "triangles_by_lod": [
+            105756,
+            10576
+          ],
+          "used_triangles": 10576
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_15.Object_15",
+          "triangles_by_lod": [
+            102193,
+            10219
+          ],
+          "used_triangles": 10219
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_16.Object_16",
+          "triangles_by_lod": [
+            92936,
+            9294
+          ],
+          "used_triangles": 9294
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_17.Object_17",
+          "triangles_by_lod": [
+            95506,
+            9550
+          ],
+          "used_triangles": 9550
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_18.Object_18",
+          "triangles_by_lod": [
+            23561,
+            2357
+          ],
+          "used_triangles": 2357
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_4.Object_4",
+          "triangles_by_lod": [
+            114590,
+            11459
+          ],
+          "used_triangles": 11459
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_5.Object_5",
+          "triangles_by_lod": [
+            115205,
+            11521
+          ],
+          "used_triangles": 11521
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_6.Object_6",
+          "triangles_by_lod": [
+            116185,
+            11619
+          ],
+          "used_triangles": 11619
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_7.Object_7",
+          "triangles_by_lod": [
+            115283,
+            11529
+          ],
+          "used_triangles": 11529
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_8.Object_8",
+          "triangles_by_lod": [
+            111112,
+            11111
+          ],
+          "used_triangles": 11111
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/cthulhu_avatar/Imports/he49a354384dd/source/StaticMeshes/Object_9.Object_9",
+          "triangles_by_lod": [
+            110356,
+            11036
+          ],
+          "used_triangles": 11036
+        }
+      ],
+      "used_static_triangles": 153297,
+      "used_triangles": 153297
+    },
+    {
+      "id": "dagon",
+      "kind": "static",
+      "render_lod": 1,
+      "meshes": [
+        {
+          "asset": "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_10.Object_10",
+          "triangles_by_lod": [
+            102394,
+            10239
+          ],
+          "used_triangles": 10239
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_11.Object_11",
+          "triangles_by_lod": [
+            103410,
+            10340
+          ],
+          "used_triangles": 10340
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_12.Object_12",
+          "triangles_by_lod": [
+            99206,
+            9921
+          ],
+          "used_triangles": 9921
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_13.Object_13",
+          "triangles_by_lod": [
+            98067,
+            9807
+          ],
+          "used_triangles": 9807
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_14.Object_14",
+          "triangles_by_lod": [
+            12440,
+            1244
+          ],
+          "used_triangles": 1244
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_4.Object_4",
+          "triangles_by_lod": [
+            114815,
+            11481
+          ],
+          "used_triangles": 11481
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_5.Object_5",
+          "triangles_by_lod": [
+            116655,
+            11666
+          ],
+          "used_triangles": 11666
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_6.Object_6",
+          "triangles_by_lod": [
+            114880,
+            11487
+          ],
+          "used_triangles": 11487
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_7.Object_7",
+          "triangles_by_lod": [
+            108916,
+            10892
+          ],
+          "used_triangles": 10892
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_8.Object_8",
+          "triangles_by_lod": [
+            112150,
+            11214
+          ],
+          "used_triangles": 11214
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/dagon/Imports/h4eea3463112b/source/StaticMeshes/Object_9.Object_9",
+          "triangles_by_lod": [
+            112442,
+            11245
+          ],
+          "used_triangles": 11245
+        }
+      ],
+      "used_static_triangles": 109536,
+      "used_triangles": 109536
+    },
+    {
+      "id": "nyarlathotep",
+      "kind": "static",
+      "render_lod": 1,
+      "meshes": [
+        {
+          "asset": "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0.Cube_001_0",
+          "triangles_by_lod": [
+            116185,
+            11618
+          ],
+          "used_triangles": 11618
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_2aeace0882f12c8daef6e6c7022030c1.Cube_001_0_2aeace0882f12c8daef6e6c7022030c1",
+          "triangles_by_lod": [
+            85112,
+            8512
+          ],
+          "used_triangles": 8512
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_6e50ba541f3ae5be772bbaaa3bf8195f.Cube_001_0_6e50ba541f3ae5be772bbaaa3bf8195f",
+          "triangles_by_lod": [
+            107410,
+            10740
+          ],
+          "used_triangles": 10740
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_6ef5c57ec206b42d1fbf3336a8872c5a.Cube_001_0_6ef5c57ec206b42d1fbf3336a8872c5a",
+          "triangles_by_lod": [
+            107714,
+            10771
+          ],
+          "used_triangles": 10771
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_9eba5deb8f4bcccd419bdd46fc50676a.Cube_001_0_9eba5deb8f4bcccd419bdd46fc50676a",
+          "triangles_by_lod": [
+            102387,
+            10238
+          ],
+          "used_triangles": 10238
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_c25c61886fbfce5cc660ebae0b436d9b.Cube_001_0_c25c61886fbfce5cc660ebae0b436d9b",
+          "triangles_by_lod": [
+            23916,
+            2392
+          ],
+          "used_triangles": 2392
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Cube_001_0_f58560948651a5897b58ce5d63cd8e4b.Cube_001_0_f58560948651a5897b58ce5d63cd8e4b",
+          "triangles_by_lod": [
+            104706,
+            10470
+          ],
+          "used_triangles": 10470
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/nyarlathotep/Imports/h6f1331a918e1/source/StaticMeshes/Sphere_0.Sphere_0",
+          "triangles_by_lod": [
+            960,
+            96
+          ],
+          "used_triangles": 96
+        }
+      ],
+      "used_static_triangles": 64837,
+      "used_triangles": 64837
+    },
+    {
+      "id": "shoggoths",
+      "kind": "static",
+      "render_lod": 0,
+      "meshes": [
+        {
+          "asset": "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group28166_Default_Material_0.Group28166_Default_Material_0",
+          "triangles_by_lod": [
+            2518
+          ],
+          "used_triangles": 2518
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group29013_Material_0.Group29013_Material_0",
+          "triangles_by_lod": [
+            294
+          ],
+          "used_triangles": 294
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group33359_Material_3_0.Group33359_Material_3_0",
+          "triangles_by_lod": [
+            1578
+          ],
+          "used_triangles": 1578
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/shoggoths/Imports/hd736cd045e73/source/StaticMeshes/Group63675_Material_2_0.Group63675_Material_2_0",
+          "triangles_by_lod": [
+            822
+          ],
+          "used_triangles": 822
+        }
+      ],
+      "used_static_triangles": 5212,
+      "used_triangles": 5212
+    },
+    {
+      "id": "yog_sothoth",
+      "kind": "static",
+      "render_lod": 1,
+      "meshes": [
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_10.Object_10",
+          "triangles_by_lod": [
+            113183,
+            11319
+          ],
+          "used_triangles": 11319
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_11.Object_11",
+          "triangles_by_lod": [
+            111403,
+            11141
+          ],
+          "used_triangles": 11141
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_12.Object_12",
+          "triangles_by_lod": [
+            107139,
+            10713
+          ],
+          "used_triangles": 10713
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_13.Object_13",
+          "triangles_by_lod": [
+            98417,
+            9841
+          ],
+          "used_triangles": 9841
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_14.Object_14",
+          "triangles_by_lod": [
+            97215,
+            9722
+          ],
+          "used_triangles": 9722
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_15.Object_15",
+          "triangles_by_lod": [
+            96728,
+            9672
+          ],
+          "used_triangles": 9672
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_16.Object_16",
+          "triangles_by_lod": [
+            95531,
+            9554
+          ],
+          "used_triangles": 9554
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_17.Object_17",
+          "triangles_by_lod": [
+            93165,
+            9317
+          ],
+          "used_triangles": 9317
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_18.Object_18",
+          "triangles_by_lod": [
+            21140,
+            2114
+          ],
+          "used_triangles": 2114
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_4.Object_4",
+          "triangles_by_lod": [
+            113185,
+            11319
+          ],
+          "used_triangles": 11319
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_5.Object_5",
+          "triangles_by_lod": [
+            113405,
+            11340
+          ],
+          "used_triangles": 11340
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_6.Object_6",
+          "triangles_by_lod": [
+            114583,
+            11458
+          ],
+          "used_triangles": 11458
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_7.Object_7",
+          "triangles_by_lod": [
+            114515,
+            11451
+          ],
+          "used_triangles": 11451
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_8.Object_8",
+          "triangles_by_lod": [
+            114011,
+            11401
+          ],
+          "used_triangles": 11401
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/yog_sothoth/Imports/h75111a826f45/source/StaticMeshes/Object_9.Object_9",
+          "triangles_by_lod": [
+            113255,
+            11326
+          ],
+          "used_triangles": 11326
+        }
+      ],
+      "used_static_triangles": 151688,
+      "used_triangles": 151688
+    },
+    {
+      "id": "yig",
+      "kind": "skeletal",
+      "render_lod": 0,
+      "meshes": [],
+      "used_static_triangles": 0,
+      "used_triangles": 76141
+    },
+    {
+      "id": "nodens",
+      "kind": "static",
+      "render_lod": 0,
+      "meshes": [
+        {
+          "asset": "/Game/CultUlhu/Characters/nodens/Imports/hc7123257c10c/source/StaticMeshes/Box001__0.Box001__0",
+          "triangles_by_lod": [
+            904
+          ],
+          "used_triangles": 904
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/nodens/Imports/hc7123257c10c/source/StaticMeshes/Cylinder002__0.Cylinder002__0",
+          "triangles_by_lod": [
+            712
+          ],
+          "used_triangles": 712
+        },
+        {
+          "asset": "/Game/CultUlhu/Characters/nodens/Imports/hc7123257c10c/source/StaticMeshes/Freehand001__0.Freehand001__0",
+          "triangles_by_lod": [
+            446
+          ],
+          "used_triangles": 446
+        }
+      ],
+      "used_static_triangles": 2062,
+      "used_triangles": 2062
+    },
+    {
+      "id": "sghllor",
+      "kind": "procedural",
+      "render_lod": 0,
+      "meshes": [],
+      "used_static_triangles": 0,
+      "used_triangles": null
+    }
+  ],
+  "lod_profile": {
+    "scope": "One unchanged Cthulhu model and camera in the offscreen Editor: LOD0/LOD1/LOD1/LOD0, 120 actual frames per window. Existing LODs are unchanged. Not full-match or low-spec FPS certification.",
+    "windows": [
+      {
+        "segment": 0,
+        "lod": 0,
+        "frames": 120,
+        "means": {
+          "FrameTime": 18.418896666666665,
+          "GPUTime": 6.839526666666667,
+          "GameThreadTime": 13.706733333333334,
+          "RenderThreadTime": 7.649916666666667
+        }
+      },
+      {
+        "segment": 1,
+        "lod": 1,
+        "frames": 120,
+        "means": {
+          "FrameTime": 18.073388333333334,
+          "GPUTime": 4.488646666666667,
+          "GameThreadTime": 13.50109,
+          "RenderThreadTime": 7.756211666666667
+        }
+      },
+      {
+        "segment": 2,
+        "lod": 1,
+        "frames": 120,
+        "means": {
+          "FrameTime": 19.16481,
+          "GPUTime": 4.207836666666666,
+          "GameThreadTime": 12.380611666666667,
+          "RenderThreadTime": 7.155626666666667
+        }
+      },
+      {
+        "segment": 3,
+        "lod": 0,
+        "frames": 120,
+        "means": {
+          "FrameTime": 20.737928333333333,
+          "GPUTime": 5.6258475,
+          "GameThreadTime": 10.655830833333333,
+          "RenderThreadTime": 6.575621666666667
+        }
+      }
+    ],
+    "paired_means": {
+      "0": {
+        "FrameTime": 19.5784125,
+        "GPUTime": 6.232687083333333,
+        "GameThreadTime": 12.181282083333333,
+        "RenderThreadTime": 7.112769166666666
+      },
+      "1": {
+        "FrameTime": 18.619099166666665,
+        "GPUTime": 4.348241666666667,
+        "GameThreadTime": 12.940850833333332,
+        "RenderThreadTime": 7.455919166666667
+      }
+    }
+  },
+  "new_map": {
+    "local_file_exists": true,
+    "removed": false,
+    "reason": "Preserved: no verified empty/unused-map deletion.",
+    "referencers": []
+  },
+  "retired_backup_count": 14,
+  "duplicate_editor_target_retired": true,
+  "duplicate_local_launchers_archived": 3,
+  "remaining_limits": [
+    "No two-machine multiplayer test",
+    "No human fun/balance or low-spec certification",
+    "No new models, materials, textures, or balancing",
+    "NewMap retained; unreferenced but emptiness not established"
+  ],
+  "clean_source_proof": {
+    "base": "8bf27e971313758ac2f3f7c239d6d90906670897",
+    "tested_overrides": {
+      "CMakeLists.txt": "99701351fb5299986a5772307ca4a973fb85d3a94d8f3b28a303d9694638fe91",
+      "src/driver/main.cpp": "2c4ad11276db407c6fe10206cac50266cc7bc2aed62503d75da04f25027e7774",
+      "src/driver/AntiCheat.cpp": "f50f4bf51bc195979a6ca07c5f913c1e881571ad8535e5d4299a3926d0ffddc9",
+      "src/fuzz/fuzz_main.cpp": "21306457d3148ff6dc3f74f72f559c3e9187e8ffe2ecd86b524b030b86a97cc0",
+      "src/fuzz/fuzz_util.cpp": "3a0e5d573ead5820c1e122cb5373d1130306cba28cf404c4e24927d9c06dd837",
+      "tests/tests_anticheat.cpp": "2db6cd8676699bb22e08a89f795cf82f0d56f4898b9897171a1d7b49cacf4130",
+      "tests/tests_wave19.cpp": "81f8b9da6678ea04a994a06fd27a4cb2e295bf5f5e505a8c68e78e2643592546",
+      "tests/tests_micro_slaypos.cpp": "fd00f6783c85c6997fee3e54b334ef0ac6012f2d563c314577437afaf97bd394"
+    },
+    "no_second_unreal_project": true
+  },
+  "cleanup": {
+    "removed_verification_staging_bytes": 181027606.0,
+    "canonical_build_preserved": true,
+    "source_backups_preserved": true
+  }
+}

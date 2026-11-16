@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-21",
+  "scope": "Native UE 5.8 Editor damage/death/reward integration, physical jungle projectile and full-match regressions. No independent executable or human balance/fun evaluation.",
+  "build": {
+    "canonical_validation": "Passed",
+    "production_compile_seconds": 34.92,
+    "final_test_compile_seconds": 14.79,
+    "result": "Succeeded"
+  },
+  "runs": {
+    "baseline": {
+      "log": "unreal 5.8/Saved/Logs/SummonCombatCreditBefore.log",
+      "sha256": "583a4618a5675e1b34c7a03dca441c97b633bf40553b289df069b8889af0d705",
+      "results": [
+        {
+          "result": "Fail",
+          "path": "CultUlhu.Menu.SummonCombatCredit.Domination"
+        },
+        {
+          "result": "Fail",
+          "path": "CultUlhu.Menu.SummonCombatCredit.Moba"
+        }
+      ],
+      "errors": [
+        "[2026.10.22-02.50.06:854][496]LogAutomationController: Error: Test Completed. Result={Fail} Name={Domination} Path={CultUlhu.Menu.SummonCombatCredit.Domination}",
+        "[2026.10.22-02.50.06:855][496]LogAutomationController: Error: Expected 'Summoned hero damage is recorded for its actual summoner' to be 10.000000, but it was 0.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(46)]",
+        "[2026.10.22-02.50.06:855][496]LogAutomationController: Error: Expected 'Summoned damage registers the summoner as a recent attacker' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(47)]",
+        "[2026.10.22-02.50.06:855][496]LogAutomationController: Error: Expected 'Summoned contact gives the local summoner one impact entry' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(49)]",
+        "[2026.10.22-02.50.06:855][496]LogAutomationController: Error: Expected 'Friendly summoned attacks cannot damage allied heroes' to be 100.000000, but it was 90.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(52)]",
+        "[2026.10.22-02.50.06:855][496]LogAutomationController: Error: Expected 'The summoner receives the hero elimination' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(56)]",
+        "[2026.10.22-02.50.06:855][496]LogAutomationController: Error: Expected 'A distinct contributing hero retains its assist' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(57)]",
+        "[2026.10.22-02.50.06:855][496]LogAutomationController: Error: Expected 'Only actual remaining health contributes to summoned damage statistics' to be 95.000000, but it was 0.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+        "[2026.10.22-02.50.06:855][496]LogAutomationController: Error: Expected 'Elimination feedback identifies the owner and local involvement' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(60)]",
+        "[2026.10.22-02.50.06:855][496]LogAutomationController: Error: Expected 'Dead targets pay no repeated kills' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(63)]",
+        "[2026.10.22-02.50.06:855][496]LogAutomationController: Error: Expected 'A bot summoner receives its own summoned kill' to be 2, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(77)]",
+        "[2026.10.22-02.50.06:855][496]LogAutomationController: Error: Expected 'A converted or mismatched summon cannot heal its previous owner' to be 70.500000, but it was 71.500000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(83)]",
+        "[2026.10.22-02.50.07:878][504]LogAutomationController: Error: Test Completed. Result={Fail} Name={Moba} Path={CultUlhu.Menu.SummonCombatCredit.Moba}",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'Summoned hero damage is recorded for its actual summoner' to be 10.000000, but it was 0.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(46)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'Summoned damage registers the summoner as a recent attacker' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(47)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'Summoned contact gives the local summoner one impact entry' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(49)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'Friendly summoned attacks cannot damage allied heroes' to be 100.000000, but it was 90.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(52)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'The summoner receives the hero elimination' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(56)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'A distinct contributing hero retains its assist' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(57)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'Only actual remaining health contributes to summoned damage statistics' to be 95.000000, but it was 0.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(58)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'Elimination feedback identifies the owner and local involvement' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(60)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'Summoned hero last-hit grants the existing hero kill XP' to be 75, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(60)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'Assist retains its existing XP' to be 35, but it was 75. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(60)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'Dead targets pay no repeated kills' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(63)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'Summoned lane last-hit grants 60 XP rather than only nearby shared XP' to be 60, but it was 30. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(69)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'Summoned tower last-hit grants its owner's 800 XP reward' to be 800, but it was 200. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(69)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'A bot summoner receives its own summoned kill' to be 2, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(77)]",
+        "[2026.10.22-02.50.07:879][504]LogAutomationController: Error: Expected 'A converted or mismatched summon cannot heal its previous owner' to be 90.000000, but it was 91.000000 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(83)]"
+      ],
+      "observations": [
+        "Summon credit mode=1 local kills=0 bot kills=1 damage=0.0 XP=0",
+        "Summon credit mode=2 local kills=0 bot kills=1 damage=0.0 XP=230"
+      ]
+    },
+    "final": {
+      "log": "unreal 5.8/Saved/Logs/SummonCombatCreditAfter.log",
+      "sha256": "b96cdb55ec4df5e78195e679c58afcdae5b1b733b4ec2e5a8de325342d7f62af",
+      "results": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.SummonCombatCredit.Domination"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.SummonCombatCredit.Moba"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.DominationMatch"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.JungleCamps"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaMatch"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaMechanics"
+        }
+      ],
+      "errors": [],
+      "observations": [
+        "Summon credit mode=1 local kills=2 bot kills=1 damage=195.0 XP=0",
+        "Summon credit mode=2 local kills=2 bot kills=1 damage=195.0 XP=1260",
+        "Objective bots: 4 allied and 5 enemy seal participants; 2200.9 real damage",
+        "Assigned-lane entries observed: 9 / 9 bots",
+        "Live MOBA: 34 advanced minions, 12 combined hero kills/deaths after 70.0s"
+      ]
+    }
+  },
+  "baseline_findings": {
+    "summoned_hero_damage_credit": 0,
+    "summoned_lane_last_hit_xp": 30,
+    "existing_lane_last_hit_reward": 60,
+    "summoned_tower_last_hit_xp": 200,
+    "existing_tower_last_hit_reward": 800,
+    "friendly_hero_hp_after_10_damage": 90,
+    "stale_owner_healing": 1
+  },
+  "run_differences": "Final fixture adds ordinary-owned-civilian and posthumous credit cases. Its final 195 hero damage is 95 initial plus 100 posthumous; baseline total is not a matched full-fixture comparison.",
+  "preserved_kit": {
+    "path": "assets/characters/shub_niggurath/character.def",
+    "sha256": "145b9e0e27700e4332713a27018425b46ac84d684895a4697c87b7dbc945291c",
+    "passive": "Thousand Young: 10 percent of actual summoned damage as healing; defeated owner not resurrected"
+  },
+  "source_sha256": {
+    "unreal 5.8/Source/CultUlhu/Private/CultCombatCredit.h": "8904f60efbdc701af51d4bfdc4a42591a517bf99d4fb3f6d677d2460707b550b",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchDirector.cpp": "49ac2d4ca36ef21a85ccdee73b8a2b3ccd3de92e9abb3e573dbe6e3a40c5f09e",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchBattle.cpp": "a17e73219535bd6d7a02d49d44c87c029576f3f00daabc5668727c38aa7da35b",
+    "unreal 5.8/Source/CultUlhu/Private/CultSkillAttack.cpp": "c7cb8a25781b457b85c98c41faffb91ecd8cb1639f135e4e7d8a2549f303f3a8",
+    "unreal 5.8/Source/CultUlhu/Private/CultUlhuPlayerPawn.cpp": "fcb0ba51f5bb1b39c61c05864be2dfb483dd1abfd1cf191f9acdc9f3928dcd29",
+    "unreal 5.8/Source/CultUlhu/Private/CultJungleCamp.cpp": "af180962f94bd79e43c19ba448d3caa63de525a066d706679eff64f6b8b5369c",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchTest.cpp": "4c7e4c4b0d307fb412ab1afbb567d02ffa1a2b731ae1c1d78dc76e9b48080ef7"
+  },
+  "limitations": [
+    "Fixtures prepare shields and pause the world to isolate attribution; not actual aiming or summoning-input tests",
+    "No all-kit summon AI or navigation validation",
+    "No multiplayer attribution validation",
+    "Newer source not cooked into an independent executable"
+  ],
+  "storage": {
+    "new_assets_downloads_or_packages": false,
+    "durable_changes": "Source and small text records only"
+  }
+}

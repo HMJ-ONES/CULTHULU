@@ -1,3 +1,5 @@
+> Legacy implementation reference. Use [the current UE 5.8 runbook](IntegrationGuide.md) for setup; existing authored maps and native input need no regeneration.
+
 # Destruction pass (UE)
 
 Free-roam buildings you can smash. Walk to the razed city, **left-click** —

@@ -1,0 +1,144 @@
+{
+  "date": "2026-10-22",
+  "base": "416812e74f387f4316146d74569f8125d90046d2",
+  "build": {
+    "engine": "5.8.3",
+    "target": "CultUlhuEditor Win64 Development",
+    "canonical_validation": true,
+    "success": true,
+    "seconds": 13.83,
+    "initial_build_seconds": 154.17
+  },
+  "tests": [
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.CombatFeel"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.ImpactPresentation"
+    },
+    {
+      "result": "Success",
+      "path": "CultUlhu.Menu.SkillCombat"
+    }
+  ],
+  "automation_errors": 0,
+  "log_sha256": "01bed734cf7c1cd470a7db4b4bcd0002d40e7f3d6d336606be16f54030a419db",
+  "prior_review": {
+    "log_sha256": "ed9827c199c4d9c7b18e7260d6af850b716c1cd15343df65c723dceea78bc92b",
+    "tests": [
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.CombatFeel"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.ImpactPresentation"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.SkillCombat"
+      }
+    ],
+    "limitation": "All three checks passed, but actual renders showed larger sparks partly buried in armor overhanging the gameplay capsule. Added bounded cosmetic ejection toward the incoming side and reran all three checks; contact transform/collision/damage remain unchanged."
+  },
+  "content_byte_identical": 425,
+  "new_content_assets": 0,
+  "downloads": 0,
+  "effect_geometry": {
+    "hit_triangles": 48,
+    "shock_triangles": 576,
+    "mesh_components_per_new_effect": 1,
+    "old_shock_components": 13,
+    "hit_duration_s": 0.18,
+    "shock_duration_s": 0.55,
+    "normal_requested_radius_m": 0.3,
+    "kill_requested_radius_m": 0.6,
+    "old_hit_minimum_radius_parameter_m": 2,
+    "maximum_cosmetic_relief_cm": 45,
+    "cosmetic_collision": false,
+    "casts_shadows": false,
+    "dust_puffs_retained": 9
+  },
+  "checks": [
+    "Original 0.3/0.6m requests reproduce identical legacy two-metre radius parameters",
+    "New actual geometry preserves 2:1 kill/normal scale and small normal-hit extent",
+    "Real RecordCombatHit caller produces one effect at exact contact with correct incoming direction and 0.3m request",
+    "One noncolliding, shadowless component per new effect; 48/576 bounded triangles",
+    "Intensity decreases, hit expires after 0.18s and shock after 0.55s",
+    "Shock expands toward its bounded requested radius; collapse dust retains nine puffs",
+    "Effects do not alter fixture target health; four exact matched 1280x720 native captures",
+    "Separate CombatFeel and SkillCombat tests retain actual physical contact/miss/damage/evade behavior"
+  ],
+  "captures": [
+    {
+      "capture": "LegacyHits",
+      "width": 1280,
+      "height": 720,
+      "bytes": 771332,
+      "sha256": "5876db35bbdad93545376cf5110c9bc73cad17bbd6917536c972066b1d0c9766",
+      "review_file": "unreal 5.8/Docs/Images/ImpactPresentation_HitsBefore_20261022.png"
+    },
+    {
+      "capture": "OpenHits",
+      "width": 1280,
+      "height": 720,
+      "bytes": 786931,
+      "sha256": "bf91adfde953f249db2c43266650915ee0b013552591827fb096979d863bea53",
+      "review_file": "unreal 5.8/Docs/Images/ImpactPresentation_HitsAfter_20261022.png"
+    },
+    {
+      "capture": "LegacyShock",
+      "width": 1280,
+      "height": 720,
+      "bytes": 827561,
+      "sha256": "34104e531d338813f0b9adc48b49e037fe5c0197239949cbb9a060ce8712c575",
+      "review_file": "unreal 5.8/Docs/Images/ImpactPresentation_ShockBefore_20261022.png"
+    },
+    {
+      "capture": "OpenShock",
+      "width": 1280,
+      "height": 720,
+      "bytes": 844953,
+      "sha256": "d044105f729d7e4e5b59eb36acb962188429909e039f03aba5fcfec9ee0183bc",
+      "review_file": "unreal 5.8/Docs/Images/ImpactPresentation_ShockAfter_20261022.png"
+    }
+  ],
+  "sources": [
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Public/CultBlastFX.h",
+      "bytes": 1927,
+      "sha256": "3a3f71b4abdad9ea4a3e6fd1e5f42d5d9a597dd824736a477cf7d477a1c9e99c"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultBlastFX.cpp",
+      "bytes": 5582,
+      "sha256": "cb82fbca2fa04797152ae661a1775aada603c7bb56218817fcc7417c86050480"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultCombatFeel.cpp",
+      "bytes": 2104,
+      "sha256": "368760b73096a405dcb176422742f7411464c30b6ff13915d028c9926cfb338a"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultImpactPresentation.cpp",
+      "bytes": 4092,
+      "sha256": "476c45006714b1152e449f132ecb7961c6764bb0aed021e4d7e0f9fae9b42978"
+    },
+    {
+      "path": "unreal 5.8/Source/CultUlhu/Private/CultImpactPresentationTest.cpp",
+      "bytes": 11190,
+      "sha256": "0c90d52a19de70ae4d0acb412619fb842f7f14ffe9959566a98b1f7b4da4ea3f"
+    }
+  ],
+  "scope": "Controlled paused MOBA fixture with actual minor minions and matched 40ms effect samples. Direct RecordCombatHit probe validates feedback delivery, not a new damage event. Physical damage paths checked separately.",
+  "limits": [
+    "Reviewed right-hand kill sparks remain partly occluded by the target arm; geometric 2:1 scale is not proof of a perceptually larger kill effect from every view",
+    "No measured frame-time, memory, low-spec or input-latency improvement",
+    "No fresh standalone cook/package or multiplayer verification",
+    "No all-camera or long-session battle readability certification",
+    "Small distant hit effects may require human playtest tuning",
+    "Geometric shared effects do not supply final character-specific animation/VFX, surface response, human fun/balance or reference-game production quality"
+  ]
+}

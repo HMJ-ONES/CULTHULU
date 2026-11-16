@@ -1,0 +1,41 @@
+{
+  "blendSha256": "e5ff9671e604367eacdb8f09bd1c4ed6862b445d6a78ab70561c017ea9fd358e",
+  "poses": {
+    "melee_1": {
+      "frame": 23.5,
+      "phase": 0.5,
+      "captures": [
+        "assets/character_animation/yog_sothoth/v002/angles/melee_1_0500_front.png",
+        "assets/character_animation/yog_sothoth/v002/angles/melee_1_0500_side.png",
+        "assets/character_animation/yog_sothoth/v002/angles/melee_1_0500_back.png"
+      ]
+    },
+    "melee_2": {
+      "frame": 26.5,
+      "phase": 0.5,
+      "captures": [
+        "assets/character_animation/yog_sothoth/v002/angles/melee_2_0500_front.png",
+        "assets/character_animation/yog_sothoth/v002/angles/melee_2_0500_side.png",
+        "assets/character_animation/yog_sothoth/v002/angles/melee_2_0500_back.png"
+      ]
+    },
+    "melee_3": {
+      "frame": 31.0,
+      "phase": 0.5,
+      "captures": [
+        "assets/character_animation/yog_sothoth/v002/angles/melee_3_0500_front.png",
+        "assets/character_animation/yog_sothoth/v002/angles/melee_3_0500_side.png",
+        "assets/character_animation/yog_sothoth/v002/angles/melee_3_0500_back.png"
+      ]
+    },
+    "taunt": {
+      "frame": 103.0,
+      "phase": 0.5,
+      "captures": [
+        "assets/character_animation/yog_sothoth/v002/angles/taunt_0500_front.png",
+        "assets/character_animation/yog_sothoth/v002/angles/taunt_0500_side.png",
+        "assets/character_animation/yog_sothoth/v002/angles/taunt_0500_back.png"
+      ]
+    }
+  }
+}

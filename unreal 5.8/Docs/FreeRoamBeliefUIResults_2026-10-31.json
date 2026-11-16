@@ -1,0 +1,75 @@
+{
+  "checked_utc": "2026-10-31T17:20:14.031788+00:00",
+  "baseline_commit": "dde4d3cd602130bb234cc97d262d8ee4cba4a15f",
+  "canonical_project": "unreal 5.8/CultUlhu.uproject",
+  "target": "CultUlhuEditor Win64 Development",
+  "build": "Succeeded",
+  "build_log_sha256": "e844b9ada1f941f498e67e80e4e8393d11245ef5b7a22dff82f4432e565ee606",
+  "tests": [
+    {
+      "test": "CultUlhu.FreeRoam.Persistence",
+      "result": "Success",
+      "log": "FreeRoamUITestsFinal.log",
+      "log_sha256": "c3956933b74aacea8f50707256c981fbd218a27407389a039653b6a3a0b913a0"
+    },
+    {
+      "test": "CultUlhu.Menu.ArmyHUDCoordinates",
+      "result": "Success",
+      "log": "FreeRoamUITestsFinal.log",
+      "log_sha256": "c3956933b74aacea8f50707256c981fbd218a27407389a039653b6a3a0b913a0"
+    },
+    {
+      "test": "CultUlhu.Menu.PopulationPresentation",
+      "result": "Success",
+      "log": "FreeRoamUITestsFinal.log",
+      "log_sha256": "c3956933b74aacea8f50707256c981fbd218a27407389a039653b6a3a0b913a0"
+    },
+    {
+      "test": "CultUlhu.UI.InspectionLayout",
+      "result": "Success",
+      "log": "FreeRoamUITestsFinal.log",
+      "log_sha256": "c3956933b74aacea8f50707256c981fbd218a27407389a039653b6a3a0b913a0"
+    },
+    {
+      "test": "CultUlhu.Beliefs",
+      "result": "Success",
+      "log": "FreeRoamOrderTestsFinal.log",
+      "log_sha256": "fe4512731e39ea4c47d8e5e8b7a917c8c46954d86dcad0d08000376cf8b30530"
+    }
+  ],
+  "ui_cases": [
+    "1280x720 editor window, actual constrained pillarbox/letterbox and unconstrained view input",
+    "B opens cursor without ALT; real clicks on history, belief selection, replacement and close",
+    "Exactly three initial active gauges, no inactive gauge and no Torture action on B",
+    "All nine new ALT action hit regions within the camera view",
+    "Native rendered 1.5-second hover delay, one-card limit, full activity/progress text, occlusion and fade completion",
+    "Native physical captive job waits 20 work seconds, rewards once, rejects duplicate jobs and cancels on explicit reassignment",
+    "Existing full save/load, backup and menu compatibility test"
+  ],
+  "screenshots_reviewed": [
+    "CompactBeliefs_unconstrained.png",
+    "CompactBeliefs_pillarbox.png",
+    "PopulationInspection.png",
+    "FaithOrders_unconstrained.png"
+  ],
+  "limitations": [
+    "Not a new packaged release or a full multiplayer playtest.",
+    "Captured beasts keep their original direct handling rule; timed society labor applies to human captives.",
+    "Full rules and journal remain available and can be verbose.",
+    "Hover cards require the ALT world cursor."
+  ],
+  "source_sha256": {
+    "unreal 5.8/Source/CultUlhu/Public/CultPlayHUD.h": "2154cd7eabe6890eed80baf4c31d15fe7ff07beaa22613342c7e4f1ba63a6c0a",
+    "unreal 5.8/Source/CultUlhu/Public/CultWorldDirector.h": "cc00877c15a1dfd6f9ec17bceea5444cfc5b390d17b76a83f829cb26147cdb0e",
+    "unreal 5.8/Source/CultUlhu/Private/CultPopulationInspectionHUD.cpp": "83374e14a3b16c2f1cbc46cf0ef1008031c65acaea79822e1fbf8d82df2c9c24",
+    "unreal 5.8/Source/CultUlhu/Private/CultUlhuPlayerPawn.cpp": "f79cec77b990929bdf0d42fe43ff0ba60e2a0778dd7775b42aaa98518e50f762",
+    "unreal 5.8/Source/CultUlhu/Private/CultBeliefHUD.cpp": "52075785c62c8e837650bf1d20dd6ae2bad413d860b91a1e288f6ab2420a59dd",
+    "unreal 5.8/Source/CultUlhu/Private/CultFaithOrders.cpp": "d0a642ff856c7eb1f7b916172e5d9abd60b168f1a3319b67755fa5b537d5c903",
+    "unreal 5.8/Source/CultUlhu/Private/CultWorldDirector.cpp": "5bd89873c4ac666e5d00a1b517785fc6d18ad49da5e255bcb61d6228a5877d65",
+    "unreal 5.8/Source/CultUlhu/Private/CultPopulationPresentationTest.cpp": "f68ec00a7b9aaa0f71659eb1d67dbc72ebbf87791d3d1e9d5781ae96b90f15b7",
+    "unreal 5.8/Source/CultUlhu/Private/CultHUDCoordinatesTest.cpp": "eab89570d2e8af2f126fe055f007f641102dea323df2c8a95693fd76315c9c57",
+    "unreal 5.8/Source/CultUlhu/Private/CultFaithGameplayTest.cpp": "3b6e238fb4ce7edcffe35f4b2f2c20756f6f486ae0eda65920cb93fdd93866c2",
+    "unreal 5.8/Source/CultUlhu/Private/CultInspectionLayoutTest.cpp": "0eb3920adefa467116bc79ee7c102b4e36a9b9bf4c238a99a17a3a48c1782303",
+    "unreal 5.8/Source/CultUlhu/Private/CultPlayHUD.cpp": "9968bb0406eb4bece806f39b56301567c3dd5c99e80ecf1df9e4b7a7d6d35e47"
+  }
+}

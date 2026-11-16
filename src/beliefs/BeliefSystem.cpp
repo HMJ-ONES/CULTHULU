@@ -105,6 +105,10 @@ bool BeliefSystem::requestChange(Belief in, Belief out) {
         if (p.belief == in) return false;
 
     auto it = std::find(active_.begin(), active_.end(), out);
+    // Pending adoptions reserve slots too; do not silently drop a fourth creed.
+    const size_t reserved = active_.size() + pending_.size() -
+                            (it != active_.end() ? 1u : 0u);
+    if (reserved >= MAX_ACTIVE) return false;
     if (it != active_.end()) {
         active_.erase(it);
         GameEvent e(EventType::BeliefAdopted);

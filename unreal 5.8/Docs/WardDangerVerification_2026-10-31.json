@@ -1,0 +1,113 @@
+{
+  "date": "2026-10-31",
+  "project": "unreal 5.8/CultUlhu.uproject",
+  "canonicalValidation": "Passed",
+  "build": {
+    "target": "CultUlhuEditor Win64 Development",
+    "result": "Succeeded",
+    "log": "Saved/WardCountdownBuild.log"
+  },
+  "nativeChecks": [
+    {
+      "test": "CultUlhu.Menu.CombatTactics.Moba",
+      "result": "Success",
+      "log": "Saved/WardWarningTests.log"
+    },
+    {
+      "test": "CultUlhu.Menu.MatchHUDCoordinates",
+      "result": "Success",
+      "log": "Saved/WardWarningTestsFinal.log"
+    },
+    {
+      "test": "CultUlhu.Menu.SkillCombat",
+      "result": "Success",
+      "log": "Saved/WardWarningTestsFinal.log"
+    },
+    {
+      "test": "CultUlhu.Menu.MobaMechanics",
+      "result": "Success",
+      "log": "Saved/WardCountdownTests.log"
+    },
+    {
+      "test": "CultUlhu.Menu.WardWarning",
+      "result": "Success",
+      "log": "Saved/WardCountdownTests.log"
+    }
+  ],
+  "network": {
+    "mode": "DOTGOO",
+    "run": "Tools/RunRoomNetworkProbe.py --mode 2",
+    "exitCode": 0,
+    "sameComputerTwoProcesses": true,
+    "roomResults": [
+      {
+        "ok": true,
+        "mode": 2,
+        "role": "host",
+        "phase": 5,
+        "movement": true,
+        "creepsMove": false,
+        "combat": true,
+        "localMenu": true,
+        "hostReplacedByBot": true,
+        "reason": ""
+      },
+      {
+        "ok": true,
+        "mode": 2,
+        "role": "guest",
+        "phase": 8,
+        "movement": true,
+        "creepsMove": true,
+        "combat": true,
+        "localMenu": true,
+        "hostReplacedByBot": true,
+        "reason": ""
+      }
+    ],
+    "wardWarning": {
+      "chargeSeconds": 8,
+      "guestRemaining": 7.878,
+      "serverRemaining": 7.9667
+    }
+  },
+  "screenshots": [
+    {
+      "path": "Saved/Screenshots/WardWarning.png",
+      "width": 1261,
+      "height": 504,
+      "sha256": "f61b96e25f6be9740d3f8f7ffa70014b9e4909951c4b3084603f5842668d3c79",
+      "inspected": true
+    },
+    {
+      "path": "Saved/Automation/Room2_ward.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "798f01ebee63c28b97e36a8a67d94f31ab254ed8027340d270deeed9c06a6dc5",
+      "inspected": true
+    }
+  ],
+  "correctionsBeforeDelivery": [
+    "Short-viewport goal marker overlapped the initial warning; measured warning bounds now reserve nameplate space and suppress overlapping routine labels.",
+    "Stale skill-combat test counted ambient corpses beyond the requested lifespan; now follows the fixture corpse and verifies five-second expiry.",
+    "GameState deadline produced 9.4 seconds on the guest for an eight-second fixture; rejected and replaced by authoritative remaining charge with local elapsed/ping adjustment."
+  ],
+  "limitations": [
+    "No different-computer Radmin tunnel or adverse-latency certification.",
+    "No complete human-controlled match or subjective fun certification in this pass.",
+    "Tower range boundaries, continuous aggro and broader combat feedback remain open.",
+    "Arena art, shadow readability, animation, settings and low-spec performance remain incomplete or unverified."
+  ],
+  "sourceSha256": {
+    "Source/CultUlhu/Public/CultSkillAttack.h": "70654fe38d5241efc70eed6646593c54f57f4bdaf66e4f88d2d4e78bf289d070",
+    "Source/CultUlhu/Private/CultSkillAttack.cpp": "8ec1e28a369ec170675a65ec86c88aa33c15ed5104329abe2d5759f178965a03",
+    "Source/CultUlhu/Private/CultCombatFeelHUD.cpp": "3499975bf2b06d0778ec0ff62cc971a1aa7753e782f454f44e095f8144a6c014",
+    "Source/CultUlhu/Private/CultRoomProbe.cpp": "7e8a15241d419723c5064f051397d3a12951335ea18269c162da19d957aa1d3f",
+    "Source/CultUlhu/Private/CultMatchHUD.cpp": "8381bf03f96d1a2659ae2f1718443ebe209019316a001eb24386dc91f28925d9",
+    "Source/CultUlhu/Private/CultSkillCombatTest.cpp": "0a262f0861d42a2c553ed509b867a8646110f5373eee7e2557cd1f2d042d5768",
+    "Source/CultUlhu/Private/CultWardWarning.h": "6976f9a676e73abbdb3ae22330ff47b51bf0d0dad4f2736c13310475e9d57609",
+    "Source/CultUlhu/Private/CultWardWarning.cpp": "3534e8170541c3740a792c1f971f0f03afec2b5fa1def54d43c97eaccf22b438",
+    "Source/CultUlhu/Private/CultWardWarningTest.cpp": "2d22d9e2864e457803730357d3ffd1e0d9fdb37f7186b798df1d7ae95a9af2f8",
+    "Tools/RunRoomNetworkProbe.py": "f778095c0de15e1ff46ab90a85ac054b10af0107421a74b81846470df1b1900d"
+  }
+}

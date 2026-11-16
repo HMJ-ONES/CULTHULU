@@ -1,0 +1,614 @@
+{
+  "schema_version": 1,
+  "characters": {
+    "mi_go": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo.MiGo"
+      ],
+      "skeletal": true,
+      "clips": [
+        {
+          "name": "MiGo_Anim",
+          "asset": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+          "seconds": 1.4166666269302368
+        }
+      ],
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {
+        "dash": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+        "preview": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+        "idle": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_idle.A_MiGo_idle",
+        "walk": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_walk.A_MiGo_walk",
+        "run": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_run.A_MiGo_run",
+        "melee_1": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_1.A_MiGo_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_2.A_MiGo_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_3.A_MiGo_melee_3",
+        "jump": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_jump.A_MiGo_jump",
+        "land": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_land.A_MiGo_land",
+        "taunt": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_taunt.A_MiGo_taunt",
+        "attack": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_1.A_MiGo_melee_1",
+        "cast": "/Game/CultUlhu/Characters/mi_go/Gameplay20261030_v1/A_MiGo_cast.A_MiGo_cast"
+      },
+      "source_sha256": "8fe329b50a5e47ca6979fb2e4d10b5734aa4d368e692003b9f0089ec31a09ae0",
+      "import_profile": "original_fbx_v1",
+      "skeleton": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Skeleton.MiGo_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo.MiGo": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Skeleton.MiGo_Skeleton"
+      },
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Skeleton.MiGo_Skeleton",
+          "roles": {
+            "dash": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+            "preview": "/Game/CultUlhu/Characters/mi_go/Imports/h8fe329b50a5e_original_fbx_v1/MiGo_Anim.MiGo_Anim",
+            "idle": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_idle.A_MiGo_idle",
+            "walk": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_walk.A_MiGo_walk",
+            "run": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_run.A_MiGo_run",
+            "melee_1": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_1.A_MiGo_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_2.A_MiGo_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_3.A_MiGo_melee_3",
+            "jump": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_jump.A_MiGo_jump",
+            "land": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_land.A_MiGo_land",
+            "taunt": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_taunt.A_MiGo_taunt",
+            "attack": "/Game/CultUlhu/Characters/mi_go/ReviewedMotion_v004/A_MiGo_melee_1.A_MiGo_melee_1",
+            "cast": "/Game/CultUlhu/Characters/mi_go/Gameplay20261030_v1/A_MiGo_cast.A_MiGo_cast"
+          }
+        }
+      ],
+      "reference_bounds": [
+        -1502.2425537109375,
+        -558.5503540039062,
+        477.7336120605469,
+        -598.7636108398438,
+        558.555419921875,
+        1698.2406005859375
+      ],
+      "status": "IMPORTED_ANIMATED",
+      "source_url": "https://sketchfab.com/3d-models/insectoid-monster-rig-01323e4b2563430f9da85cd255b6e176",
+      "author": "DM-913",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/mi_go/Portraits/T_Portrait_fcca05c63385.T_Portrait_fcca05c63385",
+      "gameplay_motion_owner": "CultUlhu.ReviewedMotion.20261106",
+      "melee_step_motion": false,
+      "melee_contact_phase": 0.48
+    },
+    "cthulhu_avatar": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SK_cthulhu_avatar_v008.SK_cthulhu_avatar_v008"
+      ],
+      "skeletal": true,
+      "clips": [],
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {
+        "idle": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_idle.A_cthulhu_avatar_idle",
+        "walk": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_walk.A_cthulhu_avatar_walk",
+        "run": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_run.A_cthulhu_avatar_run",
+        "melee_1": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_1.A_cthulhu_avatar_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_2.A_cthulhu_avatar_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_3.A_cthulhu_avatar_melee_3",
+        "jump": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_jump.A_cthulhu_avatar_jump",
+        "dash": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_dash.A_cthulhu_avatar_dash",
+        "taunt": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_taunt.A_cthulhu_avatar_taunt",
+        "land": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_land.A_cthulhu_avatar_land",
+        "melee_back_1": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_1.A_cthulhu_avatar_melee_back_1",
+        "melee_back_2": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_2.A_cthulhu_avatar_melee_back_2",
+        "melee_back_3": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_3.A_cthulhu_avatar_melee_back_3",
+        "preview": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_idle.A_cthulhu_avatar_idle",
+        "attack": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_1.A_cthulhu_avatar_melee_1"
+      },
+      "source_sha256": "e49a354384dd8128b8631902a14917b60ad035441c648fb0b7ba3fe09e2a6b1b",
+      "import_profile": "reviewed_anatomical_v008",
+      "reference_bounds": [
+        -43.4714469909668,
+        -69.55819702148438,
+        0.0,
+        43.4714469909668,
+        69.55819702148438,
+        200.0
+      ],
+      "render_lod": 1,
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/cthulhu-lovecraft-lore-d42fb260fa1546d09df367143520ccbd",
+      "author": "Brian Trepanier",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/cthulhu_avatar/Portraits/T_Portrait_165a3143029d.T_Portrait_165a3143029d",
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SK_cthulhu_avatar_v008_Skeleton.SK_cthulhu_avatar_v008_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_idle.A_cthulhu_avatar_idle",
+            "walk": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_walk.A_cthulhu_avatar_walk",
+            "run": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_run.A_cthulhu_avatar_run",
+            "melee_1": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_1.A_cthulhu_avatar_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_2.A_cthulhu_avatar_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_3.A_cthulhu_avatar_melee_3",
+            "jump": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_jump.A_cthulhu_avatar_jump",
+            "dash": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_dash.A_cthulhu_avatar_dash",
+            "taunt": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_taunt.A_cthulhu_avatar_taunt",
+            "land": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_land.A_cthulhu_avatar_land",
+            "melee_back_1": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_1.A_cthulhu_avatar_melee_back_1",
+            "melee_back_2": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_2.A_cthulhu_avatar_melee_back_2",
+            "melee_back_3": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_back_3.A_cthulhu_avatar_melee_back_3",
+            "preview": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_idle.A_cthulhu_avatar_idle",
+            "attack": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/A_cthulhu_avatar_melee_1.A_cthulhu_avatar_melee_1"
+          }
+        }
+      ],
+      "skeleton": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SK_cthulhu_avatar_v008_Skeleton.SK_cthulhu_avatar_v008_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SK_cthulhu_avatar_v008.SK_cthulhu_avatar_v008": "/Game/CultUlhu/Characters/cthulhu_avatar/ReviewedMotion_v008/SK_cthulhu_avatar_v008_Skeleton.SK_cthulhu_avatar_v008_Skeleton"
+      },
+      "gameplay_motion_owner": "CultUlhu.ReviewedMotion.20261106",
+      "melee_step_motion": true,
+      "melee_contact_phase": 0.52
+    },
+    "dagon": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/SK_dagon_v006.SK_dagon_v006"
+      ],
+      "skeletal": true,
+      "clips": [],
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {
+        "idle": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_idle.A_dagon_idle",
+        "walk": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_walk.A_dagon_walk",
+        "run": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_run.A_dagon_run",
+        "melee_1": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_1.A_dagon_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_2.A_dagon_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_3.A_dagon_melee_3",
+        "jump": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_jump.A_dagon_jump",
+        "dash": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_dash.A_dagon_dash",
+        "taunt": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_taunt.A_dagon_taunt",
+        "land": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_land.A_dagon_land",
+        "preview": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_idle.A_dagon_idle",
+        "attack": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_1.A_dagon_melee_1"
+      },
+      "source_sha256": "4eea3463112be757d595314c30c92d75fd8bd7c154498501af64e1597435515a",
+      "import_profile": "reviewed_anatomical_v006",
+      "reference_bounds": [
+        -69.49921417236328,
+        -53.617252349853516,
+        0.0,
+        69.49921417236328,
+        53.61724853515625,
+        200.0
+      ],
+      "render_lod": 1,
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/dagon-lovecraft-lore-2d96cd1308de4e2e8f0b1413e26a5448",
+      "author": "Brian Trepanier",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/dagon/Portraits/T_Portrait_bd523a195505.T_Portrait_bd523a195505",
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/SK_dagon_v006_Skeleton.SK_dagon_v006_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_idle.A_dagon_idle",
+            "walk": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_walk.A_dagon_walk",
+            "run": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_run.A_dagon_run",
+            "melee_1": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_1.A_dagon_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_2.A_dagon_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_3.A_dagon_melee_3",
+            "jump": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_jump.A_dagon_jump",
+            "dash": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_dash.A_dagon_dash",
+            "taunt": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_taunt.A_dagon_taunt",
+            "land": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_land.A_dagon_land",
+            "preview": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_idle.A_dagon_idle",
+            "attack": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/A_dagon_melee_1.A_dagon_melee_1"
+          }
+        }
+      ],
+      "skeleton": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/SK_dagon_v006_Skeleton.SK_dagon_v006_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/SK_dagon_v006.SK_dagon_v006": "/Game/CultUlhu/Characters/dagon/ReviewedMotion_v006/SK_dagon_v006_Skeleton.SK_dagon_v006_Skeleton"
+      },
+      "gameplay_motion_owner": "CultUlhu.ReviewedMotion.20261106",
+      "melee_step_motion": false,
+      "melee_contact_phase": 0.44
+    },
+    "shoggoths": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SK_shoggoths_v005.SK_shoggoths_v005"
+      ],
+      "skeletal": true,
+      "clips": [],
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {
+        "idle": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_idle.A_shoggoths_idle",
+        "walk": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_walk.A_shoggoths_walk",
+        "run": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_run.A_shoggoths_run",
+        "melee_1": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_1.A_shoggoths_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_2.A_shoggoths_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_3.A_shoggoths_melee_3",
+        "jump": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_jump.A_shoggoths_jump",
+        "dash": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_dash.A_shoggoths_dash",
+        "taunt": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_taunt.A_shoggoths_taunt",
+        "land": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_land.A_shoggoths_land",
+        "preview": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_idle.A_shoggoths_idle",
+        "attack": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_1.A_shoggoths_melee_1"
+      },
+      "source_sha256": "d736cd045e730072390be58ab7f0a2586813fc7255599e1daf4a937968badce9",
+      "import_profile": "reviewed_anatomical_v005",
+      "reference_bounds": [
+        -99.07266235351562,
+        -124.71125793457031,
+        0.0,
+        99.0726547241211,
+        124.71124267578125,
+        200.0
+      ],
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/lovecraftian-horror-6093cbb205444e9aa7b36d7be4ed9b58",
+      "author": "alexalbinyana",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/shoggoths/Portraits/T_Portrait_33b3cc9bf648.T_Portrait_33b3cc9bf648",
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SK_shoggoths_v005_Skeleton.SK_shoggoths_v005_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_idle.A_shoggoths_idle",
+            "walk": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_walk.A_shoggoths_walk",
+            "run": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_run.A_shoggoths_run",
+            "melee_1": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_1.A_shoggoths_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_2.A_shoggoths_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_3.A_shoggoths_melee_3",
+            "jump": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_jump.A_shoggoths_jump",
+            "dash": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_dash.A_shoggoths_dash",
+            "taunt": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_taunt.A_shoggoths_taunt",
+            "land": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_land.A_shoggoths_land",
+            "preview": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_idle.A_shoggoths_idle",
+            "attack": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/A_shoggoths_melee_1.A_shoggoths_melee_1"
+          }
+        }
+      ],
+      "skeleton": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SK_shoggoths_v005_Skeleton.SK_shoggoths_v005_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SK_shoggoths_v005.SK_shoggoths_v005": "/Game/CultUlhu/Characters/shoggoths/ReviewedMotion_v005_r2/SK_shoggoths_v005_Skeleton.SK_shoggoths_v005_Skeleton"
+      },
+      "gameplay_motion_owner": "CultUlhu.ReviewedMotion.20261106",
+      "melee_step_motion": false,
+      "melee_contact_phase": 0.5
+    },
+    "yog_sothoth": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SK_yog_sothoth_v002.SK_yog_sothoth_v002"
+      ],
+      "skeletal": true,
+      "clips": [],
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "bodies": 1,
+      "floating": true,
+      "animation_roles": {
+        "idle": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_idle.A_yog_sothoth_idle",
+        "walk": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_walk.A_yog_sothoth_walk",
+        "run": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_run.A_yog_sothoth_run",
+        "melee_1": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_1.A_yog_sothoth_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_2.A_yog_sothoth_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_3.A_yog_sothoth_melee_3",
+        "jump": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_jump.A_yog_sothoth_jump",
+        "dash": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_dash.A_yog_sothoth_dash",
+        "taunt": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_taunt.A_yog_sothoth_taunt",
+        "land": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_land.A_yog_sothoth_land",
+        "preview": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_idle.A_yog_sothoth_idle",
+        "attack": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_1.A_yog_sothoth_melee_1"
+      },
+      "source_sha256": "75111a826f4557c6b8e853ca4b1e20b55d733426e36277fbd007168172da8ba0",
+      "import_profile": "reviewed_anatomical_v002",
+      "reference_bounds": [
+        -53.46918487548828,
+        -61.85243225097656,
+        0.0,
+        53.46918487548828,
+        61.85243225097656,
+        200.0
+      ],
+      "render_lod": 1,
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/yog-sothoth-lovecraft-lore-bdf73725a4494ff8b7981685d52f73ab",
+      "author": "Brian Trepanier",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/yog_sothoth/Portraits/T_Portrait_3ca7d25100bc.T_Portrait_3ca7d25100bc",
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SK_yog_sothoth_v002_Skeleton.SK_yog_sothoth_v002_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_idle.A_yog_sothoth_idle",
+            "walk": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_walk.A_yog_sothoth_walk",
+            "run": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_run.A_yog_sothoth_run",
+            "melee_1": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_1.A_yog_sothoth_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_2.A_yog_sothoth_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_3.A_yog_sothoth_melee_3",
+            "jump": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_jump.A_yog_sothoth_jump",
+            "dash": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_dash.A_yog_sothoth_dash",
+            "taunt": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_taunt.A_yog_sothoth_taunt",
+            "land": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_land.A_yog_sothoth_land",
+            "preview": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_idle.A_yog_sothoth_idle",
+            "attack": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/A_yog_sothoth_melee_1.A_yog_sothoth_melee_1"
+          }
+        }
+      ],
+      "skeleton": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SK_yog_sothoth_v002_Skeleton.SK_yog_sothoth_v002_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SK_yog_sothoth_v002.SK_yog_sothoth_v002": "/Game/CultUlhu/Characters/yog_sothoth/ReviewedMotion_v002/SK_yog_sothoth_v002_Skeleton.SK_yog_sothoth_v002_Skeleton"
+      },
+      "gameplay_motion_owner": "CultUlhu.ReviewedMotion.20261106",
+      "melee_step_motion": false,
+      "melee_contact_phase": 0.5
+    },
+    "yig": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003.Armor_Side_LP_003",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned.Sword_scimitar_LP__005_Skinned",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001.Tail_3_LP__001"
+      ],
+      "skeletal": true,
+      "clips": [
+        {
+          "name": "Armor_Side_LP_003_Anim",
+          "asset": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Anim.Armor_Side_LP_003_Anim",
+          "seconds": 10.0
+        },
+        {
+          "name": "Sword_scimitar_LP__005_Skinned_Anim",
+          "asset": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Anim.Sword_scimitar_LP__005_Skinned_Anim",
+          "seconds": 10.0
+        },
+        {
+          "name": "Tail_3_LP__001_Anim",
+          "asset": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Anim.Tail_3_LP__001_Anim",
+          "seconds": 10.0
+        }
+      ],
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {},
+      "source_sha256": "919aafc98cc40806a0496a2b6f2b1aa3e64843d9ed8c4689da81b21a7c7f6149",
+      "import_profile": "original_fbx_v1",
+      "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Skeleton.Armor_Side_LP_003_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003.Armor_Side_LP_003": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Skeleton.Armor_Side_LP_003_Skeleton",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned.Sword_scimitar_LP__005_Skinned": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Skeleton.Sword_scimitar_LP__005_Skinned_Skeleton",
+        "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001.Tail_3_LP__001": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Skeleton.Tail_3_LP__001_Skeleton"
+      },
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Armor_Side_LP_003_Skeleton.Armor_Side_LP_003_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_idle.A_Armor_Side_LP_003_idle",
+            "preview": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_idle.A_Armor_Side_LP_003_idle",
+            "cast": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Armor_Side_LP_003_cast.A_Armor_Side_LP_003_cast",
+            "walk": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_walk.A_Armor_Side_LP_003_walk",
+            "run": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_run.A_Armor_Side_LP_003_run",
+            "melee_1": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_1.A_Armor_Side_LP_003_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_2.A_Armor_Side_LP_003_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_3.A_Armor_Side_LP_003_melee_3",
+            "jump": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_jump.A_Armor_Side_LP_003_jump",
+            "dash": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_dash.A_Armor_Side_LP_003_dash",
+            "taunt": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_taunt.A_Armor_Side_LP_003_taunt",
+            "land": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_land.A_Armor_Side_LP_003_land",
+            "attack": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Armor_Side_LP_003_melee_1.A_Armor_Side_LP_003_melee_1"
+          }
+        },
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Sword_scimitar_LP__005_Skinned_Skeleton.Sword_scimitar_LP__005_Skinned_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_idle.A_Sword_scimitar_LP__005_Skinned_idle",
+            "preview": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_idle.A_Sword_scimitar_LP__005_Skinned_idle",
+            "cast": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Sword_scimitar_LP__005_Skinned_cast.A_Sword_scimitar_LP__005_Skinned_cast",
+            "walk": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_walk.A_Sword_scimitar_LP__005_Skinned_walk",
+            "run": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_run.A_Sword_scimitar_LP__005_Skinned_run",
+            "melee_1": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_1.A_Sword_scimitar_LP__005_Skinned_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_2.A_Sword_scimitar_LP__005_Skinned_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_3.A_Sword_scimitar_LP__005_Skinned_melee_3",
+            "jump": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_jump.A_Sword_scimitar_LP__005_Skinned_jump",
+            "dash": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_dash.A_Sword_scimitar_LP__005_Skinned_dash",
+            "taunt": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_taunt.A_Sword_scimitar_LP__005_Skinned_taunt",
+            "land": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_land.A_Sword_scimitar_LP__005_Skinned_land",
+            "attack": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Sword_scimitar_LP__005_Skinned_melee_1.A_Sword_scimitar_LP__005_Skinned_melee_1"
+          }
+        },
+        {
+          "skeleton": "/Game/CultUlhu/Characters/yig/Imports/h919aafc98cc4_original_fbx_v1/Tail_3_LP__001_Skeleton.Tail_3_LP__001_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_idle.A_Tail_3_LP__001_idle",
+            "preview": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_idle.A_Tail_3_LP__001_idle",
+            "cast": "/Game/CultUlhu/Characters/yig/Gameplay20261030_v1/A_Tail_3_LP__001_cast.A_Tail_3_LP__001_cast",
+            "walk": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_walk.A_Tail_3_LP__001_walk",
+            "run": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_run.A_Tail_3_LP__001_run",
+            "melee_1": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_1.A_Tail_3_LP__001_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_2.A_Tail_3_LP__001_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_3.A_Tail_3_LP__001_melee_3",
+            "jump": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_jump.A_Tail_3_LP__001_jump",
+            "dash": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_dash.A_Tail_3_LP__001_dash",
+            "taunt": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_taunt.A_Tail_3_LP__001_taunt",
+            "land": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_land.A_Tail_3_LP__001_land",
+            "attack": "/Game/CultUlhu/Characters/yig/ReviewedMotion_v003/A_Tail_3_LP__001_melee_1.A_Tail_3_LP__001_melee_1"
+          }
+        }
+      ],
+      "reference_bounds": [
+        -808.5872802734375,
+        -525.0864868164062,
+        -18.554018020629883,
+        -96.97927856445312,
+        115.80287170410156,
+        557.2256469726562
+      ],
+      "status": "IMPORTED_ANIMATED",
+      "source_url": "https://sketchfab.com/3d-models/naga-dragon-serpent-stylized-fantasy-monster-2fb96bd7a3c543eeabfb3868107ed4a4",
+      "author": "JoePrimal",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/yig/Portraits/T_Portrait_2c93bd0f4e3a.T_Portrait_2c93bd0f4e3a",
+      "gameplay_motion_owner": "CultUlhu.ReviewedMotion.20261106",
+      "melee_step_motion": false,
+      "melee_contact_phase": 0.51
+    },
+    "sghllor": {
+      "procedural": "sghllor_light_and_mist",
+      "meshes": [],
+      "skeletal": false,
+      "clips": [],
+      "animation_roles": {},
+      "floating": true,
+      "source_sha256": "original-sghllor-v1",
+      "status": "ORIGINAL_PROCEDURAL",
+      "source_url": "Original user-approved light-ball and mist concept",
+      "author": "CULT-ULHU",
+      "license": "ORIGINAL",
+      "core_material": "/Game/CultUlhu/Characters/sghllor/Original/M_SghllorCore.M_SghllorCore",
+      "mist_material": "/Game/CultUlhu/Characters/sghllor/Original/M_SghllorMist.M_SghllorMist",
+      "portrait": "/Game/CultUlhu/Characters/sghllor/Portraits/T_Portrait_95865ad2b191.T_Portrait_95865ad2b191",
+      "procedural_motion_profile": "original_orb_basic_20261107"
+    },
+    "bokrug": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_10.Object_10",
+        "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_11.Object_11",
+        "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_13.Object_13",
+        "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_15.Object_15",
+        "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9.Object_9"
+      ],
+      "skeletal": true,
+      "clips": [
+        {
+          "name": "sourcerig_attack",
+          "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_attack.sourcerig_attack",
+          "seconds": 7.960000038146973
+        },
+        {
+          "name": "sourcerig_Idle",
+          "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Idle.sourcerig_Idle",
+          "seconds": 9.566666603088379
+        },
+        {
+          "name": "sourcerig_Powerfull_attack",
+          "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Powerfull_attack.sourcerig_Powerfull_attack",
+          "seconds": 7.9666666984558105
+        },
+        {
+          "name": "sourcerig_Roar",
+          "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Roar.sourcerig_Roar",
+          "seconds": 7.9666666984558105
+        },
+        {
+          "name": "sourcerig_Run",
+          "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Run.sourcerig_Run",
+          "seconds": 7.960000038146973
+        },
+        {
+          "name": "sourcerig_Sleeping",
+          "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Sleeping.sourcerig_Sleeping",
+          "seconds": 7.9666666984558105
+        },
+        {
+          "name": "sourcerig_walk",
+          "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_walk.sourcerig_walk",
+          "seconds": 1.1666666269302368
+        }
+      ],
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {
+        "idle": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Idle.sourcerig_Idle",
+        "walk": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_walk.sourcerig_walk",
+        "preview": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Idle.sourcerig_Idle",
+        "run": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_run_v5828b4cb.A_Bokrug_run_v5828b4cb",
+        "attack": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_attack_v5828b4cb.A_Bokrug_attack_v5828b4cb",
+        "cast": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_cast_v5828b4cb.A_Bokrug_cast_v5828b4cb",
+        "taunt": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_taunt_v5828b4cb.A_Bokrug_taunt_v5828b4cb",
+        "hit": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_hit_v5828b4cb.A_Bokrug_hit_v5828b4cb",
+        "dash": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_dash_v5828b4cb.A_Bokrug_dash_v5828b4cb",
+        "jump": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_jump_v5828b4cb.A_Bokrug_jump_v5828b4cb",
+        "land": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_land_v5828b4cb.A_Bokrug_land_v5828b4cb",
+        "death": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_death_v5828b4cb.A_Bokrug_death_v5828b4cb"
+      },
+      "source_sha256": "6588f05d21611eab766339ee1313c109c5099e8ba7cd39b03117da9924f65528",
+      "import_profile": "default",
+      "skeleton": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_10.Object_10": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_11.Object_11": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_13.Object_13": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_15.Object_15": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9.Object_9": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton"
+      },
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Idle.sourcerig_Idle",
+            "walk": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_walk.sourcerig_walk",
+            "preview": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Idle.sourcerig_Idle",
+            "run": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_run_v5828b4cb.A_Bokrug_run_v5828b4cb",
+            "attack": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_attack_v5828b4cb.A_Bokrug_attack_v5828b4cb",
+            "cast": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_cast_v5828b4cb.A_Bokrug_cast_v5828b4cb",
+            "taunt": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_taunt_v5828b4cb.A_Bokrug_taunt_v5828b4cb",
+            "hit": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_hit_v5828b4cb.A_Bokrug_hit_v5828b4cb",
+            "dash": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_dash_v5828b4cb.A_Bokrug_dash_v5828b4cb",
+            "jump": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_jump_v5828b4cb.A_Bokrug_jump_v5828b4cb",
+            "land": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_land_v5828b4cb.A_Bokrug_land_v5828b4cb",
+            "death": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_death_v5828b4cb.A_Bokrug_death_v5828b4cb"
+          }
+        }
+      ],
+      "status": "IMPORTED_ANIMATED",
+      "source_url": "https://sketchfab.com/3d-models/four-legged-frost-predator-3ddc6f711201449cbc33617f430d1b20",
+      "author": "bensimulator2",
+      "license": "CC-BY-4.0",
+      "upstream_attribution": {
+        "title": "Four Legged Predator",
+        "author": "Timsblends",
+        "source_url": "https://sketchfab.com/3d-models/four-legged-predator-7f68f9daa698433299092bfecaae4e9e",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "reference_bounds": [
+        -527.1899223327637,
+        -165.96390008926392,
+        -5.760931968688965,
+        202.85120010375977,
+        165.96448421478271,
+        261.6892337799072
+      ],
+      "portrait": "/Game/CultUlhu/Characters/bokrug/Portraits/T_Portrait_cecab9ca53e9.T_Portrait_cecab9ca53e9"
+    }
+  },
+  "reviewed_motion_owner": "CultUlhu.ReviewedMotion.20261106"
+}

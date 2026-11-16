@@ -1,0 +1,190 @@
+{
+  "blend": "assets/character_animation/mi_go/v004/MiGo_BasicMotion.blend",
+  "sourceSha256": "bc97d5845c719c77c1a1220897599b7d70498783239caf95d60c9218489cc035",
+  "requiredRoles": [
+    "idle",
+    "walk",
+    "run",
+    "melee_1",
+    "melee_2",
+    "melee_3",
+    "jump",
+    "dash",
+    "taunt"
+  ],
+  "actions": {
+    "idle": {
+      "sampleStepFrames": 0.20000000794728598,
+      "samples": 385,
+      "minimumSurfaceZ": 0.0020000338554382324,
+      "maximumVertexSampleTravel": 0.00071773148374632,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 3.2000001271565757,
+      "reviewMovie": "assets/character_animation/mi_go/v004/review/idle.mp4"
+    },
+    "walk": {
+      "sampleStepFrames": 0.19999999470180935,
+      "samples": 145,
+      "minimumSurfaceZ": 0.0019322037696838379,
+      "maximumVertexSampleTravel": 0.011467288248240948,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 1.1999999682108562,
+      "reviewMovie": "assets/character_animation/mi_go/v004/review/walk.mp4"
+    },
+    "run": {
+      "sampleStepFrames": 0.19999999091738746,
+      "samples": 85,
+      "minimumSurfaceZ": -0.006591677665710449,
+      "maximumVertexSampleTravel": 0.05143527314066887,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 0.6999999682108561,
+      "reviewMovie": "assets/character_animation/mi_go/v004/review/run.mp4"
+    },
+    "melee_1": {
+      "sampleStepFrames": 0.1999999965940203,
+      "samples": 57,
+      "minimumSurfaceZ": 0.001872241497039795,
+      "maximumVertexSampleTravel": 0.6761917471885681,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.4666666587193807,
+      "reviewMovie": "assets/character_animation/mi_go/v004/review/melee_1.mp4"
+    },
+    "melee_2": {
+      "sampleStepFrames": 0.19999999384726247,
+      "samples": 63,
+      "minimumSurfaceZ": 0.0019035935401916504,
+      "maximumVertexSampleTravel": 0.3534233868122101,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.5166666507720947,
+      "reviewMovie": "assets/character_animation/mi_go/v004/review/melee_2.mp4"
+    },
+    "melee_3": {
+      "sampleStepFrames": 0.200000010038677,
+      "samples": 77,
+      "minimumSurfaceZ": 0.0017894506454467773,
+      "maximumVertexSampleTravel": 0.7887677550315857,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.6333333651224772,
+      "reviewMovie": "assets/character_animation/mi_go/v004/review/melee_3.mp4"
+    },
+    "jump": {
+      "sampleStepFrames": 0.2000000035321271,
+      "samples": 109,
+      "minimumSurfaceZ": 0.001994609832763672,
+      "maximumVertexSampleTravel": 0.015058108605444431,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.09263315796852112,
+      "loopClosurePass": null,
+      "durationSeconds": 0.9000000158945719,
+      "reviewMovie": "assets/character_animation/mi_go/v004/review/jump.mp4"
+    },
+    "dash": {
+      "sampleStepFrames": 0.5,
+      "samples": 69,
+      "minimumSurfaceZ": -0.03577899932861328,
+      "maximumVertexSampleTravel": 0.2648616433143616,
+      "loop": false,
+      "endpointMaxVertexDistance": 1.1550930738449097,
+      "loopClosurePass": null,
+      "durationSeconds": 1.4166666666666667,
+      "reviewMovie": "assets/character_animation/mi_go/v004/review/dash.mp4"
+    },
+    "taunt": {
+      "sampleStepFrames": 0.20000000489063752,
+      "samples": 313,
+      "minimumSurfaceZ": 0.0020000338554382324,
+      "maximumVertexSampleTravel": 0.00850560050457716,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 2.6000000635782876,
+      "reviewMovie": "assets/character_animation/mi_go/v004/review/taunt.mp4"
+    },
+    "land": {
+      "sampleStepFrames": 0.19999999470180935,
+      "samples": 37,
+      "minimumSurfaceZ": 0.0019980669021606445,
+      "maximumVertexSampleTravel": 0.009838869795203209,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.29999999205271405,
+      "reviewMovie": "assets/character_animation/mi_go/v004/review/land.mp4"
+    }
+  },
+  "abilitiesAuthored": false,
+  "status": "independent sampling and native rendered review; artistic acceptance pending",
+  "preservedSourceRig": {
+    "character": "mi_go",
+    "blendSha256": "bc97d5845c719c77c1a1220897599b7d70498783239caf95d60c9218489cc035",
+    "source": "unreal 5.8/Saved/CharacterSources/mi_go/original_blend/prepared_v2/MiGo.fbx",
+    "sourceSha256": "8fe329b50a5e47ca6979fb2e4d10b5734aa4d368e692003b9f0089ec31a09ae0",
+    "sourceTimeBase": {
+      "fps": 24,
+      "fpsBase": 1.0
+    },
+    "sourceActionSeconds": 1.4166666666666667,
+    "sourceFrames": [
+      2.0,
+      10.5,
+      19.0,
+      27.5,
+      36.0
+    ],
+    "evaluatedMotionMaximumVertexErrorsSourceUnits": [
+      3.9321071199083235e-06,
+      4.40268149759504e-06,
+      4.2650653995224275e-06,
+      3.814813680946827e-06,
+      4.0758422983344644e-06
+    ],
+    "maximumErrorFractionOfSourceHeight": 3.6072628630451015e-07,
+    "restSkeletonsUnchanged": true,
+    "geometryUVsMaterialSlotsAndRawWeightsUnchanged": true,
+    "allSuppliedKeysAndHandlesUnchanged": true,
+    "rigSignatures": {
+      "BUG Armature": "95574fc52d3014b98a6f40fae7e2af3ea30f58b66694f38696d86cd9d8676d58"
+    },
+    "meshSignatures": {
+      "BOOG": "6d8166f1cbc9809598860a651536730b4af511841c5648e695d96c761c9a310c"
+    },
+    "actionSignatures": {
+      "BUG Armature|Scene": "4570e392e0907588ea694599dc13ed57281c1790d1fdef4bca3682defc57f542"
+    },
+    "scope": "source preservation only; artistic quality and game integration remain unverified"
+  },
+  "meleeDistinctness": {
+    "samplePhases": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "pairwiseSurfaceRmsMetres": {
+      "melee_1 / melee_2": 0.2205318659543991,
+      "melee_1 / melee_3": 0.15417730808258057,
+      "melee_2 / melee_3": 0.1701718419790268
+    },
+    "scope": "physical pose difference, not artistic acceptance"
+  },
+  "reviewCamera": {
+    "orthographicScale": 3.0,
+    "fit": "all sampled skinned geometry across every required role"
+  },
+  "reviewTimeBase": {
+    "sourceFramesPerSecond": 24.0,
+    "movieFramesPerSecond": 60,
+    "method": "temporary NLA time scaling; source keys and study file unchanged"
+  }
+}

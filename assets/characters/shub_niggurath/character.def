@@ -27,13 +27,13 @@ range = 16
 [f]
 id = fertile_rot
 name = Fertile Rot
-flavor = The ground ripens; flesh softens for the harvest.
+flavor = Thorn roots seize enemies at the aimed spot.
 cooldown = 14
 stamina_cost = 35
 mana_cost = 0
 effect = debuff
-power = 5
-range = 12
+power = 2.6
+range = 9
 
 [r]
 id = woods_give_birth

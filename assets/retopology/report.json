@@ -1,0 +1,220 @@
+{
+  "method": "Source-appropriate automatic retopology with validated surface and topology repairs",
+  "models": [
+    {
+      "model": "dagon",
+      "source_triangles": 1095375,
+      "source_bounds": [
+        -0.5861701369285583,
+        -0.6621642708778381,
+        0.009442450478672981,
+        0.4997619688510895,
+        0.48390141129493713,
+        1.9115228652954102
+      ],
+      "input_sha256": "e26df674b0cac709aa90435dd561425504c489b5a54be0b1580468fec2a92895",
+      "vertices": 26498,
+      "faces": 26557,
+      "quads": 26527,
+      "triangles_after_triangulation": 53084,
+      "quality": {
+        "new_vertices_to_original": {
+          "mean": 0.0005189825355232727,
+          "p95": 0.002054927358403795,
+          "max": 0.033816248178482056,
+          "mean_percent_diagonal": 0.02099471146276233,
+          "p95_percent_diagonal": 0.08312920765845201,
+          "max_percent_diagonal": 1.3679889488854606
+        },
+        "original_surface_to_new": {
+          "mean": 0.0012644768458868973,
+          "p95": 0.004018461261875926,
+          "max": 0.07544514536857605,
+          "mean_percent_diagonal": 0.051152639469789526,
+          "p95_percent_diagonal": 0.16256122112531024,
+          "max_percent_diagonal": 3.052027669259374
+        },
+        "surface_samples": 15000,
+        "topology": {
+          "boundary_edges": 0,
+          "nonmanifold_interior_edges": 0,
+          "loose_vertices": 0,
+          "zero_area_faces": 0
+        },
+        "shape_check_passed": true
+      },
+      "voxel_size": 0.0029081974561232073,
+      "output": "assets/retopology/dagon_retopology.obj",
+      "sha256": "6b440b62477d9dfcfc1a462992c0aca1c3cd82aa6247f58a91d4f67869d54da3",
+      "blend": "assets/retopology/dagon_retopology.blend",
+      "blend_bytes": 1075478,
+      "comparison": "assets/retopology/dagon_review.png",
+      "blend_sha256": "e6c9b3c1b6b6675e0efc47d669d6b49eb30beecb374d040a3d9ede2b39ffc69d",
+      "seconds": 5.71
+    },
+    {
+      "model": "cthulhu_avatar",
+      "source_triangles": 1532947,
+      "source_bounds": [
+        -0.5117146968841553,
+        -0.6186015009880066,
+        0.0010339024011045694,
+        0.5246688723564148,
+        0.5736002326011658,
+        1.9305733442306519
+      ],
+      "input_sha256": "4e4ef2f117ae470f686b3a34d4b581bf86f1587fc739a2f13db925652523878e",
+      "vertices": 33945,
+      "faces": 34117,
+      "quads": 34045,
+      "triangles_after_triangulation": 68162,
+      "quality": {
+        "new_vertices_to_original": {
+          "mean": 0.0007102303992750687,
+          "p95": 0.002663972927257418,
+          "max": 0.029768751934170723,
+          "mean_percent_diagonal": 0.028480944178960778,
+          "p95_percent_diagonal": 0.10682795936772659,
+          "max_percent_diagonal": 1.1937565091269517
+        },
+        "original_surface_to_new": {
+          "mean": 0.0017393358052385148,
+          "p95": 0.004896980267949392,
+          "max": 0.07647036761045456,
+          "mean_percent_diagonal": 0.06974909272826006,
+          "p95_percent_diagonal": 0.19637377082042184,
+          "max_percent_diagonal": 3.066537666482589
+        },
+        "surface_samples": 15000,
+        "topology": {
+          "boundary_edges": 0,
+          "nonmanifold_interior_edges": 0,
+          "loose_vertices": 0,
+          "zero_area_faces": 0
+        },
+        "shape_check_passed": true
+      },
+      "voxel_size": 0.0029337691037241514,
+      "output": "assets/retopology/cthulhu_avatar_retopology.obj",
+      "sha256": "4c3f1763bbeea913caf243f4c128180ee1af61604ba56494d5ba2aa0fd8aad88",
+      "blend": "assets/retopology/cthulhu_avatar_retopology.blend",
+      "blend_bytes": 1361243,
+      "comparison": "assets/retopology/cthulhu_avatar_review.png",
+      "blend_sha256": "1190d3d4e03ffa47ecca7e4eadd45fda08d4deba8813fa178e5b991e109562cb",
+      "seconds": 7.44
+    },
+    {
+      "model": "nyarlathotep",
+      "source_triangles": 648390,
+      "source_bounds": [
+        -7.630360126495361,
+        -28.10930061340332,
+        -0.8354492783546448,
+        7.630030155181885,
+        4.726681232452393,
+        28.32472801208496
+      ],
+      "input_sha256": "67faf99ad5a46dc2f4b16094760e7576cd162e946a580cc421663595a5106f09",
+      "vertices": 25832,
+      "faces": 25837,
+      "quads": 25805,
+      "triangles_after_triangulation": 51642,
+      "quality": {
+        "new_vertices_to_original": {
+          "mean": 6.250560598454934e-05,
+          "p95": 3.307781771582084e-05,
+          "max": 0.16080044209957123,
+          "mean_percent_diagonal": 0.00013444717313094412,
+          "p95_percent_diagonal": 7.114912358952373e-05,
+          "max_percent_diagonal": 0.34587561448228205
+        },
+        "original_surface_to_new": {
+          "mean": 0.006455643275699473,
+          "p95": 0.016740882862359283,
+          "max": 0.4859495759010315,
+          "mean_percent_diagonal": 0.013885842325472818,
+          "p95_percent_diagonal": 0.03600900017059008,
+          "max_percent_diagonal": 1.0452589929329665
+        },
+        "surface_samples": 15000,
+        "topology": {
+          "boundary_edges": 0,
+          "nonmanifold_interior_edges": 0,
+          "loose_vertices": 0,
+          "zero_area_faces": 0
+        },
+        "shape_check_passed": true
+      },
+      "voxel_size": 0.05469509261009415,
+      "method": "Instant Meshes with seam welding and validated topology repair",
+      "output": "assets/retopology/nyarlathotep_retopology.obj",
+      "sha256": "48fbd279340f482636095b4beb81c78e8d3d3b2700dc76c9d0e92dfca63a6863",
+      "blend": "assets/retopology/nyarlathotep_retopology.blend",
+      "blend_bytes": 972787,
+      "comparison": "assets/retopology/nyarlathotep_review.png",
+      "blend_sha256": "adccb3b9f4ba89aa5ee8f20b4cd1a77fdced0d9512dba0212006b1d3e473cffe",
+      "seconds": 3.35
+    },
+    {
+      "model": "yog_sothoth",
+      "source_triangles": 1516875,
+      "source_bounds": [
+        -0.4963299036026001,
+        -0.5598024129867554,
+        0.012287202291190624,
+        0.5213072896003723,
+        0.6170679926872253,
+        1.9148006439208984
+      ],
+      "input_sha256": "d3b0388368a9b2b75e81581fb8437435790e8482e4cf647641ceee13fc126d21",
+      "vertices": 38047,
+      "faces": 38616,
+      "quads": 37692,
+      "triangles_after_triangulation": 76308,
+      "quality": {
+        "new_vertices_to_original": {
+          "mean": 6.441055305585222e-05,
+          "p95": 3.091456915171875e-06,
+          "max": 0.015219557099044323,
+          "mean_percent_diagonal": 0.0026207921541995466,
+          "p95_percent_diagonal": 0.0001257878661793643,
+          "max_percent_diagonal": 0.6192664702161457
+        },
+        "original_surface_to_new": {
+          "mean": 0.0020911039938187074,
+          "p95": 0.008751579932868467,
+          "max": 0.07667406648397446,
+          "mean_percent_diagonal": 0.08508464344131993,
+          "p95_percent_diagonal": 0.35609183490511803,
+          "max_percent_diagonal": 3.1197805691487854
+        },
+        "surface_samples": 15000,
+        "topology": {
+          "boundary_edges": 0,
+          "nonmanifold_interior_edges": 0,
+          "loose_vertices": 0,
+          "zero_area_faces": 0
+        },
+        "shape_check_passed": true
+      },
+      "voxel_size": 0.0028913824483680407,
+      "method": "Instant Meshes with seam welding and validated topology repair",
+      "output": "assets/retopology/yog_sothoth_retopology.obj",
+      "sha256": "c7b5455bc95bb9dd48da36b2810eac95216d165ae6ce5625b543fe4f5f002446",
+      "blend": "assets/retopology/yog_sothoth_retopology.blend",
+      "blend_bytes": 1452463,
+      "comparison": "assets/retopology/yog_sothoth_review.png",
+      "blend_sha256": "e36d1cf884a3398735ceeff7511ef115396b8bafabca5dc6f43062697a7e0fca",
+      "seconds": 5.46
+    }
+  ],
+  "errors": [],
+  "untouched": [
+    "mi_go",
+    "yig"
+  ],
+  "already_lightweight": {
+    "shoggoths": 20302,
+    "nodens": 6260
+  }
+}
