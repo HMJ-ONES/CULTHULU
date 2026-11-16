@@ -14,7 +14,7 @@ PROJECT = Path(__file__).resolve().parents[1]
 EDITOR = Path(os.environ.get("CULT_UNREAL_EDITOR", "C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor.exe"))
 
 
-def run(mode, lighting=False):
+def run(mode, lighting=False, bokrug=False):
     saved = PROJECT / "Saved"
     evidence = saved / "Automation"
     evidence.mkdir(exist_ok=True)
@@ -28,6 +28,8 @@ def run(mode, lighting=False):
             args = [str(EDITOR), str(PROJECT / "CultUlhu.uproject"), "/Game/Maps/L_MainMenu", "-game", "-unattended", "-nosound", "-nosplash", "-RenderOffscreen", "-windowed", "-ResX=1280", "-ResY=720", "-DisablePlugins=ModelContextProtocol", f"-CultRoomProbe={role}", f"-CultRoomMode={mode}", f"-port={7791+mode}", f"-CultDiscoveryPort={27991+mode}", "-ExecCmds=t.MaxFPS 30", f"-abslog={saved / ('Room'+str(mode)+role+'.log')}"]
             if lighting:
                 args.append("-CultRoomLighting")
+            if bokrug:
+                args.append("-CultRoomBokrug")
             p = subprocess.Popen(args, creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
             processes.append(p)
             return p
@@ -102,6 +104,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode", type=int, choices=(0, 1, 2))
     parser.add_argument("--lighting", action="store_true", help="Capture matched host/guest lighting views before combat checks")
+    parser.add_argument("--bokrug", action="store_true", help="Select Bokrug on the host and verify the imported visual on both peers")
     args = parser.parse_args()
     for mode in ([args.mode] if args.mode is not None else [0, 1, 2]):
-        run(mode, args.lighting)
+        run(mode, args.lighting, args.bokrug)

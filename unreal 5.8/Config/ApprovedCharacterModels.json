@@ -428,137 +428,13 @@
     },
     "nyarlathotep": {
       "approved": true,
-      "source_url": "https://sketchfab.com/3d-models/lovecraftian-e640af2877d84d7d9ab14369dcd36d18",
-      "title": "Lovecraftian",
-      "author": "JuanG3D",
-      "author_url": "https://sketchfab.com/juang3d",
-      "license": "CC-BY-4.0",
-      "license_url": "https://creativecommons.org/licenses/by/4.0/",
-      "license_verified": true,
-      "rights_cleared": true,
-      "verified_date": "2026-10-22",
-      "source_file": "Saved/CharacterSources/nyarlathotep/source.glb",
-      "source_animation_evidence": [],
-      "source_triangles": 648390,
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "bodies": 1,
-      "floating": false,
-      "status": "ACQUIRED",
-      "animation_roles": {},
-      "remaining_art": [
-        "Static source: rig and create idle, locomotion and attack animation",
-        "Retopologize/remesh and bake detail; source has 648,390 triangles",
-        "Review source forward axis, silhouette and foot placement in Unreal"
-      ],
-      "render_lod": 1,
-      "reference_bounds": [
-        -763.3758239746094,
-        -473.138427734375,
-        -83.544921875,
-        764.1424865722656,
-        2810.93017578125,
-        2832.471923828125
-      ],
-      "reference_bounds_sha256": "6f1331a918e1bb3471f7bec9a60f55b65d033eaf5064446f1d7d9cb10667674b",
-      "reference_bounds_profile": "default",
-      "reference_bounds_rotation": [
-        0,
-        0,
-        0
-      ],
-      "gameplay_animation_sets": [
-        {
-          "skeleton": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton",
-          "roles": {
-            "idle": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
-            "walk": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_walk.A_nyarlathotep_walk",
-            "run": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_run.A_nyarlathotep_run",
-            "melee_1": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1",
-            "melee_2": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_2.A_nyarlathotep_melee_2",
-            "melee_3": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_3.A_nyarlathotep_melee_3",
-            "jump": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_jump.A_nyarlathotep_jump",
-            "dash": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_dash.A_nyarlathotep_dash",
-            "taunt": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_taunt.A_nyarlathotep_taunt",
-            "land": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_land.A_nyarlathotep_land",
-            "preview": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
-            "attack": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1"
-          }
-        }
-      ],
-      "reviewed_gameplay_binding": {
-        "meshes": [
-          "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005.SK_nyarlathotep_v005"
-        ],
-        "skeletal": true,
-        "clips": [],
-        "rotation": [
-          0,
-          90,
-          0
-        ],
-        "bodies": 1,
-        "floating": false,
-        "animation_roles": {
-          "idle": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
-          "walk": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_walk.A_nyarlathotep_walk",
-          "run": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_run.A_nyarlathotep_run",
-          "melee_1": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1",
-          "melee_2": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_2.A_nyarlathotep_melee_2",
-          "melee_3": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_3.A_nyarlathotep_melee_3",
-          "jump": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_jump.A_nyarlathotep_jump",
-          "dash": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_dash.A_nyarlathotep_dash",
-          "taunt": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_taunt.A_nyarlathotep_taunt",
-          "land": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_land.A_nyarlathotep_land",
-          "preview": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
-          "attack": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1"
-        },
-        "source_sha256": "6f1331a918e1bb3471f7bec9a60f55b65d033eaf5064446f1d7d9cb10667674b",
-        "import_profile": "reviewed_anatomical_v005",
-        "reference_bounds": [
-          -112.5626449584961,
-          -52.25135803222656,
-          0.0,
-          112.5626449584961,
-          52.25135803222656,
-          199.99998474121094
-        ],
-        "render_lod": 1,
-        "status": "IMPORTED_STATIC",
-        "source_url": "https://sketchfab.com/3d-models/lovecraftian-e640af2877d84d7d9ab14369dcd36d18",
-        "author": "JuanG3D",
-        "license": "CC-BY-4.0",
-        "portrait": "/Game/CultUlhu/Characters/nyarlathotep/Portraits/T_Portrait_8d6c07297934.T_Portrait_8d6c07297934",
-        "animation_sets": [
-          {
-            "skeleton": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton",
-            "roles": {
-              "idle": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
-              "walk": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_walk.A_nyarlathotep_walk",
-              "run": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_run.A_nyarlathotep_run",
-              "melee_1": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1",
-              "melee_2": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_2.A_nyarlathotep_melee_2",
-              "melee_3": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_3.A_nyarlathotep_melee_3",
-              "jump": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_jump.A_nyarlathotep_jump",
-              "dash": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_dash.A_nyarlathotep_dash",
-              "taunt": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_taunt.A_nyarlathotep_taunt",
-              "land": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_land.A_nyarlathotep_land",
-              "preview": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
-              "attack": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1"
-            }
-          }
-        ],
-        "skeleton": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton",
-        "mesh_skeletons": {
-          "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005.SK_nyarlathotep_v005": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton"
-        },
-        "gameplay_motion_owner": "CultUlhu.ReviewedMotion.20261106",
-        "melee_step_motion": false,
-        "melee_contact_phase": 0.48
-      }
+      "source_url": "https://sketchfab.com/3d-models/nyarlathotep-original-concept-72955dc4d1414f11ba4429a41a50b15e",
+      "title": "Nyarlathotep_Original_Concept",
+      "author": "Cyanure",
+      "status": "BLOCKED_ACQUISITION",
+      "blocked_reason": "Creator lists the model for viewing only and supplies no commercial game license.",
+      "license_verified": false,
+      "rights_cleared": false
     },
     "shoggoths": {
       "approved": true,
@@ -1047,6 +923,414 @@
     },
     "nodens": {
       "approved": true,
+      "source_url": "https://sketchfab.com/3d-models/eldritch-horror-wagon-4a1074b516dc4b8aaa8561f3a11abfbc",
+      "title": "Eldritch Horror - Wagon",
+      "author": "anyonebutsam",
+      "status": "BLOCKED_ACQUISITION",
+      "blocked_reason": "Creator lists the wagon for viewing only and supplies no commercial game license.",
+      "license_verified": false,
+      "rights_cleared": false
+    },
+    "bokrug": {
+      "approved": true,
+      "source_url": "https://sketchfab.com/3d-models/four-legged-frost-predator-3ddc6f711201449cbc33617f430d1b20",
+      "title": "Four-Legged-Frost-Predator.",
+      "author": "bensimulator2",
+      "status": "ACQUIRED",
+      "license_verified": true,
+      "rights_cleared": true,
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "author_url": "https://sketchfab.com/bensimulator1",
+      "verified_date": "2026-11-16",
+      "source_triangles": 14564,
+      "listed_animation_count": 7,
+      "source_file": "Saved/CharacterSources/bokrug/corrected_morph_units/source.glb",
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "animation_roles": {
+        "idle": "_idle",
+        "preview": "_idle",
+        "walk": "_walk",
+        "run": "_run",
+        "attack": "_attack",
+        "cast": "powerfull_attack",
+        "taunt": "_roar"
+      },
+      "original_source_sha256": "d8c8c5c70e00138cdf1885a6af1e882a0ab760fe7cbbd4aa53964ba41fdb7367",
+      "source_animation_evidence": [
+        "rig|Idle",
+        "rig|walk",
+        "rig|Run",
+        "rig|attack",
+        "rig|Powerfull_attack",
+        "rig|Roar",
+        "rig|Sleeping"
+      ],
+      "upstream_attribution": {
+        "title": "Four Legged Predator",
+        "author": "Timsblends",
+        "source_url": "https://sketchfab.com/3d-models/four-legged-predator-7f68f9daa698433299092bfecaae4e9e",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "prepared_source_sha256": "6588f05d21611eab766339ee1313c109c5099e8ba7cd39b03117da9924f65528",
+      "reviewed_gameplay_binding": {
+        "meshes": [
+          "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_10.Object_10",
+          "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_11.Object_11",
+          "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_13.Object_13",
+          "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_15.Object_15",
+          "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9.Object_9"
+        ],
+        "skeletal": true,
+        "clips": [
+          {
+            "name": "sourcerig_attack",
+            "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_attack.sourcerig_attack",
+            "seconds": 7.960000038146973
+          },
+          {
+            "name": "sourcerig_Idle",
+            "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Idle.sourcerig_Idle",
+            "seconds": 9.566666603088379
+          },
+          {
+            "name": "sourcerig_Powerfull_attack",
+            "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Powerfull_attack.sourcerig_Powerfull_attack",
+            "seconds": 7.9666666984558105
+          },
+          {
+            "name": "sourcerig_Roar",
+            "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Roar.sourcerig_Roar",
+            "seconds": 7.9666666984558105
+          },
+          {
+            "name": "sourcerig_Run",
+            "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Run.sourcerig_Run",
+            "seconds": 7.960000038146973
+          },
+          {
+            "name": "sourcerig_Sleeping",
+            "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Sleeping.sourcerig_Sleeping",
+            "seconds": 7.9666666984558105
+          },
+          {
+            "name": "sourcerig_walk",
+            "asset": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_walk.sourcerig_walk",
+            "seconds": 1.1666666269302368
+          }
+        ],
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "bodies": 1,
+        "floating": false,
+        "animation_roles": {
+          "idle": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Idle.sourcerig_Idle",
+          "walk": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_walk.sourcerig_walk",
+          "preview": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Idle.sourcerig_Idle",
+          "run": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_run_v5828b4cb.A_Bokrug_run_v5828b4cb",
+          "attack": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_attack_v5828b4cb.A_Bokrug_attack_v5828b4cb",
+          "cast": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_cast_v5828b4cb.A_Bokrug_cast_v5828b4cb",
+          "taunt": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_taunt_v5828b4cb.A_Bokrug_taunt_v5828b4cb",
+          "hit": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_hit_v5828b4cb.A_Bokrug_hit_v5828b4cb",
+          "dash": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_dash_v5828b4cb.A_Bokrug_dash_v5828b4cb",
+          "jump": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_jump_v5828b4cb.A_Bokrug_jump_v5828b4cb",
+          "land": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_land_v5828b4cb.A_Bokrug_land_v5828b4cb",
+          "death": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_death_v5828b4cb.A_Bokrug_death_v5828b4cb"
+        },
+        "source_sha256": "6588f05d21611eab766339ee1313c109c5099e8ba7cd39b03117da9924f65528",
+        "import_profile": "default",
+        "skeleton": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "mesh_skeletons": {
+          "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_10.Object_10": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+          "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_11.Object_11": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+          "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_13.Object_13": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+          "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_15.Object_15": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+          "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9.Object_9": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton"
+        },
+        "animation_sets": [
+          {
+            "skeleton": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+            "roles": {
+              "idle": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Idle.sourcerig_Idle",
+              "walk": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_walk.sourcerig_walk",
+              "preview": "/Game/CultUlhu/Characters/bokrug/Imports/h6588f05d2161/source/SkeletalMeshes/sourcerig_Idle.sourcerig_Idle",
+              "run": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_run_v5828b4cb.A_Bokrug_run_v5828b4cb",
+              "attack": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_attack_v5828b4cb.A_Bokrug_attack_v5828b4cb",
+              "cast": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_cast_v5828b4cb.A_Bokrug_cast_v5828b4cb",
+              "taunt": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_taunt_v5828b4cb.A_Bokrug_taunt_v5828b4cb",
+              "hit": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_hit_v5828b4cb.A_Bokrug_hit_v5828b4cb",
+              "dash": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_dash_v5828b4cb.A_Bokrug_dash_v5828b4cb",
+              "jump": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_jump_v5828b4cb.A_Bokrug_jump_v5828b4cb",
+              "land": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_land_v5828b4cb.A_Bokrug_land_v5828b4cb",
+              "death": "/Game/CultUlhu/Characters/bokrug/GameplayMotion/v5828b4cb/A_Bokrug_death_v5828b4cb.A_Bokrug_death_v5828b4cb"
+            }
+          }
+        ],
+        "status": "IMPORTED_ANIMATED",
+        "source_url": "https://sketchfab.com/3d-models/four-legged-frost-predator-3ddc6f711201449cbc33617f430d1b20",
+        "author": "bensimulator2",
+        "license": "CC-BY-4.0",
+        "upstream_attribution": {
+          "title": "Four Legged Predator",
+          "author": "Timsblends",
+          "source_url": "https://sketchfab.com/3d-models/four-legged-predator-7f68f9daa698433299092bfecaae4e9e",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/"
+        },
+        "reference_bounds": [
+          -527.1899223327637,
+          -165.96390008926392,
+          -5.760931968688965,
+          202.85120010375977,
+          165.96448421478271,
+          261.6892337799072
+        ],
+        "portrait": "/Game/CultUlhu/Characters/bokrug/Portraits/T_Portrait_cecab9ca53e9.T_Portrait_cecab9ca53e9"
+      },
+      "reference_bounds_rotation": [
+        0,
+        -90,
+        0
+      ],
+      "reference_bounds_sha256": "6588f05d21611eab766339ee1313c109c5099e8ba7cd39b03117da9924f65528",
+      "reference_bounds_profile": "default",
+      "reference_bounds": [
+        -527.1899223327637,
+        -165.96390008926392,
+        -5.760931968688965,
+        202.85120010375977,
+        165.96448421478271,
+        261.6892337799072
+      ]
+    },
+    "hastur": {
+      "approved": true,
+      "source_url": "https://sketchfab.com/3d-models/plague-death-knight-toxic-censer-c9fd2e31b72846019f4edc1f5e013fc1",
+      "title": "Plague Death Knight - Toxic Censer",
+      "author": "Pigcraft",
+      "status": "BLOCKED_RIGHTS",
+      "blocked_reason": "Official CC BY download identifies a Tripo-generated source. The creator's right to sublicense this exact output and its inputs for commercial game use is unverified.",
+      "license_verified": true,
+      "rights_cleared": false,
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "author_url": "https://sketchfab.com/s8819296",
+      "verified_date": "2026-11-16",
+      "source_triangles": 1934492,
+      "listed_animation_count": 0,
+      "source_file": "Saved/CharacterSources/hastur/source.glb",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "animation_roles": {},
+      "downloaded_source_sha256": "f6ca33218306e26f32f08521d241e7ad32d8fa331d2025875fab8abfe8b3cc11"
+    },
+    "nug_and_yeb": {
+      "approved": true,
+      "source_url": "https://sketchfab.com/3d-models/alien-9-7bf0ae9609084378b79eca707a10c9a8",
+      "title": "Alien 9 + Alien 8",
+      "author": "Ecliptica",
+      "status": "BLOCKED_ACQUISITION",
+      "blocked_reason": "Both listings use a Standard store license and offer no free Sketchfab download. The duo requires both authorized packages.",
+      "license_verified": false,
+      "rights_cleared": false,
+      "second_source_url": "https://sketchfab.com/3d-models/alien-8-00b6cc1964004810816da2d2eabef571",
+      "floating": true
+    },
+    "rhan_tegoth": {
+      "approved": true,
+      "source_url": "https://sketchfab.com/3d-models/monster-crab-73be9d24db064732bed7964e2374833c",
+      "title": "Monster crab",
+      "author": "dremorn",
+      "status": "BLOCKED_ACQUISITION",
+      "blocked_reason": "The listing uses a Standard store license and offers no free Sketchfab download. No authorized package is staged.",
+      "license_verified": false,
+      "rights_cleared": false
+    },
+    "shub_niggurath": {
+      "approved": true,
+      "source_url": "https://sketchfab.com/3d-models/dark-young-of-shub-niggurath-fd98892a7f224932bae1bba05e",
+      "title": "Dark Young of Shub-Niggurath",
+      "author": "",
+      "status": "BLOCKED_RIGHTS",
+      "blocked_reason": "The exact listing currently returns 404. Creator rights and the actual download remain unverified.",
+      "license_verified": false,
+      "rights_cleared": false,
+      "provisional": true
+    },
+    "sghllor": {
+      "approved": true,
+      "procedural": "sghllor_light_and_mist",
+      "source_url": "Original user-approved light-ball and mist concept",
+      "title": "Sghllor original light and mist",
+      "author": "CULT-ULHU",
+      "license": "ORIGINAL",
+      "license_url": "",
+      "license_verified": true,
+      "rights_cleared": true,
+      "status": "ORIGINAL_PROCEDURAL",
+      "remaining_art": [
+        "Refine the original light and mist art after reviewing in play"
+      ]
+    },
+    "ghatanothoa": {
+      "approved": true,
+      "source_url": "https://sketchfab.com/3d-models/biblical-beast-behemoth-62fa770766524a2e974819b49b4525b4",
+      "title": "Biblical Beast — Behemoth",
+      "author": "Lexington Dath",
+      "status": "BLOCKED_ACQUISITION",
+      "blocked_reason": "Provisional choice. Creator lists the model for viewing only and supplies no commercial game license.",
+      "license_verified": false,
+      "rights_cleared": false,
+      "provisional": true
+    }
+  },
+  "selection_revision": "a14d9fa74d459ba675d480d620c3cca9aa01d819",
+  "superseded_selections": {
+    "nyarlathotep": {
+      "approved": true,
+      "source_url": "https://sketchfab.com/3d-models/lovecraftian-e640af2877d84d7d9ab14369dcd36d18",
+      "title": "Lovecraftian",
+      "author": "JuanG3D",
+      "author_url": "https://sketchfab.com/juang3d",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "license_verified": true,
+      "rights_cleared": true,
+      "verified_date": "2026-10-22",
+      "source_file": "Saved/CharacterSources/nyarlathotep/source.glb",
+      "source_animation_evidence": [],
+      "source_triangles": 648390,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "status": "ACQUIRED",
+      "animation_roles": {},
+      "remaining_art": [
+        "Static source: rig and create idle, locomotion and attack animation",
+        "Retopologize/remesh and bake detail; source has 648,390 triangles",
+        "Review source forward axis, silhouette and foot placement in Unreal"
+      ],
+      "render_lod": 1,
+      "reference_bounds": [
+        -763.3758239746094,
+        -473.138427734375,
+        -83.544921875,
+        764.1424865722656,
+        2810.93017578125,
+        2832.471923828125
+      ],
+      "reference_bounds_sha256": "6f1331a918e1bb3471f7bec9a60f55b65d033eaf5064446f1d7d9cb10667674b",
+      "reference_bounds_profile": "default",
+      "reference_bounds_rotation": [
+        0,
+        0,
+        0
+      ],
+      "gameplay_animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+            "walk": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_walk.A_nyarlathotep_walk",
+            "run": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_run.A_nyarlathotep_run",
+            "melee_1": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_2.A_nyarlathotep_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_3.A_nyarlathotep_melee_3",
+            "jump": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_jump.A_nyarlathotep_jump",
+            "dash": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_dash.A_nyarlathotep_dash",
+            "taunt": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_taunt.A_nyarlathotep_taunt",
+            "land": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_land.A_nyarlathotep_land",
+            "preview": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+            "attack": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1"
+          }
+        }
+      ],
+      "reviewed_gameplay_binding": {
+        "meshes": [
+          "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005.SK_nyarlathotep_v005"
+        ],
+        "skeletal": true,
+        "clips": [],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "bodies": 1,
+        "floating": false,
+        "animation_roles": {
+          "idle": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+          "walk": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_walk.A_nyarlathotep_walk",
+          "run": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_run.A_nyarlathotep_run",
+          "melee_1": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1",
+          "melee_2": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_2.A_nyarlathotep_melee_2",
+          "melee_3": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_3.A_nyarlathotep_melee_3",
+          "jump": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_jump.A_nyarlathotep_jump",
+          "dash": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_dash.A_nyarlathotep_dash",
+          "taunt": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_taunt.A_nyarlathotep_taunt",
+          "land": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_land.A_nyarlathotep_land",
+          "preview": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+          "attack": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1"
+        },
+        "source_sha256": "6f1331a918e1bb3471f7bec9a60f55b65d033eaf5064446f1d7d9cb10667674b",
+        "import_profile": "reviewed_anatomical_v005",
+        "reference_bounds": [
+          -112.5626449584961,
+          -52.25135803222656,
+          0.0,
+          112.5626449584961,
+          52.25135803222656,
+          199.99998474121094
+        ],
+        "render_lod": 1,
+        "status": "IMPORTED_STATIC",
+        "source_url": "https://sketchfab.com/3d-models/lovecraftian-e640af2877d84d7d9ab14369dcd36d18",
+        "author": "JuanG3D",
+        "license": "CC-BY-4.0",
+        "portrait": "/Game/CultUlhu/Characters/nyarlathotep/Portraits/T_Portrait_8d6c07297934.T_Portrait_8d6c07297934",
+        "animation_sets": [
+          {
+            "skeleton": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton",
+            "roles": {
+              "idle": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+              "walk": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_walk.A_nyarlathotep_walk",
+              "run": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_run.A_nyarlathotep_run",
+              "melee_1": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1",
+              "melee_2": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_2.A_nyarlathotep_melee_2",
+              "melee_3": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_3.A_nyarlathotep_melee_3",
+              "jump": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_jump.A_nyarlathotep_jump",
+              "dash": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_dash.A_nyarlathotep_dash",
+              "taunt": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_taunt.A_nyarlathotep_taunt",
+              "land": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_land.A_nyarlathotep_land",
+              "preview": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+              "attack": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1"
+            }
+          }
+        ],
+        "skeleton": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton",
+        "mesh_skeletons": {
+          "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005.SK_nyarlathotep_v005": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton"
+        },
+        "gameplay_motion_owner": "CultUlhu.ReviewedMotion.20261106",
+        "melee_step_motion": false,
+        "melee_contact_phase": 0.48
+      }
+    },
+    "nodens": {
+      "approved": true,
       "source_url": "https://sketchfab.com/3d-models/chariot-95baa95c8b9b4f4299de0e0609f7307c",
       "title": "Chariot",
       "author": "ShayHooperUni",
@@ -1092,6 +1376,51 @@
         0
       ]
     },
+    "shub_niggurath": {
+      "approved": true,
+      "source_url": "https://sketchfab.com/3d-models/dark-young-overlord-rigged-animated-3c4975d1bf604c0f9fe91623634a4f5c",
+      "title": "Dark Young - Overlord (Rigged & Animated)",
+      "author": "Hank657",
+      "status": "BLOCKED_RIGHTS",
+      "license": "CC-BY-4.0",
+      "license_verified": true,
+      "rights_cleared": false,
+      "verified_date": "2026-10-22",
+      "source_file": "Saved/CharacterSources/shub_niggurath/source.glb",
+      "remaining_art": [
+        "CC-BY uploader identifies the creature as the Overlord anime Dark Young from season 3; underlying rights need clearance"
+      ]
+    },
+    "rhan_tegoth": {
+      "approved": true,
+      "source_url": "https://sketchfab.com/3d-models/maw-of-the-void-free-creature-asset-402848d2da654330bc9c3f23ec06cf8d",
+      "title": "Maw of the Void - Free Creature Asset",
+      "author": "Tim0",
+      "status": "BLOCKED_RIGHTS",
+      "license": "CC-BY-4.0",
+      "license_verified": true,
+      "rights_cleared": false,
+      "verified_date": "2026-10-22",
+      "source_file": "Saved/CharacterSources/rhan_tegoth/source.glb",
+      "remaining_art": [
+        "CC-BY uploader identifies this as fan art based on Darksiders Genesis concept art; underlying rights need clearance"
+      ]
+    },
+    "nug_and_yeb": {
+      "approved": true,
+      "source_url": "https://sketchfab.com/3d-models/floating-horror-54a063d8810540feb1906b27316a6d53",
+      "title": "Floating Horror",
+      "author": "Stilesstoddard",
+      "status": "BLOCKED_ACQUISITION",
+      "license": "NOT_VERIFIED",
+      "license_verified": false,
+      "rights_cleared": false,
+      "verified_date": "2026-10-22",
+      "source_file": "Saved/CharacterSources/nug_and_yeb/source.glb",
+      "remaining_art": [
+        "Source page offers no download; obtain creator-authorized file and game redistribution license, then create two differentiated floating instances"
+      ]
+    },
     "bokrug": {
       "approved": true,
       "source_url": "https://sketchfab.com/3d-models/lizard-fe08fb17e7104a339433c689b1e91af5",
@@ -1120,66 +1449,6 @@
       "source_file": "Saved/CharacterSources/hastur/source.glb",
       "remaining_art": [
         "Source page offers no download; obtain creator-authorized file and game redistribution license"
-      ]
-    },
-    "nug_and_yeb": {
-      "approved": true,
-      "source_url": "https://sketchfab.com/3d-models/floating-horror-54a063d8810540feb1906b27316a6d53",
-      "title": "Floating Horror",
-      "author": "Stilesstoddard",
-      "status": "BLOCKED_ACQUISITION",
-      "license": "NOT_VERIFIED",
-      "license_verified": false,
-      "rights_cleared": false,
-      "verified_date": "2026-10-22",
-      "source_file": "Saved/CharacterSources/nug_and_yeb/source.glb",
-      "remaining_art": [
-        "Source page offers no download; obtain creator-authorized file and game redistribution license, then create two differentiated floating instances"
-      ]
-    },
-    "rhan_tegoth": {
-      "approved": true,
-      "source_url": "https://sketchfab.com/3d-models/maw-of-the-void-free-creature-asset-402848d2da654330bc9c3f23ec06cf8d",
-      "title": "Maw of the Void - Free Creature Asset",
-      "author": "Tim0",
-      "status": "BLOCKED_RIGHTS",
-      "license": "CC-BY-4.0",
-      "license_verified": true,
-      "rights_cleared": false,
-      "verified_date": "2026-10-22",
-      "source_file": "Saved/CharacterSources/rhan_tegoth/source.glb",
-      "remaining_art": [
-        "CC-BY uploader identifies this as fan art based on Darksiders Genesis concept art; underlying rights need clearance"
-      ]
-    },
-    "shub_niggurath": {
-      "approved": true,
-      "source_url": "https://sketchfab.com/3d-models/dark-young-overlord-rigged-animated-3c4975d1bf604c0f9fe91623634a4f5c",
-      "title": "Dark Young - Overlord (Rigged & Animated)",
-      "author": "Hank657",
-      "status": "BLOCKED_RIGHTS",
-      "license": "CC-BY-4.0",
-      "license_verified": true,
-      "rights_cleared": false,
-      "verified_date": "2026-10-22",
-      "source_file": "Saved/CharacterSources/shub_niggurath/source.glb",
-      "remaining_art": [
-        "CC-BY uploader identifies the creature as the Overlord anime Dark Young from season 3; underlying rights need clearance"
-      ]
-    },
-    "sghllor": {
-      "approved": true,
-      "procedural": "sghllor_light_and_mist",
-      "source_url": "Original user-approved light-ball and mist concept",
-      "title": "Sghllor original light and mist",
-      "author": "CULT-ULHU",
-      "license": "ORIGINAL",
-      "license_url": "",
-      "license_verified": true,
-      "rights_cleared": true,
-      "status": "ORIGINAL_PROCEDURAL",
-      "remaining_art": [
-        "Refine the original light and mist art after reviewing in play"
       ]
     }
   }

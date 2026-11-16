@@ -559,6 +559,7 @@ void ACultUlhuPlayerPawn::ReceiveDamage(float Amount,AActor* Source)
   if(auto* Attacker=CultCombatCredit::Hero(Source)) Attacker->RecordCombatHit(this,GetActorLocation(),Actual,Health_<=0);
   AddCameraKick(.2f);
   if(!IsBot()&&PlayHurtCue) PlayCultCombatCue(GetWorld(),ECultCombatCue::Hurt,.32f);
+  if(PlayHurtCue&&Health_>0&&CharacterId_==TEXT("bokrug")) MulticastMotionCue(3,.27f);
  }
  if(Health_<=0) {
   CastPreviewSlot_=INDEX_NONE;

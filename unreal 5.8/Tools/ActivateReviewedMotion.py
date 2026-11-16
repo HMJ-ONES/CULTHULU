@@ -22,6 +22,12 @@ for path in [registry_path,config_path,ini_path]:
     elif registry.get('reviewed_motion_owner')!=OWNER:assert target.read_bytes()==path.read_bytes(),'Preserve intervening artist/config edits'
 directories=set();activated={}
 for key,folder in FOLDERS.items():
+    if key not in registry['characters']:
+        continue # The selected source has no active model.
+    if key in config.get('superseded_selections',{}):
+        previous=config['superseded_selections'][key]
+        if previous.get('reviewed_gameplay_binding'):
+            continue # These motion reports belong to the superseded rig.
     report=json.loads((PROJECT/'Saved/MotionIntegration'/folder/'pending_binding.json').read_text())
     assert report['owner']==OWNER
     for path,digest in report['originalAssetsUnchanged'].items():

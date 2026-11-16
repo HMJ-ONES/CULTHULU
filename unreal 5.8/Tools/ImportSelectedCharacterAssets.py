@@ -17,6 +17,16 @@ OWNER='CultUlhu.ImportSelectedCharacterAssets'
 assets=unreal.EditorAssetLibrary
 entries=json.loads(CONFIG.read_text(encoding='utf-8-sig'))['characters']
 runtime=json.loads(RUNTIME.read_text(encoding='utf-8-sig')) if RUNTIME.exists() else {'schema_version':1,'characters':{}}
+requested=os.environ.get('CULT_CHARACTER_IMPORT_ID')
+if requested:
+    assert requested in entries,'Unknown CULT_CHARACTER_IMPORT_ID'
+    entries={requested:entries[requested]}
+
+def animations_matching(clips,wanted):
+    key=wanted.casefold()
+    exact=[clip for clip in clips if clip.get_name().casefold()==key]
+    return exact or [clip for clip in clips if key in clip.get_name().casefold()]
+
 results=[]
 for entity,entry in entries.items():
     row={'id':entity,'source_url':entry.get('source_url',''),'status':'BLOCKED_ACQUISITION'}
@@ -34,6 +44,18 @@ for entity,entry in entries.items():
         if not source.is_file(): results.append(row); continue
         data=source.read_bytes(); digest=hashlib.sha256(data).hexdigest()
         row.update(source_sha256=digest,source_bytes=len(data))
+        reviewed=entry.get('reviewed_gameplay_binding')
+        if reviewed:
+            assert reviewed.get('source_url')==entry['source_url'],'Reviewed binding is for a different selection'
+            assert reviewed.get('source_sha256')==digest,'Reviewed binding predates the staged source'
+            required=list(reviewed['meshes'])
+            required.extend(clip for group in reviewed.get('animation_sets',[]) for clip in group['roles'].values())
+            required.extend(reviewed[field] for field in ('portrait','skeleton') if reviewed.get(field))
+            assert all(assets.does_asset_exist(path) for path in required),'Restore reviewed meshes and clips before activating the binding'
+            runtime['characters'][entity]=reviewed
+            row.update(status='IMPORTED_ANIMATED' if reviewed.get('animation_sets') else reviewed['status'],binding=reviewed)
+            results.append(row)
+            continue
         suffix=source.suffix.lower()
         assert suffix in ['.glb','.gltf','.fbx','.obj'],'Supply a mesh package; do not execute downloaded .blend scripts'
         if suffix=='.fbx': row['source_clips']=entry.get('source_animation_evidence',[])
@@ -105,12 +127,12 @@ for entity,entry in entries.items():
                 roles={}
                 for role,wanted in entry.get('animation_roles',{}).items():
                     candidates=[o for o in clips if o.get_editor_property('skeleton')==rig]
-                    found=[o for o in candidates if wanted.lower() in o.get_name().lower()]
+                    found=animations_matching(candidates,wanted)
                     if not found and len(candidates)==1 and row.get('source_clips')==[wanted]: found=candidates
                     if len(found)==1: roles[role]=found[0].get_path_name()
                 binding['animation_sets'].append({'skeleton':rig.get_path_name(),'roles':roles})
         for role,wanted in entry.get('animation_roles',{}).items():
-            found=[o for o in clips if wanted.lower() in o.get_name().lower()]
+            found=animations_matching(clips,wanted)
             # Interchange renames a single source animation to source_Anim.
             # One-to-one source/import evidence makes that mapping unambiguous.
             if not found and len(clips)==1 and row.get('source_clips')==[wanted]: found=clips

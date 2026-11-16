@@ -26,6 +26,10 @@
 #endif
 
 namespace {
+const TCHAR* const ImportRoles[]={TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("land"),TEXT("dash"),
+ TEXT("attack"),TEXT("cast"),TEXT("preview"),TEXT("melee_1"),TEXT("melee_2"),TEXT("melee_3"),
+ TEXT("melee_back_1"),TEXT("melee_back_2"),TEXT("melee_back_3"),TEXT("taunt"),TEXT("hit"),TEXT("death")};
+
 void SeparateDagonTorso(USkeletalMeshComponent& Skin)
 {
  const auto* Mesh=Skin.GetSkeletalMeshAsset();
@@ -101,7 +105,14 @@ FString ACultCharacterModel::PortraitPath(const FString& Id) {
 FString ACultCharacterModel::SourceCredit(const FString& Id) {
  auto B=Binding(Id); if(!B) return FString(); FString Author,License,Url;
  B->TryGetStringField(TEXT("author"),Author); B->TryGetStringField(TEXT("license"),License); B->TryGetStringField(TEXT("source_url"),Url);
- return Author+TEXT(" / ")+License+TEXT("\n")+Url;
+ FString Credit=Author+TEXT(" / ")+License+TEXT("\n")+Url;
+ const TSharedPtr<FJsonObject>* Upstream=nullptr;
+ if(B->TryGetObjectField(TEXT("upstream_attribution"),Upstream)) {
+  FString OriginalAuthor,OriginalSource;
+  if((*Upstream)->TryGetStringField(TEXT("author"),OriginalAuthor)&&(*Upstream)->TryGetStringField(TEXT("source_url"),OriginalSource))
+   Credit+=TEXT("\nOriginal model: ")+OriginalAuthor+TEXT("\n")+OriginalSource;
+ }
+ return Credit;
 }
 bool ACultCharacterModel::HasSourceAnimation(const FString& Id) {
  auto B=Binding(Id); const TArray<TSharedPtr<FJsonValue>>* Clips=nullptr;
@@ -158,7 +169,7 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  }
  if(Parts_.IsEmpty()||!Bounds.IsValid||Bounds.GetSize().Z<.001f) return false;
  const TSharedPtr<FJsonObject>* Roles=nullptr;
- if(B->TryGetObjectField(TEXT("animation_roles"),Roles)) for(const FString ClipRole:{TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("land"),TEXT("dash"),TEXT("attack"),TEXT("cast"),TEXT("preview"),TEXT("melee_1"),TEXT("melee_2"),TEXT("melee_3"),TEXT("melee_back_1"),TEXT("melee_back_2"),TEXT("melee_back_3"),TEXT("taunt")}) {
+ if(B->TryGetObjectField(TEXT("animation_roles"),Roles)) for(const FString ClipRole:ImportRoles) {
   FString Path;
   if((*Roles)->TryGetStringField(ClipRole,Path)) if(auto* Clip=LoadObject<UAnimSequence>(nullptr,*Path)) Animations_.Add(ClipRole,Clip);
  }
@@ -166,7 +177,7 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  if(B->TryGetArrayField(TEXT("animation_sets"),Sets)) for(const auto& Value:*Sets) {
   auto Set=Value->AsObject(); FString SkeletonPath;
   if(!Set||!Set->TryGetStringField(TEXT("skeleton"),SkeletonPath)||!Set->TryGetObjectField(TEXT("roles"),Roles)) continue;
-  for(const FString ClipRole:{TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("land"),TEXT("dash"),TEXT("attack"),TEXT("cast"),TEXT("preview"),TEXT("melee_1"),TEXT("melee_2"),TEXT("melee_3"),TEXT("melee_back_1"),TEXT("melee_back_2"),TEXT("melee_back_3"),TEXT("taunt")}) {
+  for(const FString ClipRole:ImportRoles) {
    FString Path; if((*Roles)->TryGetStringField(ClipRole,Path)) if(auto* Clip=LoadObject<UAnimSequence>(nullptr,*Path)) Animations_.Add(SkeletonPath+TEXT("|")+ClipRole,Clip);
   }
  }
@@ -210,10 +221,35 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  const float Scale=180.f/Bounds.GetSize().Z;
  const FVector Offset(-Bounds.GetCenter().X*Scale,-Bounds.GetCenter().Y*Scale,-Bounds.Min.Z*Scale);
  for(UMeshComponent* Part:Parts_) { Part->SetRelativeScale3D(FVector(Scale)); Part->SetRelativeLocation(Offset); }
+ // Bokrug's body, limbs and eyes share one imported skeleton. Evaluate
+ // its high-bone-count pose once, so the eyes and body cannot drift apart.
+ if(Id==TEXT("bokrug")) {
+  USkeletalMeshComponent* Leader=nullptr;
+  for(UMeshComponent* Part:Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
+   if(!Leader) { Leader=Skin; Leader->SetBoundsScale(3.f); continue; }
+   if(Skin->GetSkeletalMeshAsset()->GetSkeleton()!=Leader->GetSkeletalMeshAsset()->GetSkeleton()) continue;
+   Skin->SetAnimInstanceClass(nullptr);
+   Skin->bUseBoundsFromLeaderPoseComponent=true;
+   Skin->SetLeaderPoseComponent(Leader);
+  }
+ }
  if(Id==TEXT("yig")) BindYigWeapons();
  if(!Preview) PlayRole(TEXT("idle"));
  return true;
 }
+UAnimSequence* ACultCharacterModel::AnimationFor(const USkeletalMeshComponent& Mesh,const FString& ClipRole) const {
+ const auto* Asset=Mesh.GetSkeletalMeshAsset();
+ const auto* Rig=Asset?Asset->GetSkeleton():nullptr;
+ if(!Rig) return nullptr;
+ auto* Clip=Animations_.FindRef(Rig->GetPathName()+TEXT("|")+ClipRole).Get();
+ if(!Clip) Clip=Animations_.FindRef(ClipRole).Get();
+ return Clip&&Clip->GetSkeleton()==Rig?Clip:nullptr;
+}
+
+UAnimSequence* ACultCharacterModel::DeathAnimationFor(const USkeletalMeshComponent& Mesh) const {
+ return AnimationFor(Mesh,TEXT("death"));
+}
+
 void ACultCharacterModel::PlayRole(const FString& ClipRole) {
  // Missing clips remain visibly unanimated; never substitute unrelated attacks.
  if(ClipRole==CurrentRole_) return; CurrentRole_=ClipRole; RoleBegan_=Elapsed_;
@@ -225,17 +261,12 @@ void ACultCharacterModel::PlayRole(const FString& ClipRole) {
  else if(ClipRole==TEXT("yig_bite")) SourceRole=TEXT("melee_3");
  else if(ClipRole==TEXT("yig_curse")) SourceRole=TEXT("taunt");
  for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) {
-  auto* Rig=S->GetSkeletalMeshAsset()->GetSkeleton();
-  UAnimSequence* Desired=Animations_.FindRef(Rig->GetPathName()+TEXT("|")+SourceRole);
-  if(!Desired) Desired=Animations_.FindRef(SourceRole);
+  auto* Desired=AnimationFor(*S,SourceRole);
   if(!Desired&&ClipRole.StartsWith(TEXT("melee_"))) {
    const FString Forward=TEXT("melee_")+ClipRole.Right(1);
-   Desired=Animations_.FindRef(Rig->GetPathName()+TEXT("|")+Forward);
-   if(!Desired) Desired=Animations_.FindRef(Forward);
-   if(!Desired) Desired=Animations_.FindRef(Rig->GetPathName()+TEXT("|attack"));
-   if(!Desired) Desired=Animations_.FindRef(TEXT("attack"));
+   Desired=AnimationFor(*S,Forward);
+   if(!Desired) Desired=AnimationFor(*S,TEXT("attack"));
   }
-  if(Desired&&Desired->GetSkeleton()!=Rig) Desired=nullptr;
   if(auto* Player=S->GetSingleNodeInstance()) {
    if(Desired) {
     const bool Loop=ClipRole==TEXT("idle")||ClipRole==TEXT("walk")||ClipRole==TEXT("run")||ClipRole==TEXT("preview");
@@ -287,6 +318,7 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
   else if(Falling||Flying) MotionRole=TEXT("jump");
   else if(Pawn_->IsSwinging()) MotionRole=TEXT("attack");
   else if(Now<LandingUntil_) MotionRole=TEXT("land");
+  else if(Now<HitUntil_&&Speed<WalkSpeed_*.55f) MotionRole=TEXT("hit");
   else if(bRunning_) MotionRole=TEXT("run");
   else MotionRole=Speed>10?TEXT("walk"):TEXT("idle");
   const auto& Playback=Pawn_->AttackPlayback();
@@ -298,6 +330,11 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
    else if(Playback.Move==Move::Heavy) MotionRole=TEXT("yig_bite");
    else if(Playback.Move==Move::R) MotionRole=TEXT("yig_curse");
   }
+  using Move=CultAttackMotion::EMove;
+  const bool BokrugStrike=CharacterId_==TEXT("bokrug")&&Overlay&&Now<ActionUntil_&&
+    !Pawn_->IsDashing()&&!Falling&&!Pawn_->IsIncapacitated()&&Playback.Move>=Move::Primary&&Playback.Move<=Move::R;
+  if(BokrugStrike)
+   MotionRole=Playback.Move==Move::Primary?TEXT("attack"):Playback.Move==Move::R?TEXT("taunt"):TEXT("cast");
   PlayRole(MotionRole);
   const bool YigStroke=MotionRole.StartsWith(TEXT("yig_"));
   if((YigStroke||MotionRole.StartsWith(TEXT("melee_")))&&Now<ActionUntil_&&ActionSeconds_>.01f) {
@@ -311,6 +348,17 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
    for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) if(auto* Player=S->GetSingleNodeInstance()) if(auto* Clip=Cast<UAnimSequence>(Player->GetCurrentAsset())) {
     Player->SetPosition(Clip->GetPlayLength()*Phase,false);Player->SetPlaying(false);
    }
+  }
+  if(BokrugStrike) {
+   const float Progress=FMath::Clamp((Now-Playback.Began)/Playback.Duration,0.f,1.f);
+   const float Contact=FMath::Clamp(Playback.Contact/Playback.Duration,.12f,.85f);
+   const float PoseContact=Playback.Move==Move::Primary?.49f:.38f;
+   const float Phase=Progress<Contact?PoseContact*Progress/Contact:PoseContact+(1-PoseContact)*(Progress-Contact)/(1-Contact);
+   for(UMeshComponent* Part:Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part))
+    if(auto* Player=Skin->GetSingleNodeInstance()) if(auto* Clip=Cast<UAnimSequence>(Player->GetCurrentAsset())) {
+     Player->SetPosition(Clip->GetPlayLength()*Phase,false);
+     Player->SetPlaying(false);
+    }
   }
   if(bMeleeStep_) {
    float Offset=0;
@@ -380,6 +428,10 @@ float ACultCharacterModel::AuthoredMeleePhase(float Progress) const {
 void ACultCharacterModel::Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds,float Age) {
  if(!Pawn) return; TArray<AActor*> Attached; Pawn->GetAttachedActors(Attached);
  for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
+  if(Role==TEXT("hit")) {
+   if(Model->Animations_.Contains(Role)) Model->HitUntil_=Pawn->GetWorld()->GetTimeSeconds()+Seconds;
+   continue;
+  }
   Model->ActionRole_=Role;
   Model->ActionSeconds_=Seconds;
   Model->ActionUntil_=Pawn->GetWorld()->GetTimeSeconds()+Seconds-Age;

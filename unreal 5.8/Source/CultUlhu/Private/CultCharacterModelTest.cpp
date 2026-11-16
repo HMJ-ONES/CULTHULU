@@ -42,7 +42,8 @@ class FCultApprovedModels:public IAutomationLatentCommand {
  FAutomationTestBase* Test; int Index=0,Frames=0,Phase=0,MotionIndex=0; double Started=FPlatformTime::Seconds();
  TStrongObjectPtr<UCultCharacterPreviewWidget> Preview;
  TArray<FString> Motions={TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("attack"),TEXT("cast"),TEXT("dash"),TEXT("land")};
- TArray<FString> Ids={TEXT("cthulhu_avatar"),TEXT("dagon"),TEXT("mi_go"),TEXT("nyarlathotep"),TEXT("shoggoths"),TEXT("yig"),TEXT("yog_sothoth"),TEXT("nodens"),TEXT("sghllor")};
+ TArray<FString> ActiveMotions;
+ TArray<FString> Ids={TEXT("bokrug"),TEXT("cthulhu_avatar"),TEXT("dagon"),TEXT("mi_go"),TEXT("shoggoths"),TEXT("yig"),TEXT("yog_sothoth"),TEXT("sghllor")};
 public:
  explicit FCultApprovedModels(FAutomationTestBase* T):Test(T) {}
  bool Update() override {
@@ -52,11 +53,20 @@ public:
    auto* Model=FCultCharacterModelTestAccess::Model(Preview.Get()); if(!Model) { Test->AddError(TEXT("Lost motion preview")); return true; }
    if(++Frames<12) return false;
    if(Frames==12) {
-    for(UMeshComponent* Part:Model->Parts()) if(auto* S=Cast<USkeletalMeshComponent>(Part)) { S->SetPosition(.2f,false); if(auto* Player=S->GetSingleNodeInstance()) Player->SetPlaying(false); }
+    for(UMeshComponent* Part:Model->Parts()) if(auto* S=Cast<USkeletalMeshComponent>(Part)) {
+     if(auto* Player=S->GetSingleNodeInstance()) {
+      if(Ids[Index]==TEXT("bokrug")) {
+       auto* Clip=Cast<UAnimSequence>(Player->GetCurrentAsset());
+        Test->TestTrue(TEXT("Bokrug loads matching licensed or adapted motion: ")+ActiveMotions[MotionIndex],
+        Clip&&Clip->GetName().Contains(ActiveMotions[MotionIndex])&&Clip->GetSkeleton()==S->GetSkeletalMeshAsset()->GetSkeleton());
+      }
+      S->SetPosition(.2f,false); Player->SetPlaying(false);
+     }
+    }
     return false; // Evaluate and render the held pose in a real subsequent frame.
    }
-   FCultCharacterModelTestAccess::Capture(Preview.Get(),Ids[Index]+TEXT("_")+Motions[MotionIndex],Test);
-   Frames=0; if(++MotionIndex<Motions.Num()) { Model->PreviewMotion(Motions[MotionIndex]); return false; }
+   FCultCharacterModelTestAccess::Capture(Preview.Get(),Ids[Index]+TEXT("_")+ActiveMotions[MotionIndex],Test);
+   Frames=0; if(++MotionIndex<ActiveMotions.Num()) { Model->PreviewMotion(ActiveMotions[MotionIndex]); return false; }
    Phase=0; ++Index; return false;
   }
   if(Phase==0) {
@@ -81,8 +91,10 @@ public:
      Test->TestTrue(TEXT("Supplied Mi-Go motion stays near the pawn and ground"),Actual.Min.Z>-25&&Actual.Max.Z<230&&Actual.GetCenter().Size2D()<125);
     }
    }
-   if(Model&&(Ids[Index]==TEXT("mi_go")||Ids[Index]==TEXT("yig"))) {
-    MotionIndex=0; Frames=0; Phase=4; Model->PreviewMotion(Motions[MotionIndex]); return false;
+   if(Model&&(Ids[Index]==TEXT("bokrug")||Ids[Index]==TEXT("mi_go")||Ids[Index]==TEXT("yig"))) {
+    ActiveMotions=Motions;
+    if(Ids[Index]==TEXT("bokrug")) ActiveMotions.Append({TEXT("hit"),TEXT("death"),TEXT("taunt")});
+    MotionIndex=0; Frames=0; Phase=4; Model->PreviewMotion(ActiveMotions[MotionIndex]); return false;
    }
    Frames=0;
    if(++Index<Ids.Num()) return false;
@@ -110,8 +122,31 @@ public:
    TArray<UMeshComponent*> PreviousParts; Hero->GetComponents(PreviousParts);
    for(auto* Part:PreviousParts) if(Part->ComponentHasTag(TEXT("CultReplacedVessel"))) Test->TestFalse(TEXT("Camera toggle never restores the replaced placeholder"),Part->IsVisible());
    Test->TestTrue(TEXT("View switching preserves pawn placement and scale"),Hero->GetActorTransform().Equals(Transform));
+   if(Id==TEXT("bokrug")) {
+    using Move=CultAttackMotion::EMove;
+    Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    Hero->PlayAttackMotion(Move::Primary,.21f,.66f); Model->Tick(0);
+    Test->TestEqual(TEXT("Bokrug's primary action drives the imported attack pose"),Model->AnimationRole(),FString(TEXT("attack")));
+    Hero->PlayAttackMotion(Move::Q,.25f,.70f); Model->Tick(0);
+    Test->TestEqual(TEXT("Bokrug's ability drives the original rig's cast pose"),Model->AnimationRole(),FString(TEXT("cast")));
+    Hero->PlayAttackMotion(Move::None,0,.15f); Hero->MulticastMotionCue(3,.27f); Model->Tick(0);
+    Test->TestEqual(TEXT("Bokrug's hurt cue reaches the imported model"),Model->AnimationRole(),FString(TEXT("hit")));
+   }
    auto* Corpse=ACultCorpse::Leave(Hero); Test->TestNotNull(TEXT("Imported body leaves a persistent corpse"),Corpse);
-   if(Corpse) { TArray<UMeshComponent*> Copies; Corpse->GetComponents(Copies); Test->TestTrue(TEXT("Corpse retains actual model geometry"),Copies.Num()>=Model->Parts().Num()); Corpse->Destroy(); }
+   if(Corpse) {
+    TArray<UMeshComponent*> Copies; Corpse->GetComponents(Copies);
+    Test->TestTrue(TEXT("Corpse retains actual model geometry"),Copies.Num()>=Model->Parts().Num());
+    if(Id==TEXT("bokrug")) {
+     int32 AnimatedParts=0;
+     for(auto* Copy:Copies) if(const auto* Skin=Cast<USkeletalMeshComponent>(Copy)) {
+      auto* Player=Skin->GetSingleNodeInstance();
+      const auto* Clip=Player?Cast<UAnimSequence>(Player->GetCurrentAsset()):nullptr;
+      if(Clip&&Clip->GetName().Contains(TEXT("_death_"))&&Copy->GetCollisionEnabled()==ECollisionEnabled::NoCollision) ++AnimatedParts;
+     }
+     Test->TestEqual(TEXT("All Bokrug body parts play the authored collapse without collision"),AnimatedParts,Model->Parts().Num());
+    }
+    Corpse->Destroy();
+   }
    Model->Destroy();
   }
   Hero->Destroy(); return ++Index==Ids.Num();
@@ -124,7 +159,7 @@ class FReviewedMotionCheck:public IAutomationLatentCommand {
  FAutomationTestBase* Test; int Character=0,Role=0,Phase=0,Wait=0;
  double Began=FPlatformTime::Seconds();
  TStrongObjectPtr<UCultCharacterPreviewWidget> Preview;
- TArray<FString> Ids={TEXT("mi_go"),TEXT("shoggoths"),TEXT("dagon"),TEXT("nyarlathotep"),TEXT("yog_sothoth"),TEXT("cthulhu_avatar"),TEXT("yig"),TEXT("sghllor")};
+ TArray<FString> Ids={TEXT("mi_go"),TEXT("shoggoths"),TEXT("dagon"),TEXT("yog_sothoth"),TEXT("cthulhu_avatar"),TEXT("yig"),TEXT("sghllor")};
  TArray<FString> Roles={TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("melee_1"),TEXT("melee_2"),TEXT("melee_3"),TEXT("jump"),TEXT("dash"),TEXT("taunt"),TEXT("land")};
  TArray<FVector> Before;TSet<FString> MeleeAssets;
  void Position(ACultCharacterModel* Model,float Fraction) {

@@ -3,7 +3,15 @@
 The following third-party models are used under Creative Commons Attribution 4.0.
 License: https://creativecommons.org/licenses/by/4.0/
 
-Changes: converted to Unreal assets; source parts assembled and normalized to the existing gameplay height; selection portraits rendered in Unreal. Dense sculptures have generated reduced render LODs. Nodens omits the horse. Original Mi-Go action PoseLib is exported as Prowl and baked in place using original foot anchors; Yig uses the original FBX timeline, with existing sword transforms baked to rigid bones. Source PBR maps are restored on the FBX rigs. No endorsement by the original artists is implied.
+Changes: converted to Unreal assets; source parts assembled and normalized to the existing gameplay height; selection portraits rendered in Unreal. Dense sculptures have generated reduced render LODs. Original Mi-Go action PoseLib is exported as Prowl and baked in place using original foot anchors; Yig uses the original FBX timeline, with existing sword transforms baked to rigid bones. Source PBR maps are restored on the FBX rigs. No endorsement by the original artists is implied.
+
+## Four-Legged-Frost-Predator (bokrug)
+
+Frost model: bensimulator2 — https://sketchfab.com/bensimulator1
+Source: https://sketchfab.com/3d-models/four-legged-frost-predator-3ddc6f711201449cbc33617f430d1b20
+Original Four Legged Predator: Timsblends — https://sketchfab.com/3d-models/four-legged-predator-7f68f9daa698433299092bfecaae4e9e
+License for both sources: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+Changes: Unreal import, scale and facing calibration, timing edits to source clips, and gameplay transitions adapted from the original rig and poses.
 
 ## Insectoid Monster Rig (mi_go)
 
@@ -23,7 +31,7 @@ Author: Brian Trepanier â€” https://sketchfab.com/CMBC
 Source: https://sketchfab.com/3d-models/dagon-lovecraft-lore-2d96cd1308de4e2e8f0b1413e26a5448
 License: CC-BY-4.0 â€” https://creativecommons.org/licenses/by/4.0/
 
-## Lovecraftian (nyarlathotep)
+## Retired local asset — Lovecraftian (nyarlathotep)
 
 Author: JuanG3D â€” https://sketchfab.com/juang3d
 Source: https://sketchfab.com/3d-models/lovecraftian-e640af2877d84d7d9ab14369dcd36d18
@@ -47,7 +55,7 @@ Author: JoePrimal â€” https://sketchfab.com/JoePrimal
 Source: https://sketchfab.com/3d-models/naga-dragon-serpent-stylized-fantasy-monster-2fb96bd7a3c543eeabfb3868107ed4a4
 License: CC-BY-4.0 â€” https://creativecommons.org/licenses/by/4.0/
 
-## Chariot (nodens)
+## Retired local asset — Chariot (nodens)
 
 Author: ShayHooperUni â€” https://sketchfab.com/ShayHooperUni
 Source: https://sketchfab.com/3d-models/chariot-95baa95c8b9b4f4299de0e0609f7307c

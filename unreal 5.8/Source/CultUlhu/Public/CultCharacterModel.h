@@ -22,6 +22,7 @@ public:
  static bool HasSourceAnimation(const FString& Id);
  static bool UsesMeleeStep(ACultUlhuPlayerPawn* Pawn);
  bool StrikeLimb(int Index,FVector& Elbow,FVector& Hand) const;
+ UAnimSequence* DeathAnimationFor(const USkeletalMeshComponent& Mesh) const;
  virtual void Tick(float DeltaSeconds) override;
  static void Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds=.55f,float Age=0);
  FString AnimationRole() const { return CurrentRole_; }
@@ -31,7 +32,7 @@ private:
  UPROPERTY() TArray<TObjectPtr<UMeshComponent>> Parts_;
  UPROPERTY() TMap<FString,TObjectPtr<UAnimSequence>> Animations_;
  FString CurrentRole_,ActionRole_;
- float ActionUntil_=0,LandingUntil_=0,WalkSpeed_=0; bool WasFalling_=false;
+ float ActionUntil_=0,LandingUntil_=0,HitUntil_=0,WalkSpeed_=0; bool WasFalling_=false;
  float ActionSeconds_=0;
  float MeleeContactPhase_=.5f;
  UPROPERTY() ACultUlhuPlayerPawn* Pawn_=nullptr;
@@ -48,6 +49,7 @@ private:
  void UpdateCombatGesture(float DeltaSeconds);
  void BindYigWeapons();
  void PlayRole(const FString& Role);
+ UAnimSequence* AnimationFor(const USkeletalMeshComponent& Mesh,const FString& ClipRole) const;
  void UpdateOriginalOrb();
  float AuthoredMeleePhase(float Progress) const;
 };

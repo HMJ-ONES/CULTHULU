@@ -9,15 +9,15 @@ config=PROJECT/'Config/ApprovedCharacterModels.json'
 document=json.loads(config.read_text(encoding='utf-8-sig'))
 selected=[
  ('mi_go','insectoid_monster_rig.glb','https://sketchfab.com/3d-models/insectoid-monster-rig-01323e4b2563430f9da85cd255b6e176','Insectoid Monster Rig','DM-913','SuperKapoo913'),
- ('nodens','chariot.glb','https://sketchfab.com/3d-models/chariot-95baa95c8b9b4f4299de0e0609f7307c','Chariot','ShayHooperUni','ShayHooperUni'),
  ('cthulhu_avatar','cthulhu_-_lovecraft_lore.glb','https://sketchfab.com/3d-models/cthulhu-lovecraft-lore-d42fb260fa1546d09df367143520ccbd','Cthulhu - Lovecraft lore','Brian Trepanier','CMBC'),
  ('dagon','dagon_-_lovecraft_lore.glb','https://sketchfab.com/3d-models/dagon-lovecraft-lore-2d96cd1308de4e2e8f0b1413e26a5448','Dagon - Lovecraft lore','Brian Trepanier','CMBC'),
- ('nyarlathotep','lovecraftian.glb','https://sketchfab.com/3d-models/lovecraftian-e640af2877d84d7d9ab14369dcd36d18','Lovecraftian','JuanG3D','juang3d'),
  ('shoggoths','lovecraftian_horror.glb','https://sketchfab.com/3d-models/lovecraftian-horror-6093cbb205444e9aa7b36d7be4ed9b58','LOVECRAFTIAN HORROR','alexalbinyana','alexalbinyana'),
  ('yig','naga_dragon_serpent._stylized_fantasy_monster.glb','https://sketchfab.com/3d-models/naga-dragon-serpent-stylized-fantasy-monster-2fb96bd7a3c543eeabfb3868107ed4a4','Naga Dragon Serpent. stylized fantasy monster','JoePrimal','JoePrimal'),
  ('yog_sothoth','yog-sothoth_-_lovecraft_lore.glb','https://sketchfab.com/3d-models/yog-sothoth-lovecraft-lore-bdf73725a4494ff8b7981685d52f73ab','Yog-Sothoth - Lovecraft lore','Brian Trepanier','CMBC'),
 ]
 for entity,filename,url,title,author,handle in selected:
+ current=document['characters'].get(entity,{})
+ if current and current.get('source_url')!=url: continue
  source=Path.home()/'Downloads'/filename
  if not source.is_file(): print(entity,'DOWNLOAD NOT FOUND'); continue
  data=source.read_bytes(); assert data[:4]==b'glTF'

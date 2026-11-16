@@ -7,6 +7,7 @@
 
 void ACultUlhuPlayerPawn::MulticastMotionCue_Implementation(uint8 Kind,float Seconds) {
  if(!FMath::IsFinite(Seconds)||Seconds<=0||Seconds>5) return;
+ if(Kind==3) { ACultCharacterModel::Cue(this,TEXT("hit"),Seconds); return; }
  if(Kind!=1&&Kind!=2) return;
  AttackPlayback_=HeldAttack_;
  ACultCharacterModel::Cue(this,Kind==1?TEXT("dash"):TEXT("taunt"),Seconds);
