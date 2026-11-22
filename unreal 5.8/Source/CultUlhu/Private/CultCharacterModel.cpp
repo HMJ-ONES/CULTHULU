@@ -121,6 +121,7 @@ bool ACultCharacterModel::HasSourceAnimation(const FString& Id) {
 bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  CharacterId_=Id;
  auto B=Binding(Id); if(!B) return false;
+ B->TryGetBoolField(TEXT("temporary"),bTemporary_);
  B->TryGetBoolField(TEXT("melee_step_motion"),bMeleeStep_);
  double Contact=.5; if(B->TryGetNumberField(TEXT("melee_contact_phase"),Contact)) MeleeContactPhase_=FMath::Clamp(float(Contact),.2f,.8f);
  FString Procedural;
@@ -158,6 +159,13 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
    Part=S;
   }
   if(!Part) continue;
+  const TSharedPtr<FJsonObject>* MaterialOverrides=nullptr;
+  if(B->TryGetObjectField(TEXT("material_overrides"),MaterialOverrides)) {
+   FString MaterialPath;
+   if((*MaterialOverrides)->TryGetStringField(Value->AsString(),MaterialPath))
+    if(auto* Material=LoadObject<UMaterialInterface>(nullptr,*MaterialPath))
+     for(int32 Slot=0;Slot<Part->GetNumMaterials();++Slot) Part->SetMaterial(Slot,Material);
+  }
   Part->SetupAttachment(RootComponent); Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   Part->SetGenerateOverlapEvents(false); Part->SetCanEverAffectNavigation(false);
   Part->ComponentTags.Add(TEXT("CultCorpseBody"));
@@ -191,6 +199,12 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  if(B->TryGetArrayField(TEXT("reference_bounds"),Reference)&&Reference->Num()==6) {
   Bounds=FBox(FVector((*Reference)[0]->AsNumber(),(*Reference)[1]->AsNumber(),(*Reference)[2]->AsNumber()),FVector((*Reference)[3]->AsNumber(),(*Reference)[4]->AsNumber(),(*Reference)[5]->AsNumber()));
  }
+ else if(bTemporary_) {
+  // Imported skins can carry an exporter root transform that the CPU skin
+  // buffer omits. Component bounds include it in both editor and game builds.
+  Bounds=FBox(ForceInit);
+  for(UMeshComponent* Part:Parts_) { Part->UpdateBounds(); Bounds+=Part->Bounds.GetBox(); }
+ }
 #if WITH_EDITOR
  else {
   static TMap<FString,FBox> PosedBounds;
@@ -221,6 +235,14 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  const float Scale=180.f/Bounds.GetSize().Z;
  const FVector Offset(-Bounds.GetCenter().X*Scale,-Bounds.GetCenter().Y*Scale,-Bounds.Min.Z*Scale);
  for(UMeshComponent* Part:Parts_) { Part->SetRelativeScale3D(FVector(Scale)); Part->SetRelativeLocation(Offset); }
+ if(Id==TEXT("nug_and_yeb")) {
+  TwinPartCount_=Parts_.Num()/2;
+  if(TwinPartCount_>0) for(int32 Index=0;Index<Parts_.Num();++Index) {
+   const bool Upper=Index>=TwinPartCount_;
+   Parts_[Index]->SetRelativeScale3D(FVector(Scale*.57f));
+   Parts_[Index]->SetRelativeLocation(Offset*.57f+(Upper?FVector(-30,32,88):FVector(35,-30,5)));
+  }
+ }
  // Bokrug's body, limbs and eyes share one imported skeleton. Evaluate
  // its high-bone-count pose once, so the eyes and body cannot drift apart.
  if(Id==TEXT("bokrug")) {
@@ -298,7 +320,18 @@ ACultCharacterModel* ACultCharacterModel::AttachToPawn(ACultUlhuPlayerPawn* Pawn
 }
 void ACultCharacterModel::Tick(float DeltaSeconds) {
  Super::Tick(DeltaSeconds);
- if(bFloating_) { Elapsed_+=DeltaSeconds; const float Next=3.f+FMath::Sin(Elapsed_*1.4f)*2.5f;
+ if(TwinPartCount_>0) {
+  const float Previous=Elapsed_;
+  Elapsed_+=DeltaSeconds;
+  for(int32 Index=0;Index<Parts_.Num();++Index) {
+   const bool Upper=Index>=TwinPartCount_;
+   const float Phase=Upper?2.1f:0.f,Rate=Upper?1.13f:.91f;
+   const FVector Before(3*FMath::Sin(Previous*Rate+Phase),2*FMath::Cos(Previous*.73f+Phase),4*FMath::Sin(Previous*Rate+Phase));
+   const FVector After(3*FMath::Sin(Elapsed_*Rate+Phase),2*FMath::Cos(Elapsed_*.73f+Phase),4*FMath::Sin(Elapsed_*Rate+Phase));
+   Parts_[Index]->AddRelativeLocation(After-Before);
+  }
+ }
+ else if(bFloating_) { Elapsed_+=DeltaSeconds; const float Next=3.f+FMath::Sin(Elapsed_*1.4f)*2.5f;
   for(UMeshComponent* Part:Parts_) Part->SetRelativeLocation(Part->GetRelativeLocation()+FVector(0,0,Next-Hover_)); Hover_=Next;
  }
  if(Pawn_&&!IsValid(Pawn_)) { Destroy(); return; }
@@ -335,6 +368,8 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
     !Pawn_->IsDashing()&&!Falling&&!Pawn_->IsIncapacitated()&&Playback.Move>=Move::Primary&&Playback.Move<=Move::R;
   if(BokrugStrike)
    MotionRole=Playback.Move==Move::Primary?TEXT("attack"):Playback.Move==Move::R?TEXT("taunt"):TEXT("cast");
+  if(CharacterId_==TEXT("ghatanothoa")&&Overlay&&Now<ActionUntil_&&!Pawn_->IsDashing()&&!Falling)
+   MotionRole=Playback.Move==Move::Primary?TEXT("attack"):TEXT("cast");
   PlayRole(MotionRole);
   const bool YigStroke=MotionRole.StartsWith(TEXT("yig_"));
   if((YigStroke||MotionRole.StartsWith(TEXT("melee_")))&&Now<ActionUntil_&&ActionSeconds_>.01f) {
@@ -393,10 +428,16 @@ bool ACultCharacterModel::StrikeLimb(int Index,FVector& Elbow,FVector& Hand) con
  static const FName YigHands[]={TEXT("lefthand"),TEXT("righthand"),TEXT("lefthand_001"),TEXT("righthand_001")};
  static const FName YigForearms[]={TEXT("leftforearm"),TEXT("rightforearm"),TEXT("leftforearm_001"),TEXT("rightforearm_001")};
  const bool Yig=CharacterId_==TEXT("yig");
+ const bool Crab=CharacterId_==TEXT("rhan_tegoth");
  if(Index<0||Index>=(Yig?4:2)) return false;
  for(UMeshComponent* Part:Parts_) if(const auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
-  const int HandIndex=Skin->GetBoneIndex(Yig?YigHands[Index]:Hands[Index]);
-  const int ElbowIndex=Skin->GetBoneIndex(Yig?YigForearms[Index]:Forearms[Index]);
+  int HandIndex=Skin->GetBoneIndex(Yig?YigHands[Index]:Hands[Index]);
+  int ElbowIndex=Skin->GetBoneIndex(Yig?YigForearms[Index]:Forearms[Index]);
+  if(Crab) for(int32 Bone=0;Bone<Skin->GetNumBones();++Bone) {
+   const FString Name=Skin->GetBoneName(Bone).ToString().ToLower().Replace(TEXT("."),TEXT("_"));
+   if(Name.StartsWith(Index?TEXT("claw_r_"):TEXT("claw_l_"))) HandIndex=Bone;
+   if(Name.StartsWith(Index?TEXT("forearm_r_"):TEXT("forearm_l_"))) ElbowIndex=Bone;
+  }
   if(HandIndex==INDEX_NONE||ElbowIndex==INDEX_NONE) continue;
   Elbow=Skin->GetBoneLocation(Skin->GetBoneName(ElbowIndex));
   Hand=Skin->GetBoneLocation(Skin->GetBoneName(HandIndex));

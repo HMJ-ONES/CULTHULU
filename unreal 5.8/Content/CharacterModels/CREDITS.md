@@ -3,67 +3,117 @@
 The following third-party models are used under Creative Commons Attribution 4.0.
 License: https://creativecommons.org/licenses/by/4.0/
 
-Changes: converted to Unreal assets; source parts assembled and normalized to the existing gameplay height; selection portraits rendered in Unreal. Dense sculptures have generated reduced render LODs. Original Mi-Go action PoseLib is exported as Prowl and baked in place using original foot anchors; Yig uses the original FBX timeline, with existing sword transforms baked to rigid bones. Source PBR maps are restored on the FBX rigs. No endorsement by the original artists is implied.
-
-## Four-Legged-Frost-Predator (bokrug)
-
-Frost model: bensimulator2 — https://sketchfab.com/bensimulator1
-Source: https://sketchfab.com/3d-models/four-legged-frost-predator-3ddc6f711201449cbc33617f430d1b20
-Original Four Legged Predator: Timsblends — https://sketchfab.com/3d-models/four-legged-predator-7f68f9daa698433299092bfecaae4e9e
-License for both sources: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
-Changes: Unreal import, scale and facing calibration, timing edits to source clips, and gameplay transitions adapted from the original rig and poses.
+Changes: converted to Unreal assets; source parts assembled and normalized to the existing gameplay height; selection portraits rendered in Unreal. Dense sculptures have generated reduced render LODs. Nodens omits the horse. Original Mi-Go action PoseLib is exported as Prowl and baked in place using original foot anchors; Yig uses the original FBX timeline, with existing sword transforms baked to rigid bones. Source PBR maps are restored on the FBX rigs. Temporary models: repaired Troll morph units; Crabulb pincer poses adapted for combat; duplicated and offset the Moon Jellyfish with independent drift; original violet jellyfish and gold caster materials override selected slots. Static test models use procedural body motion, not authored limb animation. No endorsement by the original artists is implied.
 
 ## Insectoid Monster Rig (mi_go)
 
-Author: DM-913 â€” https://sketchfab.com/SuperKapoo913
+Author: DM-913 — https://sketchfab.com/SuperKapoo913
 Source: https://sketchfab.com/3d-models/insectoid-monster-rig-01323e4b2563430f9da85cd255b6e176
-License: CC-BY-4.0 â€” https://creativecommons.org/licenses/by/4.0/
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
 
 ## Cthulhu - Lovecraft lore (cthulhu_avatar)
 
-Author: Brian Trepanier â€” https://sketchfab.com/CMBC
+Author: Brian Trepanier — https://sketchfab.com/CMBC
 Source: https://sketchfab.com/3d-models/cthulhu-lovecraft-lore-d42fb260fa1546d09df367143520ccbd
-License: CC-BY-4.0 â€” https://creativecommons.org/licenses/by/4.0/
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
 
 ## Dagon - Lovecraft lore (dagon)
 
-Author: Brian Trepanier â€” https://sketchfab.com/CMBC
+Author: Brian Trepanier — https://sketchfab.com/CMBC
 Source: https://sketchfab.com/3d-models/dagon-lovecraft-lore-2d96cd1308de4e2e8f0b1413e26a5448
-License: CC-BY-4.0 â€” https://creativecommons.org/licenses/by/4.0/
-
-## Retired local asset — Lovecraftian (nyarlathotep)
-
-Author: JuanG3D â€” https://sketchfab.com/juang3d
-Source: https://sketchfab.com/3d-models/lovecraftian-e640af2877d84d7d9ab14369dcd36d18
-License: CC-BY-4.0 â€” https://creativecommons.org/licenses/by/4.0/
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
 
 ## LOVECRAFTIAN HORROR (shoggoths)
 
-Author: alexalbinyana â€” https://sketchfab.com/alexalbinyana
+Author: alexalbinyana — https://sketchfab.com/alexalbinyana
 Source: https://sketchfab.com/3d-models/lovecraftian-horror-6093cbb205444e9aa7b36d7be4ed9b58
-License: CC-BY-4.0 â€” https://creativecommons.org/licenses/by/4.0/
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
 
 ## Yog-Sothoth - Lovecraft lore (yog_sothoth)
 
-Author: Brian Trepanier â€” https://sketchfab.com/CMBC
+Author: Brian Trepanier — https://sketchfab.com/CMBC
 Source: https://sketchfab.com/3d-models/yog-sothoth-lovecraft-lore-bdf73725a4494ff8b7981685d52f73ab
-License: CC-BY-4.0 â€” https://creativecommons.org/licenses/by/4.0/
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
 
 ## Naga Dragon Serpent. stylized fantasy monster (yig)
 
-Author: JoePrimal â€” https://sketchfab.com/JoePrimal
+Author: JoePrimal — https://sketchfab.com/JoePrimal
 Source: https://sketchfab.com/3d-models/naga-dragon-serpent-stylized-fantasy-monster-2fb96bd7a3c543eeabfb3868107ed4a4
-License: CC-BY-4.0 â€” https://creativecommons.org/licenses/by/4.0/
-
-## Retired local asset — Chariot (nodens)
-
-Author: ShayHooperUni â€” https://sketchfab.com/ShayHooperUni
-Source: https://sketchfab.com/3d-models/chariot-95baa95c8b9b4f4299de0e0609f7307c
-License: CC-BY-4.0 â€” https://creativecommons.org/licenses/by/4.0/
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
 
 ## Sghllor original light and mist (sghllor)
 
 Original CULT-ULHU procedural art. No third-party model or texture used.
+
+## Four-Legged-Frost-Predator. (bokrug)
+
+Author: bensimulator2 — https://sketchfab.com/bensimulator1
+Source: https://sketchfab.com/3d-models/four-legged-frost-predator-3ddc6f711201449cbc33617f430d1b20
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+
+Original Four Legged Predator: Timsblends — https://sketchfab.com/3d-models/four-legged-predator-7f68f9daa698433299092bfecaae4e9e
+Original asset license: https://creativecommons.org/licenses/by/4.0/
+Changes: Unreal import, timing edits to source clips, and gameplay transitions adapted from the original rig and poses.
+
+## Lovecraftian (nyarlathotep)
+
+Author: JuanG3D — https://sketchfab.com/juang3d
+Source: https://sketchfab.com/3d-models/lovecraftian-e640af2877d84d7d9ab14369dcd36d18
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+
+## Chariot (nodens)
+
+Author: ShayHooperUni — https://sketchfab.com/ShayHooperUni
+Source: https://sketchfab.com/3d-models/chariot-95baa95c8b9b4f4299de0e0609f7307c
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+
+## Troll (ghatanothoa)
+
+Author: Timsblends — https://sketchfab.com/timsblends
+Source: https://sketchfab.com/3d-models/troll-59e679e0da5c4906935b8841aefe6dc0
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+
+## Low Poly Wizard (Rigged) (hastur)
+
+Author: Anthony Yanez — https://sketchfab.com/paulyanez
+Source: https://sketchfab.com/3d-models/low-poly-wizard-rigged-f8c91af65aec4779b0e3d857b1878cc2
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+
+## Yamata no Orochi (mother_hydra)
+
+Author: tranb95 — https://sketchfab.com/tranb95
+Source: https://sketchfab.com/3d-models/yamata-no-orochi-8f4c0e2c632e401eb5c5381acc3ce789
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+
+## Crabulb - Rigged (rhan_tegoth)
+
+Author: uosew — https://sketchfab.com/uosew
+Source: https://sketchfab.com/3d-models/crabulb-rigged-eccf00581ba04a68a98a7fd52424c1a8
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+
+## Tree Monster (shub_niggurath)
+
+Author: Natlus — https://sketchfab.com/sultan99syzdykov
+Source: https://sketchfab.com/3d-models/tree-monster-97f38826e6f14050b8aed9e8250c1d43
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+
+## Simple Moon Jellyfish (Baked Animation) (nug_and_yeb)
+
+Author: n- — https://sketchfab.com/n-
+Source: https://sketchfab.com/3d-models/simple-moon-jellyfish-baked-animation-3d911c511f2744ec9bfb99d46d2d6e14
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+
+## Retired local asset — Lovecraftian (nyarlathotep)
+
+Author: JuanG3D — https://sketchfab.com/juang3d
+Source: https://sketchfab.com/3d-models/lovecraftian-e640af2877d84d7d9ab14369dcd36d18
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+
+## Retired local asset — Chariot (nodens)
+
+Author: ShayHooperUni — https://sketchfab.com/ShayHooperUni
+Source: https://sketchfab.com/3d-models/chariot-95baa95c8b9b4f4299de0e0609f7307c
+License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
 
 ## Gameplay motion adaptations — 2026-10-30
 

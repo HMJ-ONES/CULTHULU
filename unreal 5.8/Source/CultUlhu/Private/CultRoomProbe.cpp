@@ -28,10 +28,11 @@ struct FRoomProbe {
  TWeakObjectPtr<ACultUlhuPlayerPawn> Guest; TWeakObjectPtr<AActor> Target; TWeakObjectPtr<ACultMatchUnit> Creep;
  FVector Position,CreepStart; float Clock=0; bool Moved=false,WaveMoved=false,Combat=false,LocalMenu=false,HostBot=false;
  FCultMatchLightingProbe Lighting;
- bool VerifyBokrug=false;
- bool HasBokrugModel(const UWorld* World) const {
+ bool VerifyHostModel=false;
+ FString HostCharacter=TEXT("cthulhu_avatar");
+ bool HasHostModel(const UWorld* World) const {
   for(TActorIterator<ACultUlhuPlayerPawn> It(World);It;++It) {
-   if(It->GetCharacterId()!=TEXT("bokrug")||It->IsBot()) continue;
+   if(It->GetCharacterId()!=HostCharacter||It->IsBot()) continue;
    TArray<AActor*> Attached;
    It->GetAttachedActors(Attached);
    for(const auto* Actor:Attached) if(const auto* Model=Cast<ACultCharacterModel>(Actor))
@@ -60,7 +61,7 @@ struct FRoomProbe {
   if(Now-LastLog>5) { LastLog=Now; UE_LOG(LogTemp,Display,TEXT("[CultRoomProbe] %s phase=%d map=%s net=%d pawn=%s match=%d fighters=%d slot=%d"),Host?TEXT("host"):TEXT("guest"),Phase,*W->GetName(),int(W->GetNetMode()),*GetNameSafe(P),M?int(M->Mode()):-1,M?M->Fighters().Num():0,M?M->Slot(P):-1); }
   if(W->GetName().Contains(TEXT("L_MainMenu"))) {
    if(Host&&Phase==0) { G->OpenModeEntry(ECultPlayMode(Mode)); FScreenshotRequest::RequestScreenshot(File(TEXT("entry.png")),true,false); At=Now; Phase=1; }
-   if(Host&&Phase==1&&Now-At>1) { G->BeginRoomAction(Mode==1?ECultRoomAction::Private:ECultRoomAction::Host); G->SelectedCharacterId=VerifyBokrug?TEXT("bokrug"):TEXT("cthulhu_avatar"); if(!Mode) G->SetInitialBeliefs({1,2,3}); G->FreeRoamSaveSlot=TEXT("Automation_RoomProbe"); G->StartPlay(); Phase=2; }
+   if(Host&&Phase==1&&Now-At>1) { G->BeginRoomAction(Mode==1?ECultRoomAction::Private:ECultRoomAction::Host); G->SelectedCharacterId=HostCharacter; if(!Mode) G->SetInitialBeliefs({1,2,3}); G->FreeRoamSaveSlot=TEXT("Automation_RoomProbe"); G->StartPlay(); Phase=2; }
    if(!Host&&Phase==0&&Has(TEXT("code.txt"))) {
     G->OpenModeEntry(ECultPlayMode(Mode)); if(Mode==2) G->BeginRoomAction(ECultRoomAction::Find);
     else { FString Code; FFileHelper::LoadFileToString(Code,*File(TEXT("code.txt"))); G->BeginRoomAction(ECultRoomAction::Join,Code); }
@@ -81,7 +82,7 @@ struct FRoomProbe {
    if(Phase==3) {
     for(FConstPlayerControllerIterator It=W->GetPlayerControllerIterator();It;++It) if(auto* C=It->Get()) if(!C->IsLocalController()) Guest=Cast<ACultUlhuPlayerPawn>(C->GetPawn());
     if(!Guest.IsValid()||(Mode&&M->Slot(Guest.Get())<0)||(!Mode&&!Guest->ActorHasTag(TEXT("CoopPlayerReady")))||!Has(TEXT("ready"))||(Mode&&M->Warmup()>0)) return true;
-    if(VerifyBokrug&&!HasBokrugModel(W)) return Finish(false,TEXT("host Bokrug has no imported model"));
+    if(VerifyHostModel&&!HasHostModel(W)) return Finish(false,TEXT("host character has no imported model"));
     if(Mode&&Guest->GetFaction()!=1) return Finish(false,TEXT("unbalanced teams"));
     if(Mode) Guest->RelocateMatch(FVector(0,-11000,0));
     FVector Point=Guest->GetActorLocation()+FVector(1800,0,0); FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -113,8 +114,8 @@ struct FRoomProbe {
    if(Phase==2) {
     if(Mode&&(!M->Fighter(P)||M->Fighter(P)->Kit!=TEXT("mi_go")||P->GetFaction()!=1)) return true;
     if(!Mode) { int Buildings=0; for(TActorIterator<ACultDestructible> It(W);It;++It) if(It->GetHealth()>0) ++Buildings; if(Buildings<20||!ACultLivingLandscape::Find(W)) return true; }
-    if(VerifyBokrug&&!HasBokrugModel(W)) return true;
-    if(VerifyBokrug) UE_LOG(LogTemp,Display,TEXT("[CultRoomProbe] Guest verified the host's imported Bokrug model"));
+    if(VerifyHostModel&&!HasHostModel(W)) return true;
+    if(VerifyHostModel) UE_LOG(LogTemp,Display,TEXT("[CultRoomProbe] Guest verified the host's imported %s model"),*HostCharacter);
     Signal(TEXT("ready")); Phase=3;
    }
    if(Phase==3) {
@@ -155,7 +156,12 @@ struct FRoomProbe {
 void StartCultRoomProbe(UCultUlhuGameInstance* G) {
  FString Role; if(!FParse::Value(FCommandLine::Get(),TEXT("CultRoomProbe="),Role)) return;
  auto Probe=MakeShared<FRoomProbe>(); Probe->Game=G; Probe->Host=Role.Equals(TEXT("Host"),ESearchCase::IgnoreCase); FParse::Value(FCommandLine::Get(),TEXT("CultRoomMode="),Probe->Mode);
- Probe->VerifyBokrug=FParse::Param(FCommandLine::Get(),TEXT("CultRoomBokrug"));
+ Probe->VerifyHostModel=FParse::Param(FCommandLine::Get(),TEXT("CultRoomBokrug"));
+ if(Probe->VerifyHostModel) Probe->HostCharacter=TEXT("bokrug");
+ if(FParse::Value(FCommandLine::Get(),TEXT("CultRoomCharacter="),Probe->HostCharacter)) {
+  if(!UCultUlhuGameInstance::Roster().ContainsByPredicate([&](const auto& E){return E.Id==Probe->HostCharacter;})) return;
+  Probe->VerifyHostModel=true;
+ }
  IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/TEXT("Automation")),true);
  FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([Probe](float Dt){return Probe->Tick(Dt);}),.1f);
 }

@@ -7,13 +7,13 @@ runtime=json.loads((project/'Content/CharacterModels/registry.json').read_text(e
 lines=['# CULT-ULHU character model credits','',
  'The following third-party models are used under Creative Commons Attribution 4.0.',
  'License: https://creativecommons.org/licenses/by/4.0/','',
- 'Changes: converted to Unreal assets; source parts assembled and normalized to the existing gameplay height; selection portraits rendered in Unreal. Dense sculptures have generated reduced render LODs. Nodens omits the horse. Original Mi-Go action PoseLib is exported as Prowl and baked in place using original foot anchors; Yig uses the original FBX timeline, with existing sword transforms baked to rigid bones. Source PBR maps are restored on the FBX rigs. No endorsement by the original artists is implied.','']
+ 'Changes: converted to Unreal assets; source parts assembled and normalized to the existing gameplay height; selection portraits rendered in Unreal. Dense sculptures have generated reduced render LODs. Nodens omits the horse. Original Mi-Go action PoseLib is exported as Prowl and baked in place using original foot anchors; Yig uses the original FBX timeline, with existing sword transforms baked to rigid bones. Source PBR maps are restored on the FBX rigs. Temporary models: repaired Troll morph units; Crabulb pincer poses adapted for combat; duplicated and offset the Moon Jellyfish with independent drift; original violet jellyfish and gold caster materials override selected slots. Static test models use procedural body motion, not authored limb animation. No endorsement by the original artists is implied.','']
 for entity in runtime['characters']:
  entry=config['characters'][entity]
  if entry['license']=='ORIGINAL':
   lines.extend([f"## {entry['title']} ({entity})",'',"Original CULT-ULHU procedural art. No third-party model or texture used.",'']); continue
  assert entry['license_verified'] and entry['rights_cleared']
- lines.extend([f"## {entry['title']} ({entity})",'',f"Author: {entry['author']} â€” {entry.get('author_url','')}",f"Source: {entry['source_url']}",f"License: {entry['license']} â€” {entry['license_url']}",''])
+ lines.extend([f"## {entry['title']} ({entity})",'',f"Author: {entry['author']} — {entry.get('author_url','')}",f"Source: {entry['source_url']}",f"License: {entry['license']} — {entry['license_url']}",''])
  if upstream:=entry.get('upstream_attribution'):
   lines.extend([f"Original {upstream['title']}: {upstream['author']} — {upstream['source_url']}",
                 f"Original asset license: {upstream['license_url']}",

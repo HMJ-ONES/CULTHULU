@@ -12,6 +12,7 @@ for entity,binding in registry['characters'].items():
   for clip in animation_set.get('roles',{}).values(): folders.add(clip.rsplit('/',1)[0])
  for key in ['core_material','mist_material','portrait']:
   if binding.get(key): folders.add(binding[key].rsplit('/',1)[0])
+ for material in binding.get('material_overrides',{}).values(): folders.add(material.rsplit('/',1)[0])
 path=project/'Config/DefaultGame.ini'; text=path.read_text(encoding='utf-8-sig')
 text=text.replace('+DirectoriesToAlwaysCook=(Path="/Game/CultUlhu/Characters")\n','')
 text=re.sub(r'; BEGIN APPROVED CHARACTER COOK\n.*?; END APPROVED CHARACTER COOK\n?','',text,flags=re.S)

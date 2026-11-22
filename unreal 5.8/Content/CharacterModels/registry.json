@@ -608,6 +608,539 @@
         261.6892337799072
       ],
       "portrait": "/Game/CultUlhu/Characters/bokrug/Portraits/T_Portrait_cecab9ca53e9.T_Portrait_cecab9ca53e9"
+    },
+    "nyarlathotep": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005.SK_nyarlathotep_v005"
+      ],
+      "skeletal": true,
+      "clips": [],
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {
+        "idle": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+        "walk": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_walk.A_nyarlathotep_walk",
+        "run": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_run.A_nyarlathotep_run",
+        "melee_1": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1",
+        "melee_2": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_2.A_nyarlathotep_melee_2",
+        "melee_3": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_3.A_nyarlathotep_melee_3",
+        "jump": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_jump.A_nyarlathotep_jump",
+        "dash": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_dash.A_nyarlathotep_dash",
+        "taunt": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_taunt.A_nyarlathotep_taunt",
+        "land": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_land.A_nyarlathotep_land",
+        "preview": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+        "attack": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1"
+      },
+      "source_sha256": "6f1331a918e1bb3471f7bec9a60f55b65d033eaf5064446f1d7d9cb10667674b",
+      "import_profile": "reviewed_anatomical_v005",
+      "reference_bounds": [
+        -112.5626449584961,
+        -52.25135803222656,
+        0.0,
+        112.5626449584961,
+        52.25135803222656,
+        199.99998474121094
+      ],
+      "render_lod": 1,
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/lovecraftian-e640af2877d84d7d9ab14369dcd36d18",
+      "author": "JuanG3D",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/nyarlathotep/Portraits/T_Portrait_5108962ac0a9.T_Portrait_5108962ac0a9",
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+            "walk": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_walk.A_nyarlathotep_walk",
+            "run": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_run.A_nyarlathotep_run",
+            "melee_1": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1",
+            "melee_2": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_2.A_nyarlathotep_melee_2",
+            "melee_3": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_3.A_nyarlathotep_melee_3",
+            "jump": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_jump.A_nyarlathotep_jump",
+            "dash": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_dash.A_nyarlathotep_dash",
+            "taunt": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_taunt.A_nyarlathotep_taunt",
+            "land": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_land.A_nyarlathotep_land",
+            "preview": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_idle.A_nyarlathotep_idle",
+            "attack": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/A_nyarlathotep_melee_1.A_nyarlathotep_melee_1"
+          }
+        }
+      ],
+      "skeleton": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005.SK_nyarlathotep_v005": "/Game/CultUlhu/Characters/nyarlathotep/ReviewedMotion_v005/SK_nyarlathotep_v005_Skeleton.SK_nyarlathotep_v005_Skeleton"
+      },
+      "gameplay_motion_owner": "CultUlhu.ReviewedMotion.20261106",
+      "melee_step_motion": false,
+      "melee_contact_phase": 0.48,
+      "temporary": true
+    },
+    "nodens": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/nodens/Imports/hc7123257c10c/source/StaticMeshes/Box001__0.Box001__0",
+        "/Game/CultUlhu/Characters/nodens/Imports/hc7123257c10c/source/StaticMeshes/Cylinder002__0.Cylinder002__0",
+        "/Game/CultUlhu/Characters/nodens/Imports/hc7123257c10c/source/StaticMeshes/Freehand001__0.Freehand001__0"
+      ],
+      "skeletal": false,
+      "clips": [],
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {},
+      "source_sha256": "c7123257c10c37af7f21c8f0cc59118678c9879c9588bbbac86636a90aaf6235",
+      "import_profile": "default",
+      "reference_bounds": [
+        -234.1318664550782,
+        -225.51614379882818,
+        3.417036771774292,
+        387.49087524414074,
+        81.88893890380865,
+        154.44500732421875
+      ],
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/chariot-95baa95c8b9b4f4299de0e0609f7307c",
+      "author": "ShayHooperUni",
+      "license": "CC-BY-4.0",
+      "portrait": "/Game/CultUlhu/Characters/nodens/Portraits/T_Portrait_eaa0d9574947.T_Portrait_eaa0d9574947",
+      "temporary": true
+    },
+    "ghatanothoa": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_12.Object_12",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_14.Object_14",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_15.Object_15",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_16.Object_16",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_17.Object_17",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_19.Object_19",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_21.Object_21"
+      ],
+      "skeletal": true,
+      "clips": [
+        {
+          "name": "sourceAttack_Left",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Left.sourceAttack_Left",
+          "seconds": 1.2000000476837158
+        },
+        {
+          "name": "sourceAttack_Light",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Light.sourceAttack_Light",
+          "seconds": 1.2000000476837158
+        },
+        {
+          "name": "sourceAttack_Powerfull",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Powerfull.sourceAttack_Powerfull",
+          "seconds": 1.2000000476837158
+        },
+        {
+          "name": "sourceAttack_Right",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Right.sourceAttack_Right",
+          "seconds": 1.2000000476837158
+        },
+        {
+          "name": "sourceDeath",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceDeath.sourceDeath",
+          "seconds": 2.4000000953674316
+        },
+        {
+          "name": "sourceHitReact_Back",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceHitReact_Back.sourceHitReact_Back",
+          "seconds": 0.6000000238418579
+        },
+        {
+          "name": "sourceHitReact_Front",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceHitReact_Front.sourceHitReact_Front",
+          "seconds": 0.6000000238418579
+        },
+        {
+          "name": "sourceIdle",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceIdle.sourceIdle",
+          "seconds": 14.0
+        },
+        {
+          "name": "sourceRun",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceRun.sourceRun",
+          "seconds": 0.6000000238418579
+        },
+        {
+          "name": "sourceTurn_Left",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceTurn_Left.sourceTurn_Left",
+          "seconds": 1.2000000476837158
+        },
+        {
+          "name": "sourceTurn_Right",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceTurn_Right.sourceTurn_Right",
+          "seconds": 1.2000000476837158
+        },
+        {
+          "name": "sourceWalking",
+          "asset": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceWalking.sourceWalking",
+          "seconds": 1.2000000476837158
+        }
+      ],
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {
+        "idle": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceIdle.sourceIdle",
+        "preview": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceIdle.sourceIdle",
+        "walk": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceWalking.sourceWalking",
+        "run": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceRun.sourceRun",
+        "attack": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Left.sourceAttack_Left",
+        "cast": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Powerfull.sourceAttack_Powerfull",
+        "melee_1": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Left.sourceAttack_Left",
+        "melee_2": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Right.sourceAttack_Right",
+        "melee_3": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Powerfull.sourceAttack_Powerfull",
+        "hit": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceHitReact_Front.sourceHitReact_Front",
+        "death": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceDeath.sourceDeath"
+      },
+      "source_sha256": "392183ec77bac0374ec4a7c18b40793c617f823ee227fb1bfa4de7285b2b3972",
+      "import_profile": "default",
+      "skeleton": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_12_Skeleton.Object_12_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_12.Object_12": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_12_Skeleton.Object_12_Skeleton",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_14.Object_14": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_12_Skeleton.Object_12_Skeleton",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_15.Object_15": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_12_Skeleton.Object_12_Skeleton",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_16.Object_16": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_12_Skeleton.Object_12_Skeleton",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_17.Object_17": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_12_Skeleton.Object_12_Skeleton",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_19.Object_19": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_12_Skeleton.Object_12_Skeleton",
+        "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_21.Object_21": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_12_Skeleton.Object_12_Skeleton"
+      },
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/Object_12_Skeleton.Object_12_Skeleton",
+          "roles": {
+            "idle": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceIdle.sourceIdle",
+            "preview": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceIdle.sourceIdle",
+            "walk": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceWalking.sourceWalking",
+            "run": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceRun.sourceRun",
+            "attack": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Left.sourceAttack_Left",
+            "cast": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Powerfull.sourceAttack_Powerfull",
+            "melee_1": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Left.sourceAttack_Left",
+            "melee_2": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Right.sourceAttack_Right",
+            "melee_3": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceAttack_Powerfull.sourceAttack_Powerfull",
+            "hit": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceHitReact_Front.sourceHitReact_Front",
+            "death": "/Game/CultUlhu/Characters/ghatanothoa/Imports/h392183ec77ba/source/SkeletalMeshes/sourceDeath.sourceDeath"
+          }
+        }
+      ],
+      "status": "IMPORTED_ANIMATED",
+      "source_url": "https://sketchfab.com/3d-models/troll-59e679e0da5c4906935b8841aefe6dc0",
+      "author": "Timsblends",
+      "license": "CC-BY-4.0",
+      "temporary": true,
+      "reference_bounds": [
+        -5421.6921296296305,
+        9526.14699074074,
+        -773.6863425925926,
+        -5219.062500000001,
+        9774.33101851852,
+        -446.31828703703707
+      ],
+      "bounds_calibration": "Rendered idle-pose CPU vertices; 2026-11-22; source meshes unchanged.",
+      "portrait": "/Game/CultUlhu/Characters/ghatanothoa/Portraits/T_Portrait_230570763cc6.T_Portrait_230570763cc6"
+    },
+    "hastur": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Armor_08_-_Default_0.Armor_08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Beard_08_-_Default_0.Beard_08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Cape_08_-_Default_0.Cape_08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Hat_08_-_Default_0.Hat_08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Head_03_-_Default_0.Head_03_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Left_arm_08_-_Default_0.Left_arm_08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Left_foot_02_-_Default_0.Left_foot_02_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Left_hand_03_-_Default_0.Left_hand_03_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Left_shoulder__08_-_Default_0.Left_shoulder__08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Leg_Leg_08_-_Default_0.Leg_Leg_08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Lower_body_08_-_Default_0.Lower_body_08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Right_arm_08_-_Default_0.Right_arm_08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Right_foot_02_-_Default_0.Right_foot_02_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Right_hand_03_-_Default_0.Right_hand_03_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Right_leg_08_-_Default_0.Right_leg_08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Right_shoulder__08_-_Default_0.Right_shoulder__08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Skirt_08_-_Default_0.Skirt_08_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Stick_02_-_Default_0.Stick_02_-_Default_0",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Stick_07_-_Default_0.Stick_07_-_Default_0"
+      ],
+      "skeletal": false,
+      "clips": [],
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {},
+      "source_sha256": "f6319d92fbf67cd8abad1cbc916abb1fd403208654d90b3bdff7151f5c063cc3",
+      "import_profile": "default",
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/low-poly-wizard-rigged-f8c91af65aec4779b0e3d857b1878cc2",
+      "author": "Anthony Yanez",
+      "license": "CC-BY-4.0",
+      "temporary": true,
+      "material_overrides": {
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Armor_08_-_Default_0.Armor_08_-_Default_0": "/Game/CultUlhu/Characters/hastur/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Cape_08_-_Default_0.Cape_08_-_Default_0": "/Game/CultUlhu/Characters/hastur/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Hat_08_-_Default_0.Hat_08_-_Default_0": "/Game/CultUlhu/Characters/hastur/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Lower_body_08_-_Default_0.Lower_body_08_-_Default_0": "/Game/CultUlhu/Characters/hastur/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
+        "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Skirt_08_-_Default_0.Skirt_08_-_Default_0": "/Game/CultUlhu/Characters/hastur/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody"
+      },
+      "portrait": "/Game/CultUlhu/Characters/hastur/Portraits/T_Portrait_b9dd124e16b9.T_Portrait_b9dd124e16b9"
+    },
+    "mother_hydra": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Body_Flesh_0.Body_Flesh_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Body_Scales2_0.Body_Scales2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Body_Scales_0.Body_Scales_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_001_Eyes_0.Yamata_001_Eyes_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_001_Fangs_0.Yamata_001_Fangs_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_001_Flesh2_0.Yamata_001_Flesh2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_001_Flesh_0.Yamata_001_Flesh_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_001_Scales2_0.Yamata_001_Scales2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_001_Scales_0.Yamata_001_Scales_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_002_Eyes_0.Yamata_002_Eyes_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_002_Fangs_0.Yamata_002_Fangs_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_002_Flesh2_0.Yamata_002_Flesh2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_002_Flesh_0.Yamata_002_Flesh_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_002_Scales2_0.Yamata_002_Scales2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_002_Scales_0.Yamata_002_Scales_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_003_Eyes_0.Yamata_003_Eyes_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_003_Fangs_0.Yamata_003_Fangs_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_003_Flesh2_0.Yamata_003_Flesh2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_003_Flesh_0.Yamata_003_Flesh_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_003_Scales2_0.Yamata_003_Scales2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_003_Scales_0.Yamata_003_Scales_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_004_Eyes_0.Yamata_004_Eyes_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_004_Fangs_0.Yamata_004_Fangs_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_004_Flesh2_0.Yamata_004_Flesh2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_004_Flesh_0.Yamata_004_Flesh_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_004_Scales2_0.Yamata_004_Scales2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_004_Scales_0.Yamata_004_Scales_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_005_Eyes_0.Yamata_005_Eyes_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_005_Fangs_0.Yamata_005_Fangs_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_005_Flesh2_0.Yamata_005_Flesh2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_005_Flesh_0.Yamata_005_Flesh_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_005_Scales2_0.Yamata_005_Scales2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_005_Scales_0.Yamata_005_Scales_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_006_Eyes_0.Yamata_006_Eyes_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_006_Fangs_0.Yamata_006_Fangs_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_006_Flesh2_0.Yamata_006_Flesh2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_006_Flesh_0.Yamata_006_Flesh_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_006_Scales2_0.Yamata_006_Scales2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_006_Scales_0.Yamata_006_Scales_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_007_Eyes_0.Yamata_007_Eyes_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_007_Fangs_0.Yamata_007_Fangs_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_007_Flesh2_0.Yamata_007_Flesh2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_007_Flesh_0.Yamata_007_Flesh_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_007_Scales2_0.Yamata_007_Scales2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_007_Scales_0.Yamata_007_Scales_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_Eyes_0.Yamata_Eyes_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_Fangs_0.Yamata_Fangs_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_Flesh2_0.Yamata_Flesh2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_Flesh_0.Yamata_Flesh_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_Scales2_0.Yamata_Scales2_0",
+        "/Game/CultUlhu/Characters/mother_hydra/Imports/hde0c10b21fdd/source/StaticMeshes/Yamata_Scales_0.Yamata_Scales_0"
+      ],
+      "skeletal": false,
+      "clips": [],
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {},
+      "source_sha256": "de0c10b21fdd5c861963a5b65bf4506832a122d066da32738dd2260fceb8e26b",
+      "import_profile": "default",
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/yamata-no-orochi-8f4c0e2c632e401eb5c5381acc3ce789",
+      "author": "tranb95",
+      "license": "CC-BY-4.0",
+      "temporary": true,
+      "portrait": "/Game/CultUlhu/Characters/mother_hydra/Portraits/T_Portrait_ead80299e5e8.T_Portrait_ead80299e5e8"
+    },
+    "rhan_tegoth": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/Object_7.Object_7",
+        "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/Object_8.Object_8"
+      ],
+      "skeletal": true,
+      "clips": [
+        {
+          "name": "sourceIdle",
+          "asset": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/sourceIdle.sourceIdle",
+          "seconds": 4.166666507720947
+        },
+        {
+          "name": "sourceWalking",
+          "asset": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/sourceWalking.sourceWalking",
+          "seconds": 4.166666507720947
+        }
+      ],
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {
+        "preview": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/sourceIdle.sourceIdle",
+        "idle": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/sourceIdle.sourceIdle",
+        "walk": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/sourceWalking.sourceWalking",
+        "run": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/sourceWalking.sourceWalking"
+      },
+      "source_sha256": "60151f82c239b745fb2f197ac0ce350d6e58822d4d960f6c4834280b0565e65b",
+      "import_profile": "default",
+      "skeleton": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/Object_7_Skeleton.Object_7_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/Object_7.Object_7": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/Object_7_Skeleton.Object_7_Skeleton",
+        "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/Object_8.Object_8": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/Object_7_Skeleton.Object_7_Skeleton"
+      },
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/Object_7_Skeleton.Object_7_Skeleton",
+          "roles": {
+            "preview": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/sourceIdle.sourceIdle",
+            "idle": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/sourceIdle.sourceIdle",
+            "walk": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/sourceWalking.sourceWalking",
+            "run": "/Game/CultUlhu/Characters/rhan_tegoth/Imports/h60151f82c239/source/SkeletalMeshes/sourceWalking.sourceWalking"
+          }
+        }
+      ],
+      "status": "IMPORTED_ANIMATED",
+      "source_url": "https://sketchfab.com/3d-models/crabulb-rigged-eccf00581ba04a68a98a7fd52424c1a8",
+      "author": "uosew",
+      "license": "CC-BY-4.0",
+      "temporary": true,
+      "reference_bounds": [
+        -1.4523350910985506,
+        -3.1479048912185417,
+        -0.08879345732419709,
+        2.6606776342795793,
+        3.131264012125422,
+        5.545549275316556
+      ],
+      "bounds_calibration": "Rendered idle-pose CPU vertices; 2026-11-22; source meshes unchanged.",
+      "portrait": "/Game/CultUlhu/Characters/rhan_tegoth/Portraits/T_Portrait_8f9462faeb60.T_Portrait_8f9462faeb60"
+    },
+    "shub_niggurath": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/shub_niggurath/Imports/h84ffafb2c187/source/StaticMeshes/source.source"
+      ],
+      "skeletal": false,
+      "clips": [],
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "bodies": 1,
+      "floating": false,
+      "animation_roles": {},
+      "source_sha256": "84ffafb2c187b6974a3aa601077d9e1080e270351a294917b579fd756bbcfe02",
+      "import_profile": "default",
+      "status": "IMPORTED_STATIC",
+      "source_url": "https://sketchfab.com/3d-models/tree-monster-97f38826e6f14050b8aed9e8250c1d43",
+      "author": "Natlus",
+      "license": "CC-BY-4.0",
+      "temporary": true,
+      "portrait": "/Game/CultUlhu/Characters/shub_niggurath/Portraits/T_Portrait_ab8cd008d3e8.T_Portrait_ab8cd008d3e8"
+    },
+    "nug_and_yeb": {
+      "meshes": [
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_10.Object_10",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_11.Object_11",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_12.Object_12",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_13.Object_13",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_14.Object_14",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_15.Object_15",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_16.Object_16",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9.Object_9",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_10.Object_10",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_11.Object_11",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_12.Object_12",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_13.Object_13",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_14.Object_14",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_15.Object_15",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_16.Object_16",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9.Object_9"
+      ],
+      "skeletal": true,
+      "clips": [
+        {
+          "name": "source_Anim",
+          "asset": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
+          "seconds": 16.66666603088379
+        }
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "bodies": 2,
+      "floating": true,
+      "animation_roles": {
+        "preview": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
+        "idle": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
+        "walk": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
+        "run": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim"
+      },
+      "source_sha256": "be67d4ee9fc62ae046d54bcfd10c5fc462d64caa1875da7ecd1bd6ec0f9f71f1",
+      "import_profile": "default",
+      "skeleton": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+      "mesh_skeletons": {
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_10.Object_10": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_11.Object_11": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_12.Object_12": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_13.Object_13": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_14.Object_14": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_15.Object_15": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_16.Object_16": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9.Object_9": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton"
+      },
+      "animation_sets": [
+        {
+          "skeleton": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
+          "roles": {
+            "preview": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
+            "idle": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
+            "walk": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
+            "run": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim"
+          }
+        }
+      ],
+      "status": "IMPORTED_ANIMATED",
+      "source_url": "https://sketchfab.com/3d-models/simple-moon-jellyfish-baked-animation-3d911c511f2744ec9bfb99d46d2d6e14",
+      "author": "n-",
+      "license": "CC-BY-4.0",
+      "temporary": true,
+      "material_overrides": {
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_10.Object_10": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_11.Object_11": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_12.Object_12": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_13.Object_13": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_14.Object_14": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_15.Object_15": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_16.Object_16": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
+        "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9.Object_9": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody"
+      },
+      "portrait": "/Game/CultUlhu/Characters/nug_and_yeb/Portraits/T_Portrait_d159d05f6dc4.T_Portrait_d159d05f6dc4"
     }
   },
   "reviewed_motion_owner": "CultUlhu.ReviewedMotion.20261106"

@@ -79,15 +79,19 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
  }
 
  void AimStrike(FCompactPose& Pose) {
-  if(!MeleeStage||(GestureRig!=1&&GestureRig!=4&&GestureRig!=5&&GestureRig!=6)) return;
+  if(!MeleeStage||(GestureRig!=1&&GestureRig!=4&&GestureRig!=5&&GestureRig!=6&&GestureRig!=7)) return;
   const float Weight=FMath::SmoothStep(-1.55f,-.72f,MeleeProgress)*(1-FMath::SmoothStep(.65f,1.65f,MeleeProgress));
   if(Weight<=0) return;
   const auto& Bones=Pose.GetBoneContainer();
   for(int Side=0;Side<2;++Side) {
    if(MeleeStage!=3&&Side!=MeleeStage-1) continue;
-   const auto Index=[&](FName Name) { return Bones.MakeCompactPoseIndex(FMeshPoseBoneIndex(Bones.GetReferenceSkeleton().FindBoneIndex(Name))); };
-   const auto Arm=Index(Side?TEXT("upperarm_r"):TEXT("upperarm_l"));
-   const auto Hand=Index(Side?TEXT("hand_r"):TEXT("hand_l"));
+   const auto Index=[&](FName Name) {
+    int32 Found=Bones.GetReferenceSkeleton().FindBoneIndex(Name);
+    if(Found==INDEX_NONE) Found=Bones.GetReferenceSkeleton().FindBoneIndex(FName(*Name.ToString().Replace(TEXT("."),TEXT("_"))));
+    return Bones.MakeCompactPoseIndex(FMeshPoseBoneIndex(Found));
+   };
+   const auto Arm=Index(GestureRig==7?(Side?TEXT("Arm.R_4"):TEXT("Arm.L_8")):(Side?TEXT("upperarm_r"):TEXT("upperarm_l")));
+   const auto Hand=Index(GestureRig==7?(Side?TEXT("Claw.R_2"):TEXT("Claw.L_6")):(Side?TEXT("hand_r"):TEXT("hand_l")));
    if(Arm.GetInt()==INDEX_NONE||Hand.GetInt()==INDEX_NONE) continue;
    FCSPose<FCompactPose> ComponentPose;
    ComponentPose.InitPose(Pose);
@@ -115,7 +119,8 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
   ComponentPose.InitPose(Pose);
   auto Rotate=[&](FName Name,FVector Axis,double Degrees) {
    if(FMath::Abs(Degrees)<MinimumRotation) return;
-   const int32 MeshIndex=Bones.GetReferenceSkeleton().FindBoneIndex(Name);
+   int32 MeshIndex=Bones.GetReferenceSkeleton().FindBoneIndex(Name);
+   if(MeshIndex==INDEX_NONE) MeshIndex=Bones.GetReferenceSkeleton().FindBoneIndex(FName(*Name.ToString().Replace(TEXT("."),TEXT("_"))));
    if(MeshIndex==INDEX_NONE) return;
    const auto Bone=Bones.MakeCompactPoseIndex(FMeshPoseBoneIndex(MeshIndex));
    if(Bone.GetInt()==INDEX_NONE) return;
@@ -207,6 +212,12 @@ struct FCultFluidProxy final : FAnimSingleNodeInstanceProxy {
    Rotate(TEXT("horn0_r"),Up,D.Y*.37);
    Rotate(TEXT("forearm_roll_l"),Right,L.Z*.18);
    Rotate(TEXT("forearm_roll_r"),Right,L.Z*.18);
+  } else if(GestureRig==7) {
+   Torso(TEXT("Base_50"),.35);
+   Arms(TEXT("Arm.L_8"),TEXT("Arm.R_4"),TEXT("Forearm.L_7"),TEXT("Forearm.R_3"),.85);
+   Rotate(TEXT("Pincher.L_5"),Up,-L.Z*.55-L.W*.3);
+   Rotate(TEXT("Pincher.R_1"),Up,L.Z*.55+L.W*.3);
+   Rotate(TEXT("Eyes_11"),Right,D.X*.45);
   }
  }
  virtual void SetAnimationAsset(UAnimationAsset* Asset,USkeletalMeshComponent* Mesh,bool Loop,float Rate) override {

@@ -39,13 +39,17 @@ struct FCultCharacterModelTestAccess {
  }
 };
 class FCultApprovedModels:public IAutomationLatentCommand {
- FAutomationTestBase* Test; int Index=0,Frames=0,Phase=0,MotionIndex=0; double Started=FPlatformTime::Seconds();
+ FAutomationTestBase* Test; int Index=0,Frames=0,Phase=0,MotionIndex=0,ModeIndex=0; double Started=FPlatformTime::Seconds();
+ TWeakObjectPtr<UWorld> PreviousWorld;
  TStrongObjectPtr<UCultCharacterPreviewWidget> Preview;
  TArray<FString> Motions={TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("attack"),TEXT("cast"),TEXT("dash"),TEXT("land")};
  TArray<FString> ActiveMotions;
- TArray<FString> Ids={TEXT("bokrug"),TEXT("cthulhu_avatar"),TEXT("dagon"),TEXT("mi_go"),TEXT("shoggoths"),TEXT("yig"),TEXT("yog_sothoth"),TEXT("sghllor")};
+ TArray<FString> Ids;
+ TArray<ECultPlayMode> Modes={ECultPlayMode::Domination,ECultPlayMode::Dotgoo,ECultPlayMode::FreeRoam};
 public:
- explicit FCultApprovedModels(FAutomationTestBase* T):Test(T) {}
+ explicit FCultApprovedModels(FAutomationTestBase* T):Test(T) {
+  for(const auto& Character:UCultUlhuGameInstance::Roster()) Ids.Add(Character.Id);
+ }
  bool Update() override {
   if(FPlatformTime::Seconds()-Started>240) { Test->AddError(TEXT("Approved model verification timed out")); return true; }
   auto* World=GEditor->PlayWorld.Get(); if(!World||World->bIsTearingDown) return false;
@@ -84,23 +88,28 @@ public:
      if(Data&&Data->LODRenderData.Num()) for(const auto& Section:Data->LODRenderData[0].RenderSections) Triangles+=Section.NumTriangles;
      Test->AddInfo(FString::Printf(TEXT("MODEL_SKELETAL_TRIANGLES %s %u LOD0"),*Ids[Index],Triangles));
     }
-    if(auto* Skel=Cast<USkeletalMeshComponent>(Part);Skel&&Ids[Index]==TEXT("mi_go")) {
+    if(auto* Skel=Cast<USkeletalMeshComponent>(Part);Skel&&(Ids[Index]==TEXT("mi_go")||Ids[Index]==TEXT("ghatanothoa")||Ids[Index]==TEXT("rhan_tegoth"))) {
      TArray<FFinalSkinVertex> Vertices; Skel->GetCPUSkinnedVertices(Vertices,0); FBox Actual(ForceInit);
      for(const auto& Vertex:Vertices) Actual+=Model->GetActorTransform().InverseTransformPosition(Skel->GetComponentTransform().TransformPosition(FVector(Vertex.Position)));
-     Test->AddInfo(TEXT("MODEL_ACTUAL mi_go ")+Actual.ToString()+TEXT(" part=")+Skel->GetRelativeLocation().ToString());
-     Test->TestTrue(TEXT("Supplied Mi-Go motion stays near the pawn and ground"),Actual.Min.Z>-25&&Actual.Max.Z<230&&Actual.GetCenter().Size2D()<125);
+     Test->AddInfo(TEXT("MODEL_ACTUAL ")+Ids[Index]+TEXT(" ")+Actual.ToString()+TEXT(" part=")+Skel->GetRelativeLocation().ToString());
+     if(Ids[Index]==TEXT("mi_go")) Test->TestTrue(TEXT("Supplied Mi-Go motion stays near the pawn and ground"),Actual.Min.Z>-25&&Actual.Max.Z<230&&Actual.GetCenter().Size2D()<125);
+     else Test->TestTrue(TEXT("Temporary rig is grounded and fits its gameplay height: ")+Ids[Index],Actual.Min.Z>-15&&Actual.Max.Z<205&&Actual.GetCenter().Size2D()<140);
     }
    }
-   if(Model&&(Ids[Index]==TEXT("bokrug")||Ids[Index]==TEXT("mi_go")||Ids[Index]==TEXT("yig"))) {
+   if(Model&&(Ids[Index]==TEXT("bokrug")||Ids[Index]==TEXT("mi_go")||Ids[Index]==TEXT("yig")||
+              Ids[Index]==TEXT("ghatanothoa")||Ids[Index]==TEXT("rhan_tegoth")||Ids[Index]==TEXT("nug_and_yeb"))) {
     ActiveMotions=Motions;
     if(Ids[Index]==TEXT("bokrug")) ActiveMotions.Append({TEXT("hit"),TEXT("death"),TEXT("taunt")});
+    if(Ids[Index]==TEXT("ghatanothoa")) ActiveMotions={TEXT("walk"),TEXT("run"),TEXT("attack"),TEXT("cast"),TEXT("hit"),TEXT("death")};
+    if(Ids[Index]==TEXT("rhan_tegoth")||Ids[Index]==TEXT("nug_and_yeb")) ActiveMotions={TEXT("walk"),TEXT("run")};
     MotionIndex=0; Frames=0; Phase=4; Model->PreviewMotion(ActiveMotions[MotionIndex]); return false;
    }
    Frames=0;
    if(++Index<Ids.Num()) return false;
    Preview->NativeDestruct(); Preview.Reset();
-   auto* GI=Cast<UCultUlhuGameInstance>(World->GetGameInstance()); GI->SelectedMode=ECultPlayMode::Domination; GI->StartPlay(); Phase=1; Index=0; return false;
+   auto* GI=Cast<UCultUlhuGameInstance>(World->GetGameInstance()); GI->SelectedMode=Modes[0]; PreviousWorld=World; GI->StartPlay(); Phase=1; Index=0; return false;
   }
+  if(World==PreviousWorld.Get()) return false;
   if(!World->GetName().Contains(TEXT("L_DarkWilds"))) return false;
   auto* PC=World->GetFirstPlayerController(); if(!PC||!PC->GetPawn()) return false;
   const auto& Roster=UCultUlhuGameInstance::Roster(); const FString Id=Ids[Index];
@@ -116,6 +125,23 @@ public:
    Test->TestTrue(TEXT("Gameplay capsule still blocks"),Hero->GetCapsuleComponent()->GetCollisionEnabled()!=ECollisionEnabled::NoCollision);
    Test->TestTrue(TEXT("Movement remains enabled"),Hero->GetCharacterMovement()->MovementMode!=MOVE_None);
    for(UMeshComponent* Part:Model->Parts()) Test->TestEqual(TEXT("Imported art adds no gameplay collision"),Part->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
+   if(Id==TEXT("nug_and_yeb")) {
+    const auto& Parts=Model->Parts();
+    Test->TestTrue(TEXT("Nug and Yeb each have a separate visible body"),Parts.Num()>=2&&Parts.Num()%2==0);
+    if(Parts.Num()>=2) {
+     const int32 Half=Parts.Num()/2;
+     const FVector First=Parts[0]->GetRelativeLocation(),Second=Parts[Half]->GetRelativeLocation();
+     Test->TestTrue(TEXT("One twin floats diagonally above the other"),Second.Z-First.Z>50&&FVector::Dist2D(First,Second)>40);
+     Model->Tick(.2f);
+     const FVector FirstDrift=Parts[0]->GetRelativeLocation()-First,SecondDrift=Parts[Half]->GetRelativeLocation()-Second;
+     Test->TestTrue(TEXT("The twins drift independently"),FirstDrift.Size()>.01f&&SecondDrift.Size()>.01f&&!FirstDrift.Equals(SecondDrift,.01f));
+    }
+   }
+   if(Id==TEXT("rhan_tegoth")) for(int32 Side=0;Side<2;++Side) {
+    FVector Elbow,Claw;
+    Test->TestTrue(TEXT("Rhan-Tegoth melee uses an actual imported claw"),Model->StrikeLimb(Side,Elbow,Claw));
+    Test->TestTrue(TEXT("The claw sweep has physical length"),FVector::Dist(Elbow,Claw)>10);
+   }
    const auto Transform=Hero->GetActorTransform(); Hero->ToggleCamera(); Model->Tick(0);
    Test->TestFalse(TEXT("First person keeps the imported body and attack motion visible"),Model->IsHidden());
    Hero->ToggleCamera(); Model->Tick(0); Test->TestFalse(TEXT("Third-person view restores the imported body"),Model->IsHidden());
@@ -149,7 +175,13 @@ public:
    }
    Model->Destroy();
   }
-  Hero->Destroy(); return ++Index==Ids.Num();
+  Hero->Destroy();
+  if(++Index<Ids.Num()) return false;
+  if(++ModeIndex==Modes.Num()) return true;
+  auto* GI=Cast<UCultUlhuGameInstance>(World->GetGameInstance());
+  GI->SelectedMode=Modes[ModeIndex];
+  if(GI->SelectedMode==ECultPlayMode::FreeRoam) { GI->SetInitialBeliefs({1,2,3}); GI->FreeRoamSaveSlot=TEXT("Automation_ModelSelection"); }
+  PreviousWorld=World; GI->StartPlay(); Index=0; return false;
  }
 };
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCultApprovedModelTest,"CultUlhu.Art.ApprovedCharacterModels",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

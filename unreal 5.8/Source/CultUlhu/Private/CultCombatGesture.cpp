@@ -29,6 +29,7 @@ void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
  if(CharacterId_==TEXT("dagon")) Rig=4;
  if(CharacterId_==TEXT("nyarlathotep")) Rig=5;
  if(CharacterId_==TEXT("shoggoths")) Rig=6;
+ if(CharacterId_==TEXT("rhan_tegoth")) Rig=7;
  const auto& Motion=Pawn_->AttackPlayback();
  const float Age=GetWorld()->GetTimeSeconds()-Motion.Began;
  const bool Melee=Motion.Move==CultAttackMotion::EMove::Melee&&Age>=0&&Age<Motion.Duration&&!Pawn_->IsIncapacitated();
@@ -58,6 +59,16 @@ void ACultCharacterModel::UpdateCombatGesture(float DeltaSeconds) {
 
  const bool Yig=CharacterId_==TEXT("yig");
  if(bOriginalOrb_) return;
+ if(bTemporary_&&!Yig&&CharacterId_!=TEXT("nyarlathotep")) {
+  if(StaticRest_.IsEmpty()) for(UMeshComponent* Part:Parts_) StaticRest_.Add(Part->GetRelativeTransform());
+  const float Speed=Pawn_->GetVelocity().Size2D()/FMath::Max(1.f,WalkSpeed_);
+  const float Time=GetWorld()->GetTimeSeconds();
+  const FTransform Gesture(FRotator(-Pose.Body.X*.5f,Pose.Body.Y*.5f,FMath::Sin(Time*5.5f)*FMath::Min(Speed,1.f)*2.5f),
+   FVector(Pose.Body.Z,0,Pose.Body.W*.5f+FMath::Sin(Time*7.f)*FMath::Min(Speed,1.f)*1.7f));
+  for(int32 Index=0;Index<Parts_.Num();++Index) if(Cast<UStaticMeshComponent>(Parts_[Index]))
+   Parts_[Index]->SetRelativeTransform(StaticRest_[Index]*Gesture);
+  return;
+ }
  if(!Yig&&CharacterId_!=TEXT("nodens")) {
   if(StaticRest_.IsEmpty()) for(UMeshComponent* Part:Parts_) StaticRest_.Add(Part->GetRelativeTransform());
   const FTransform Gesture(FRotator(-Pose.Body.X*.7,Pose.Body.Y*.62,Pose.Details.Z*.32),

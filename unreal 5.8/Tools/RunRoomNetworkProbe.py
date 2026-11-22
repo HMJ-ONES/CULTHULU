@@ -14,7 +14,7 @@ PROJECT = Path(__file__).resolve().parents[1]
 EDITOR = Path(os.environ.get("CULT_UNREAL_EDITOR", "C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor.exe"))
 
 
-def run(mode, lighting=False, bokrug=False):
+def run(mode, lighting=False, bokrug=False, character=None):
     saved = PROJECT / "Saved"
     evidence = saved / "Automation"
     evidence.mkdir(exist_ok=True)
@@ -30,6 +30,8 @@ def run(mode, lighting=False, bokrug=False):
                 args.append("-CultRoomLighting")
             if bokrug:
                 args.append("-CultRoomBokrug")
+            if character:
+                args.append("-CultRoomCharacter=" + character)
             p = subprocess.Popen(args, creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
             processes.append(p)
             return p
@@ -105,6 +107,7 @@ if __name__ == "__main__":
     parser.add_argument("--mode", type=int, choices=(0, 1, 2))
     parser.add_argument("--lighting", action="store_true", help="Capture matched host/guest lighting views before combat checks")
     parser.add_argument("--bokrug", action="store_true", help="Select Bokrug on the host and verify the imported visual on both peers")
+    parser.add_argument("--character", help="Select this released character on the host and verify its imported visual on both peers")
     args = parser.parse_args()
     for mode in ([args.mode] if args.mode is not None else [0, 1, 2]):
-        run(mode, args.lighting, args.bokrug)
+        run(mode, args.lighting, args.bokrug, args.character)

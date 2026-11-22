@@ -19,8 +19,9 @@ entries=json.loads(CONFIG.read_text(encoding='utf-8-sig'))['characters']
 runtime=json.loads(RUNTIME.read_text(encoding='utf-8-sig')) if RUNTIME.exists() else {'schema_version':1,'characters':{}}
 requested=os.environ.get('CULT_CHARACTER_IMPORT_ID')
 if requested:
-    assert requested in entries,'Unknown CULT_CHARACTER_IMPORT_ID'
-    entries={requested:entries[requested]}
+    requested_ids=requested.split(',')
+    assert all(entity in entries for entity in requested_ids),'Unknown CULT_CHARACTER_IMPORT_ID'
+    entries={entity:entries[entity] for entity in requested_ids}
 
 def animations_matching(clips,wanted):
     key=wanted.casefold()
@@ -147,6 +148,7 @@ for entity,entry in entries.items():
         if 'render_lod' in entry: binding['render_lod']=entry['render_lod']
         row['status']='IMPORTED_ANIMATED' if clips else 'IMPORTED_RIGGED' if skeletal else 'IMPORTED_STATIC'
         binding['status']=row['status']; binding['source_url']=entry['source_url']; binding['author']=entry.get('author',''); binding['license']=entry.get('license','')
+        if entry.get('temporary'): binding['temporary']=True
         previous=runtime['characters'].get(entity,{})
         if previous.get('source_sha256')==digest and previous.get('portrait'): binding['portrait']=previous['portrait']
         runtime['characters'][entity]=binding; row['binding']=binding

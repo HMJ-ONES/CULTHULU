@@ -5,10 +5,10 @@ import unreal
 project=Path(__file__).resolve().parents[1]
 path=project/'Content/CharacterModels/registry.json'
 registry=json.loads(path.read_text(encoding='utf-8-sig'))
-requested=os.environ.get('CULT_CHARACTER_IMPORT_ID')
-if requested: assert requested in registry['characters'],'Unknown CULT_CHARACTER_IMPORT_ID'
+requested={key.strip() for key in os.environ.get('CULT_CHARACTER_IMPORT_ID','').split(',') if key.strip()}
+assert requested.issubset(registry['characters']),'Unknown CULT_CHARACTER_IMPORT_ID'
 for entity,binding in registry['characters'].items():
- if requested and requested!=entity: continue
+ if requested and entity not in requested: continue
  image=project/f'Saved/Screenshots/ApprovedCharacters/{entity}.png'
  if not image.is_file(): continue
  digest=hashlib.sha256(image.read_bytes()).hexdigest()[:12]

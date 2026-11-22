@@ -40,6 +40,8 @@ private:
  bool bFloating_=false;
  bool bMeleeStep_=false;
  bool bOriginalOrb_=false;
+ bool bTemporary_=false;
+ int32 TwinPartCount_=0;
  float RoleBegan_=0;
  float Elapsed_=0,Hover_=0;
  FString CharacterId_;
