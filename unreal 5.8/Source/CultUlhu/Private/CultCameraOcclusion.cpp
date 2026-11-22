@@ -24,6 +24,15 @@ void ACultUlhuPlayerController::UpdateHiddenComponents(const FVector& Eye,TSet<F
    if(Box.IsInsideOrOn(Eye)||FMath::LineBoxIntersection(Box,Eye,End,End-Eye)) HiddenComponents.Add(Mesh->GetPrimitiveSceneId());
   }
  };
+ if(ViewerPawn->GetCharacterId()==TEXT("bokrug")) {
+  TArray<AActor*> OwnActors; OwnActors.Add(const_cast<ACultUlhuPlayerPawn*>(ViewerPawn));
+  TArray<AActor*> Attached; ViewerPawn->GetAttachedActors(Attached); OwnActors.Append(Attached);
+  for(auto* Actor:OwnActors) {
+   if(ViewerPawn->IsThirdPerson()) { HideMeshes(Actor); continue; }
+   TArray<UMeshComponent*> Meshes; Actor->GetComponents(Meshes);
+   for(auto* Mesh:Meshes) HiddenComponents.Add(Mesh->GetPrimitiveSceneId());
+  }
+ }
  for(TActorIterator<AActor> It(GetWorld());It;++It) {
   AActor* Actor=*It; bool Friendly=false;
   if(auto* Hero=Cast<ACultUlhuPlayerPawn>(Actor)) Friendly=Hero->GetFaction()==ViewerPawn->GetFaction();

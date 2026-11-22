@@ -47,9 +47,10 @@ namespace {
 void FrameThirdPerson(USpringArmComponent& Arm,const FString& CharacterId,float Scale,float HalfHeight)
 {
  const bool bWideWings=CharacterId==TEXT("mi_go");
- Arm.TargetArmLength=(bWideWings?300.f:260.f)*Scale;
- Arm.SocketOffset=FVector(0,bWideWings?122.f:90.f,bWideWings?32.f:15.f)*Scale;
- Arm.SetRelativeLocation(FVector(0,0,HalfHeight*(bWideWings?.90f:.75f)));
+ const bool LongBody=CharacterId==TEXT("bokrug");
+ Arm.TargetArmLength=(LongBody?360.f:bWideWings?300.f:260.f)*Scale;
+ Arm.SocketOffset=FVector(0,LongBody?150.f:bWideWings?122.f:90.f,LongBody?40.f:bWideWings?32.f:15.f)*Scale;
+ Arm.SetRelativeLocation(FVector(0,0,HalfHeight*(LongBody?.45f:bWideWings?.90f:.75f)));
 }
 }
 
@@ -358,6 +359,12 @@ void ACultUlhuPlayerPawn::ToggleCamera()
   SpringArm_->SocketOffset=FVector::ZeroVector;
 		SpringArm_->TargetArmLength = 0.0f;
 		SpringArm_->SetRelativeLocation(FVector(51.f, 0.f, HalfH * .90f));
+  if(CharacterId_==TEXT("bokrug")) {
+   TArray<AActor*> Attached; GetAttachedActors(Attached);
+   for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
+    FVector Eye; if(Model->FirstPersonEye(Eye)) { SpringArm_->SetWorldLocation(Eye); break; }
+   }
+  }
 	}
 }
 
@@ -601,6 +608,15 @@ FHitResult ACultUlhuPlayerPawn::CameraAim(float RangeCm,bool Cursor) const
    if(CultHUDSpace::View(PC,View))
     PC->DeprojectScreenPositionToWorld(View.Min.X+View.Width()*.5f,View.Min.Y+View.Height()*.5f,Start,Direction);
   }
+ }
+ Direction=Direction.GetSafeNormal();
+ if(!Cursor&&!IsBot()) {
+  // Keep the centre ray; discard camera-side cover behind the launch plane.
+  const auto* Body=GetCapsuleComponent();
+  const FVector Plane=FeetLocation()+FVector(0,0,Body->GetScaledCapsuleHalfHeight()*1.43f)
+   +Direction.GetSafeNormal2D()*Body->GetScaledCapsuleRadius()*.80f;
+  const float Advance=FVector::DotProduct(Plane-Start,Direction);
+  if(Advance>0) Start+=Direction*(Advance+2.f);
  }
  FCollisionQueryParams Q(SCENE_QUERY_STAT(CultCameraAim),true,this); FHitResult Hit;
  Q.AddIgnoredActor(ActiveRock_);

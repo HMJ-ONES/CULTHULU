@@ -155,8 +155,8 @@ public:
    T->TestEqual(TEXT("Friendly lane wave entering area takes tower aggression"),FCultMobaMechanicsTestAccess::Target(M,Tower.Get()),static_cast<AActor*>(Wave));
    Wave->SetActorLocation(FVector(-30000,-17000,153)); T->TestTrue(TEXT("Tower resumes hero fire when the covering wave leaves"),Cast<ACultUlhuPlayerPawn>(FCultMobaMechanicsTestAccess::Target(M,Tower.Get()))!=nullptr);
    Ally->RelocateMatch(FVector(-32000,-18000,0)); Tower->AttackTarget=P; Before=P->GetHealth(); Tower->FireAt(P);
-   bool Fast=false; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Tower.Get()) Fast=It->Speed==20250;
-   T->TestTrue(TEXT("Actual tower projectile travels at 20250 cm/s"),Fast); T->TestEqual(TEXT("Tower shot has visible windup before contact"),P->GetHealth(),Before);
+   bool Fast=false; for(TActorIterator<ACultSkillAttack> It(W);It;++It) if(It->GetOwner()==Tower.Get()) Fast=FMath::IsNearlyEqual(It->Speed,25500.f,1.f);
+   T->TestTrue(TEXT("Actual tower projectile uses the increased 25500 cm/s travel speed"),Fast); T->TestEqual(TEXT("Tower shot has visible windup before contact"),P->GetHealth(),Before);
    Tower->AttackCooldown=100; At=W->GetTimeSeconds(); Phase=2; return false;
   }
   if(Phase==2) {
@@ -166,7 +166,7 @@ public:
    for(TActorIterator<ACultSkillAttack> It(W);It;++It) It->Destroy();
    Minion=FCultMobaMechanicsTestAccess::Spawn(M,1,FVector(2500,18000,0)); Pickup=Minion->GetActorLocation(); Minion->Speed=0;
    FCultMobaMechanicsTestAccess::Aim(P,Minion->GetActorLocation()); P->HeavyAttack();
-   T->TestTrue(TEXT("Actual RMB camera aim lifts a hostile minion"),Minion->IsHeldBy(P)); T->TestEqual(TEXT("Successful pickup starts the 20 second cooldown"),FCultMobaMechanicsTestAccess::Cooldown(P),20.f);
+   T->TestTrue(TEXT("Actual RMB camera aim lifts a hostile minion"),Minion->IsHeldBy(P)); T->TestEqual(TEXT("Successful pickup starts the shorter 13 second cooldown"),FCultMobaMechanicsTestAccess::Cooldown(P),13.f);
    T->TestEqual(TEXT("Pickup does not damage its minion"),Minion->Health,120.f); At=W->GetTimeSeconds(); Phase=3; return false;
   }
   if(Phase==3) {

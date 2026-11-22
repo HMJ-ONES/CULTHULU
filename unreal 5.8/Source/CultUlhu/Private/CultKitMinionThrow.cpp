@@ -1,4 +1,5 @@
 #include "CultKitRuntime.h"
+#include "CultSecondaryProfile.h"
 #include "CultMovementTuning.h"
 #include "CultAbilityFX.h"
 #include "CultMatchDirector.h"
@@ -42,9 +43,9 @@ bool FCultKitRuntime::MinionThrowInput(bool Press) {
   if((Off<Best||Aim.GetActor()==*It)&&ACultSkillAttack::Clear(Owner->GetWorld(),Owner->GetActorLocation(),It->GetActorLocation(),Owner,*It)) { Best=Off; Pick=*It; }
  }
  if(!Pick||!Pick->TryLift(Owner)) return false;
- HeldMinion=Pick; HoldTime=0; ThrowOnReady=false; HeavyCooldown=20; Owner->MarkCombat(); M->OnAction(Owner);
+ HeldMinion=Pick; HoldTime=0; ThrowOnReady=false; HeavyCooldown=CultSecondary::Cooldown(20.f); if(!Owner->IsBot()&&!Owner->IsLocallyControlled()) Owner->ClientAbilityCommitted(3,HeavyCooldown); Owner->MarkCombat(); M->OnAction(Owner);
  Owner->PlayAttackMotion(CultAttackMotion::EMove::MinionLift,.30f,.65f);
- Owner->Notify(TEXT("Minion lifted. Release RMB or click LMB to launch. 20s cooldown."));
+ Owner->Notify(FString::Printf(TEXT("Minion lifted. Release RMB or click LMB to launch. %.0fs cooldown."),HeavyCooldown));
  ACultBlastFX::SpawnBlast(Owner->GetWorld(),ECultBlastKind::HitFlash,Pick->GetActorLocation(),1);
  return true;
 }

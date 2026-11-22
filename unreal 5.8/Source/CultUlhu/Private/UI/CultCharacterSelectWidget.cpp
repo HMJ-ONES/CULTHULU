@@ -1,6 +1,7 @@
 #include "UI/CultCharacterSelectWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "CultMatchBalance.h"
+#include "CultSecondaryProfile.h"
 // CULT-ULHU character select implementation.
 #include "UI/CultCharacterSelectWidget.h"
 
@@ -136,7 +137,10 @@ void UCultCharacterSelectWidget::RefreshSelection()
    }
    const bool Sling=Mode_==ECultPlayMode::Dotgoo&&E.Id==TEXT("cthulhu_avatar");
    AbilityNames_[3]->SetText(FText::FromString(Sling?TEXT("Minion Sling"):UTF8_TO_TCHAR(Def.rightClick.name.c_str())));
-   AbilityMeta_[3]->SetText(FText::FromString(Sling?TEXT("LIFT / THROW / 20s COOLDOWN"):TEXT("ALTERNATE ATTACK")));
+   const auto* Secondary=CultSecondary::Find(Def.id);
+   const FString AlternateMeta=Sling?FString::Printf(TEXT("LIFT / THROW / %gs COOLDOWN"),double(CultSecondary::Cooldown(20.f))):
+    Secondary?FString::Printf(TEXT("ALTERNATE ATTACK / %gs COOLDOWN"),double(CultSecondary::Cooldown(Secondary->Cooldown))):TEXT("ALTERNATE ATTACK");
+   AbilityMeta_[3]->SetText(FText::FromString(AlternateMeta));
   }
   ModeHint_->SetText(FText::FromString(Mode_==ECultPlayMode::FreeRoam?(Cast<UCultUlhuGameInstance>(GetGameInstance())->RoomAction==ECultRoomAction::Join?TEXT("Join your friend. Their world and cult beliefs are shared."):TEXT("Choose 3 starting beliefs next. Press B in play to change them over time.")):Mode_==ECultPlayMode::Dotgoo?TEXT("Choose Q or F at level 1. Both unlock at level 3; R at level 6."):TEXT("Hold the seal. Eliminations add points.")));
 	}

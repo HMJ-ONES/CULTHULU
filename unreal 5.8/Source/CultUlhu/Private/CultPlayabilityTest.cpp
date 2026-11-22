@@ -4,6 +4,7 @@
 #include "CultChaosShield.h"
 #include "CultMatchState.h"
 #include "CultMovementTuning.h"
+#include "CultSecondaryProfile.h"
 #include "CultPopulation.h"
 #include "CultSkillAttack.h"
 #include "CultUlhuGameInstance.h"
@@ -22,6 +23,7 @@
 
 struct FCultPlayabilityAccess {
  static FCultKitRuntime& Kit(ACultUlhuPlayerPawn* P) { return *P->Kit_; }
+ static float SecondaryCooldown(ACultUlhuPlayerPawn* P) {return Kit(P).HeavyCooldown;}
  static bool HasKit(ACultUlhuPlayerPawn* P) { return IsValid(P)&&P->Kit_; }
  static bool PowerSurge(ACultUlhuPlayerPawn* P) { return Kit(P).BuffTime>0&&Kit(P).BuffMult>1.f; }
  static void ApplyTelekineticImpact(ACultUlhuPlayerPawn* Source,ACultUlhuPlayerPawn* Target) {
@@ -314,6 +316,10 @@ public:
     Heavy=P->AttackPlayback().Move==Move::Heavy||P->AttackPlayback().Move==Move::Wave||
      P->AttackPlayback().Move==Move::RockLift||P->AttackPlayback().Move==Move::MinionLift;
     Check(TEXT("RMB commits its alternate action at zero stamina"),Heavy);
+    if(const auto* Secondary=CultSecondary::Find(Kit.Def.id))
+     Check(TEXT("RMB uses the shorter actual recharge timer"),FMath::IsNearlyEqual(Access::SecondaryCooldown(P),CultSecondary::Cooldown(Secondary->Cooldown),.01f));
+    else if(Cthulhu&&Mode==ECultPlayMode::Dotgoo)
+     Check(TEXT("Minion throw uses the shorter recharge"),FMath::IsNearlyEqual(Access::SecondaryCooldown(P),CultSecondary::Cooldown(20.f),.01f));
    }
    P->RoutePlayerInput(Keys[Action],false);
    Phase=EPhase::Observe;

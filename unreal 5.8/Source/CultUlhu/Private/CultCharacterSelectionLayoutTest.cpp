@@ -102,7 +102,7 @@ struct FCultCharacterSelectionTestAccess {
   T->TestTrue(TEXT("Health display uses the selected mode's budget"),Menu->DetailStats_->GetText().ToString().Contains(FString::Printf(TEXT(" / HP %.0f /"),CultMatchBalance::HeroHealth(Mode,Definition.maxHp))));
   if(Mode==ECultPlayMode::Dotgoo&&Roster[Index].Id==TEXT("cthulhu_avatar")) {
    T->TestEqual(TEXT("MOBA Cthulhu explains the actual alternate attack"),Menu->AbilityNames_[3]->GetText().ToString(),FString(TEXT("Minion Sling")));
-   T->TestTrue(TEXT("Minion sling shows its actual cooldown"),Menu->AbilityMeta_[3]->GetText().ToString().Contains(TEXT("20s")));
+   T->TestTrue(TEXT("Minion sling shows its actual cooldown"),Menu->AbilityMeta_[3]->GetText().ToString().Contains(TEXT("13s")));
   } else T->TestEqual(TEXT("Alternate attack name matches original source"),Menu->AbilityNames_[3]->GetText().ToString(),FString(UTF8_TO_TCHAR(Definition.rightClick.name.c_str())));
   T->TestTrue(TEXT("Belief guidance appears only in Free Roam"),Menu->ModeHint_->GetText().ToString().Contains(TEXT("beliefs"))==(Mode==ECultPlayMode::FreeRoam));
  }

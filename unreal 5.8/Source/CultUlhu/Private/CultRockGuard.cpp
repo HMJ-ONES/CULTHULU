@@ -1,4 +1,5 @@
 #include "CultKitRuntime.h"
+#include "CultSecondaryProfile.h"
 #include "CultAbilityFX.h"
 #include "CultMovementTuning.h"
 
@@ -9,7 +10,7 @@
 #include "Components/CapsuleComponent.h"
 
 namespace {
-constexpr float RockCooldown=10.f;
+constexpr float RockCooldown=CultSecondary::Cooldown(10.f);
 void DropHeldRock(ACultSkillAttack* Rock) {
  Rock->Hit.Reset();
  Rock->Windup=0;

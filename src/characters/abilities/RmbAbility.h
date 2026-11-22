@@ -55,6 +55,9 @@ struct RmbContext {
     std::function<Entity*(Vec3, Vec3, const Entity*)> spatialImpact;
     std::function<bool(const Entity&, Vec3)> waveOverlap;
 
+    // Native balancing can shorten recharge without accelerating active actions.
+    float cooldownScale = 1.0f;
+
     RmbContext(EventBus& b, ActiveEffects& e, const BeliefSystem& bl, RNG& r)
         : bus(b), effects(e), beliefs(bl), rng(r) {
         groundHeight = [](Vec3) { return 0.0f; };

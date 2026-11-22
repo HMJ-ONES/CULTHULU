@@ -1,4 +1,5 @@
 #include "characters/abilities/WaveOfDomination.h"
+#include <algorithm>
 
 #include "entities/Units.h"
 
@@ -41,7 +42,7 @@ void WaveOfDomination::onPress(RmbContext& ctx) {
             e.amount = kDirectStunSec;
             e.pos = t->position();
             ctx.bus.publish(e);
-            cooldown_ = kCooldownSec;
+            cooldown_ = kCooldownSec * std::clamp(ctx.cooldownScale, 0.1f, 1.0f);
             return;
         }
         // Target id did not resolve: fall through to wave mode.
@@ -54,7 +55,7 @@ void WaveOfDomination::onPress(RmbContext& ctx) {
     victims_.clear();
     swingOffset_ = Vec3{};
     swingTarget_ = Vec3{};
-    cooldown_ = kCooldownSec;
+    cooldown_ = kCooldownSec * std::clamp(ctx.cooldownScale, 0.1f, 1.0f);
 }
 
 void WaveOfDomination::onRelease(RmbContext& ctx) {

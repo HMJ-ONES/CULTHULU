@@ -1,6 +1,6 @@
 #include "CultKitRuntime.h"
-#include "CultChaosShield.h"
 #include "CultSecondaryProfile.h"
+#include "CultChaosShield.h"
 #include "CultAbilityFX.h"
 #include "CultActorLabels.h"
 #include "ProfilingDebugging/CsvProfiler.h"
@@ -132,7 +132,7 @@ cultulhu::RmbContext FCultKitRuntime::Context()
 {
  CSV_SCOPED_TIMING_STAT(CultRuntime, KitContext);
  auto* S=ACultWorldDirector::Find(Owner->GetWorld());
- cultulhu::RmbContext C(S->Bus(Owner->GetFaction()),Effects,S->Beliefs(Owner->GetFaction()),S->Rng(Owner->GetFaction())); C.caster=Caster.get(); FVector Front=Owner->AimRotation().Vector().GetSafeNormal2D()*Owner->GetCapsuleComponent()->GetScaledCapsuleRadius(); Caster->setPosition(CorePos(Owner->FeetLocation()+Front)); C.casterYaw=FMath::DegreesToRadians(float(Owner->AimRotation().Yaw));
+ cultulhu::RmbContext C(S->Bus(Owner->GetFaction()),Effects,S->Beliefs(Owner->GetFaction()),S->Rng(Owner->GetFaction())); C.cooldownScale=CultSecondary::CooldownMultiplier; C.caster=Caster.get(); FVector Front=Owner->AimRotation().Vector().GetSafeNormal2D()*Owner->GetCapsuleComponent()->GetScaledCapsuleRadius(); Caster->setPosition(CorePos(Owner->FeetLocation()+Front)); C.casterYaw=FMath::DegreesToRadians(float(Owner->AimRotation().Yaw));
  FVector Aim; if(auto* T=Target(2500,Aim)) C.targetedEntityId=T->id();
  for(auto& M:Mirrors) if(M.Actor.IsValid()) { if(auto* P=::Cast<ACultUlhuPlayerPawn>(M.Actor.Get())) if(P->IsEvading()) continue; if(ACultSkillAttack::Clear(Owner->GetWorld(),Owner->FeetLocation()+Front+FVector(0,0,100),M.Actor->GetActorLocation(),Owner,M.Actor.Get())) C.entities.push_back(M.Core.get()); }
  C.spatialImpact=[this](cultulhu::Vec3 From,cultulhu::Vec3 To,const cultulhu::Entity* Self)->cultulhu::Entity* {
@@ -330,7 +330,7 @@ void FCultKitRuntime::Heavy(bool Press)
   if(!LaunchSpatial(S,-1,Area.Slot==3?Area.Center:Owner->CameraAim().ImpactPoint)) return;
   if(Match) Match->OnAction(Owner);
   Owner->MarkCombat();
-  HeavyCooldown=Secondary->Cooldown;
+  HeavyCooldown=CultSecondary::Cooldown(Secondary->Cooldown);
   if(!Owner->IsBot()&&!Owner->IsLocallyControlled()) Owner->ClientAbilityCommitted(3,HeavyCooldown);
   EmitCast(S,-1);
   return;
@@ -341,8 +341,8 @@ void FCultKitRuntime::Heavy(bool Press)
  if(Rmb) {
   if(!Press) { Rmb->onRelease(C); Apply(); UpdateDominationPose(); return; }
   if(HeavyCooldown>0||!Rmb->ready()) return;
-  if(C.targetedEntityId) { cultulhu::SpellDef S; S.id="wave_direct"; S.name=Def.rightClick.name; S.effectKind="projectile"; S.effectPower=110; S.range=25; if(LaunchSpatial(S,-1,Owner->CameraAim().ImpactPoint)) { EmitCast(S,-1); HeavyCooldown=7; } }
-  else { C.targetedEntityId=0; Rmb->onPress(C); Apply(); UpdateDominationPose(); }
+  if(C.targetedEntityId) { cultulhu::SpellDef S; S.id="wave_direct"; S.name=Def.rightClick.name; S.effectKind="projectile"; S.effectPower=110; S.range=25; if(LaunchSpatial(S,-1,Owner->CameraAim().ImpactPoint)) { EmitCast(S,-1); HeavyCooldown=CultSecondary::Cooldown(7.f); if(!Owner->IsBot()&&!Owner->IsLocallyControlled()) Owner->ClientAbilityCommitted(3,HeavyCooldown); } }
+  else { C.targetedEntityId=0; Rmb->onPress(C); if(!Rmb->ready()) { HeavyCooldown=CultSecondary::Cooldown(Rmb->cooldownSec()); if(!Owner->IsBot()&&!Owner->IsLocallyControlled()) Owner->ClientAbilityCommitted(3,HeavyCooldown); } Apply(); UpdateDominationPose(); }
   return;
  }
 }

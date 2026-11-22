@@ -22,6 +22,7 @@ public:
  static bool HasSourceAnimation(const FString& Id);
  static bool UsesMeleeStep(ACultUlhuPlayerPawn* Pawn);
  bool StrikeLimb(int Index,FVector& Elbow,FVector& Hand) const;
+ bool FirstPersonEye(FVector& Eye) const;
  bool SampleStrikeLimb(int Index,float AttackAge,FVector& Elbow,FVector& Hand);
  UAnimSequence* DeathAnimationFor(const USkeletalMeshComponent& Mesh) const;
  virtual void Tick(float DeltaSeconds) override;
@@ -54,5 +55,6 @@ private:
  void PlayRole(const FString& Role);
  UAnimSequence* AnimationFor(const USkeletalMeshComponent& Mesh,const FString& ClipRole) const;
  void UpdateOriginalOrb();
+ void UpdateHeadCamera();
  float AuthoredMeleePhase(float Progress) const;
 };

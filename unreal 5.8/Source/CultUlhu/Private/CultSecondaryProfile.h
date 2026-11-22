@@ -3,6 +3,8 @@
 #include <string_view>
 
 namespace CultSecondary {
+inline constexpr float CooldownMultiplier=.65f;
+inline constexpr float Cooldown(float Base) { return Base*CooldownMultiplier; }
 enum class EDelivery { Bolt, Arc, Pair, Fan, Beam, Disk };
 struct FProfile {
  std::string_view Id;

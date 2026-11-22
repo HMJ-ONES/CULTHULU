@@ -320,7 +320,17 @@ static void testNativeCollisionHooks() {
     w.update(c,.1); CHECK(!victim->alive()); CHECK(!target->alive());
 }
 
+static void testNativeRechargeScale() {
+    Fixture f; auto* victim=f.addCivilian(5,0); auto c=f.ctx();
+    c.cooldownScale=.65f; c.targetedEntityId=victim->id();
+    WaveOfDomination wave; wave.onPress(c);
+    CHECK_CLOSE(wave.cooldownRemaining(),7.f*.65f,.0001f);
+    wave.update(c,4.5); CHECK(!wave.ready());
+    wave.update(c,.06); CHECK(wave.ready());
+}
+
 int main() {
+    testNativeRechargeScale();
     testWaveCatchesAndLevitates();
     testChaosImmunity();
     testMaxVictims();

@@ -16,6 +16,7 @@
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "Serialization/JsonReader.h"
@@ -312,6 +313,13 @@ ACultCharacterModel* ACultCharacterModel::AttachToPawn(ACultUlhuPlayerPawn* Pawn
  }
  Model->AttachToComponent(Pawn->GetCapsuleComponent(),FAttachmentTransformRules::KeepRelativeTransform);
  Model->SetActorRelativeLocation(FVector(0,0,-Pawn->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
+ if(Id==TEXT("bokrug")) for(UMeshComponent* Part:Model->Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
+  if(Skin->GetBoneIndex(TEXT("head_0285"))==INDEX_NONE) continue;
+  Skin->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+  Skin->RegisterOnBoneTransformsFinalizedDelegate(FOnBoneTransformsFinalizedMultiCast::FDelegate::CreateWeakLambda(Model,[Model] {Model->UpdateHeadCamera();}));
+  if(auto* Arm=Pawn->FindComponentByClass<USpringArmComponent>()) Arm->AddTickPrerequisiteComponent(Skin);
+  break;
+ }
  TArray<UStaticMeshComponent*> Old; Pawn->GetComponents(Old);
  for(auto* Part:Old) if(Part->ComponentHasTag(TEXT("CultCorpseBody"))||Part->ComponentHasTag(TEXT("VesselEye"))) {
   Part->SetVisibility(false); Part->ComponentTags.Add(TEXT("CultReplacedVessel"));
@@ -420,6 +428,29 @@ void ACultCharacterModel::Tick(float DeltaSeconds) {
  } else if(!bPreview_&&GetOwner()) Destroy();
  if(bOriginalOrb_) UpdateOriginalOrb();
  if(Pawn_) UpdateCombatGesture(DeltaSeconds);
+}
+
+bool ACultCharacterModel::FirstPersonEye(FVector& Eye) const {
+ if(CharacterId_!=TEXT("bokrug")) return false;
+ for(UMeshComponent* Part:Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
+  if(Skin->GetBoneIndex(TEXT("head_0285"))==INDEX_NONE) continue;
+  const FVector Head=Skin->GetBoneLocation(TEXT("head_0285"));
+  const FVector Nose=Skin->GetBoneIndex(TEXT("head_end_0632"))!=INDEX_NONE?Skin->GetBoneLocation(TEXT("head_end_0632")):Head;
+  Eye=FMath::Lerp(Head,Nose,.55f)+GetActorUpVector()*GetActorScale3D().Z*2.5f;
+  return !Eye.ContainsNaN();
+ }
+ return false;
+}
+void ACultCharacterModel::UpdateHeadCamera() {
+ if(!IsValid(Pawn_)||Pawn_->IsThirdPerson()) return;
+ FVector Eye;
+ if(FirstPersonEye(Eye)) if(auto* Arm=Pawn_->FindComponentByClass<USpringArmComponent>()) {
+  const FVector Pivot(Pawn_->GetActorLocation().X,Pawn_->GetActorLocation().Y,Eye.Z);
+  FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(CultHeadCamera),false,Pawn_); Query.AddIgnoredActor(this);
+  const float Probe=FMath::Max(5.f,Pawn_->GetSimpleCollisionRadius()*.04f);
+  if(GetWorld()->SweepSingleByChannel(Hit,Pivot,Eye,FQuat::Identity,ECC_Camera,FCollisionShape::MakeSphere(Probe),Query)) Eye=Hit.Location;
+  Arm->SetWorldLocation(Eye);
+ }
 }
 
 bool ACultCharacterModel::StrikeLimb(int Index,FVector& Elbow,FVector& Hand) const {

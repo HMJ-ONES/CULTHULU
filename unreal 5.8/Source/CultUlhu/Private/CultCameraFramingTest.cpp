@@ -36,7 +36,7 @@ public:
    const auto Aim=Player->CameraAim(15000); auto* Blocker=Cast<ACultUlhuPlayerPawn>(Aim.GetActor());
    Test->TestFalse(TEXT("Initial crosshair has no allied vessel directly blocking the battle view"),Blocker&&Blocker!=Player&&Blocker->GetFaction()==Player->GetFaction());
    const float BodyPlane=FVector::DotProduct(Player->GetActorLocation()-Camera->GetComponentLocation(),Camera->GetForwardVector());
-   Test->TestTrue(TEXT("Initial view has no solid obstruction behind the player's body plane"),!Aim.bBlockingHit||Aim.Distance>=BodyPlane-Player->GetSimpleCollisionRadius());
+   Test->TestTrue(TEXT("Initial view has no solid obstruction behind the player's body plane"),!Aim.bBlockingHit||FVector::DotProduct(Aim.ImpactPoint-Player->GetActorLocation(),Camera->GetForwardVector())>=0);
    Test->AddInfo(FString::Printf(TEXT("Camera %s mode=%d player=%s eye=%s arm=%.1f fixed=%d aim=%s"),*Character,int32(Mode),*Player->GetActorLocation().ToCompactString(),*Camera->GetComponentLocation().ToCompactString(),Arm->TargetArmLength,int32(Arm->IsCollisionFixApplied()),*GetNameSafe(Aim.GetActor())));
    Test->TestTrue(TEXT("Match starts in the requested third-person view"),Player->IsThirdPerson());
    Player->ToggleCamera(); At=World->GetTimeSeconds(); Phase=2; return false;
