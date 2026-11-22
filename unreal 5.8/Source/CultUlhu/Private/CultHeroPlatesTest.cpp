@@ -103,9 +103,8 @@ public:
   for(int I=0;I<Cards.Num();++I) {
    Test->TestTrue(TEXT("Every plate remains inside the reserved play region"),CultHeroPlates::CapturedSafe.IsInside(Cards[I].Bounds.Min)&&CultHeroPlates::CapturedSafe.IsInside(Cards[I].Bounds.Max));
    for(int J=0;J<I;++J) Test->TestFalse(TEXT("Adjacent projected hero plates never overlap"),Cards[I].Bounds.Intersect(Cards[J].Bounds));
-   const auto* Glyph=CultHUDTextProbe::Captured.FindByPredicate([&](const auto& G){return G.Text==Cards[I].Name&&Cards[I].Bounds.IsInside(G.Position);});
-   Test->TestNotNull(TEXT("Each reported plate has an actual Canvas name glyph"),Glyph);
-   if(Glyph) Test->TestTrue(TEXT("Actual name glyph advances fit their plate"),(Glyph->Position*Glyph->DPI+Glyph->Drawn).X<=Cards[I].Bounds.Max.X*Glyph->DPI+1);
+   Test->TestTrue(TEXT("Minimal health bars contain no monster name"),Cards[I].Name.IsEmpty());
+   Test->TestTrue(TEXT("Minimal health bars stay thin"),Cards[I].Bounds.GetSize().Y<12);
   }
   if(ShotIndex==1) Test->TestTrue(TEXT("Normal view retains the real floating damage number"),CultHUDTextProbe::Captured.ContainsByPredicate([](const auto& G){return G.Text==TEXT("60");}));
   if(Mode==ECultPlayMode::Dotgoo&&ShotIndex==2) Test->TestFalse(TEXT("Compact damage numbers never cover the minion-throw instruction"),CultHUDTextProbe::Captured.ContainsByPredicate([](const auto& G){return G.Text==TEXT("60");}));

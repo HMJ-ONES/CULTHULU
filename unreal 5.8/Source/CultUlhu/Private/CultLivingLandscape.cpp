@@ -12,7 +12,7 @@ ACultLivingLandscape::ACultLivingLandscape()
  Caves_=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("CavernVaults")); Caves_->SetupAttachment(Ground_);
  for(auto* C:{Ground_,Caves_}) { C->SetCollisionProfileName(TEXT("BlockAll")); C->bUseComplexAsSimpleCollision=true; C->bUseAsyncCooking=false; }
 }
-const TArray<FVector>& ACultLivingLandscape::CaveSites() { static TArray<FVector> Sites={FVector(-65000,-55000,0),FVector(90000,-45000,0),FVector(30000,110000,0)}; return Sites; }
+const TArray<FVector>& ACultLivingLandscape::CaveSites() { static TArray<FVector> Sites={FVector(-65000,-55000,0),FVector(90000,-45000,0),FVector(30000,110000,0),FVector(-175000,-140000,0),FVector(165000,-165000,0),FVector(185000,140000,0),FVector(-170000,175000,0),FVector(15000,-200000,0)}; return Sites; }
 float ACultLivingLandscape::Height(float X,float Y) const
 {
  const FVector2D P(X,Y);
@@ -25,9 +25,9 @@ float ACultLivingLandscape::Height(float X,float Y) const
  H=FMath::Lerp(H,300.f+Detail*.15f,Vale*.8f);
  const TArray<FVector> Havens={FVector(0,0,0),FVector(75000,65000,0),FVector(-85000,70000,0)};
  for(const auto& S:Havens) H*=FMath::SmoothStep(18000.f,30000.f,float(FVector2D::Distance(P,FVector2D(S))));
- for(const auto& S:CaveSites()) H=FMath::Lerp(1600.f,H,FMath::SmoothStep(12000.f,20000.f,float(FVector2D::Distance(P,FVector2D(S)))));
+ for(const auto& S:CaveSites()) H=FMath::Lerp(1600.f,H,FMath::SmoothStep(14000.f,23000.f,float(FVector2D::Distance(P,FVector2D(S)))));
  // Elevated boundary ridges read as the edge of the world, rather than a cut plane.
- H+=FMath::Square(FMath::Clamp((FMath::Max(FMath::Abs(X),FMath::Abs(Y))-155000.f)/25000.f,0.f,1.f))*18000.f;
+ H+=FMath::Square(FMath::Clamp((FMath::Max(FMath::Abs(X),FMath::Abs(Y))-(Extent-25000.f))/25000.f,0.f,1.f))*18000.f;
  return H;
 }
 void ACultLivingLandscape::Generate(int32 Seed)
@@ -35,7 +35,7 @@ void ACultLivingLandscape::Generate(int32 Seed)
  WorldSeed=Seed;
  FRandomStream R(Seed); NoiseOffset_=FVector2D(R.FRandRange(20,200),R.FRandRange(20,200));
  TArray<FVector> V,N; TArray<int32> T; TArray<FVector2D> UV; TArray<FLinearColor> Colors;
- constexpr int Grid=180; constexpr float Step=Extent*2/Grid;
+ constexpr int Grid=260; constexpr float Step=Extent*2/Grid;
  for(int Y=0;Y<=Grid;++Y) for(int X=0;X<=Grid;++X) {
   const float PX=-Extent+X*Step,PY=-Extent+Y*Step,H=Height(PX,PY);
   const FVector Normal=FVector(Height(PX-100,PY)-Height(PX+100,PY),Height(PX,PY-100)-Height(PX,PY+100),200).GetSafeNormal();
@@ -47,19 +47,33 @@ void ACultLivingLandscape::Generate(int32 Seed)
  if(auto* M=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_LivingGround"))) Ground_->SetMaterial(0,M);
  V.Reset(); N.Reset(); T.Reset(); UV.Reset(); Colors.Reset();
  // True open tunnels: 60 m high, 90 m wide, 160 m deep. Ground remains walkable inside.
- for(const auto& Site:CaveSites()) {
+ for(const auto& Site:CaveSites()) for(int Branch=0;Branch<2;++Branch) {
   const int Base=V.Num();
   for(int D=0;D<=8;++D) for(int A=0;A<=16;++A) {
    const float Angle=A*PI/16.f;
    const float W=4500.f*(1.f+.07f*FMath::Sin(D*2.f+A));
-   V.Add(Site+FVector(FMath::Cos(Angle)*W,-8000+D*2000,1600+FMath::Sin(Angle)*6000));
-   N.Add(FVector(-FMath::Cos(Angle),0,-FMath::Sin(Angle))); UV.Add(FVector2D(A/4.f,D/2.f)); Colors.Add(FLinearColor(.16,.17,.19));
-   if(D<8&&A<16) { int I=Base+D*17+A; T.Append({I,I+17,I+18,I,I+18,I+1,I+18,I+17,I,I+1,I+18,I}); }
+   const FVector Local(FMath::Cos(Angle)*W,-8000+D*2000,1600+FMath::Sin(Angle)*6000);
+   V.Add(Site+(Branch?FVector(Local.Y,Local.X,Local.Z):Local));
+   N.Add(Branch?FVector(0,-FMath::Cos(Angle),-FMath::Sin(Angle)):FVector(-FMath::Cos(Angle),0,-FMath::Sin(Angle))); UV.Add(FVector2D(A/4.f,D/2.f)); Colors.Add(FLinearColor(.16,.17,.19));
+   // Open the crossing side walls; overlapping closed tubes would block the junction.
+   const bool CrossingPortal=D>=2&&D<=5&&(A<6||A>=10);
+   if(D<8&&A<16&&!CrossingPortal) { int I=Base+D*17+A; T.Append({I,I+17,I+18,I,I+18,I+1,I+18,I+17,I,I+1,I+18,I}); }
   }
+ }
+ // The two open crossing arches leave their corner ceiling uncovered. Seal
+ // that chamber overhead, while keeping all four ground entrances open.
+ for(const auto& Site:CaveSites()) {
+  const int Base=V.Num();
+  const FVector2D Corners[]={FVector2D(-4500,-4500),FVector2D(4500,-4500),FVector2D(4500,4500),FVector2D(-4500,4500)};
+  for(const auto& Corner:Corners) {
+   V.Add(Site+FVector(Corner.X,Corner.Y,7600)); N.Add(FVector::DownVector);
+   UV.Add(Corner/2200); Colors.Add(FLinearColor(.16f,.17f,.19f));
+  }
+  T.Append({Base,Base+2,Base+1,Base,Base+3,Base+2,Base+1,Base+2,Base,Base+2,Base+3,Base});
  }
  Caves_->CreateMeshSection_LinearColor(0,V,T,N,UV,Colors,TArray<FProcMeshTangent>(),true);
  Caves_->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_LivingCavern")));
- UE_LOG(LogTemp,Log,TEXT("[CultUlhu] Living landscape: 3.6 km across, %d ground triangles, 3 walk-through caverns, seed %d"),Grid*Grid*2,Seed);
+ UE_LOG(LogTemp,Log,TEXT("[CultUlhu] Living landscape: 5.2 km across, %d ground triangles, eight walk-through caverns, seed %d"),Grid*Grid*2,Seed);
 }
 FBox ACultLivingLandscape::GroundBounds() const { return Ground_->Bounds.GetBox(); }
 ACultLivingLandscape* ACultLivingLandscape::Find(UWorld* W) { for(TActorIterator<ACultLivingLandscape> It(W);It;++It) return *It; return nullptr; }

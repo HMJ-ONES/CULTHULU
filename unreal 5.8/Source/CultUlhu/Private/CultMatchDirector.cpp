@@ -1,4 +1,5 @@
 #include "CultMatchDirector.h"
+#include "CultBattlefieldLayout.h"
 #include "CultUlhuPlayerController.h"
 #include "CultReplicatedBody.h"
 #include "CultMatchSpawn.h"
@@ -105,7 +106,7 @@ void ACultMatchDirector::SpawnFighter(int I) {
  }
  if(F.Pawn.IsValid()) { F.Pawn->RespawnMatch(Feet); F.Pawn->SetActorRotation(FRotator(0,F.Team?180:0,0)); }
  F.DomPath.Reset(); F.DomPathIndex=0; F.DomEscape=false;
- if(Mode()==ECultPlayMode::Domination&&I%5==4) F.DomPath=FCultDominationRoute::Flank(F.Team,(F.Team?-1:1)*(F.Deaths%2?-1:1));
+ if(Mode()==ECultPlayMode::Domination&&I%5==4) F.DomPath=F.Deaths%2?FCultDominationRoute::OuterFlank(F.Team,(F.Team?-1:1)):FCultDominationRoute::Flank(F.Team,(F.Team?-1:1));
  F.Shield=3; F.Respawn=0; F.Recall=F.Invoke=0; F.RelicNeedsRelease=false; F.RouteStep=1; F.Retreating=false; if(F.Pawn.IsValid()) F.Pawn->MarkCombat(); F.Pawn->Tags.AddUnique(FName(*FString::Printf(TEXT("MatchFighter%d"),I)));
 }
 void ACultMatchDirector::Announce(const FString& Text) { State_->Notice=Text; State_->NoticeTime=6; UE_LOG(LogTemp,Log,TEXT("[CultMatch] %s"),*Text); }
@@ -220,7 +221,7 @@ void ACultMatchDirector::Ping(ACultUlhuPlayerPawn* P) {
 }
 void ACultMatchDirector::PingAt(ACultUlhuPlayerPawn* P,FVector Point) {
  if(!HasAuthority()||!CanAct(P)||Point.ContainsNaN()||FVector::Dist2D(Point,P->FeetLocation())>30000) return;
- State_->PingPoint=Point; State_->PingPoint.X=FMath::Clamp(Point.X,-35000.,35000.); State_->PingPoint.Y=FMath::Clamp(Point.Y,-27000.,27000.); State_->PingTime=12; State_->PingTeam=P->GetFaction(); Announce(TEXT("Rally ping sent."));
+ const auto PingExtent=CultBattlefieldLayout::HalfExtent(Mode()==ECultPlayMode::Dotgoo)-FVector2D(2000); State_->PingPoint=Point; State_->PingPoint.X=FMath::Clamp(Point.X,-PingExtent.X,PingExtent.X); State_->PingPoint.Y=FMath::Clamp(Point.Y,-PingExtent.Y,PingExtent.Y); State_->PingTime=12; State_->PingTeam=P->GetFaction(); Announce(TEXT("Rally ping sent."));
 }
 void ACultMatchDirector::Finish(int T) {
  if(State_->Over) return; State_->LocalMenu=false; State_->Over=true; State_->Winner=T;

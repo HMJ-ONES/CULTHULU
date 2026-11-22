@@ -447,6 +447,32 @@ bool ACultCharacterModel::StrikeLimb(int Index,FVector& Elbow,FVector& Hand) con
  return false;
 }
 
+bool ACultCharacterModel::SampleStrikeLimb(int Index,float AttackAge,FVector& Elbow,FVector& Hand) {
+ if(!Pawn_||Pawn_->AttackPlayback().Move!=CultAttackMotion::EMove::Melee||!CurrentRole_.StartsWith(TEXT("melee_"))) return false;
+ const auto& Playback=Pawn_->AttackPlayback();
+ for(UMeshComponent* Part:Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
+  auto* Player=Skin->GetSingleNodeInstance(); auto* Clip=AnimationFor(*Skin,CurrentRole_);
+  if(!Player||!Clip||Player->GetCurrentAsset()!=Clip) continue;
+  // Evaluate the same authored clip and procedural arm channels at an omitted
+  // contact time, then restore the rendered pose. No broad cone or auto-hit.
+  const float SavedTime=Player->GetCurrentTime();
+  auto* Fluid=Cast<UCultFluidAnimInstance>(Player);
+  const auto SavedAttack=Fluid?Fluid->Attack:CultAttackMotion::FFrame();
+  const float SavedProgress=Fluid?Fluid->MeleeProgress:0;
+  if(Fluid) {
+   Fluid->Attack=CultAttackMotion::Sample(CharacterId_,Playback,Playback.Began+AttackAge);
+   Fluid->MeleeProgress=(AttackAge-Playback.Contact)/.145f;
+  }
+  Player->SetPosition(Clip->GetPlayLength()*AuthoredMeleePhase(FMath::Clamp(AttackAge/FMath::Max(.01f,Playback.Duration),0.f,1.f)),false);
+  Skin->TickAnimation(0,false); Skin->RefreshBoneTransforms();
+  const bool Found=StrikeLimb(Index,Elbow,Hand);
+  if(Fluid) { Fluid->Attack=SavedAttack; Fluid->MeleeProgress=SavedProgress; }
+  Player->SetPosition(SavedTime,false); Skin->TickAnimation(0,false); Skin->RefreshBoneTransforms();
+  if(Found) return true;
+ }
+ return false;
+}
+
 bool ACultCharacterModel::UsesMeleeStep(ACultUlhuPlayerPawn* Pawn) {
  if(!Pawn) return false; TArray<AActor*> Attached; Pawn->GetAttachedActors(Attached);
  for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) if(Model->bMeleeStep_) return true;

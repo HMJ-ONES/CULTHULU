@@ -20,6 +20,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
 #include "CultMovementTuning.h"
+#include "Misc/Parse.h"
+#include "Misc/CommandLine.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInterface.h"
 
@@ -219,7 +221,35 @@ void ACultSkillAttack::UpdateLimbStrike() {
    Pawn->FallbackStrikeLimb(Index,Current.Elbow,Current.Hand);
   if(!Current.Valid) continue;
   auto& Last=LastLimbs[Index];
+  const float SampleStart=FMath::Max(LastLimbAge,Windup),SampleEnd=FMath::Min(Age,Windup+Duration);
+  if(HasAuthority()&&StrikeModel.IsValid()&&SampleEnd>SampleStart&&Age-LastLimbAge>1.f/30.f) {
+   const int32 Steps=FMath::Clamp(FMath::CeilToInt((SampleEnd-SampleStart)*60.f),1,12);
+   FLimbSample PreviousSample;
+   for(int32 Step=0;Step<=Steps;++Step) {
+    FLimbSample Sample;
+    Sample.Valid=StrikeModel->SampleStrikeLimb(Index,FMath::Lerp(SampleStart,SampleEnd,float(Step)/Steps),Sample.Elbow,Sample.Hand);
+    if(!Sample.Valid) break;
+    if(FVector::DotProduct(Sample.Hand-Pawn->GetActorLocation(),Facing)>0) {
+     Origin=Sample.Elbow;
+     Sweep(Sample.Elbow,Sample.Hand,Radius*.78f);
+     if(PreviousSample.Valid) {
+      Sweep(PreviousSample.Hand,Sample.Hand,Radius);
+      Sweep((PreviousSample.Elbow+PreviousSample.Hand)*.5,(Sample.Elbow+Sample.Hand)*.5,Radius*.78f);
+     }
+     auto& Trail=HandTrails[Index]; Trail.Add(Sample.Hand); if(Trail.Num()>12) Trail.RemoveAt(0);
+    }
+    PreviousSample=Sample;
+   }
+  }
   const bool InFront=FVector::DotProduct(Current.Hand-Pawn->GetActorLocation(),Facing)>0;
+  static const bool Probe=FParse::Param(FCommandLine::Get(),TEXT("CultMeleeContactProbe"));
+  if(Probe&&Pawn->GetCharacterId()==TEXT("cthulhu_avatar")) {
+   const FVector Local=Current.Hand-Pawn->FeetLocation();
+   for(TActorIterator<ACultUlhuPlayerPawn> It(GetWorld());It;++It) if(Enemy(Pawn,*It)&&FVector::Dist2D(Pawn->GetActorLocation(),It->GetActorLocation())<5000) {
+    FVector Closest; const float Distance=It->CombatCapsule()->GetClosestPointOnCollision(Current.Hand,Closest);
+    UE_LOG(LogTemp,Display,TEXT("[MeleeContactProbe] age=%.3f active=%d front=%d stage=%d hand=%s distance=%.1f radius=%.1f role=%s"),Age,Active,InFront,Stage,*Local.ToString(),Distance,Radius,StrikeModel.IsValid()?*StrikeModel->AnimationRole():TEXT("fallback"));
+   }
+  }
   if(Active&&InFront) {
    auto& Trail=HandTrails[Index];
    if(Trail.IsEmpty()||!Trail.Last().Equals(Current.Hand,4.f)) Trail.Add(Current.Hand);

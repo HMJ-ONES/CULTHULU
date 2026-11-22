@@ -42,7 +42,7 @@ ACultPopulation* PersonAt(UWorld* W,FVector Ground) {
 } }
 ACultWorldDirector::ACultWorldDirector() { bReplicates=true; bAlwaysRelevant=true; CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody")); PrimaryActorTick.bCanEverTick=true; }
 ACultWorldDirector* ACultWorldDirector::Find(UWorld* W) { for(TActorIterator<ACultWorldDirector> It(W);It;++It) return *It; return nullptr; }
-void ACultWorldDirector::BeginPlay() { Super::BeginPlay(); State_=new FState; InitializeFaith(); if(!HasAuthority()) return; if(ACultMatchDirector::IsMatch(GetWorld())) { return; } for(TActorIterator<ACultPopulation> It(GetWorld());It;++It) if(It->IsCultist()) Register(*It); BuildTemples(); SpawnRivals(); for(int I=0;I<7;++I) NewCity(); PopulateSociety(); }
+void ACultWorldDirector::BeginPlay() { Super::BeginPlay(); State_=new FState; InitializeFaith(); if(!HasAuthority()) return; if(ACultMatchDirector::IsMatch(GetWorld())) { return; } for(TActorIterator<ACultPopulation> It(GetWorld());It;++It) if(It->IsCultist()) Register(*It); BuildTemples(); SpawnRivals(); for(int I=0;I<10;++I) NewCity(); PopulateSociety(); }
 void ACultWorldDirector::EndPlay(const EEndPlayReason::Type R) { delete State_; State_=nullptr; Super::EndPlay(R); }
 cultulhu::EventBus& ACultWorldDirector::Bus(int32 F) { return State_->Faiths[FMath::Clamp(F,0,2)]->Bus; }
 cultulhu::BeliefSystem& ACultWorldDirector::Beliefs(int32 F) { return State_->Faiths[FMath::Clamp(F,0,2)]->Beliefs; }
@@ -96,10 +96,10 @@ void ACultWorldDirector::BuildTemples()
 void ACultWorldDirector::NewCity()
 {
  if(!State_ || CityCount()>=12) return;
- const TArray<FVector> Founding={FVector(18000,8000,0),FVector(-30000,-18000,0),FVector(45000,-12000,0),FVector(65000,35000,0),FVector(-65000,35000,0),FVector(8000,70000,0),FVector(-15000,-65000,0)};
+ const TArray<FVector> Founding={FVector(18000,8000,0),FVector(-30000,-18000,0),FVector(45000,-12000,0),FVector(65000,35000,0),FVector(-65000,35000,0),FVector(8000,70000,0),FVector(-15000,-65000,0),FVector(-155000,-125000,0),FVector(155000,125000,0),FVector(120000,-150000,0)};
  FVector Center; bool Valid=false;
  for(int Try=0;Try<100;++Try) {
-  FVector C=State_->Cities.size()<size_t(Founding.Num())?Founding[State_->Cities.size()]+FVector(State_->Random.FRandRange(-3000.f,3000.f),State_->Random.FRandRange(-3000.f,3000.f),0):FVector(State_->Random.FRandRange(-140000.f,140000.f),State_->Random.FRandRange(-140000.f,140000.f),0);
+  FVector C=State_->Cities.size()<size_t(Founding.Num())?Founding[State_->Cities.size()]+FVector(State_->Random.FRandRange(-3000.f,3000.f),State_->Random.FRandRange(-3000.f,3000.f),0):FVector(State_->Random.FRandRange(-ACultLivingLandscape::Extent*.82f,ACultLivingLandscape::Extent*.82f),State_->Random.FRandRange(-ACultLivingLandscape::Extent*.82f,ACultLivingLandscape::Extent*.82f),0);
   if(!Ground(C,Center)) continue; bool Clear=true;
   for(auto& Town:State_->Cities) if(FVector::Dist2D(Town.Center,Center)<14000) Clear=false;
   for(auto& Temple:State_->Temples) if(FVector::Dist2D(Temple,Center)<20000) Clear=false;
@@ -146,8 +146,8 @@ void ACultWorldDirector::AdvancePopulation()
  if(!State_) return; int Civs=0,Beasts=0;
  for(TActorIterator<ACultPopulation> It(GetWorld());It;++It) if(!It->IsCultist()) ++Civs;
  for(TActorIterator<ACultFeralBeast> It(GetWorld());It;++It) if(!It->IsDead()) ++Beasts;
- FVector P; if(Civs<100 && Ground(FVector(State_->Random.FRandRange(-145000.f,145000.f),State_->Random.FRandRange(-145000.f,145000.f),0),P)) PersonAt(GetWorld(),P);
- if(Beasts<36 && Ground(FVector(State_->Random.FRandRange(-145000.f,145000.f),State_->Random.FRandRange(-145000.f,145000.f),0),P)) {
+ FVector P; if(Civs<100 && Ground(FVector(State_->Random.FRandRange(-ACultLivingLandscape::Extent*.85f,ACultLivingLandscape::Extent*.85f),State_->Random.FRandRange(-ACultLivingLandscape::Extent*.85f,ACultLivingLandscape::Extent*.85f),0),P)) PersonAt(GetWorld(),P);
+ if(Beasts<36 && Ground(FVector(State_->Random.FRandRange(-ACultLivingLandscape::Extent*.85f,ACultLivingLandscape::Extent*.85f),State_->Random.FRandRange(-ACultLivingLandscape::Extent*.85f,ACultLivingLandscape::Extent*.85f),0),P)) {
   const TArray<FString> Names={TEXT("skittering_ghoul"),TEXT("charnel_imp"),TEXT("pale_wight"),TEXT("ossified_brute")}; FTransform T(P+FVector(0,0,100)); auto* B=GetWorld()->SpawnActorDeferred<ACultFeralBeast>(ACultFeralBeast::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn); B->SetSpecies(Names[State_->Random.RandRange(0,3)]); B->FinishSpawning(T); }
  SpawnRivals();
 }

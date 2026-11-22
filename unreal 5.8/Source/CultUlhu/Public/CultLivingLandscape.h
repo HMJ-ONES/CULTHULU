@@ -12,7 +12,7 @@ public:
  UPROPERTY(ReplicatedUsing=OnRep_Seed) int32 WorldSeed=0;
  virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
  void Generate(int32 Seed);
- static constexpr float Extent=180000.f;
+ static constexpr float Extent=260000.f;
  float Height(float X,float Y) const;
  FBox GroundBounds() const;
  static ACultLivingLandscape* Find(UWorld* W);

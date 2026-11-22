@@ -50,10 +50,9 @@ void CultHeroPlates::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* P,AC
  TArray<FBox2D,TInlineAllocator<4>> Placed; const int Limit=C->SizeY<500?2:4;
  for(const auto& Candidate:Candidates) {
   if(Placed.Num()>=Limit) break;
-  FString Name=Candidate.Name; const float Pad=7*S,Mark=14*S,MaxWidth=150*S;
-  while(!Name.IsEmpty()&&Measure->Measure(Name,Font).X>MaxWidth) { Name.LeftChopInline(1); }
-  if(Name!=Candidate.Name) { while(!Name.IsEmpty()&&Measure->Measure(Name+TEXT("..."),Font).X>MaxWidth) Name.LeftChopInline(1); Name+=TEXT("..."); }
-  const auto TextSize=Measure->Measure(Name,Font); const float Width=FMath::Max(100*S,float(TextSize.X)+2*Pad+Mark),Height=TextSize.Y+14*S;
+  FString Name;
+  const FVector2D TextSize=FVector2D::ZeroVector;
+  const float Width=80*S,Height=5*S;
   bool Fits=false; FBox2D Bounds;
   for(int Row=0;Row<7&&!Fits;++Row) {
    // Prefer short lateral leaders over stacking high above another hero.
@@ -69,24 +68,13 @@ void CultHeroPlates::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* P,AC
   if(!Fits) continue;
   Placed.Add(Bounds); Cards.Add({&Candidate,MoveTemp(Name),Bounds,TextSize});
  }
- // Leaders all sit beneath all cards, including cards placed earlier by focus
- // priority. A later candidate must never draw a line across another name.
- for(const auto& Card:Cards) {
-  const auto& Candidate=*Card.Candidate; const auto& Bounds=Card.Bounds; const auto Accent=Candidate.Hero->TeamColorFor(P->GetFaction());
-  HUD->DrawLine(FMath::Clamp(Candidate.Anchor.X,Bounds.Min.X,Bounds.Max.X),FMath::Clamp(Candidate.Anchor.Y,Bounds.Min.Y,Bounds.Max.Y),Candidate.Anchor.X,Candidate.Anchor.Y,Accent.CopyWithNewOpacity(.6f),S);
- }
  for(const auto& Card:Cards) {
   const auto& Candidate=*Card.Candidate; const auto& Bounds=Card.Bounds; const auto& Name=Card.Name; const auto TextSize=Card.TextSize;
-  const float Width=Bounds.GetSize().X,Height=Bounds.GetSize().Y,Pad=7*S,Mark=14*S; const auto Accent=Candidate.Hero->TeamColorFor(P->GetFaction());
+  const float Width=Bounds.GetSize().X; const auto Accent=Candidate.Hero->TeamColorFor(P->GetFaction());
   const float X=Bounds.Min.X,Y=Bounds.Min.Y,Health=Candidate.Hero->GetHealth(),Max=FMath::Max(1.f,Candidate.Hero->GetMaxHealth());
-  HUD->DrawRect(CultUI::Panel,X,Y,Width,Height); HUD->DrawRect(Candidate.Focused?CultUI::Gold:Accent,X,Y,Width,FMath::Max(1.f,S));
-  const float GX=X+Pad+4*S,GY=Y+TextSize.Y*.5f+3*S;
-  if(Candidate.Friendly) { HUD->DrawLine(GX-3*S,GY,GX+3*S,GY,Accent,1.5f*S); HUD->DrawLine(GX,GY-3*S,GX,GY+3*S,Accent,1.5f*S); }
-  else for(int I=0;I<4;++I) { const FVector2D D[]={FVector2D(0,-4),FVector2D(4,0),FVector2D(0,4),FVector2D(-4,0)}; HUD->DrawLine(GX+D[I].X*S,GY+D[I].Y*S,GX+D[(I+1)%4].X*S,GY+D[(I+1)%4].Y*S,Accent,S); }
-  CultCanvasLabel(C,Name,CultUI::Bone,X+Pad+Mark,Y+3*S,11*S);
-  const float BarY=Bounds.Max.Y-7*S,BarW=Width-2*Pad;
-  HUD->DrawRect(FLinearColor(.12f,.17f,.20f),X+Pad,BarY,BarW,4*S); HUD->DrawRect(Accent,X+Pad,BarY,BarW*FMath::Clamp(Health/Max,0.f,1.f),4*S);
-  for(int I=1;I<5;++I) HUD->DrawRect(CultUI::Panel,X+Pad+BarW*I/5.f,BarY,FMath::Max(1.f,S),4*S);
+  HUD->DrawRect(FLinearColor(.01f,.018f,.022f,.8f),X-1,Y-1,Width+2,5*S+2);
+  HUD->DrawRect(FLinearColor(.12f,.17f,.20f,.7f),X,Y,Width,5*S);
+  HUD->DrawRect(Accent.CopyWithNewOpacity(.9f),X,Y,Width*FMath::Clamp(Health/Max,0.f,1.f),5*S);
 #if WITH_DEV_AUTOMATION_TESTS
   if(Capture) Captured.Add({Candidate.Hero,Name,Bounds,Candidate.Anchor,Health,Max,Candidate.Friendly,Candidate.Focused});
 #endif

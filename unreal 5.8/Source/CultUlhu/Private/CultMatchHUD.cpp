@@ -1,4 +1,5 @@
 #include "CultMatchDirector.h"
+#include "CultBattlefieldLayout.h"
 #include "CultWardWarning.h"
 #include "CultHUDSpace.h"
 #include "CultMatchState.h"
@@ -80,7 +81,8 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
  }
  // Always-visible tactical map. The same coordinates drive movement and objectives.
  Panel(MX-8*S,MY-8*S,Map+16*S,Map+52*S);
- auto Point=[&](FVector V) { return FVector2D(MX+(V.X/(State_->Moba?80000.f:64000.f)+.5f)*Map,MY+(.5f-V.Y/(State_->Moba?46000.f:60000.f))*Map); };
+ const auto MapExtent=CultBattlefieldLayout::HalfExtent(State_->Moba!=nullptr);
+ auto Point=[&](FVector V) { return FVector2D(MX+(V.X/(MapExtent.X*2)+.5f)*Map,MY+(.5f-V.Y/(MapExtent.Y*2))*Map); };
  // Draw the physical layout, not a separate painted approximation. Raised decks
  // and solid cover remain legible behind objective and team markers.
  for(TActorIterator<AActor> It(GetWorld());It;++It) {
@@ -98,7 +100,7 @@ void ACultMatchDirector::Draw(ACultPlayHUD* HUD,UCanvas* C,ACultUlhuPlayerPawn* 
    const auto A=Point(FCultMobaRoute::Knot(Lane,I)),B=Point(FCultMobaRoute::Knot(Lane,I+1));
    HUD->DrawLine(A.X,A.Y,B.X,B.Y,FLinearColor(.19f,.29f,.32f),3*S);
   }
- } else { auto A=Point(Objective()); const auto E=CaptureHalfExtent(); const float RX=E.X/64000.f*Map,RY=E.Y/60000.f*Map; HUD->DrawRect(Holder()==Ally?Blue:Holder()==Enemy?Red:Gold,A.X-RX,A.Y-RY,RX*2,RY*2); }
+ } else { auto A=Point(Objective()); const auto E=CaptureHalfExtent(); const float RX=E.X/(MapExtent.X*2)*Map,RY=E.Y/(MapExtent.Y*2)*Map; HUD->DrawRect(Holder()==Ally?Blue:Holder()==Enemy?Red:Gold,A.X-RX,A.Y-RY,RX*2,RY*2); }
  if(!State_->Moba) {
   // Match the neutral skyline symbols rather than adding another text legend.
   const auto Crown=Point(FVector(0,27000,0)),Hollow=Point(FVector(0,-27000,0));

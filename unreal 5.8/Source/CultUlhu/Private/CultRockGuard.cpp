@@ -1,5 +1,6 @@
 #include "CultKitRuntime.h"
 #include "CultAbilityFX.h"
+#include "CultMovementTuning.h"
 
 #include "CultMatchDirector.h"
 #include "CultSkillAttack.h"
@@ -47,18 +48,18 @@ bool FCultKitRuntime::RockInput(bool Press) {
  if(!Rock) return true;
  Rock->bRockGuard=true;
  Rock->RockExtents=FVector(HalfHeight*.22f,Capsule->GetScaledCapsuleRadius()*1.04f,HalfHeight*.55f);
- Rock->ImpactPower=16.f;
+ Rock->ImpactPower=16.f*CultMovement::ProjectileDamageMultiplier;
  Rock->SignalStyle=uint8(CultPrimary::ESignal::Stone);
  Rock->AbilityLook=uint8(CultAbilityFX::ELook::Stone);
  Rock->Windup=.10f;
  Rock->Radius=FMath::Min(float(Rock->RockExtents.Y),HalfHeight*.40f);
- Rock->Speed=10530;
+ Rock->Speed=10530*(CultMovement::ProjectileSpeedMultiplier/1.35f);
  Rock->Reach=11000;
  Rock->Duration=Rock->Reach/Rock->Speed+.06f;
  const TWeakObjectPtr<ACultUlhuPlayerPawn> Source(Owner);
  Rock->Hit=[Source](AActor* Target,FVector Point) {
   if(auto* Pawn=Source.Get()) {
-   float Damage=16.f;
+   float Damage=16.f*CultMovement::ProjectileDamageMultiplier;
    if(const auto* Match=ACultMatchDirector::Find(Pawn->GetWorld())) Damage*=Match->DamageMultiplier(Pawn);
    else if(auto* Hero=::Cast<ACultUlhuPlayerPawn>(Target)) Damage*=Hero->GetMaxHealth()/150.f;
    else Damage*=4.f;

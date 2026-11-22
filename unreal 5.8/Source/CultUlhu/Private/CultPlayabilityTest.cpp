@@ -17,6 +17,8 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Misc/FileHelper.h"
+#include "Misc/Parse.h"
+#include "Misc/CommandLine.h"
 
 struct FCultPlayabilityAccess {
  static FCultKitRuntime& Kit(ACultUlhuPlayerPawn* P) { return *P->Kit_; }
@@ -85,7 +87,8 @@ class FPlayabilityMatrix final : public IAutomationLatentCommand {
  bool Entered=false;
  int32 Index=0,Action=0;
  EPhase Phase=EPhase::Spawn;
- float PhaseAt=0,WalkVelocity=0,SprintVelocity=0,StaminaBefore=0,Before=0,PrimaryDamage=0;
+ float PhaseAt=0,WalkVelocity=0,SprintVelocity=0,StaminaBefore=0,Before=0,PrimaryDamage=0,LowestHealth=0;
+ bool ObservedControl=false;
  int32 Casts=0,Hits=0;
  bool Heavy=false;
  FVector Start,EnemyFeet,BeforePosition;
@@ -122,7 +125,13 @@ public:
   auto* PC=World?World->GetFirstPlayerController():nullptr;
   if(!PC) return false;
   auto* Game=Cast<UCultUlhuGameInstance>(World->GetGameInstance());
-  const auto& Roster=Game->Roster();
+  auto Roster=Game->Roster();
+  FString CharacterFilter;
+  if(FParse::Value(FCommandLine::Get(),TEXT("CultPlayabilityCharacters="),CharacterFilter,false)) {
+   TArray<FString> Wanted; CharacterFilter.ParseIntoArray(Wanted,TEXT(","),true);
+   Roster.RemoveAll([&](const auto& Entry){return !Wanted.Contains(Entry.Id);});
+   if(Roster.IsEmpty()) { Test.AddError(TEXT("Unknown playability character filter")); return true; }
+  }
   if(!Entered) {
    if(!World->GetName().Contains(TEXT("L_MainMenu"))) return false;
    Game->OpenCharacterSelect(Mode);
@@ -144,6 +153,13 @@ public:
   auto* P=Player.Get();
   auto* E=Enemy.Get();
 
+  if(Phase==EPhase::Observe&&E&&Access::HasKit(P)) {
+   LowestHealth=FMath::Min(LowestHealth,E->GetHealth());
+   if(Action>=2) {
+    const auto& Spell=Action==2?Access::Kit(P).Def.qAbility:Action==3?Access::Kit(P).Def.fAbility:Access::Kit(P).Def.rAbility;
+    if(Spell.effectKind=="stun"||Spell.effectKind=="fear_aura"||Spell.effectKind=="debuff") ObservedControl|=Access::Control(E,Spell.effectKind);
+   }
+  }
   if(Phase==EPhase::Spawn) {
    const FString& Id=Roster[Index].Id;
    Label=UCultUlhuGameInstance::ModeDisplayName(Mode)+TEXT(" / ")+Id;
@@ -260,7 +276,7 @@ public:
    else Kit.Sprint(false,20.f);
    StaminaBefore=Kit.StaminaValue();
    Before=Healing?Kit.Damage(P->GetMaxHealth()*.25f):E->GetHealth();
-   BeforePosition=E->GetActorLocation();
+   BeforePosition=E->GetActorLocation(); LowestHealth=E->GetHealth(); ObservedControl=false;
    const ECultPlayerInput Keys[]={ECultPlayerInput::Primary,ECultPlayerInput::Heavy,ECultPlayerInput::Q,ECultPlayerInput::F,ECultPlayerInput::R};
    const auto WardCapacity=[&] {
     return Mode==ECultPlayMode::FreeRoam
@@ -304,7 +320,8 @@ public:
    PhaseAt=Now;
   } else if(Phase==EPhase::Observe&&Now-PhaseAt>1.22f) {
    if(Action==0) {
-    PrimaryDamage=(Before-E->GetHealth())/E->GetMaxHealth()*100.f;
+    PrimaryDamage=(Before-LowestHealth)/E->GetMaxHealth()*100.f;
+    Test.AddInfo(FString::Printf(TEXT("PRIMARY_CONTACT %s before=%.2f low=%.2f final=%.2f player=%s enemy=%s"),*Label,Before,LowestHealth,E->GetHealth(),*P->FeetLocation().ToString(),*E->FeetLocation().ToString()));
     Check(TEXT("a centered primary actually hits the stationary hero"),PrimaryDamage>0);
     Check(TEXT("the opening primary is below 25% of equal-health hero HP"),PrimaryDamage<25.f);
    } else if(Action>=2) {
@@ -316,7 +333,7 @@ public:
     if(Kind=="chaos_shield")
      for(TActorIterator<ACultChaosShield> It(World);It;++It) Observed|=It->GetOwner()==P;
     if(Kind=="dash") Observed=FVector::Dist2D(P->FeetLocation(),Arena)>100.f;
-    if(Kind=="stun"||Kind=="fear_aura"||Kind=="debuff") Observed=Access::Control(E,Kind);
+    if(Kind=="stun"||Kind=="fear_aura"||Kind=="debuff") Observed=ObservedControl||Access::Control(E,Kind);
     if(Kind=="pull") Observed=FVector::Dist2D(E->GetActorLocation(),BeforePosition)>100.f;
     if(Kind=="buff") Observed=Access::PowerSurge(P);
     if(Kind=="shield") {

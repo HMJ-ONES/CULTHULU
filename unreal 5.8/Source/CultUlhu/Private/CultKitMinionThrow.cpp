@@ -1,4 +1,5 @@
 #include "CultKitRuntime.h"
+#include "CultMovementTuning.h"
 #include "CultAbilityFX.h"
 #include "CultMatchDirector.h"
 #include "CultMatchUnit.h"
@@ -63,14 +64,14 @@ void FCultKitRuntime::LaunchMinion() {
  const FTransform T(Origin); auto* Bolt=Owner->GetWorld()->SpawnActorDeferred<ACultSkillAttack>(ACultSkillAttack::StaticClass(),T,Owner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
  if(!Bolt) { CancelMinionThrow(); return; }
  Bolt->Shape=ACultSkillAttack::EShape::Bolt; Bolt->Direction=(Aim-Origin).GetSafeNormal(); if(Bolt->Direction.IsNearlyZero()) Bolt->Direction=Owner->AimRotation().Vector();
- Bolt->Speed=8100; Bolt->Reach=9200; Bolt->Radius=100; Bolt->Windup=.12f; Bolt->Duration=Bolt->Reach/Bolt->Speed+.06f;
+ Bolt->Speed=8100*(CultMovement::ProjectileSpeedMultiplier/1.35f); Bolt->Reach=9200; Bolt->Radius=100; Bolt->Windup=.12f; Bolt->Duration=Bolt->Reach/Bolt->Speed+.06f;
  Bolt->AbilityLook=uint8(CultAbilityFX::ELook::Tendrils);
  Bolt->TargetFilter=[](AActor* A){ auto* U=::Cast<ACultMatchUnit>(A); return ::Cast<ACultUlhuPlayerPawn>(A)||(U&&U->IsStructure()); };
  TWeakObjectPtr<ACultMatchUnit> WeakUnit(Unit); TWeakObjectPtr<ACultUlhuPlayerPawn> WeakOwner(Owner); const float Scale=M->DamageMultiplier(Owner);
  Bolt->Hit=[WeakUnit,WeakOwner,Scale](AActor* Target,FVector Point) {
   if(!WeakUnit.IsValid()||!WeakOwner.IsValid()) return;
   WeakUnit->ConsumeThrown(WeakOwner.Get());
-  ACultSkillAttack::Hurt(Target,(::Cast<ACultUlhuPlayerPawn>(Target)?13.f:28.f)*Scale,WeakOwner.Get(),Point);
+  ACultSkillAttack::Hurt(Target,(::Cast<ACultUlhuPlayerPawn>(Target)?13.f:28.f)*Scale*CultMovement::ProjectileDamageMultiplier,WeakOwner.Get(),Point);
  };
  Bolt->Finished=[WeakUnit](FVector End){ if(WeakUnit.IsValid()&&WeakUnit->IsInTransit()) WeakUnit->LandMiss(End); };
  Bolt->FinishSpawning(T); Bolt->SetActorHiddenInGame(true); Unit->StartFlight(Bolt);

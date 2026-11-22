@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CultMovementTuning.h"
 
 namespace CultPrimary {
 enum class EDelivery : uint8 { Melee, Bolt, CorrosiveArc, Cannon };
@@ -22,7 +23,7 @@ struct FProfile {
  bool Ranged() const { return Delivery != EDelivery::Melee; }
 };
 
-inline FProfile Find(const FString& Id) {
+inline FProfile SourceProfile(const FString& Id) {
  using D = EDelivery;
  using A = EAccent;
  using S = ESignal;
@@ -43,5 +44,10 @@ inline FProfile Find(const FString& Id) {
  if(Id == TEXT("nug_and_yeb")) return {TEXT("Twin Embers"),D::Cannon,A::Coil,S::Ember,1.76f,.40f,13.f,6150,5400,98};
  if(Id == TEXT("yog_sothoth")) return {TEXT("Gate Collapse"),D::Cannon,A::Hover,S::Violet,.95f,.21f,17.f,7600,24000,150};
  return {};
+}
+inline FProfile Find(const FString& Id) {
+ auto Profile=SourceProfile(Id);
+ Profile.Damage*=Profile.Ranged()?CultMovement::ProjectileDamageMultiplier:CultMovement::MeleeDamageMultiplier;
+ return Profile;
 }
 }

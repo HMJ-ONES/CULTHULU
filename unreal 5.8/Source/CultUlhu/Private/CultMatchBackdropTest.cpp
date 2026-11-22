@@ -67,7 +67,7 @@ public:
   if(Phase==1) {
    Controller=PC; Original=PC->GetViewTarget(); Camera=W->SpawnActor<ACameraActor>(); Camera->GetCameraComponent()->SetConstraintAspectRatio(false); PC->SetPause(true);
    int Ranges=0,Legacy=0,Triangles=0; float Low=FLT_MAX,High=-FLT_MAX;
-   const FVector2D Radius=Moba()?FVector2D(58000,40000):FVector2D(50000,48000);
+   const FVector2D Radius=Moba()?FVector2D(87000,60000):FVector2D(75000,72000);
    for(TActorIterator<AActor> It(W);It;++It) {
     // This fixture deliberately moves its own editor camera proxy. Retain
     // every real arena/hero/objective mesh in the preservation snapshot.

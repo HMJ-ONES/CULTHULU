@@ -1,4 +1,5 @@
 #include "CultMatchDirector.h"
+#include "CultBattlefieldLayout.h"
 #include "CultSceneLighting.h"
 #include "CultMatchSurfaces.h"
 #include "CultMatchBackdrop.h"
@@ -70,9 +71,9 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   auto* A=Mesh(TEXT("/Engine/BasicShapes/Cube"),Center,Size/100,FLinearColor(.055f,.085f,.10f),true);
   A->Tags.Add(TEXT("CultMatchFloor")); A->Tags.Add(TEXT("CultTerrain")); return A;
  };
- if(Moba) FloorTile(FVector(0,0,-150),FVector(80000,46000,300))->Tags.Add(TEXT("CultMatchRockSurface"));
+ if(Moba) FloorTile(FVector(0,0,-150),FVector(120000,69000,300))->Tags.Add(TEXT("CultMatchRockSurface"));
  else {
-  const float Xs[]={-32000,-14000,-3500,3500,14000,32000},Ys[]={-30000,-24000,-15500,-14000,-9500,9500,14000,15500,24000,30000};
+  const float Xs[]={-48000,-14000,-3500,3500,14000,48000},Ys[]={-45000,-24000,-15500,-14000,-9500,9500,14000,15500,24000,45000};
   for(int X=0;X<UE_ARRAY_COUNT(Xs)-1;++X) for(int Y=0;Y<UE_ARRAY_COUNT(Ys)-1;++Y) {
    const float AX=FMath::Abs((Xs[X]+Xs[X+1])*.5f),AY=FMath::Abs((Ys[Y]+Ys[Y+1])*.5f);
    const bool EndEntrance=AX<3500&&AY>14000&&AY<24000;
@@ -233,8 +234,8 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   }
   // Solid perimeter keeps the player on the arena; safety relocation is a fallback.
   for(int Side:{-1,1}) {
-   Box(FVector(Side*32000,0,5000),FVector(1600,60000,10000),Stone);
-   Box(FVector(0,Side*30000,5000),FVector(64000,1600,10000),Stone);
+   Box(FVector(Side*48000,0,8000),FVector(1600,90000,16000),Stone);
+   Box(FVector(0,Side*45000,8000),FVector(96000,1600,16000),Stone);
   }
  }
  auto Art=[&](const FString& Name,FVector Ground,FVector Dimensions,float Yaw) {
@@ -257,6 +258,7 @@ void ACultMatchDirector::BuildArena(UWorld* W,ECultPlayMode Mode) {
   for(int Side:{-1,1}) { Art(TEXT("tower-square-mid"),FVector(X,Side*6500,0),FVector(2300,2300,10000),0); Art(TEXT("crypt-ruined"),FVector(X,Side*10000,0),FVector(5000,5000,6000),Team?180:0); }
  }
  for(float X:{-14000.f,14000.f}) for(int Side:{-1,1}) Art(TEXT("ruined-column-b"),FVector(X,Side*19500,0),FVector(900,900,6500),0);
+ CultBattlefieldLayout::Build(W,Moba);
  CultMatchBackdrop::Build(W,Moba);
  CultMatchSurfaces::Apply(W,CultMatchSurfaces::Enabled(),!Moba);
  if(!Moba) { CultDominationArt::Build(W); CultDominationFinish::Build(W); }

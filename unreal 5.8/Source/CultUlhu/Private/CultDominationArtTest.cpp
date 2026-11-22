@@ -56,7 +56,7 @@ public:
     if(It->ActorHasTag(TEXT("CultDominationArt"))) {
      auto* Mesh=It->FindComponentByClass<UProceduralMeshComponent>();
      if(It->ActorHasTag(TEXT("CultDominationKeepSkin"))||It->ActorHasTag(TEXT("CultDominationRouteInlays"))) { ++Skins; Test->TestEqual(TEXT("Facade/inlay detail never blocks movement or attacks"),Mesh->GetCollisionEnabled(),ECollisionEnabled::NoCollision); }
-     else { ++Landmarks; Test->TestEqual(TEXT("Substantial skyline geometry has real solid collision"),Mesh->GetCollisionEnabled(),ECollisionEnabled::QueryAndPhysics); Test->TestTrue(TEXT("Solid skyline stays on the existing perimeter, away from playable approaches"),FMath::Abs(It->GetActorLocation().Y)==30000&&Mesh->Bounds.GetBox().Min.Z>8000); }
+     else { ++Landmarks; Test->TestEqual(TEXT("Substantial skyline geometry has real solid collision"),Mesh->GetCollisionEnabled(),ECollisionEnabled::QueryAndPhysics); Test->TestTrue(TEXT("Solid skyline stays on the existing perimeter, away from playable approaches"),FMath::Abs(It->GetActorLocation().Y)==45000&&Mesh->Bounds.GetBox().Min.Z>8000); }
      if(It->ActorHasTag(TEXT("CultDominationKeepSkin"))) Test->TestTrue(TEXT("Keep facade is placed on its actual keep"),FMath::Abs(It->GetActorLocation().X)==10500&&FMath::Abs(It->GetActorLocation().Y)==12500);
      for(int S=0;S<Mesh->GetNumSections();++S) if(auto* Section=Mesh->GetProcMeshSection(S)) Triangles+=Section->ProcIndexBuffer.Num()/3;
     }

@@ -160,8 +160,8 @@ bool FCultKitRuntime::LaunchSpatial(const cultulhu::SpellDef& S,int Slot,FVector
    A->PrimaryAim=Aim;
    A->Gravity=Def.id=="bokrug"?5900.f:Def.id=="mi_go"?2500.f:4800.f;
   }
-  A->ImpactPower=Kind==Shape::Sweep?S.effectPower*(10.f/135.f):
-   FMath::Clamp(S.effectPower*.12f/Bolts,3.f,18.f);
+  A->ImpactPower=(Kind==Shape::Sweep?S.effectPower*(10.f/135.f):
+   FMath::Clamp(S.effectPower*.12f/Bolts,3.f,18.f))*(Kind==Shape::Sweep?CultMovement::MeleeDamageMultiplier:CultMovement::ProjectileDamageMultiplier);
   A->bLimbStrike=Kind==Shape::Sweep;
   if(Kind==Shape::Bolt) A->ConfigureProjectileFlight(Reach,(Secondary&&Secondary->LongFlight)||Id=="nerve_needle"||Id=="dream_pierce"||Id=="abyssal_harpoon"||Id=="gate_lash");
   A->AbilityLook=uint8(CultAbilityFX::ForSlot(UTF8_TO_TCHAR(Def.id.c_str()),Slot));
@@ -201,6 +201,7 @@ void FCultKitRuntime::ResolveSpatial(cultulhu::SpellDef S,AActor* Target,FVector
  else if(K=="pull") { FVector Delta=(Point-Target->GetActorLocation()).GetSafeNormal2D()*FMath::Min(S.effectPower*100.f,FVector::Dist2D(Point,Target->GetActorLocation())); Target->SetActorLocation(Target->GetActorLocation()+Delta,true); T.setPosition(P(Target->GetActorLocation())); Found->BeforePosition=Target->GetActorLocation(); }
  else {
   float Base=S.effectPower;
+  Base*=K=="heavy"&&Def.rightClick.kind==cultulhu::HeavyAttackKind::MeleeHeavy?CultMovement::MeleeDamageMultiplier:CultMovement::ProjectileDamageMultiplier;
   if(ACultMatchDirector::IsMatch(Owner->GetWorld())) Base*=K=="domination_summon"?9.f:K=="heavy"?10.f/135.f:.12f;
   else if(K=="heavy"&&::Cast<ACultUlhuPlayerPawn>(Target)) Base*=10.f/135.f;
   const auto* Match=ACultMatchDirector::Find(Owner->GetWorld());

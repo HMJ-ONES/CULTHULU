@@ -30,7 +30,7 @@ AActor* Range(UWorld* W,bool Moba) {
  A->Tags.Append({TEXT("MatchArena"),RangeTag}); if(Moba) A->Tags.Add(MobaTag);
  // All toes are outside even the playable rectangle's corners. No hidden
  // collision, navigation, scoring, lighting or player-space occluders are added.
- const FVector2D Radius=Moba?FVector2D(58000,40000):FVector2D(50000,48000);
+ const FVector2D Radius=Moba?FVector2D(87000,60000):FVector2D(75000,72000);
  auto Point=[&](int Ring,int Side) {
   const float Angle=(Side%Sides)*2*PI/Sides;
   const float Crown=.5f+.24f*FMath::Sin(5*Angle+.8f)+.16f*FMath::Cos(11*Angle-.4f)+.10f*FMath::Sin(19*Angle);

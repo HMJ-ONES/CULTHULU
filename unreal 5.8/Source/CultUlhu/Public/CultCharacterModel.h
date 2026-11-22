@@ -22,6 +22,7 @@ public:
  static bool HasSourceAnimation(const FString& Id);
  static bool UsesMeleeStep(ACultUlhuPlayerPawn* Pawn);
  bool StrikeLimb(int Index,FVector& Elbow,FVector& Hand) const;
+ bool SampleStrikeLimb(int Index,float AttackAge,FVector& Elbow,FVector& Hand);
  UAnimSequence* DeathAnimationFor(const USkeletalMeshComponent& Mesh) const;
  virtual void Tick(float DeltaSeconds) override;
  static void Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds=.55f,float Age=0);

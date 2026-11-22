@@ -9,6 +9,12 @@ struct FCultDominationRoute {
   const float Home=Team?1.f:-1.f,Other=-Home,Y=Side*BranchY;
   return {FVector(Home*17000,Y,0),FVector(Home*15000,Y,0),FVector(0,Y,Depth),FVector(Other*15000,Y,0),FVector(Other*17000,Y,0),FVector(Other*17000,Side*6500,0),FVector(0,Side*1800,0)};
  }
+ static TArray<FVector> OuterFlank(int Team,int Side) {
+  const float Home=Team?1.f:-1.f;
+  return {FVector(Home*23000,Side*8000,0),FVector(Home*35000,Side*8000,0),
+   FVector(Home*35000,Side*35000,0),FVector(-Home*35000,Side*35000,0),
+   FVector(-Home*35000,Side*8000,0),FVector(-Home*17000,Side*6500,0),FVector(0,Side*1800,0)};
+ }
  static TArray<FVector> Escape(FVector Feet,int Team,FVector Base) {
   const int Side=Feet.Y>=0?1:-1;
   const float Exit=FMath::Abs(Feet.X)>3500?FMath::Sign(Feet.X):(Team?1.f:-1.f),Y=Side*BranchY;

@@ -53,7 +53,7 @@ void CultDominationArt::Build(UWorld* W) {
    Landmark.Parts[2].Beam(FVector(-1500,-Side*600,15800),FVector(0,-Side*600,16800),100,100);
    Landmark.Parts[2].Beam(FVector(0,-Side*600,16800),FVector(1500,-Side*600,15800),100,100);
   }
-  Landmark.Finish(W,FVector(0,Side*30000,0),Stone,true,Crown?TEXT("CultCrownLandmark"):TEXT("CultHollowLandmark"));
+  Landmark.Finish(W,FVector(0,Side*45000,0),Stone,true,Crown?TEXT("CultCrownLandmark"):TEXT("CultHollowLandmark"));
   for(int Team:{-1,1}) {
    FAssembly Keep;
    // Shallow stone ribs/fascias dress existing solid walls and roof edges.

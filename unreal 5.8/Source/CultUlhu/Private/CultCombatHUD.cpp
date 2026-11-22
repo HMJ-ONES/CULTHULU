@@ -11,6 +11,7 @@
 #include "CultWorldDirector.h"
 #include "CultHUDProjection.h"
 #include "Engine/Canvas.h"
+#include "EngineUtils.h"
 #include "Engine/Engine.h"
 #include "CanvasItem.h"
 #include "Engine/Font.h"
@@ -195,23 +196,41 @@ void DrawCultCombat(ACultPlayHUD* HUD,ACultUlhuPlayerPawn* P,UCanvas* C) {
   Rect(CultUI::Line,HintX-Pad,HintY+HintSize.Y+Pad-1,HintSize.X+2*Pad,1);
   Text(Hints,White,HintX,HintY,.70f);
  }
+ // Small world-anchored bars replace the duplicate crosshair target banner.
+ int BeastBars=0;
+ const auto* PC=HUD->GetOwningPlayerController();
+ for(TActorIterator<ACultFeralBeast> It(P->GetWorld());It&&BeastBars<10;++It) {
+  if(It->IsDead()||It->IsHidden()||FVector::DistSquared(It->GetActorLocation(),P->GetActorLocation())>FMath::Square(18000.f)) continue;
+  FVector2D Screen;
+  const FVector Head=It->GetActorLocation()+FVector(0,0,It->GetSimpleCollisionHalfHeight()+40);
+  if(!CultHUDProjection::Project(C,Head,Screen)||Screen.X<30||Screen.X>W-30||Screen.Y<85*S||Screen.Y>HUD->CombatContentTop()-12*S) continue;
+  if(!PC||!PC->LineOfSightTo(*It)) continue;
+  const float Width=52*S,BarHeight=3*S;
+  Rect(FLinearColor(.015f,.025f,.03f,.8f),Screen.X-Width*.5f-1,Screen.Y-1,Width+2,BarHeight+2);
+  Rect(FLinearColor(.8f,.22f,.24f,.85f),Screen.X-Width*.5f,Screen.Y,Width*FMath::Clamp(It->GetHealth()/It->GetMaxHealth(),0.f,1.f),BarHeight);
+  ++BeastBars;
+ }
  DrawCultCombatFeel(HUD,P,C);
  const auto Pick=P->CameraAim();
  AActor* Aimed=Pick.GetActor(); if(!ACultSkillAttack::Alive(Aimed)) Aimed=P->CombatFocus();
- FString Target; float HP=0,Max=1;
- if(auto* Hero=Cast<ACultUlhuPlayerPawn>(Aimed)) { Target=Hero->CombatHUD().Name; HP=Hero->GetHealth(); Max=Hero->GetMaxHealth(); }
- if(auto* Unit=Cast<ACultMatchUnit>(Aimed)) { Target=Unit->Title(); if(Match&&Match->UnitProtected(Unit)) Target+=TEXT(" | PROTECTED"); HP=Unit->Health; Max=Unit->MaxHealth; }
- if(auto* B=Cast<ACultFeralBeast>(Aimed)) if(!B->IsDead()) { Target=B->Species(); Target.ReplaceInline(TEXT("_"),TEXT(" ")); HP=B->GetHealth(); Max=B->GetMaxHealth(); }
- if(auto* N=Cast<ACultPopulation>(Aimed)) { Target=ACultWorldDirector::CultName(N->GetFaction())+TEXT(" | ")+N->GetActivity(); HP=N->GetHealth(); Max=N->IsCultist()?100:1; }
- if(auto* B=Cast<ACultDestructible>(Aimed)) if(!B->IsDestroyed()) { Target=B->ActorHasTag(TEXT("CultTemple"))?TEXT("TEMPLE"):TEXT("STRUCTURE"); HP=B->GetHealth(); Max=B->GetMaxHealth(); }
+ // Contextual structure health stays on the structure, never in a central banner.
+ float TargetHP=0,TargetMax=1; FLinearColor TargetColor=Gold;
+ if(auto* Unit=Cast<ACultMatchUnit>(Aimed)) { TargetHP=Unit->Health; TargetMax=Unit->MaxHealth; TargetColor=P->TeamColorFor(Unit->Team); }
+ if(auto* Building=Cast<ACultDestructible>(Aimed)) if(!Building->IsDestroyed()) { TargetHP=Building->GetHealth(); TargetMax=Building->GetMaxHealth(); }
+ if(!Match) if(auto* Hero=Cast<ACultUlhuPlayerPawn>(Aimed)) { TargetHP=Hero->GetHealth(); TargetMax=Hero->GetMaxHealth(); TargetColor=P->TeamColorFor(Hero->GetFaction()); }
+ if(TargetHP>0&&IsValid(Aimed)&&PC&&PC->LineOfSightTo(Aimed)) {
+  const FBox Bounds=Aimed->GetComponentsBoundingBox(true); FVector2D Screen;
+  const FVector Anchor(Bounds.GetCenter().X,Bounds.GetCenter().Y,Bounds.Max.Z+80);
+  if(CultHUDProjection::Project(C,Anchor,Screen)&&Screen.X>50*S&&Screen.X<W-50*S&&Screen.Y>85*S&&Screen.Y<HUD->CombatContentTop()-12*S) {
+   const float Width=72*S;
+   Rect(FLinearColor(.015f,.025f,.03f,.8f),Screen.X-Width*.5f-1,Screen.Y-1,Width+2,4*S+2);
+   Rect(TargetColor,Screen.X-Width*.5f,Screen.Y,Width*FMath::Clamp(TargetHP/FMath::Max(1.f,TargetMax),0.f,1.f),4*S);
+  }
+ }
  if(auto* B=Cast<ACultFeralBeast>(Aimed)) if(!B->IsDead()) {
   if(B->StaggerRemaining()>0) Text(TEXT("STAGGERED"),Blue,Mid-65*S,126*S,.85f);
   else if(B->RecoveryRemaining()>0) Text(TEXT("RECOVERING - ATTACK NOW"),Gold,Mid-100*S,126*S,.8f);
  }
- if(!Target.IsEmpty()) {
-  Target=Target.ToUpper(); const auto TargetFont=CultUI::Font(14.f*.85f*S);
-  if(Measure->Measure(Target,TargetFont).X>240*S) { while(!Target.IsEmpty()&&Measure->Measure(Target+TEXT("..."),TargetFont).X>240*S) Target.LeftChopInline(1); Target+=TEXT("..."); }
-  const float TargetY=Match?CY-70*S:90*S; Text(Target.ToUpper(),White,Mid-120*S,TargetY,.85f); Rect(Ink,Mid-120*S,TargetY+23*S,240*S,6*S); Rect(Gold,Mid-120*S,TargetY+23*S,240*S*FMath::Clamp(HP/Max,0.f,1.f),6*S); }
  if(!P->GetNotice().IsEmpty()) {
   TArray<FString> Words; P->GetNotice().ParseIntoArrayWS(Words); FString Message,NoticeLine; const auto NoticeFont=CultUI::Font(14.f*.85f*S);
   for(const auto& Word:Words) {
