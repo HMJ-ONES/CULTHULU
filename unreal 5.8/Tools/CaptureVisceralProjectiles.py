@@ -20,11 +20,11 @@ def make_stage(name):
     capture.primitive_render_mode=unreal.SceneCapturePrimitiveRenderMode.PRM_USE_SHOW_ONLY_LIST
     capture.show_only_actor_components(actor)
     capture.set_editor_property('capture_every_frame',False)
-    for location,intensity in [(unreal.Vector(120,-100,160),80000),(unreal.Vector(-90,100,100),40000)]:
+    for location,intensity in [(unreal.Vector(120,-100,160),800),(unreal.Vector(-90,100,100),400)]:
         light=sub.spawn_actor_from_class(unreal.PointLight,origin+location);created.append(light)
         light.get_component_by_class(unreal.PointLightComponent).set_intensity(intensity);light.get_component_by_class(unreal.PointLightComponent).set_attenuation_radius(1500)
     pp=capture.post_process_settings;pp.set_editor_property('override_auto_exposure_method',True);pp.set_editor_property('auto_exposure_method',unreal.AutoExposureMethod.AEM_MANUAL)
-    pp.set_editor_property('override_auto_exposure_bias',True);pp.set_editor_property('auto_exposure_bias',2)
+    pp.set_editor_property('override_auto_exposure_bias',True);pp.set_editor_property('auto_exposure_bias',0)
     pp.set_editor_property('override_bloom_intensity',True);pp.set_editor_property('bloom_intensity',0)
     capture.post_process_settings=pp
     unreal.AutomationLibrary.finish_loading_before_screenshot()
