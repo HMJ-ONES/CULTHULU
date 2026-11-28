@@ -1,0 +1,41 @@
+[
+  {
+    "key": "nug",
+    "source_file": "Saved\\CharacterSources\\HorrorRefresh20261127\\nug\\prepared.glb",
+    "source_url": "https://sketchfab.com/3d-models/flesh-blob-b3f5bb51f8144a30b6fa6b22f5d44bf7",
+    "title": "Flesh Blob",
+    "author": "ChopperManiac",
+    "license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_sha256": "bbd7648bab2eb008d4a5d025c16622bf2017e8da0a470314fbf5fbd631936c84",
+    "original_sha256": "bbd7648bab2eb008d4a5d025c16622bf2017e8da0a470314fbf5fbd631936c84",
+    "source_bytes": 17346636,
+    "archive": "assets/characters/horror_refresh_20261127/nug.zip.b64"
+  },
+  {
+    "key": "yeb",
+    "source_file": "Saved\\CharacterSources\\HorrorRefresh20261127\\yeb\\prepared.glb",
+    "source_url": "https://sketchfab.com/3d-models/living-flesh-blob-free-organic-horror-asset-6357bbc094d54cf5ba150ef2951b3750",
+    "title": "Living Flesh Blob - Free Organic Horror Asset",
+    "author": "Yury Misiyuk",
+    "license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_sha256": "1522263f4ae6921a5531a91b7164ba3518626d5bbf8725a88f844650c225780f",
+    "original_sha256": "1522263f4ae6921a5531a91b7164ba3518626d5bbf8725a88f844650c225780f",
+    "source_bytes": 3830988,
+    "archive": "assets/characters/horror_refresh_20261127/yeb.zip.b64"
+  },
+  {
+    "key": "hastur",
+    "source_file": "Saved\\CharacterSources\\HorrorRefresh20261127\\hastur\\prepared.glb",
+    "source_url": "https://sketchfab.com/3d-models/grim-reaper-low-poly-c4106291b7454917a909afa37affed08",
+    "title": "Grim Reaper Low Poly",
+    "author": "Emmanuel__Bouvier",
+    "license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_sha256": "51533dc4ced5ebfd51d61af623e66d1d98fb79a6baa531cebd091b37c133e5a4",
+    "original_sha256": "74553ff31abc6347e360176fe822cbf9d43a02e40d298fdc1a6c933e9f78c901",
+    "source_bytes": 24463000,
+    "archive": "assets/characters/horror_refresh_20261127/hastur.zip.b64"
+  }
+]

@@ -3,7 +3,7 @@
 The following third-party models are used under Creative Commons Attribution 4.0.
 License: https://creativecommons.org/licenses/by/4.0/
 
-Changes: converted to Unreal assets; source parts assembled and normalized to the existing gameplay height; selection portraits rendered in Unreal. Dense sculptures have generated reduced render LODs. Nodens omits the horse. Original Mi-Go action PoseLib is exported as Prowl and baked in place using original foot anchors; Yig uses the original FBX timeline, with existing sword transforms baked to rigid bones. Source PBR maps are restored on the FBX rigs. Temporary models: repaired Troll morph units; Crabulb pincer poses adapted for combat; duplicated and offset the Moon Jellyfish with independent drift; original violet jellyfish and gold caster materials override selected slots. Static test models use procedural body motion, not authored limb animation. No endorsement by the original artists is implied.
+Changes: converted to Unreal assets; source parts assembled and normalized to the existing gameplay height; selection portraits rendered in Unreal. Dense sculptures have generated reduced render LODs. Nodens omits the horse. Original Mi-Go action PoseLib is exported as Prowl and baked in place using original foot anchors; Yig uses the original FBX timeline, with existing sword transforms baked to rigid bones. Source PBR maps are restored on the FBX rigs. Temporary models: repaired Troll morph units; Crabulb pincer poses adapted for combat; the retired Moon Jellyfish pair is superseded by two distinct flesh creatures. The reaper base is isolated from its cemetery, reduced for rendering and supplemented with an original ragged mantle. Original materials and supplied pulse loops are retained on the new twins. Static test models use procedural body motion, not authored limb animation. No endorsement by the original artists is implied.
 
 ## Insectoid Monster Rig (mi_go)
 
@@ -73,10 +73,10 @@ Author: Timsblends — https://sketchfab.com/timsblends
 Source: https://sketchfab.com/3d-models/troll-59e679e0da5c4906935b8841aefe6dc0
 License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
 
-## Low Poly Wizard (Rigged) (hastur)
+## Grim Reaper Low Poly (hastur)
 
-Author: Anthony Yanez — https://sketchfab.com/paulyanez
-Source: https://sketchfab.com/3d-models/low-poly-wizard-rigged-f8c91af65aec4779b0e3d857b1878cc2
+Author: Emmanuel__Bouvier — https://sketchfab.com/paulyanez
+Source: https://sketchfab.com/3d-models/grim-reaper-low-poly-c4106291b7454917a909afa37affed08
 License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
 
 ## Yamata no Orochi (mother_hydra)
@@ -97,11 +97,21 @@ Author: Natlus — https://sketchfab.com/sultan99syzdykov
 Source: https://sketchfab.com/3d-models/tree-monster-97f38826e6f14050b8aed9e8250c1d43
 License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
 
-## Simple Moon Jellyfish (Baked Animation) (nug_and_yeb)
+## Nug & Yeb — Flesh Blob + Living Flesh Blob (nug_and_yeb)
 
-Author: n- — https://sketchfab.com/n-
-Source: https://sketchfab.com/3d-models/simple-moon-jellyfish-baked-animation-3d911c511f2744ec9bfb99d46d2d6e14
+Author: ChopperManiac — https://sketchfab.com/n-
+Source: https://sketchfab.com/3d-models/flesh-blob-b3f5bb51f8144a30b6fa6b22f5d44bf7
 License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
+
+Additional component: Flesh Blob — ChopperManiac
+Source: https://sketchfab.com/3d-models/flesh-blob-b3f5bb51f8144a30b6fa6b22f5d44bf7
+License: https://creativecommons.org/licenses/by/4.0/
+
+Additional component: Living Flesh Blob - Free Organic Horror Asset — Yury Misiyuk
+Source: https://sketchfab.com/3d-models/living-flesh-blob-free-organic-horror-asset-6357bbc094d54cf5ba150ef2951b3750
+License: https://creativecommons.org/licenses/by/4.0/
+
+Changes: two distinct licensed bodies assembled diagonally with independent floating drift; original textures and supplied pulse animations retained.
 
 ## Retired local asset — Lovecraftian (nyarlathotep)
 
@@ -118,3 +128,7 @@ License: CC-BY-4.0 — https://creativecommons.org/licenses/by/4.0/
 ## Gameplay motion adaptations — 2026-10-30
 
 Original CULT-ULHU gameplay motions were authored on the approved Mi-Go (DM-913) and Yig (JoePrimal) rigs. Source meshes, skeletons and supplied clips are unchanged. Generated animation assets under Gameplay20261030_v1 adapt those credited rigs; all original attribution and CC-BY-4.0 terms above continue to apply. Mi-Go Prowl and Yig supplied idle clips remain in use.
+
+## Original presentation art  -  2026-11-27
+
+The ragged mantle, acid glob and chitin dart meshes, contracting first-person spit organs, wet materials, droplet trails and splash geometry are original CULT-ULHU code-generated art. First-person arm geometry is adapted from the credited character meshes and uses their materials and skeletal poses; their original licenses and credits continue to apply.
