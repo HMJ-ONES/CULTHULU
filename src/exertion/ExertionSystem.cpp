@@ -141,7 +141,9 @@ void ExertionSystem::onGameEvent(const GameEvent& e) {
     // Existing belief power rules, scaled by the stacked-income multiplier
     // (R1), then exertion-scaled synergy bonuses.
     const float delta = beliefs_.onEvent(e);
+    const float before = power_.value();
     power_.add(delta * stackedIncomeMultiplier() * powerMultiplierFor(e));
+    if (powerObserver_) powerObserver_(e, power_.value() - before);
 }
 
 // R1 (wave 10): diminishing returns on stacked belief income. Three full

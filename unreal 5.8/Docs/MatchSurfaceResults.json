@@ -1,0 +1,882 @@
+{
+  "date": "2026-10-21",
+  "scope": "Original competitive surface treatment, matched frozen-scene rendering and native Editor regressions. No independent executable or human fun/readability result.",
+  "build": {
+    "initial_link_failure": "LNK2019 GMaxRHIShaderPlatform used by native verification; resolved with Editor-only RHI dependency",
+    "final_build": "Succeeded, 9.89 seconds; canonical validator passed"
+  },
+  "runs": {
+    "initial": {
+      "log": "unreal 5.8/Saved/Logs/MatchSurfacesVerification.log",
+      "sha256": "e02c5e5cf15c28534fe0d537b79780b9d2874e0b536ea5ef425885c042150246",
+      "results": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MatchSurfaces.Domination"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MatchSurfaces.Moba"
+        }
+      ],
+      "errors": [],
+      "observations": [
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_0.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_1.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_2.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_3.csv",
+        "Match surface Domination: 135 tagged surfaces, 215 arena meshes, 260 actors; four exact captures and A-B-B-A render windows in one frozen world",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_0.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_1.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_2.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_3.csv",
+        "Match surface Moba: 225 tagged surfaces, 285 arena meshes, 349 actors; four exact captures and A-B-B-A render windows in one frozen world"
+      ]
+    },
+    "final": {
+      "log": "unreal 5.8/Saved/Logs/MatchSurfacesFinal.log",
+      "sha256": "9e7e50bd8da9e884465f4d43b628112c079a709ec30413bf11f5c5988b33c6be",
+      "results": [
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.DominationCthulhu"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.DominationMiGo"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.MobaCthulhu"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.CameraFraming.MobaMiGo"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MatchSurfaces.Domination"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MatchSurfaces.Moba"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.DominationMatch"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaLaneClearance"
+        },
+        {
+          "result": "Success",
+          "path": "CultUlhu.Menu.MobaMatch"
+        }
+      ],
+      "errors": [],
+      "observations": [
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_0.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_1.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_2.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_3.csv",
+        "Match surface Domination: 135 tagged surfaces, 215 arena meshes, 260 actors; four exact captures and A-B-B-A render windows in one frozen world",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_0.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_1.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_2.csv",
+        "Match surface profile: C:/Users/H/Documents/CULTHULU/unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_3.csv",
+        "Match surface Moba: 225 tagged surfaces, 285 arena meshes, 349 actors; four exact captures and A-B-B-A render windows in one frozen world",
+        "Objective bots: 4 allied and 5 enemy seal participants; 2368.5 real damage",
+        "Assigned-lane entries observed: 9 / 9 bots",
+        "Live MOBA: 28 advanced minions, 14 combined hero kills/deaths after 70.0s"
+      ]
+    }
+  },
+  "profiles": {
+    "Domination": {
+      "scope": "Frozen pre-match spawn camera in ordinary 1288x680 Editor backbuffer; not live-battle FPS",
+      "windows": [
+        {
+          "path": "unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_0.csv",
+          "sha256": "69a0ec32917a4c7586ecdcb85ea83436488696a9753e9abaa064fefa7bdb0177",
+          "stone": false,
+          "timings": [
+            {
+              "stat": "FrameTime",
+              "samples": 120,
+              "mean_ms": 20.6678575,
+              "p95_ms": 29.6796
+            },
+            {
+              "stat": "GameThreadTime",
+              "samples": 120,
+              "mean_ms": 8.646504166666666,
+              "p95_ms": 10.6144
+            },
+            {
+              "stat": "GPUTime",
+              "samples": 120,
+              "mean_ms": 3.499285,
+              "p95_ms": 3.5813
+            }
+          ],
+          "counts": [
+            {
+              "stat": "CultRuntime/ArenaStoneEnabled",
+              "samples": 120,
+              "mean_count": 0.0,
+              "p95_count": 0.0
+            },
+            {
+              "stat": "CultRuntime/ArenaTaggedSurfaces",
+              "samples": 120,
+              "mean_count": 135.0,
+              "p95_count": 135.0
+            }
+          ]
+        },
+        {
+          "path": "unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_1.csv",
+          "sha256": "5cde015c8bb4a7842747c650eb28279072e19750ac0c11ee40a48185ad6a645d",
+          "stone": true,
+          "timings": [
+            {
+              "stat": "FrameTime",
+              "samples": 120,
+              "mean_ms": 20.418328333333335,
+              "p95_ms": 29.5746
+            },
+            {
+              "stat": "GameThreadTime",
+              "samples": 120,
+              "mean_ms": 8.6801225,
+              "p95_ms": 10.4705
+            },
+            {
+              "stat": "GPUTime",
+              "samples": 120,
+              "mean_ms": 3.525271666666667,
+              "p95_ms": 3.6294
+            }
+          ],
+          "counts": [
+            {
+              "stat": "CultRuntime/ArenaStoneEnabled",
+              "samples": 120,
+              "mean_count": 1.0,
+              "p95_count": 1.0
+            },
+            {
+              "stat": "CultRuntime/ArenaTaggedSurfaces",
+              "samples": 120,
+              "mean_count": 135.0,
+              "p95_count": 135.0
+            }
+          ]
+        },
+        {
+          "path": "unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_2.csv",
+          "sha256": "dc2cda168796116d6d04d6a395fe04e70b45ee2bbc60760db188ea5677033471",
+          "stone": true,
+          "timings": [
+            {
+              "stat": "FrameTime",
+              "samples": 120,
+              "mean_ms": 20.839323333333333,
+              "p95_ms": 29.6691
+            },
+            {
+              "stat": "GameThreadTime",
+              "samples": 120,
+              "mean_ms": 8.6730175,
+              "p95_ms": 10.7743
+            },
+            {
+              "stat": "GPUTime",
+              "samples": 120,
+              "mean_ms": 3.54023,
+              "p95_ms": 3.6917
+            }
+          ],
+          "counts": [
+            {
+              "stat": "CultRuntime/ArenaStoneEnabled",
+              "samples": 120,
+              "mean_count": 1.0,
+              "p95_count": 1.0
+            },
+            {
+              "stat": "CultRuntime/ArenaTaggedSurfaces",
+              "samples": 120,
+              "mean_count": 135.0,
+              "p95_count": 135.0
+            }
+          ]
+        },
+        {
+          "path": "unreal 5.8/Saved/Reports/Captures/MatchSurface/Domination_3.csv",
+          "sha256": "385a94618aa71dc31e1b024432bb513b328ddbbf6e9313b6364ee5e1cd5d6738",
+          "stone": false,
+          "timings": [
+            {
+              "stat": "FrameTime",
+              "samples": 120,
+              "mean_ms": 21.190040833333335,
+              "p95_ms": 29.8118
+            },
+            {
+              "stat": "GameThreadTime",
+              "samples": 120,
+              "mean_ms": 8.645055,
+              "p95_ms": 10.4902
+            },
+            {
+              "stat": "GPUTime",
+              "samples": 120,
+              "mean_ms": 3.5136233333333333,
+              "p95_ms": 3.6544
+            }
+          ],
+          "counts": [
+            {
+              "stat": "CultRuntime/ArenaStoneEnabled",
+              "samples": 120,
+              "mean_count": 0.0,
+              "p95_count": 0.0
+            },
+            {
+              "stat": "CultRuntime/ArenaTaggedSurfaces",
+              "samples": 120,
+              "mean_count": 135.0,
+              "p95_count": 135.0
+            }
+          ]
+        }
+      ],
+      "paired_flat_mean_ms": {
+        "FrameTime": 20.92894916666667,
+        "GameThreadTime": 8.645779583333333,
+        "GPUTime": 3.506454166666667
+      },
+      "paired_stone_mean_ms": {
+        "FrameTime": 20.628825833333334,
+        "GameThreadTime": 8.67657,
+        "GPUTime": 3.5327508333333335
+      },
+      "paired_delta_ms": {
+        "FrameTime": -0.3001233333333353,
+        "GameThreadTime": 0.030790416666667042,
+        "GPUTime": 0.026296666666666635
+      }
+    },
+    "Moba": {
+      "scope": "Frozen pre-match spawn camera in ordinary 1288x680 Editor backbuffer; not live-battle FPS",
+      "windows": [
+        {
+          "path": "unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_0.csv",
+          "sha256": "41687efdae7a6831bdd763385850cc5a3375aedf4af9db47378014b7be47aa27",
+          "stone": false,
+          "timings": [
+            {
+              "stat": "FrameTime",
+              "samples": 120,
+              "mean_ms": 20.5970675,
+              "p95_ms": 29.6871
+            },
+            {
+              "stat": "GameThreadTime",
+              "samples": 120,
+              "mean_ms": 9.026060833333334,
+              "p95_ms": 10.9922
+            },
+            {
+              "stat": "GPUTime",
+              "samples": 120,
+              "mean_ms": 3.6971325,
+              "p95_ms": 3.8179
+            }
+          ],
+          "counts": [
+            {
+              "stat": "CultRuntime/ArenaStoneEnabled",
+              "samples": 120,
+              "mean_count": 0.0,
+              "p95_count": 0.0
+            },
+            {
+              "stat": "CultRuntime/ArenaTaggedSurfaces",
+              "samples": 120,
+              "mean_count": 225.0,
+              "p95_count": 225.0
+            }
+          ]
+        },
+        {
+          "path": "unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_1.csv",
+          "sha256": "bed375050ef3c2af9483129be09582289a0e4285e69468e78d36095167c74bbb",
+          "stone": true,
+          "timings": [
+            {
+              "stat": "FrameTime",
+              "samples": 120,
+              "mean_ms": 20.613466666666667,
+              "p95_ms": 29.6375
+            },
+            {
+              "stat": "GameThreadTime",
+              "samples": 120,
+              "mean_ms": 9.040901666666667,
+              "p95_ms": 10.9931
+            },
+            {
+              "stat": "GPUTime",
+              "samples": 120,
+              "mean_ms": 3.7117133333333334,
+              "p95_ms": 3.8092
+            }
+          ],
+          "counts": [
+            {
+              "stat": "CultRuntime/ArenaStoneEnabled",
+              "samples": 120,
+              "mean_count": 1.0,
+              "p95_count": 1.0
+            },
+            {
+              "stat": "CultRuntime/ArenaTaggedSurfaces",
+              "samples": 120,
+              "mean_count": 225.0,
+              "p95_count": 225.0
+            }
+          ]
+        },
+        {
+          "path": "unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_2.csv",
+          "sha256": "85f85f43df4e7588b43a3ea5084c957c5ed4245a98716803c2c9cb8cec016186",
+          "stone": true,
+          "timings": [
+            {
+              "stat": "FrameTime",
+              "samples": 120,
+              "mean_ms": 20.7225675,
+              "p95_ms": 29.7756
+            },
+            {
+              "stat": "GameThreadTime",
+              "samples": 120,
+              "mean_ms": 9.107753333333333,
+              "p95_ms": 11.1653
+            },
+            {
+              "stat": "GPUTime",
+              "samples": 120,
+              "mean_ms": 3.720810833333333,
+              "p95_ms": 3.8175
+            }
+          ],
+          "counts": [
+            {
+              "stat": "CultRuntime/ArenaStoneEnabled",
+              "samples": 120,
+              "mean_count": 1.0,
+              "p95_count": 1.0
+            },
+            {
+              "stat": "CultRuntime/ArenaTaggedSurfaces",
+              "samples": 120,
+              "mean_count": 225.0,
+              "p95_count": 225.0
+            }
+          ]
+        },
+        {
+          "path": "unreal 5.8/Saved/Reports/Captures/MatchSurface/Moba_3.csv",
+          "sha256": "89fb23f2f8d98c6eb62315b6dbc0a3d65cf264a49ae77c04e104dc4922550890",
+          "stone": false,
+          "timings": [
+            {
+              "stat": "FrameTime",
+              "samples": 120,
+              "mean_ms": 20.736106666666668,
+              "p95_ms": 29.6714
+            },
+            {
+              "stat": "GameThreadTime",
+              "samples": 120,
+              "mean_ms": 9.086461666666667,
+              "p95_ms": 11.0662
+            },
+            {
+              "stat": "GPUTime",
+              "samples": 120,
+              "mean_ms": 3.708950833333333,
+              "p95_ms": 3.837
+            }
+          ],
+          "counts": [
+            {
+              "stat": "CultRuntime/ArenaStoneEnabled",
+              "samples": 120,
+              "mean_count": 0.0,
+              "p95_count": 0.0
+            },
+            {
+              "stat": "CultRuntime/ArenaTaggedSurfaces",
+              "samples": 120,
+              "mean_count": 225.0,
+              "p95_count": 225.0
+            }
+          ]
+        }
+      ],
+      "paired_flat_mean_ms": {
+        "FrameTime": 20.666587083333333,
+        "GameThreadTime": 9.05626125,
+        "GPUTime": 3.7030416666666666
+      },
+      "paired_stone_mean_ms": {
+        "FrameTime": 20.668017083333332,
+        "GameThreadTime": 9.074327499999999,
+        "GPUTime": 3.7162620833333335
+      },
+      "paired_delta_ms": {
+        "FrameTime": 0.0014299999999991542,
+        "GameThreadTime": 0.018066249999998618,
+        "GPUTime": 0.013220416666666956
+      }
+    }
+  },
+  "captures": [
+    {
+      "path": "unreal 5.8/Saved/Screenshots/MatchSurface_Domination_FlatOverview.png",
+      "sha256": "a0dded9164704fdcc9afa183664d6623cac3cfb5a09a25197b09fb3c21ab6674",
+      "width": 1280,
+      "height": 720,
+      "bytes": 798708,
+      "reviewed": false
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/MatchSurface_Domination_FlatSpawn.png",
+      "sha256": "346ed8f310bfe73c400ca0d865c4319ae6640194b11e9a511b000d3343485e73",
+      "width": 1280,
+      "height": 720,
+      "bytes": 601230,
+      "reviewed": true
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/MatchSurface_Domination_StoneOverview.png",
+      "sha256": "fc3ff06dd81f0493931e0860ac5a4614ffdff2c4db26551125f5f3b853fbcb53",
+      "width": 1280,
+      "height": 720,
+      "bytes": 1244629,
+      "reviewed": true
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/MatchSurface_Domination_StoneSpawn.png",
+      "sha256": "4304cd30964051d533a632f55df8bb7203425dc09a0b284d29e7e3534ce5dc59",
+      "width": 1280,
+      "height": 720,
+      "bytes": 873493,
+      "reviewed": true
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/MatchSurface_Moba_FlatOverview.png",
+      "sha256": "1ed808877004f64e42b9018e4c879316e5ca502d62e4395add9258411aad28d2",
+      "width": 1280,
+      "height": 720,
+      "bytes": 825681,
+      "reviewed": false
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/MatchSurface_Moba_FlatSpawn.png",
+      "sha256": "0b7d6cbded37f695af9b9475999d17d9a87904d369e39dd8ff8ef00ca64d9701",
+      "width": 1280,
+      "height": 720,
+      "bytes": 755940,
+      "reviewed": false
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/MatchSurface_Moba_StoneOverview.png",
+      "sha256": "53abfadff627d80ba3a3e44a2a7289a5037f5655fcc042f6fba9855c42d63969",
+      "width": 1280,
+      "height": 720,
+      "bytes": 1018411,
+      "reviewed": true
+    },
+    {
+      "path": "unreal 5.8/Saved/Screenshots/MatchSurface_Moba_StoneSpawn.png",
+      "sha256": "c1d0bc0658492f09fd15293be5a37803bd031f7d3b62e84df532f2c5aae2379e",
+      "width": 1280,
+      "height": 720,
+      "bytes": 899198,
+      "reviewed": false
+    }
+  ],
+  "initial_rejected_presentation": {
+    "scope": "Initial profile: MOBA natural ground was incorrectly paved, subsequently rejected",
+    "captures": [
+      {
+        "file": "Domination_0.csv",
+        "sha256": "be6f43d06d9839caa1d2a0f404611ee68e97c228d8ab4c19ff09b3a2345ee028",
+        "metrics": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean": 20.72938,
+            "p95": 29.6399
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean": 8.878734166666666,
+            "p95": 10.7492
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean": 3.539759166666667,
+            "p95": 3.6551
+          }
+        ],
+        "counters": [
+          [
+            "Domination_0.csv",
+            "CultRuntime/ArenaStoneEnabled",
+            120,
+            0.0,
+            0.0
+          ],
+          [
+            "Domination_0.csv",
+            "CultRuntime/ArenaTaggedSurfaces",
+            120,
+            135.0,
+            135.0
+          ]
+        ]
+      },
+      {
+        "file": "Domination_1.csv",
+        "sha256": "0d57b0aa9c6bcdab607d7a1a2105fbf3d97d3934aeee807f731098cd534cca63",
+        "metrics": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean": 20.5934575,
+            "p95": 29.6734
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean": 8.823864166666667,
+            "p95": 10.6898
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean": 3.5592491666666666,
+            "p95": 3.6577
+          }
+        ],
+        "counters": [
+          [
+            "Domination_1.csv",
+            "CultRuntime/ArenaStoneEnabled",
+            120,
+            1.0,
+            1.0
+          ],
+          [
+            "Domination_1.csv",
+            "CultRuntime/ArenaTaggedSurfaces",
+            120,
+            135.0,
+            135.0
+          ]
+        ]
+      },
+      {
+        "file": "Domination_2.csv",
+        "sha256": "6d967c2bad9c36ca2e074ce1e13aff67ff71940ea38583ed0bbef20518a07e14",
+        "metrics": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean": 21.1919525,
+            "p95": 29.7189
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean": 8.624755833333333,
+            "p95": 10.6885
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean": 3.5635275,
+            "p95": 3.6993
+          }
+        ],
+        "counters": [
+          [
+            "Domination_2.csv",
+            "CultRuntime/ArenaStoneEnabled",
+            120,
+            1.0,
+            1.0
+          ],
+          [
+            "Domination_2.csv",
+            "CultRuntime/ArenaTaggedSurfaces",
+            120,
+            135.0,
+            135.0
+          ]
+        ]
+      },
+      {
+        "file": "Domination_3.csv",
+        "sha256": "e629b870520323b018f3ec2b1028d5c3044fd26f1b67dc992c1fb31e127d09b4",
+        "metrics": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean": 21.059636666666666,
+            "p95": 29.6719
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean": 8.909638333333334,
+            "p95": 11.0887
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean": 3.5372958333333333,
+            "p95": 3.6443
+          }
+        ],
+        "counters": [
+          [
+            "Domination_3.csv",
+            "CultRuntime/ArenaStoneEnabled",
+            120,
+            0.0,
+            0.0
+          ],
+          [
+            "Domination_3.csv",
+            "CultRuntime/ArenaTaggedSurfaces",
+            120,
+            135.0,
+            135.0
+          ]
+        ]
+      },
+      {
+        "file": "Moba_0.csv",
+        "sha256": "5bde98edab473952e398e46402aec1bb62f54269e5227f4700a98bd2b23f0ba5",
+        "metrics": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean": 20.96479,
+            "p95": 29.6863
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean": 9.1894575,
+            "p95": 11.0987
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean": 3.6932825,
+            "p95": 3.8088
+          }
+        ],
+        "counters": [
+          [
+            "Moba_0.csv",
+            "CultRuntime/ArenaStoneEnabled",
+            120,
+            0.0,
+            0.0
+          ],
+          [
+            "Moba_0.csv",
+            "CultRuntime/ArenaTaggedSurfaces",
+            120,
+            225.0,
+            225.0
+          ]
+        ]
+      },
+      {
+        "file": "Moba_1.csv",
+        "sha256": "08bb48556e3f483a40196b12596ac307095e6c6e30e053ca783f29f5fcf4d644",
+        "metrics": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean": 20.840468333333334,
+            "p95": 29.6808
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean": 9.106008333333333,
+            "p95": 11.269
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean": 3.7071633333333334,
+            "p95": 3.8289
+          }
+        ],
+        "counters": [
+          [
+            "Moba_1.csv",
+            "CultRuntime/ArenaStoneEnabled",
+            120,
+            1.0,
+            1.0
+          ],
+          [
+            "Moba_1.csv",
+            "CultRuntime/ArenaTaggedSurfaces",
+            120,
+            225.0,
+            225.0
+          ]
+        ]
+      },
+      {
+        "file": "Moba_2.csv",
+        "sha256": "342b8f19090f34af4f753cf60cd3458aea9e391b1a5b38670ad2d8f0b31f43d9",
+        "metrics": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean": 20.92853,
+            "p95": 29.6635
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean": 9.158478333333333,
+            "p95": 10.8996
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean": 3.7118,
+            "p95": 3.8428
+          }
+        ],
+        "counters": [
+          [
+            "Moba_2.csv",
+            "CultRuntime/ArenaStoneEnabled",
+            120,
+            1.0,
+            1.0
+          ],
+          [
+            "Moba_2.csv",
+            "CultRuntime/ArenaTaggedSurfaces",
+            120,
+            225.0,
+            225.0
+          ]
+        ]
+      },
+      {
+        "file": "Moba_3.csv",
+        "sha256": "7836a3d9fb6cac2348b04c05a0fe16d46f8ba3da0da9bb8b54516f588a99b8b0",
+        "metrics": [
+          {
+            "stat": "FrameTime",
+            "samples": 120,
+            "mean": 21.007206666666665,
+            "p95": 29.7007
+          },
+          {
+            "stat": "GameThreadTime",
+            "samples": 120,
+            "mean": 9.4933725,
+            "p95": 11.2735
+          },
+          {
+            "stat": "GPUTime",
+            "samples": 120,
+            "mean": 3.68346,
+            "p95": 3.7813
+          }
+        ],
+        "counters": [
+          [
+            "Moba_3.csv",
+            "CultRuntime/ArenaStoneEnabled",
+            120,
+            0.0,
+            0.0
+          ],
+          [
+            "Moba_3.csv",
+            "CultRuntime/ArenaTaggedSurfaces",
+            120,
+            225.0,
+            225.0
+          ]
+        ]
+      }
+    ],
+    "images": {
+      "MatchSurface_Domination_FlatOverview.png": "7cd9eba75dc2047f3b5536c36ca02853c2c1f53ec5c488171499bb15c2328c6c",
+      "MatchSurface_Domination_FlatSpawn.png": "21b372a5031b9e300b0b528c3831812067a5300ce0310a51419dfa78a83f768d",
+      "MatchSurface_Domination_StoneOverview.png": "5a9c538890beaee94d5550163952fd778041541785e0260e29cc87d91a9eec9e",
+      "MatchSurface_Domination_StoneSpawn.png": "7d6573999051913839452ae7661319d7ceda193194579cb67f5e3af55ac194fd",
+      "MatchSurface_Moba_FlatOverview.png": "43e979b47558155c71e6f31ec79f41e8ce710c7004d9786c62d11a8d30ab513c",
+      "MatchSurface_Moba_FlatSpawn.png": "62ca443bb4818e05fce46884296dc729ebb6278cb835a994a033af934411384f",
+      "MatchSurface_Moba_StoneOverview.png": "f587a7bd00c7619e3871c5d731a8a8b6f0a7e6376f5b0deedbbef1b67c05ca68",
+      "MatchSurface_Moba_StoneSpawn.png": "232be184e5fadaa811b09a7d29a090287be1bd5f0156f4bfe8b36b1493134c63"
+    }
+  },
+  "original_assets": {
+    "compared_to": "3f7b1a7e7b4a90d9131025cb6d9469be053e3470",
+    "checked": 145,
+    "changed": []
+  },
+  "material": {
+    "path": "unreal 5.8/Content/CultUlhu/Materials/M_MatchStone.uasset",
+    "bytes": 11451,
+    "sha256": "d815ad154f4d8e253edf185ca355cd389be15df906791c454382336b47389509",
+    "new_texture_samples": 0
+  },
+  "source_sha256": {
+    "unreal 5.8/Source/CultUlhu/CultUlhu.Build.cs": "8cb67f00ebfa21a6788c0bd42d53a802ffd7b9330abe1f04b1ad55e74a738df2",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchArena.cpp": "d1a401ed1bc21495d085e6d16a912a50ec6c284728cac2b0544a45d29b536b6c",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchSurfaces.h": "ec47ebd39bf9551d9042fcdb9cf2040dfa162ea5e8a96142de07bf93103aa179",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchSurfaces.cpp": "7c5aa37a25ccf81b911b1b99894980c4779ef904a09d6b0dd4adfae8ea158633",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchSurfaceTest.cpp": "44ddfaab83cb9f0e55779638bf2993f1697f022550845e82331c08b40210fbf9",
+    "unreal 5.8/Tools/BuildMatchStone.py": "cf3021bfef8d5c7b013c30bcb0ef6f43f4a687b30eb7e6051046654a629d2b01",
+    "unreal 5.8/Tools/MatchStone.hlsl": "50a3c3c6449416918e5869d37d01b9ab6c0d7bf5c6b0fd75513dbe896301126c",
+    "unreal 5.8/Tools/SummarizeRuntimeProfile.py": "7917cf85fa3f6b6bc56f27f29d253d4ed3c1c0e252d363618276cd3304bd52d5"
+  },
+  "limits": [
+    "Frozen preparation scenes are not live combat performance",
+    "Editor backbuffer timing differs from dedicated capture dimensions",
+    "One host and camera; no low-spec or high-resolution performance guarantee",
+    "Primitive geometry, regular masonry and placeholder heroes remain",
+    "Newer edits not cooked into a standalone executable"
+  ],
+  "storage": {
+    "new_downloads_or_standalone_package": false,
+    "review_pngs": 2
+  }
+}

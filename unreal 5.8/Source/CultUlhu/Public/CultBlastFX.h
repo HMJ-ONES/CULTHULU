@@ -1,10 +1,7 @@
 // CULT-ULHU blast FX: short-lived, self-animating impact effects.
 //
-// Two kinds, both built from Engine basic shapes + the FX materials made
-// by unreal 5.8/Tools/BuildDarkWilds.py (M_FX_Dust, M_FX_Flash):
-//   ShockRing — the pawn's smash: 12 dust puffs racing outward in a ring
-//               plus a central flash that pops. Fades by shrinking.
-//   DustBurst — building collapse: dust puffs blooming up and out.
+// Hit flashes and shock rings use one open procedural signal mesh. Collapse
+// dust retains its original puffs. All effects are cosmetic and noncolliding.
 //
 // Spawn via ACultBlastFX::SpawnBlast (deferred spawn sets the kind before
 // BeginPlay). The actor destroys itself when the last puff dies. Missing
@@ -35,13 +32,21 @@ public:
 	ACultBlastFX();
 
 	static ACultBlastFX* SpawnBlast(UWorld* World, ECultBlastKind Kind,
-		FVector Location, float RadiusM);
+		FVector Location, float RadiusM, FVector ImpactDirection=FVector::UpVector);
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
 private:
+	friend struct FCultImpactPresentationTestAccess;
 	void BuildPuffs();
+	void BuildSignal();
+	void UpdateSignal();
+	UPROPERTY() class UProceduralMeshComponent* Signal_=nullptr;
+	UPROPERTY() class UMaterialInstanceDynamic* SignalMaterial_=nullptr;
+	FVector ImpactDirection_=FVector::UpVector;
+	float SignalAge_=0,SignalDuration_=.22f,LegacyRadiusM_=2;
+	bool Refined_=false;
 
 	struct FPuff
 	{

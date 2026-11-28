@@ -303,7 +303,34 @@ static void testFactoryAndRegistry() {
     CHECK(b == nullptr);
 }
 
+static void testNativeCollisionHooks() {
+    {
+        Fixture f; f.addCivilian(10,0); WaveOfDomination w; auto c=f.ctx();
+        c.waveOverlap=[](const Entity&,Vec3) { return false; };
+        w.onPress(c); for(int i=0;i<140;++i) w.update(c,1.0/60.0);
+        CHECK(w.victimCount()==0);
+    }
+    Fixture f; auto* victim=f.addCivilian(10,0); WaveOfDomination w; auto c=f.ctx();
+    w.onPress(c); for(int i=0;i<140;++i) w.update(c,1.0/60.0);
+    CHECK(w.victimCount()==1);
+    auto* target=f.addCivilian(7.2f,0); c.entities.clear(); for(auto& e:f.owned) c.entities.push_back(e.get()); int sweeps=0;
+    c.spatialImpact=[&](Vec3 from,Vec3 to,const Entity*) -> Entity* { ++sweeps; CHECK(from.distance(to)>0); return nullptr; };
+    w.onLeftClick(c); w.update(c,.1); CHECK(sweeps>0); CHECK(victim->alive()); CHECK(target->alive());
+    c.spatialImpact=[&](Vec3,Vec3,const Entity*) -> Entity* { return target; };
+    w.update(c,.1); CHECK(!victim->alive()); CHECK(!target->alive());
+}
+
+static void testNativeRechargeScale() {
+    Fixture f; auto* victim=f.addCivilian(5,0); auto c=f.ctx();
+    c.cooldownScale=.65f; c.targetedEntityId=victim->id();
+    WaveOfDomination wave; wave.onPress(c);
+    CHECK_CLOSE(wave.cooldownRemaining(),7.f*.65f,.0001f);
+    wave.update(c,4.5); CHECK(!wave.ready());
+    wave.update(c,.06); CHECK(wave.ready());
+}
+
 int main() {
+    testNativeRechargeScale();
     testWaveCatchesAndLevitates();
     testChaosImmunity();
     testMaxVictims();
@@ -315,6 +342,7 @@ int main() {
     testCooldownEnforced();
     testCooldownDecaysWithGameTime();
     testFactoryAndRegistry();
+    testNativeCollisionHooks();
     std::cout << "wave7d checks: " << checks << ", failures: " << failures
               << "\n";
     return failures == 0 ? 0 : 1;

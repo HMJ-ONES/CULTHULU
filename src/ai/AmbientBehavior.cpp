@@ -168,7 +168,8 @@ void AmbientDirector::applyAction(Cultist& c, AmbientAction a) {
 
         case AmbientAction::Preach: {
             float eff = beliefs_.conversionEfficiency();
-            if (rng_.chance(0.25f * eff)) {
+            const uint64_t target = civilianPicker_ ? civilianPicker_() : 0;
+            if ((!civilianPicker_ || target != 0) && rng_.chance(0.25f * eff)) {
                 GameEvent sermon(EventType::SermonPreached);
                 sermon.sourceId = c.id();
                 sermon.amount = 1.0f;
@@ -176,6 +177,7 @@ void AmbientDirector::applyAction(Cultist& c, AmbientAction a) {
 
                 GameEvent conv(EventType::ConversionPerformed);
                 conv.sourceId = c.id();
+                conv.targetId = target;
                 conv.amount = 1.0f;
                 conv.tag = "sermon";
                 bus_.publish(conv);
@@ -188,7 +190,7 @@ void AmbientDirector::applyAction(Cultist& c, AmbientAction a) {
             std::vector<size_t> others;
             for (size_t i = 0; i < cult_.size(); ++i) {
                 Cultist& o = cult_.at(i);
-                if (o.id() != c.id() && eligible(o)) others.push_back(i);
+                if (o.id() != c.id() && eligible(o) && (!targetFilter_ || targetFilter_(c, o))) others.push_back(i);
             }
             if (others.empty()) break; // nobody to brawl with: nothing happens
 
@@ -237,7 +239,7 @@ void AmbientDirector::applyAction(Cultist& c, AmbientAction a) {
             std::vector<size_t> others;
             for (size_t i = 0; i < cult_.size(); ++i) {
                 Cultist& o = cult_.at(i);
-                if (o.id() != c.id() && eligible(o)) others.push_back(i);
+                if (o.id() != c.id() && eligible(o) && (!targetFilter_ || targetFilter_(c, o))) others.push_back(i);
             }
             if (others.empty()) break; // nobody to spar with: nothing happens
 
@@ -268,7 +270,7 @@ void AmbientDirector::applyAction(Cultist& c, AmbientAction a) {
             float worst = 1.0f;
             for (size_t i = 0; i < cult_.size(); ++i) {
                 Cultist& o = cult_.at(i);
-                if (!o.alive()) continue;
+                if (!o.alive() || (targetFilter_ && !targetFilter_(c, o))) continue;
                 float frac = o.hp() / o.maxHp();
                 if (frac < worst) { worst = frac; patient = &o; }
             }
@@ -333,15 +335,18 @@ void AmbientDirector::applyAction(Cultist& c, AmbientAction a) {
             e.sourceId = c.id();
             e.amount = hot ? 2.0f : 1.0f;
             bus_.publish(e);
-            if (hot && rng_.chance(0.30f)) {
+            const uint64_t target = civilianPicker_ ? civilianPicker_() : 0;
+            if (hot && (!civilianPicker_ || target != 0) && rng_.chance(0.30f)) {
                 GameEvent whisper(EventType::DreamWhisper);
                 whisper.sourceId = c.id();
+                whisper.targetId = target;
                 whisper.amount = 1.0f;
                 whisper.tag = "dreamshared";
                 bus_.publish(whisper);
 
                 GameEvent conv(EventType::ConversionPerformed);
                 conv.sourceId = c.id();
+                conv.targetId = target;
                 conv.amount = 1.0f;
                 conv.tag = "dreamshared";
                 bus_.publish(conv);
@@ -373,9 +378,11 @@ void AmbientDirector::applyAction(Cultist& c, AmbientAction a) {
             e.pos = c.position();
             bus_.publish(e);
             // A rumor that lands converts like a sermon.
-            if (rng_.chance(0.20f)) {
+            const uint64_t target = civilianPicker_ ? civilianPicker_() : 0;
+            if ((!civilianPicker_ || target != 0) && rng_.chance(0.20f)) {
                 GameEvent conv(EventType::ConversionPerformed);
                 conv.sourceId = c.id();
+                conv.targetId = target;
                 conv.amount = 1.0f;
                 conv.tag = "rumor";
                 bus_.publish(conv);

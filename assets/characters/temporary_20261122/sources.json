@@ -1,0 +1,68 @@
+{
+  "ghatanothoa": {
+    "title": "Troll",
+    "author": "Timsblends",
+    "author_url": "https://sketchfab.com/timsblends",
+    "source_url": "https://sketchfab.com/3d-models/troll-59e679e0da5c4906935b8841aefe6dc0",
+    "license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "original_source_sha256": "7b3802835b64a8411b6264f004356a6042da10ce0e8f3c5d6dbbf48bec5c09bb",
+    "archive": "assets/characters/temporary_20261122/ghatanothoa.glb.b64",
+    "local_original": "unreal 5.8/Saved/CharacterSources/ghatanothoa/Temporary20261122/source.glb"
+  },
+  "hastur": {
+    "title": "Low Poly Wizard (Rigged)",
+    "author": "Anthony Yanez",
+    "author_url": "https://sketchfab.com/paulyanez",
+    "source_url": "https://sketchfab.com/3d-models/low-poly-wizard-rigged-f8c91af65aec4779b0e3d857b1878cc2",
+    "license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "original_source_sha256": "6ab6126c6601314f3925262a882ae803ee139746ab6b9e71167633e1f9ba83f4",
+    "archive": "assets/characters/temporary_20261122/hastur.glb.b64",
+    "local_original": "unreal 5.8/Saved/CharacterSources/hastur/Temporary20261122/source.glb"
+  },
+  "mother_hydra": {
+    "title": "Yamata no Orochi",
+    "author": "tranb95",
+    "author_url": "https://sketchfab.com/tranb95",
+    "source_url": "https://sketchfab.com/3d-models/yamata-no-orochi-8f4c0e2c632e401eb5c5381acc3ce789",
+    "license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "original_source_sha256": "de0c10b21fdd5c861963a5b65bf4506832a122d066da32738dd2260fceb8e26b",
+    "archive": "assets/characters/temporary_20261122/mother_hydra.glb.b64",
+    "local_original": "unreal 5.8/Saved/CharacterSources/mother_hydra/Temporary20261122/source.glb"
+  },
+  "rhan_tegoth": {
+    "title": "Crabulb - Rigged",
+    "author": "uosew",
+    "author_url": "https://sketchfab.com/uosew",
+    "source_url": "https://sketchfab.com/3d-models/crabulb-rigged-eccf00581ba04a68a98a7fd52424c1a8",
+    "license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "original_source_sha256": "60151f82c239b745fb2f197ac0ce350d6e58822d4d960f6c4834280b0565e65b",
+    "archive": "assets/characters/temporary_20261122/rhan_tegoth.glb.b64",
+    "local_original": "unreal 5.8/Saved/CharacterSources/rhan_tegoth/Temporary20261122/source.glb"
+  },
+  "shub_niggurath": {
+    "title": "Tree Monster",
+    "author": "Natlus",
+    "author_url": "https://sketchfab.com/sultan99syzdykov",
+    "source_url": "https://sketchfab.com/3d-models/tree-monster-97f38826e6f14050b8aed9e8250c1d43",
+    "license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "original_source_sha256": "84ffafb2c187b6974a3aa601077d9e1080e270351a294917b579fd756bbcfe02",
+    "archive": "assets/characters/temporary_20261122/shub_niggurath.glb.b64",
+    "local_original": "unreal 5.8/Saved/CharacterSources/shub_niggurath/Temporary20261122/source.glb"
+  },
+  "nug_and_yeb": {
+    "title": "Simple Moon Jellyfish (Baked Animation)",
+    "author": "n-",
+    "author_url": "https://sketchfab.com/n-",
+    "source_url": "https://sketchfab.com/3d-models/simple-moon-jellyfish-baked-animation-3d911c511f2744ec9bfb99d46d2d6e14",
+    "license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "original_source_sha256": "be67d4ee9fc62ae046d54bcfd10c5fc462d64caa1875da7ecd1bd6ec0f9f71f1",
+    "archive": "assets/characters/temporary_20261122/nug_and_yeb.glb.b64",
+    "local_original": "unreal 5.8/Saved/CharacterSources/nug_and_yeb/Temporary20261122/source.glb"
+  }
+}

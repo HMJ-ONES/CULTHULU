@@ -1,0 +1,151 @@
+{
+  "checked_utc": "2026-10-31T18:26:02.799925+00:00",
+  "baseline_commit": "17abb1e24b645d173a7b93addba2a0ca035a7559",
+  "canonical_target": "CultUlhuEditor Win64 Development",
+  "build": "Succeeded",
+  "before_standalone": {
+    "ok": false,
+    "timed_out": false,
+    "bots_active": true,
+    "lanes": [
+      {
+        "team": 0,
+        "lane": 0,
+        "spawned": 13,
+        "moved": 0,
+        "moving_siege": 0,
+        "max_progress": 0.0212
+      },
+      {
+        "team": 0,
+        "lane": 1,
+        "spawned": 13,
+        "moved": 0,
+        "moving_siege": 0,
+        "max_progress": 0.0313
+      },
+      {
+        "team": 0,
+        "lane": 2,
+        "spawned": 13,
+        "moved": 0,
+        "moving_siege": 0,
+        "max_progress": 0.0212
+      },
+      {
+        "team": 1,
+        "lane": 0,
+        "spawned": 13,
+        "moved": 0,
+        "moving_siege": 0,
+        "max_progress": 0.0212
+      },
+      {
+        "team": 1,
+        "lane": 1,
+        "spawned": 13,
+        "moved": 0,
+        "moving_siege": 0,
+        "max_progress": 0.0313
+      },
+      {
+        "team": 1,
+        "lane": 2,
+        "spawned": 13,
+        "moved": 0,
+        "moving_siege": 0,
+        "max_progress": 0.0212
+      }
+    ]
+  },
+  "after_standalone": {
+    "ok": true,
+    "timed_out": false,
+    "bots_active": true,
+    "decorative_colliders": 0,
+    "lanes": [
+      {
+        "team": 0,
+        "lane": 0,
+        "spawned": 13,
+        "moved": 13,
+        "moving_siege": 1,
+        "max_progress": 0.5178
+      },
+      {
+        "team": 0,
+        "lane": 1,
+        "spawned": 13,
+        "moved": 13,
+        "moving_siege": 1,
+        "max_progress": 0.5336
+      },
+      {
+        "team": 0,
+        "lane": 2,
+        "spawned": 13,
+        "moved": 13,
+        "moving_siege": 1,
+        "max_progress": 0.468
+      },
+      {
+        "team": 1,
+        "lane": 0,
+        "spawned": 13,
+        "moved": 13,
+        "moving_siege": 1,
+        "max_progress": 0.5233
+      },
+      {
+        "team": 1,
+        "lane": 1,
+        "spawned": 13,
+        "moved": 13,
+        "moving_siege": 1,
+        "max_progress": 0.4929
+      },
+      {
+        "team": 1,
+        "lane": 2,
+        "spawned": 13,
+        "moved": 13,
+        "moving_siege": 1,
+        "max_progress": 0.5603
+      }
+    ]
+  },
+  "native_tests": [
+    {
+      "test": "CultUlhu.Menu.ObjectiveCollision.NexusWard",
+      "result": "Success"
+    },
+    {
+      "test": "CultUlhu.Menu.NaturalCreepWaves",
+      "result": "Success"
+    }
+  ],
+  "root_cause": "Decorative road/base meshes spawned during InitGame retained BlockAll collision profiles. Standalone initialization restored blocking collision and embedded spawning creep capsules; initial movement sweeps rejected every heading.",
+  "fix": "Explicit NoCollision profile and actor collision disable for non-solid arena meshes; BlockAll retained for solid geometry.",
+  "normal_bots_active": true,
+  "physical_creeps_moved": 78,
+  "moving_siege_creeps": 6,
+  "logs_sha256": {
+    "CreepCollisionFixBuild.log": "6f0cf8d561ca4ffd27adbec9081440aecbdc78873a3b13b350fc24c9d429735a",
+    "CreepWavesEditorFixed.log": "151cd2448169815335a598742af45f60d80798fa06fe94d830d683cb9c87e57d",
+    "CreepWavesStandaloneFixed.log": "1adb903fc9e252bd42b7b55b8da2192f4030de5826ad8650d33c5921ac08392a",
+    "CreepDiagnostic.log": "d48593e73bb8222738316f920564f874898885044a23b8764d1ca1fbfb7f0c1f",
+    "CreepWaveBaseline.log": "bfa428f3f3e0f7f5466a169e93081287336763c2e1507ddc6861324b9dd124f1"
+  },
+  "module_sha256": "f5c78c1b2f41a26588641adfc848a61526797c568be3cf2cee6cd9298d0e1722",
+  "source_sha256": {
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchArena.cpp": "9590cfe9526e58766df5740f821c4f6c5c4df475069037f215a951aadc6292a4",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchTest.cpp": "b5eb750f97b742f372ea8f776d563a542e61e13979947afa9bd7355a05425ce6",
+    "unreal 5.8/Source/CultUlhu/Private/CultUlhuGameInstance.cpp": "faa10e4bd7cffef60fd4ef206be39814797d21b79420dff6fca471cca6acf37b",
+    "unreal 5.8/Source/CultUlhu/Private/CultCreepWaveProbe.cpp": "890c50510a2de11a59a827e2474137154127d4b4ce9da4ceda53a60406b7accd"
+  },
+  "limitations": [
+    "Uncooked standalone launch via the same engine/project/menu as the desktop shortcut; no new packaged release.",
+    "Three timed waves observed over 85 match seconds with normal bots; not a full-match or multiplayer certification.",
+    "Development-only probe and editor regression code are excluded from shipping builds."
+  ]
+}

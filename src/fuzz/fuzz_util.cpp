@@ -253,12 +253,17 @@ void reportFailure(const char* target, uint64_t seed, size_t iter,
                    const std::string& inputDesc, const std::string& what) {
     // Raw fd: bypasses the silencer's redirections so the report is
     // never swallowed.
+#ifdef _WIN32
+    const std::string text="\n[FUZZ-FAIL] target="+std::string(target)+" seed="+std::to_string(seed)+" iter="+std::to_string(iter)+"\n  what: "+what+"\n  input: "+inputDesc+"\n";
+    ::_write(g_reportFd,text.data(),static_cast<unsigned int>(text.size()));
+#else
     ::dprintf(g_reportFd,
               "\n[FUZZ-FAIL] target=%s seed=%llu iter=%zu\n"
               "  what: %s\n"
               "  input: %s\n",
               target, (unsigned long long)seed, iter, what.c_str(),
               inputDesc.c_str());
+#endif
 }
 
 std::vector<std::string> driverCommandCorpus(bool includeBlockingNet) {

@@ -1,0 +1,187 @@
+{
+  "blend": "assets/character_animation/cthulhu_avatar/v008/Cthulhu_BasicMotion.blend",
+  "sourceSha256": "8021afee59282634c5274921ec3a4e3ed993c05783c8be9f52ef7f8c1326b86d",
+  "requiredRoles": [
+    "idle",
+    "walk",
+    "run",
+    "melee_1",
+    "melee_2",
+    "melee_3",
+    "jump",
+    "dash",
+    "taunt",
+    "melee_back_1",
+    "melee_back_2",
+    "melee_back_3"
+  ],
+  "actions": {
+    "idle": {
+      "sampleStepFrames": 0.5,
+      "samples": 481,
+      "minimumSurfaceZ": 0.002000004518777132,
+      "maximumVertexSampleTravel": 0.0003450485528446734,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 4.0,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/idle.mp4"
+    },
+    "walk": {
+      "sampleStepFrames": 0.5,
+      "samples": 193,
+      "minimumSurfaceZ": 0.0019671283662319183,
+      "maximumVertexSampleTravel": 0.025600049644708633,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 1.6,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/walk.mp4"
+    },
+    "run": {
+      "sampleStepFrames": 0.5,
+      "samples": 109,
+      "minimumSurfaceZ": 0.0005987896583974361,
+      "maximumVertexSampleTravel": 0.037050407379865646,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 0.9,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/run.mp4"
+    },
+    "melee_1": {
+      "sampleStepFrames": 0.5,
+      "samples": 53,
+      "minimumSurfaceZ": 0.00159176264423877,
+      "maximumVertexSampleTravel": 0.17821566760540009,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.43333333333333335,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/melee_1.mp4"
+    },
+    "melee_2": {
+      "sampleStepFrames": 0.5,
+      "samples": 61,
+      "minimumSurfaceZ": 0.001109125092625618,
+      "maximumVertexSampleTravel": 0.20355263352394104,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.5,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/melee_2.mp4"
+    },
+    "melee_3": {
+      "sampleStepFrames": 0.5,
+      "samples": 73,
+      "minimumSurfaceZ": 0.0010158009827136993,
+      "maximumVertexSampleTravel": 0.11736264079809189,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.6,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/melee_3.mp4"
+    },
+    "jump": {
+      "sampleStepFrames": 0.5,
+      "samples": 127,
+      "minimumSurfaceZ": 0.001430213451385498,
+      "maximumVertexSampleTravel": 0.02708887867629528,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.27870723605155945,
+      "loopClosurePass": null,
+      "durationSeconds": 1.05,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/jump.mp4"
+    },
+    "dash": {
+      "sampleStepFrames": 0.5,
+      "samples": 59,
+      "minimumSurfaceZ": 0.001997112762182951,
+      "maximumVertexSampleTravel": 0.01880253292620182,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.48333333333333334,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/dash.mp4"
+    },
+    "taunt": {
+      "sampleStepFrames": 0.5,
+      "samples": 385,
+      "minimumSurfaceZ": 0.002000004518777132,
+      "maximumVertexSampleTravel": 0.02145259827375412,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 3.2,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/taunt.mp4"
+    },
+    "melee_back_1": {
+      "sampleStepFrames": 0.5,
+      "samples": 59,
+      "minimumSurfaceZ": 0.0007524903630837798,
+      "maximumVertexSampleTravel": 0.15709279477596283,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.48333333333333334,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/melee_back_1.mp4"
+    },
+    "melee_back_2": {
+      "sampleStepFrames": 0.5,
+      "samples": 65,
+      "minimumSurfaceZ": 0.0016313167288899422,
+      "maximumVertexSampleTravel": 0.18994760513305664,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.5333333333333333,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/melee_back_2.mp4"
+    },
+    "melee_back_3": {
+      "sampleStepFrames": 0.5,
+      "samples": 77,
+      "minimumSurfaceZ": -0.0005440755048766732,
+      "maximumVertexSampleTravel": 0.10434342175722122,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.6333333333333333,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/melee_back_3.mp4"
+    },
+    "land": {
+      "sampleStepFrames": 0.5,
+      "samples": 47,
+      "minimumSurfaceZ": 0.0019924864172935486,
+      "maximumVertexSampleTravel": 0.01152015570551157,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.38333333333333336,
+      "reviewMovie": "assets/character_animation/cthulhu_avatar/v008/review/land.mp4"
+    }
+  },
+  "abilitiesAuthored": false,
+  "status": "independent sampling and native rendered review; artistic acceptance pending",
+  "meleeDistinctness": {
+    "samplePhases": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "pairwiseSurfaceRmsMetres": {
+      "melee_1 / melee_2": 0.2588723599910736,
+      "melee_1 / melee_3": 0.19127394258975983,
+      "melee_2 / melee_3": 0.1995854526758194
+    },
+    "scope": "physical pose difference, not artistic acceptance"
+  },
+  "reviewCamera": {
+    "orthographicScale": 3.1543238162994385,
+    "fit": "all sampled skinned geometry across every required role"
+  },
+  "reviewTimeBase": {
+    "sourceFramesPerSecond": 60.0,
+    "movieFramesPerSecond": 60,
+    "method": "temporary NLA time scaling; source keys and study file unchanged"
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "dateLocal": "2026-10-31",
+  "project": "unreal 5.8/CultUlhu.uproject",
+  "baselinePublishedHead": "acaf4171b296f2b90a699d576fefe8e6214c1c80",
+  "canonicalValidation": "Passed",
+  "build": {
+    "target": "CultUlhuEditor Win64 Development",
+    "result": "Succeeded",
+    "log": "Saved/DominationUpperReleaseBuild.log"
+  },
+  "nativeChecks": [
+    {
+      "test": "CultUlhu.Menu.CombatTactics.Domination",
+      "result": "Success",
+      "log": "Saved/DominationUpperReleaseRuntime.log"
+    },
+    {
+      "test": "CultUlhu.Menu.CombatTactics.Moba",
+      "result": "Success",
+      "log": "Saved/DominationUpperReleaseRuntime.log"
+    },
+    {
+      "test": "CultUlhu.Menu.DominationArchitecture",
+      "result": "Success",
+      "log": "Saved/DominationUpperReleaseRuntime.log"
+    },
+    {
+      "test": "CultUlhu.Menu.DominationMatch",
+      "result": "Success",
+      "log": "Saved/DominationUpperReleaseRuntime.log"
+    },
+    {
+      "test": "CultUlhu.Menu.DominationUpperCombat",
+      "result": "Success",
+      "log": "Saved/DominationUpperReleaseRuntime.log"
+    },
+    {
+      "test": "CultUlhu.Menu.MatchHUDCoordinates",
+      "result": "Success",
+      "log": "Saved/DominationUpperReleaseRuntime.log"
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario": 0,
+      "arrivalSeconds": 7.61,
+      "maximumFeetHeightCm": 902.1
+    },
+    {
+      "scenario": 1,
+      "arrivalSeconds": 7.61,
+      "maximumFeetHeightCm": 902.2
+    },
+    {
+      "scenario": 2,
+      "arrivalSeconds": 25.76,
+      "maximumFeetHeightCm": 6002.1
+    }
+  ],
+  "fullMatch": {
+    "alliedCaptureParticipants": 4,
+    "enemyCaptureParticipants": 5,
+    "actualDamage": 2048.6,
+    "observedCombatSeconds": 65
+  },
+  "coverage": [
+    "Both teams independently approach from base, climb low perches and cause original 20m projectile contact damage",
+    "Instrumented original hit callback preserved; actual HP reduction required with shooter physically on the perch",
+    "Physical departure after target loss and low-health retreat",
+    "Independent outside-keep approach, outer-ramp climb, high crossing and opposite-side drop; no test-supplied bot movement/path/relocation after setup",
+    "Full-height Cthulhu walks all four lower ramps and both upper/covered approaches; high/low perches do not score capture",
+    "Even-slot Hydra with Q/F/R unavailable launches original 20m acid spit and causes physical contact damage",
+    "Existing Domination/MOBA ground tactics, teammate support and safe-ground escape dash",
+    "Existing keep, catacomb, four crypt branches, autonomous team combat/capture/underground flanks and completed match",
+    "HUD coordinate regression"
+  ],
+  "fixtureControls": [
+    "Unrelated fighters made inert; stationary enemy targets chosen outside Mi-Go arm reach",
+    "Victim healed between frames until original ranged contact is observed to avoid an earlier fixture kill; no authored damage/range changed",
+    "High-flank eligibility fixture advances real capture scoring with two allies before its bot spawns",
+    "Bots spawned through the normal deferred initialization and RespawnMatch lifecycle"
+  ],
+  "authoredDefinitions": [
+    {
+      "character": "mi_go",
+      "localSha256": "b9b04a742b85c77a195d16a66dbf95b324478d0d53fae55245e767702b5161df",
+      "matchesPublishedContentIgnoringLineEndings": true
+    },
+    {
+      "character": "yig",
+      "localSha256": "45282173fe22937bc70febeab005cd1ef2f5abdda164f38a2eb678dd8549ec60",
+      "matchesPublishedContentIgnoringLineEndings": true
+    },
+    {
+      "character": "mother_hydra",
+      "localSha256": "06875100dd4d404f07b9626dc5162e4ea1580850a32629e1fb21ce77a3224360",
+      "matchesPublishedContentIgnoringLineEndings": true
+    },
+    {
+      "character": "cthulhu_avatar",
+      "localSha256": "d96db44241346d44aaf03fdf039390b6916332f6853d7c142107b6d028e479f4",
+      "matchesPublishedContentIgnoringLineEndings": true
+    }
+  ],
+  "network": {
+    "command": "Tools/RunRoomNetworkProbe.py --mode 1 --lighting",
+    "result": "Passed",
+    "roles": [
+      {
+        "ok": true,
+        "mode": 1,
+        "role": "host",
+        "movement": true,
+        "combat": true,
+        "localMenu": true,
+        "hostReplacedByBot": true
+      },
+      {
+        "ok": true,
+        "mode": 1,
+        "role": "guest",
+        "movement": true,
+        "combat": true,
+        "localMenu": true,
+        "hostReplacedByBot": true
+      }
+    ],
+    "referenceDifferencesSrgb255": [
+      0.236,
+      0.209,
+      0.206,
+      0.176
+    ],
+    "maxDifferenceGate": 4,
+    "minimumMedianGate": 15,
+    "allFourReferenceRaysClear": true,
+    "scope": "Two standalone local processes. Different-PC Radmin, adverse networking and packaged builds are not certified by this check."
+  },
+  "appearance": {
+    "localCaptures": [
+      "Saved/Screenshots/DominationArt_4_After.png",
+      "Saved/Screenshots/DominationArt_5_After.png"
+    ],
+    "inspected": true,
+    "newDownloads": 0,
+    "assessment": "Repeated brick surfaces, large rectangular masses and sparse architectural detail remain prototype-level."
+  },
+  "criticalCorrection": "The historical 120m synthetic high-overlook projectile proves clearance only. Original 16-25m weapons were not buffed; lower perches provide real range, while high walks provide crossings/drops.",
+  "limits": [
+    "Controlled Mi-Go/Hydra cases do not certify all released kits or moving-target human fights",
+    "The high flank costs about 18 seconds more travel than the direct perch approach; human strategic value remains unproven",
+    "No human-controlled full-match fun verdict or Overwatch-level presentation claim",
+    "Low-spec performance, artist-directed architecture/material polish, full-roster animation and broader HUD refinement remain open"
+  ],
+  "sourceSha256": {
+    "unreal 5.8/Source/CultUlhu/Public/CultDominationRoute.h": "49fbd2a763756676845ae12a39c86f4d3075460f2aba9216f0f367d9a7ea9070",
+    "unreal 5.8/Source/CultUlhu/Private/CultDominationUpper.h": "b8d9a20c22bf61b7035fbfd531b3ccc767c3e64e9cfe44aadcd29f592f841f6d",
+    "unreal 5.8/Source/CultUlhu/Private/CultDominationUpper.cpp": "1a8a42664b6e10f3c48b00de3f5ec981f1b8c7d5c052e9bbf9317c80a9a3cc84",
+    "unreal 5.8/Source/CultUlhu/Private/CultDominationUpperTest.cpp": "58ce85232d2b73614cda2135da2b498da0133fb54526b4a321587d19bc68d0d4",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchState.h": "e0ab2bd5ab4512811266c58e963155792d4e02ffb42b2416524160270884f051",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchArena.cpp": "a7495e548b4adfe909d38b6a5f04e3acc24881ba96a3ee2ca40b893e24d1ee39",
+    "unreal 5.8/Source/CultUlhu/Private/CultMatchBattle.cpp": "e9b3c2ba3b8369d74c3dad05f27174b0eec4233d48b22fe8ea073677cd30ce9e",
+    "unreal 5.8/Source/CultUlhu/Private/CultDominationArt.cpp": "4132632171113687a722f25a6bb0ed2ddf75afed0643e0ec6999e56ab0c9b05c",
+    "unreal 5.8/Source/CultUlhu/Private/CultDominationArtTest.cpp": "e289aa888cbda4e2216221a903781ade50bb47394fd7b88ce66f107e6406124f",
+    "unreal 5.8/Source/CultUlhu/Private/CultTacticsTest.cpp": "8ceb9f4e18dbbf688bbdce1f1d2d2ce9ca03533bf83063aa64ef6052f9063a89"
+  },
+  "runtimeLogSha256": "343aa2e008e4bf871424f3594fe80bf520de2c69aad87316e5352cce02cb762e"
+}

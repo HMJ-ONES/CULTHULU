@@ -27,13 +27,13 @@ range = 20
 [f]
 id = withering_field
 name = Withering Field
-flavor = The ground greys; things stop growing right.
+flavor = Unnatural light burns everything at the marked site.
 cooldown = 15
 stamina_cost = 35
 mana_cost = 0
-effect = debuff
-power = 6
-range = 12
+effect = aoe_damage
+power = 116
+range = 11
 
 [r]
 id = colour_falls

@@ -26,14 +26,14 @@ range = 16
 
 [f]
 id = coil
-name = Coil
-flavor = The coils were already around you.
+name = Coiling Remedy
+flavor = The Father's coils draw the venom back out.
 cooldown = 13
 stamina_cost = 30
 mana_cost = 0
-effect = dash
-power = 10
-range = 0
+effect = heal
+power = 85
+range = 34
 
 [r]
 id = curse_of_yig

@@ -2,6 +2,7 @@
 // named, rewarded, and persisted.
 
 #include "achievements/AchievementSystem.h"
+#include "TestScratch.h"
 #include "core/EventBus.h"
 #include "core/GameClock.h"
 #include "core/RNG.h"
@@ -61,6 +62,7 @@ static void testFirstDiscovery() {
 
     const Discovery* d = codex.find("landmark:the_shattered_court");
     CHECK(d != nullptr);
+    if (!d) return;
     CHECK(d->name == "The Shattered Court");
     CHECK(codex.find("landmark:nope") == nullptr);
 }
@@ -118,10 +120,17 @@ static void testSaveFileRoundTrip() {
                    false);
     GameState s;
     codex.saveTo(s);
-    const std::string path = "/tmp/w26_codex_save.txt";
-    CHECK(SaveSystem::save(s, path));
+    TestScratch scratch("wave26");
+    CHECK(scratch.valid());
+    if (!scratch.valid()) return;
+    const std::string path = scratch.file("codex.txt");
+    const bool saved = SaveSystem::save(s, path);
+    CHECK(saved);
+    if (!saved) return;
     GameState s2;
-    CHECK(SaveSystem::load(path, s2));
+    const bool loaded = SaveSystem::load(path, s2);
+    CHECK(loaded);
+    if (!loaded) return;
     CHECK(s2.discoveries.size() == 1);
     DiscoveryCodex codex2{bus};
     codex2.loadFrom(s2);

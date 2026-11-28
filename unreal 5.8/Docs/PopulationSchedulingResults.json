@@ -1,0 +1,429 @@
+{
+  "fixture": "Live Free Roam editor, same evolving world, A-B-B-A, four 120-frame captures",
+  "population_each_segment": 182,
+  "captures": {
+    "0": {
+      "capture": "PopulationDecision_0_20261021_230329.csv",
+      "sha256": "188171146169b3635f3ca5e6064687947c52aa483a346c20df48c2269d2b047c",
+      "interval_seconds": 0,
+      "timings_ms": {
+        "CharacterMovement": {
+          "samples": 120,
+          "mean": 14.45336,
+          "p95": 17.3206
+        },
+        "FaithTick": {
+          "samples": 120,
+          "mean": 3.8443066666666668,
+          "p95": 5.5853
+        },
+        "SocietyTick": {
+          "samples": 120,
+          "mean": 0.009923333333333333,
+          "p95": 0.0077
+        },
+        "WorldTick": {
+          "samples": 120,
+          "mean": 4.055981666666667,
+          "p95": 5.8274
+        },
+        "CreatureTick": {
+          "samples": 120,
+          "mean": 1.22727,
+          "p95": 5.9986
+        },
+        "PopulationAuthoredPose": {
+          "samples": 120,
+          "mean": 3.4777991666666668,
+          "p95": 4.8526
+        },
+        "PopulationAppearance": {
+          "samples": 120,
+          "mean": 4.6878775,
+          "p95": 6.2996
+        },
+        "PopulationDecision": {
+          "samples": 120,
+          "mean": 12.7843825,
+          "p95": 17.1887
+        },
+        "PopulationTick": {
+          "samples": 120,
+          "mean": 17.674236666666665,
+          "p95": 23.7146
+        },
+        "KitTick": {
+          "samples": 120,
+          "mean": 0.03561416666666667,
+          "p95": 0.05
+        },
+        "HeroTick": {
+          "samples": 120,
+          "mean": 0.09763333333333334,
+          "p95": 0.1519
+        },
+        "FrameTime": {
+          "samples": 120,
+          "mean": 90.25003,
+          "p95": 104.2372
+        },
+        "EndOfFrameUpdates": {
+          "samples": 120,
+          "mean": 19.60375,
+          "p95": 24.0074
+        },
+        "GameThreadTime": {
+          "samples": 120,
+          "mean": 90.13981333333334,
+          "p95": 104.777
+        },
+        "GPUTime": {
+          "samples": 120,
+          "mean": 10.661104166666666,
+          "p95": 12.0091
+        }
+      },
+      "counts": {
+        "PopulationDecisionCalls": {
+          "samples": 120,
+          "mean": 173.0,
+          "p95": 173.0
+        },
+        "ProfilePopulation": {
+          "samples": 120,
+          "mean": 182.0,
+          "p95": 182.0
+        }
+      }
+    },
+    "1": {
+      "capture": "PopulationDecision_1_20261021_230342.csv",
+      "sha256": "2211f2f8dfb6a64f40d98613f6eec6111818e6c468aa9363270e3394a9c9f2bc",
+      "interval_seconds": 0.1,
+      "timings_ms": {
+        "CharacterMovement": {
+          "samples": 120,
+          "mean": 13.6631975,
+          "p95": 15.7977
+        },
+        "FaithTick": {
+          "samples": 120,
+          "mean": 3.5970925,
+          "p95": 4.8668
+        },
+        "SocietyTick": {
+          "samples": 120,
+          "mean": 0.009593333333333334,
+          "p95": 0.0096
+        },
+        "WorldTick": {
+          "samples": 120,
+          "mean": 3.8903833333333333,
+          "p95": 5.1527
+        },
+        "CreatureTick": {
+          "samples": 120,
+          "mean": 1.0719125,
+          "p95": 5.0667
+        },
+        "FrameTime": {
+          "samples": 120,
+          "mean": 79.98497666666667,
+          "p95": 96.9551
+        },
+        "PopulationAuthoredPose": {
+          "samples": 120,
+          "mean": 2.9380633333333335,
+          "p95": 3.9953
+        },
+        "PopulationAppearance": {
+          "samples": 120,
+          "mean": 4.0350925,
+          "p95": 5.4265
+        },
+        "PopulationTick": {
+          "samples": 120,
+          "mean": 10.568953333333333,
+          "p95": 20.7078
+        },
+        "KitTick": {
+          "samples": 120,
+          "mean": 0.042029166666666666,
+          "p95": 0.0692
+        },
+        "HeroTick": {
+          "samples": 120,
+          "mean": 0.11787166666666667,
+          "p95": 0.2011
+        },
+        "PopulationDecision": {
+          "samples": 120,
+          "mean": 6.372486666666667,
+          "p95": 14.9512
+        },
+        "EndOfFrameUpdates": {
+          "samples": 120,
+          "mean": 18.7190075,
+          "p95": 22.79
+        },
+        "GameThreadTime": {
+          "samples": 120,
+          "mean": 79.829855,
+          "p95": 94.9848
+        },
+        "GPUTime": {
+          "samples": 120,
+          "mean": 10.796405,
+          "p95": 12.1849
+        }
+      },
+      "counts": {
+        "PopulationDecisionCalls": {
+          "samples": 120,
+          "mean": 87.96666666666667,
+          "p95": 173.0
+        },
+        "ProfilePopulation": {
+          "samples": 120,
+          "mean": 182.0,
+          "p95": 182.0
+        }
+      }
+    },
+    "2": {
+      "capture": "PopulationDecision_2_20261021_230352.csv",
+      "sha256": "ff99ab9735bb585cb01435f16004e1911dc66c58965e9b1933c736d01ed3c6f9",
+      "interval_seconds": 0.1,
+      "timings_ms": {
+        "FrameTime": {
+          "samples": 120,
+          "mean": 79.53114166666667,
+          "p95": 93.4768
+        },
+        "CharacterMovement": {
+          "samples": 120,
+          "mean": 13.567375833333333,
+          "p95": 15.6304
+        },
+        "FaithTick": {
+          "samples": 120,
+          "mean": 3.4785675,
+          "p95": 4.9084
+        },
+        "SocietyTick": {
+          "samples": 120,
+          "mean": 0.011288333333333333,
+          "p95": 0.0099
+        },
+        "WorldTick": {
+          "samples": 120,
+          "mean": 3.77514,
+          "p95": 5.2983
+        },
+        "CreatureTick": {
+          "samples": 120,
+          "mean": 1.1234316666666666,
+          "p95": 5.502
+        },
+        "PopulationAuthoredPose": {
+          "samples": 120,
+          "mean": 2.8668916666666666,
+          "p95": 3.9428
+        },
+        "PopulationAppearance": {
+          "samples": 120,
+          "mean": 4.0334275,
+          "p95": 5.1944
+        },
+        "PopulationTick": {
+          "samples": 120,
+          "mean": 10.600300833333334,
+          "p95": 20.2016
+        },
+        "KitTick": {
+          "samples": 120,
+          "mean": 0.042936666666666665,
+          "p95": 0.0659
+        },
+        "HeroTick": {
+          "samples": 120,
+          "mean": 0.11539083333333333,
+          "p95": 0.2109
+        },
+        "EndOfFrameUpdates": {
+          "samples": 120,
+          "mean": 18.776736666666668,
+          "p95": 23.109
+        },
+        "PopulationDecision": {
+          "samples": 120,
+          "mean": 6.405574166666667,
+          "p95": 15.2676
+        },
+        "GameThreadTime": {
+          "samples": 120,
+          "mean": 79.58552833333333,
+          "p95": 93.0631
+        },
+        "GPUTime": {
+          "samples": 120,
+          "mean": 10.565175,
+          "p95": 12.3021
+        }
+      },
+      "counts": {
+        "ProfilePopulation": {
+          "samples": 120,
+          "mean": 182.0,
+          "p95": 182.0
+        },
+        "PopulationDecisionCalls": {
+          "samples": 120,
+          "mean": 86.5,
+          "p95": 172.0
+        }
+      }
+    },
+    "3": {
+      "capture": "PopulationDecision_3_20261021_230403.csv",
+      "sha256": "443a4852c5e02cf30f57f46f08a6570da6141cb3b8a0c878fb261bb42e91477e",
+      "interval_seconds": 0,
+      "timings_ms": {
+        "FrameTime": {
+          "samples": 120,
+          "mean": 88.8134875,
+          "p95": 101.7107
+        },
+        "CharacterMovement": {
+          "samples": 120,
+          "mean": 13.936816666666667,
+          "p95": 17.0521
+        },
+        "FaithTick": {
+          "samples": 120,
+          "mean": 3.6440025,
+          "p95": 5.3219
+        },
+        "SocietyTick": {
+          "samples": 120,
+          "mean": 0.011155833333333334,
+          "p95": 0.0078
+        },
+        "WorldTick": {
+          "samples": 120,
+          "mean": 4.067776666666667,
+          "p95": 5.8165
+        },
+        "CreatureTick": {
+          "samples": 120,
+          "mean": 1.3413116666666667,
+          "p95": 5.9795
+        },
+        "PopulationAuthoredPose": {
+          "samples": 120,
+          "mean": 3.3065283333333335,
+          "p95": 4.4136
+        },
+        "PopulationAppearance": {
+          "samples": 120,
+          "mean": 4.549370833333334,
+          "p95": 5.7683
+        },
+        "PopulationDecision": {
+          "samples": 120,
+          "mean": 12.635279166666667,
+          "p95": 16.997
+        },
+        "PopulationTick": {
+          "samples": 120,
+          "mean": 17.394418333333334,
+          "p95": 22.9828
+        },
+        "KitTick": {
+          "samples": 120,
+          "mean": 0.03442,
+          "p95": 0.0524
+        },
+        "HeroTick": {
+          "samples": 120,
+          "mean": 0.09867916666666667,
+          "p95": 0.1543
+        },
+        "EndOfFrameUpdates": {
+          "samples": 120,
+          "mean": 18.971919166666666,
+          "p95": 22.7237
+        },
+        "GameThreadTime": {
+          "samples": 120,
+          "mean": 88.98802,
+          "p95": 100.4223
+        },
+        "GPUTime": {
+          "samples": 120,
+          "mean": 10.65695,
+          "p95": 12.3642
+        },
+        "KitSnapshot": {
+          "samples": 120,
+          "mean": 0.011832500000000001,
+          "p95": 0.0
+        },
+        "KitApply": {
+          "samples": 120,
+          "mean": 0.0019925,
+          "p95": 0.0
+        }
+      },
+      "counts": {
+        "PopulationDecisionCalls": {
+          "samples": 120,
+          "mean": 173.24166666666667,
+          "p95": 174.0
+        },
+        "ProfilePopulation": {
+          "samples": 120,
+          "mean": 182.0,
+          "p95": 182.0
+        }
+      }
+    }
+  },
+  "comparison": {
+    "PopulationDecision": {
+      "per_frame_decisions_ms": 12.709830833333333,
+      "scheduled_decisions_ms": 6.389030416666667,
+      "reduction_percent": 49.731585727242496
+    },
+    "PopulationTick": {
+      "per_frame_decisions_ms": 17.5343275,
+      "scheduled_decisions_ms": 10.584627083333334,
+      "reduction_percent": 39.63482726478484
+    },
+    "FrameTime": {
+      "per_frame_decisions_ms": 89.53175875,
+      "scheduled_decisions_ms": 79.75805916666667,
+      "reduction_percent": 10.916461063413797
+    },
+    "CharacterMovement": {
+      "per_frame_decisions_ms": 14.195088333333334,
+      "scheduled_decisions_ms": 13.615286666666666,
+      "reduction_percent": 4.084523132590592
+    },
+    "EndOfFrameUpdates": {
+      "per_frame_decisions_ms": 19.287834583333336,
+      "scheduled_decisions_ms": 18.747872083333334,
+      "reduction_percent": 2.799497774968396
+    },
+    "GPUTime": {
+      "per_frame_decisions_ms": 10.659027083333333,
+      "scheduled_decisions_ms": 10.68079,
+      "reduction_percent": -0.20417357509763517
+    }
+  },
+  "limitations": [
+    "Not foreground or standalone FPS evidence",
+    "World AI, war, belief and construction remain active; non-population actor count changes",
+    "Long-frame movement warnings remain; no overall performance completion claim"
+  ]
+}

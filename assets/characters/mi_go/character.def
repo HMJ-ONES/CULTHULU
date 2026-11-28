@@ -27,13 +27,13 @@ range = 20
 [f]
 id = cylinder_stasis
 name = Cylinder Stasis
-flavor = The specimen is filed. Specimens do not move.
+flavor = A narrow stasis shot immobilizes a specimen.
 cooldown = 15
 stamina_cost = 35
 mana_cost = 0
 effect = stun
-power = 1.5
-range = 14
+power = 1.05
+range = 36
 
 [r]
 id = yuggoth_harvest

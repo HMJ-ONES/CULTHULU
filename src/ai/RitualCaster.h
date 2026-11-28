@@ -12,6 +12,7 @@
 #include "entities/Units.h"
 
 #include <cstdint>
+#include <functional>
 #include <vector>
 
 namespace cultulhu {
@@ -45,9 +46,11 @@ public:
         directedAge_ = 0.0;
     }
     void clearDirectedPoint() { hasDirected_ = false; }
+    void setTargetVulnerability(std::function<float(const Entity&)> f) { vulnerability_ = std::move(f); }
     bool hasDirectedPoint() const { return hasDirected_; }
 
 private:
+    std::function<float(const Entity&)> vulnerability_;
     EventBus& bus_;
     RNG& rng_;
     BeliefSystem& beliefs_;

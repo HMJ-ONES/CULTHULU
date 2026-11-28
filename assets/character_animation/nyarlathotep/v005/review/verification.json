@@ -1,0 +1,129 @@
+{
+  "blend": "assets/character_animation/nyarlathotep/v005/Nyarlathotep_BasicMotion.blend",
+  "sourceSha256": "92241c03fa1f94ba6b7827feb62766dea27eb54de0fe11be3047e4d7a2fad738",
+  "requiredRoles": [
+    "idle",
+    "walk",
+    "run",
+    "melee_1",
+    "melee_2",
+    "melee_3",
+    "jump",
+    "dash",
+    "taunt"
+  ],
+  "actions": {
+    "idle": {
+      "sampleStepFrames": 0.5,
+      "samples": 205,
+      "minimumSurfaceZ": 0.001000027870759368,
+      "maximumVertexHalfFrameTravel": 0.0009342755305756076,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 3.4,
+      "reviewMovie": "assets/character_animation/nyarlathotep/v005/review/idle.mp4"
+    },
+    "walk": {
+      "sampleStepFrames": 0.5,
+      "samples": 97,
+      "minimumSurfaceZ": 0.00028885225765407085,
+      "maximumVertexHalfFrameTravel": 0.03584207275607822,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 1.6,
+      "reviewMovie": "assets/character_animation/nyarlathotep/v005/review/walk.mp4"
+    },
+    "run": {
+      "sampleStepFrames": 0.5,
+      "samples": 55,
+      "minimumSurfaceZ": -0.0005230854731053114,
+      "maximumVertexHalfFrameTravel": 0.050621935729097595,
+      "loop": true,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": true,
+      "durationSeconds": 0.9,
+      "reviewMovie": "assets/character_animation/nyarlathotep/v005/review/run.mp4"
+    },
+    "melee_1": {
+      "sampleStepFrames": 0.5,
+      "samples": 41,
+      "minimumSurfaceZ": 0.001000027870759368,
+      "maximumVertexHalfFrameTravel": 0.14083902164699355,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.6666666666666666,
+      "reviewMovie": "assets/character_animation/nyarlathotep/v005/review/melee_1.mp4"
+    },
+    "melee_2": {
+      "sampleStepFrames": 0.5,
+      "samples": 43,
+      "minimumSurfaceZ": 0.001000027870759368,
+      "maximumVertexHalfFrameTravel": 0.13810849125727853,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.7,
+      "reviewMovie": "assets/character_animation/nyarlathotep/v005/review/melee_2.mp4"
+    },
+    "melee_3": {
+      "sampleStepFrames": 0.5,
+      "samples": 53,
+      "minimumSurfaceZ": 0.001000027870759368,
+      "maximumVertexHalfFrameTravel": 0.29783599864088023,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.8666666666666667,
+      "reviewMovie": "assets/character_animation/nyarlathotep/v005/review/melee_3.mp4"
+    },
+    "jump": {
+      "sampleStepFrames": 0.5,
+      "samples": 61,
+      "minimumSurfaceZ": 0.0008591716177761555,
+      "maximumVertexHalfFrameTravel": 0.021181353052460727,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.16018452214250928,
+      "loopClosurePass": null,
+      "durationSeconds": 1.0,
+      "reviewMovie": "assets/character_animation/nyarlathotep/v005/review/jump.mp4"
+    },
+    "dash": {
+      "sampleStepFrames": 0.5,
+      "samples": 29,
+      "minimumSurfaceZ": 0.0006974969292059541,
+      "maximumVertexHalfFrameTravel": 0.10436981666423716,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.4666666666666667,
+      "reviewMovie": "assets/character_animation/nyarlathotep/v005/review/dash.mp4"
+    },
+    "taunt": {
+      "sampleStepFrames": 0.5,
+      "samples": 157,
+      "minimumSurfaceZ": 0.001000027870759368,
+      "maximumVertexHalfFrameTravel": 0.02449920078446931,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 2.6,
+      "reviewMovie": "assets/character_animation/nyarlathotep/v005/review/taunt.mp4"
+    },
+    "land": {
+      "sampleStepFrames": 0.5,
+      "samples": 21,
+      "minimumSurfaceZ": 0.0006856701802462339,
+      "maximumVertexHalfFrameTravel": 0.04111069407957819,
+      "loop": false,
+      "endpointMaxVertexDistance": 0.0,
+      "loopClosurePass": null,
+      "durationSeconds": 0.3333333333333333,
+      "reviewMovie": "assets/character_animation/nyarlathotep/v005/review/land.mp4"
+    }
+  },
+  "abilitiesAuthored": false,
+  "status": "independent sampling and native rendered review; artistic acceptance pending"
+}

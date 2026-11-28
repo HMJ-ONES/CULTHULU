@@ -60,6 +60,14 @@
 #include "ui/StatsPanel.h"
 #include "world/MapLoader.h"
 
+#ifdef _WIN32
+// WinSock's legacy pointer aliases collide with ordinary local variable names.
+#undef near
+#undef far
+#define popen _popen
+#define pclose _pclose
+#endif
+
 #include <cmath>
 #include <cstdlib>
 #include <cctype>

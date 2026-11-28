@@ -38,6 +38,7 @@ attack, a melee combo id, and a passive trait hook. Kits live in
 | debuff | duration (s) | radius (m) |
 | heal | HP restored | radius (m) |
 | shield | HP absorbed | 0 = self |
+| chaos_shield | projectile damage absorbed | placement distance (m, Unreal) |
 | dash | meters moved | 0 = self |
 | pull | drag meters toward caster | radius (m) |
 

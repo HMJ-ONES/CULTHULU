@@ -41,6 +41,6 @@ gameplay classes sat unused in the repo. That must never recur.
 
 - UE 5.8 is canonical. Exact editor launch command is in `~/MEMORY.md`.
 - Game stays free, donations optional; no microtransaction-shaped mechanics.
-- CC0/original assets only; creature names per `assets/creatures/LEGAL_NAMES.md`.
+- CC0/original assets by default. The eight exact user-approved CC-BY-4.0 models in `unreal 5.8/Config/ApprovedCharacterModels.json` are the existing exception; preserve their attribution in `Content/CharacterModels/CREDITS.md`. This does not approve additional third-party sources. Creature names follow `assets/creatures/LEGAL_NAMES.md`.
 - Never call Free Roam a "sandbox". Optimize for low-spec hosts.
 - Schedules: none — work only on explicit user instruction (2026-10-15).

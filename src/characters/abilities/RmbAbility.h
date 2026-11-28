@@ -50,6 +50,13 @@ struct RmbContext {
     // Ground height at a world position (default: flat y = 0). Used for
     // lethal-fall checks and gentle drops.
     std::function<float(Vec3)> groundHeight;
+    // Optional engine collision bindings. Headless core callers keep the source
+    // fallback geometry; native worlds can supply swept 3D contacts and height.
+    std::function<Entity*(Vec3, Vec3, const Entity*)> spatialImpact;
+    std::function<bool(const Entity&, Vec3)> waveOverlap;
+
+    // Native balancing can shorten recharge without accelerating active actions.
+    float cooldownScale = 1.0f;
 
     RmbContext(EventBus& b, ActiveEffects& e, const BeliefSystem& bl, RNG& r)
         : bus(b), effects(e), beliefs(bl), rng(r) {

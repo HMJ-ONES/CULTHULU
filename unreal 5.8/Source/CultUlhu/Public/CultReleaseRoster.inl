@@ -1,0 +1,18 @@
+// Current release only. Original character files remain available for future updates.
+// Shared by the runtime and UnrealBuildTool staging.
+CULT_RELEASE_CHARACTER("bokrug")
+CULT_RELEASE_CHARACTER("cthulhu_avatar")
+CULT_RELEASE_CHARACTER("dagon")
+CULT_RELEASE_CHARACTER("ghatanothoa")
+CULT_RELEASE_CHARACTER("hastur")
+CULT_RELEASE_CHARACTER("mi_go")
+CULT_RELEASE_CHARACTER("mother_hydra")
+CULT_RELEASE_CHARACTER("nodens")
+CULT_RELEASE_CHARACTER("nug_and_yeb")
+CULT_RELEASE_CHARACTER("nyarlathotep")
+CULT_RELEASE_CHARACTER("rhan_tegoth")
+CULT_RELEASE_CHARACTER("sghllor")
+CULT_RELEASE_CHARACTER("shoggoths")
+CULT_RELEASE_CHARACTER("shub_niggurath")
+CULT_RELEASE_CHARACTER("yig")
+CULT_RELEASE_CHARACTER("yog_sothoth")

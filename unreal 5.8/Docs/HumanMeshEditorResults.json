@@ -1,0 +1,428 @@
+{
+  "context": "Warmed offscreen Unreal Editor PIE, one evolving Free Roam world, modular/merged/merged/modular. Native AI, beliefs, war and construction active. Not foreground FPS or human playtest evidence.",
+  "windows": [
+    {
+      "capture": "HumanMesh_0_20261021_234157.csv",
+      "sha256": "090d893174bce8eafca19c7803dae2c64af7feee2faba9a264d2c47e09f1f759",
+      "merged": false,
+      "timings": {
+        "Exclusive/GameThread/CharacterMovement": {
+          "frames": 120,
+          "mean_ms": 13.419345,
+          "p95_ms": 15.4098
+        },
+        "CultRuntime/GameThread/FaithTick": {
+          "frames": 120,
+          "mean_ms": 3.13463,
+          "p95_ms": 4.184
+        },
+        "CultRuntime/GameThread/SocietyTick": {
+          "frames": 120,
+          "mean_ms": 0.018305000000000002,
+          "p95_ms": 0.0082
+        },
+        "CultRuntime/GameThread/WorldTick": {
+          "frames": 120,
+          "mean_ms": 3.2505783333333333,
+          "p95_ms": 4.4581
+        },
+        "CultRuntime/GameThread/CreatureTick": {
+          "frames": 120,
+          "mean_ms": 0.8836041666666666,
+          "p95_ms": 4.0392
+        },
+        "CultRuntime/GameThread/PopulationAuthoredPose": {
+          "frames": 120,
+          "mean_ms": 2.3226541666666667,
+          "p95_ms": 3.3035
+        },
+        "CultRuntime/GameThread/PopulationAppearance": {
+          "frames": 120,
+          "mean_ms": 3.4327216666666667,
+          "p95_ms": 4.628
+        },
+        "CultRuntime/GameThread/PopulationTick": {
+          "frames": 120,
+          "mean_ms": 10.3211875,
+          "p95_ms": 17.9848
+        },
+        "CultRuntime/GameThread/PopulationDecision": {
+          "frames": 120,
+          "mean_ms": 6.73463,
+          "p95_ms": 13.7102
+        },
+        "CultRuntime/GameThread/KitTick": {
+          "frames": 120,
+          "mean_ms": 0.030310833333333332,
+          "p95_ms": 0.0445
+        },
+        "CultRuntime/GameThread/HeroTick": {
+          "frames": 120,
+          "mean_ms": 0.0801125,
+          "p95_ms": 0.1121
+        },
+        "FrameTime": {
+          "frames": 120,
+          "mean_ms": 74.04450916666667,
+          "p95_ms": 86.0161
+        },
+        "Exclusive/GameThread/EndOfFrameUpdates": {
+          "frames": 120,
+          "mean_ms": 17.347318333333334,
+          "p95_ms": 20.1945
+        },
+        "GameThreadTime": {
+          "frames": 120,
+          "mean_ms": 74.05740583333333,
+          "p95_ms": 84.2198
+        },
+        "GPUTime": {
+          "frames": 120,
+          "mean_ms": 10.994031666666666,
+          "p95_ms": 15.8696
+        }
+      },
+      "counts": {
+        "CultRuntime/PopulationDecisionCalls": {
+          "frames": 120,
+          "mean_count": 92.46666666666667,
+          "p95_count": 173.0
+        },
+        "CultRuntime/ProfilePopulation": {
+          "frames": 120,
+          "mean_count": 191.0,
+          "p95_count": 191.0
+        },
+        "CultRuntime/ProfileSkinnedComponentsAtStart": {
+          "frames": 120,
+          "mean_count": 1146.0,
+          "p95_count": 1146.0
+        }
+      }
+    },
+    {
+      "capture": "HumanMesh_1_20261021_234207.csv",
+      "sha256": "795ee83eb2ca4090d4aa06a916e858c8f21746f79a5e78ad8053905a5e657b27",
+      "merged": true,
+      "timings": {
+        "Exclusive/GameThread/CharacterMovement": {
+          "frames": 120,
+          "mean_ms": 10.323814166666667,
+          "p95_ms": 12.478
+        },
+        "CultRuntime/GameThread/FaithTick": {
+          "frames": 120,
+          "mean_ms": 3.1777591666666667,
+          "p95_ms": 4.0527
+        },
+        "CultRuntime/GameThread/SocietyTick": {
+          "frames": 120,
+          "mean_ms": 0.005913333333333333,
+          "p95_ms": 0.0079
+        },
+        "CultRuntime/GameThread/WorldTick": {
+          "frames": 120,
+          "mean_ms": 3.2415275,
+          "p95_ms": 4.1328
+        },
+        "CultRuntime/GameThread/CreatureTick": {
+          "frames": 120,
+          "mean_ms": 0.7244233333333333,
+          "p95_ms": 4.0808
+        },
+        "CultRuntime/GameThread/PopulationAuthoredPose": {
+          "frames": 120,
+          "mean_ms": 1.459875,
+          "p95_ms": 2.0055
+        },
+        "CultRuntime/GameThread/PopulationAppearance": {
+          "frames": 120,
+          "mean_ms": 2.6250883333333332,
+          "p95_ms": 3.4268
+        },
+        "CultRuntime/GameThread/PopulationDecision": {
+          "frames": 120,
+          "mean_ms": 5.416235,
+          "p95_ms": 13.1117
+        },
+        "CultRuntime/GameThread/PopulationTick": {
+          "frames": 120,
+          "mean_ms": 8.183164166666666,
+          "p95_ms": 16.9797
+        },
+        "CultRuntime/GameThread/KitTick": {
+          "frames": 120,
+          "mean_ms": 0.0336975,
+          "p95_ms": 0.0524
+        },
+        "CultRuntime/GameThread/HeroTick": {
+          "frames": 120,
+          "mean_ms": 0.08980833333333334,
+          "p95_ms": 0.153
+        },
+        "FrameTime": {
+          "frames": 120,
+          "mean_ms": 53.58651,
+          "p95_ms": 64.4139
+        },
+        "Exclusive/GameThread/EndOfFrameUpdates": {
+          "frames": 120,
+          "mean_ms": 8.9547975,
+          "p95_ms": 10.743
+        },
+        "GameThreadTime": {
+          "frames": 120,
+          "mean_ms": 53.573231666666665,
+          "p95_ms": 64.6776
+        },
+        "GPUTime": {
+          "frames": 120,
+          "mean_ms": 10.659465,
+          "p95_ms": 15.592
+        }
+      },
+      "counts": {
+        "CultRuntime/PopulationDecisionCalls": {
+          "frames": 120,
+          "mean_count": 86.81666666666666,
+          "p95_count": 182.0
+        },
+        "CultRuntime/ProfilePopulation": {
+          "frames": 120,
+          "mean_count": 191.0,
+          "p95_count": 191.0
+        },
+        "CultRuntime/ProfileSkinnedComponentsAtStart": {
+          "frames": 120,
+          "mean_count": 191.0,
+          "p95_count": 191.0
+        }
+      }
+    },
+    {
+      "capture": "HumanMesh_2_20261021_234214.csv",
+      "sha256": "3274943e37780acbd416254cfff04106198bd9386d15d07e539f965ba358ba0c",
+      "merged": true,
+      "timings": {
+        "Exclusive/GameThread/CharacterMovement": {
+          "frames": 120,
+          "mean_ms": 9.8112625,
+          "p95_ms": 12.2352
+        },
+        "FrameTime": {
+          "frames": 120,
+          "mean_ms": 52.7994425,
+          "p95_ms": 65.6585
+        },
+        "CultRuntime/GameThread/FaithTick": {
+          "frames": 120,
+          "mean_ms": 3.0959483333333333,
+          "p95_ms": 4.1125
+        },
+        "CultRuntime/GameThread/SocietyTick": {
+          "frames": 120,
+          "mean_ms": 0.007940833333333333,
+          "p95_ms": 0.0083
+        },
+        "CultRuntime/GameThread/WorldTick": {
+          "frames": 120,
+          "mean_ms": 3.2940325,
+          "p95_ms": 4.359
+        },
+        "CultRuntime/GameThread/CreatureTick": {
+          "frames": 120,
+          "mean_ms": 0.7159525,
+          "p95_ms": 4.0547
+        },
+        "CultRuntime/GameThread/PopulationAuthoredPose": {
+          "frames": 120,
+          "mean_ms": 1.4304191666666666,
+          "p95_ms": 2.1608
+        },
+        "CultRuntime/GameThread/PopulationAppearance": {
+          "frames": 120,
+          "mean_ms": 2.5650508333333333,
+          "p95_ms": 3.4542
+        },
+        "CultRuntime/GameThread/PopulationDecision": {
+          "frames": 120,
+          "mean_ms": 5.210755,
+          "p95_ms": 12.8081
+        },
+        "CultRuntime/GameThread/PopulationTick": {
+          "frames": 120,
+          "mean_ms": 7.913766666666667,
+          "p95_ms": 15.9725
+        },
+        "CultRuntime/GameThread/KitTick": {
+          "frames": 120,
+          "mean_ms": 0.03255416666666667,
+          "p95_ms": 0.0494
+        },
+        "CultRuntime/GameThread/HeroTick": {
+          "frames": 120,
+          "mean_ms": 0.07965083333333334,
+          "p95_ms": 0.1232
+        },
+        "Exclusive/GameThread/EndOfFrameUpdates": {
+          "frames": 120,
+          "mean_ms": 9.009595,
+          "p95_ms": 11.0498
+        },
+        "GameThreadTime": {
+          "frames": 120,
+          "mean_ms": 52.69768333333333,
+          "p95_ms": 64.464
+        },
+        "GPUTime": {
+          "frames": 120,
+          "mean_ms": 10.694375,
+          "p95_ms": 16.4825
+        }
+      },
+      "counts": {
+        "CultRuntime/PopulationDecisionCalls": {
+          "frames": 120,
+          "mean_count": 85.88333333333334,
+          "p95_count": 184.0
+        },
+        "CultRuntime/ProfilePopulation": {
+          "frames": 120,
+          "mean_count": 191.0,
+          "p95_count": 191.0
+        },
+        "CultRuntime/ProfileSkinnedComponentsAtStart": {
+          "frames": 120,
+          "mean_count": 191.0,
+          "p95_count": 191.0
+        }
+      }
+    },
+    {
+      "capture": "HumanMesh_3_20261021_234222.csv",
+      "sha256": "8177e0633d2f277b1a7b4780a09977f469adbc9e51fdeabd4c2dc4bb019d2c62",
+      "merged": false,
+      "timings": {
+        "Exclusive/GameThread/CharacterMovement": {
+          "frames": 120,
+          "mean_ms": 13.357860833333334,
+          "p95_ms": 15.5548
+        },
+        "FrameTime": {
+          "frames": 120,
+          "mean_ms": 74.43441416666667,
+          "p95_ms": 87.7898
+        },
+        "CultRuntime/GameThread/FaithTick": {
+          "frames": 120,
+          "mean_ms": 3.3820475,
+          "p95_ms": 4.6841
+        },
+        "CultRuntime/GameThread/SocietyTick": {
+          "frames": 120,
+          "mean_ms": 0.010541666666666666,
+          "p95_ms": 0.0095
+        },
+        "CultRuntime/GameThread/WorldTick": {
+          "frames": 120,
+          "mean_ms": 3.6167633333333336,
+          "p95_ms": 5.0031
+        },
+        "CultRuntime/GameThread/CreatureTick": {
+          "frames": 120,
+          "mean_ms": 0.9777133333333333,
+          "p95_ms": 4.5831
+        },
+        "CultRuntime/GameThread/PopulationAuthoredPose": {
+          "frames": 120,
+          "mean_ms": 2.2744275,
+          "p95_ms": 3.0369
+        },
+        "CultRuntime/GameThread/PopulationAppearance": {
+          "frames": 120,
+          "mean_ms": 3.424545833333333,
+          "p95_ms": 4.5192
+        },
+        "CultRuntime/GameThread/PopulationTick": {
+          "frames": 120,
+          "mean_ms": 9.387484166666667,
+          "p95_ms": 17.3535
+        },
+        "CultRuntime/GameThread/KitTick": {
+          "frames": 120,
+          "mean_ms": 0.03207583333333333,
+          "p95_ms": 0.0546
+        },
+        "CultRuntime/GameThread/HeroTick": {
+          "frames": 120,
+          "mean_ms": 0.08815,
+          "p95_ms": 0.1543
+        },
+        "Exclusive/GameThread/EndOfFrameUpdates": {
+          "frames": 120,
+          "mean_ms": 17.51124666666667,
+          "p95_ms": 20.509
+        },
+        "GameThreadTime": {
+          "frames": 120,
+          "mean_ms": 74.3834325,
+          "p95_ms": 84.9715
+        },
+        "GPUTime": {
+          "frames": 120,
+          "mean_ms": 10.7753275,
+          "p95_ms": 16.9376
+        },
+        "CultRuntime/GameThread/PopulationDecision": {
+          "frames": 120,
+          "mean_ms": 5.814643333333334,
+          "p95_ms": 13.8188
+        }
+      },
+      "counts": {
+        "CultRuntime/ProfilePopulation": {
+          "frames": 120,
+          "mean_count": 191.0,
+          "p95_count": 191.0
+        },
+        "CultRuntime/ProfileSkinnedComponentsAtStart": {
+          "frames": 120,
+          "mean_count": 1146.0,
+          "p95_count": 1146.0
+        },
+        "CultRuntime/PopulationDecisionCalls": {
+          "frames": 120,
+          "mean_count": 91.675,
+          "p95_count": 184.0
+        }
+      }
+    }
+  ],
+  "verification": [
+    {
+      "log": "HumanMeshGeometryVerification.log",
+      "sha256": "cbde3a751dc7c60d0bb130e2209c093b194a9e9683b9d355c5d91737f7acbc6e",
+      "scope": "All three original humanoid meshes: source/result rest geometry, primary UVs, material references, reference bones and bounds."
+    },
+    {
+      "log": "HumanMeshProfileVerification.log",
+      "sha256": "fc1c476a77e94c31037e7aa603a4043e5515aa6d004b202389426c572ce2ada7",
+      "scope": "One live Free Roam A-B-B-A profile and original activity pose checks."
+    },
+    {
+      "log": "HumanMeshFinalEditor.log",
+      "sha256": "ac3208c53e249b15d090970fbd37570a99be256014c79036032325aff9a25fca",
+      "scope": "Initial batch: army/input/poses/MOBA checks pass; motion startup and presentation fail."
+    },
+    {
+      "log": "HumanMeshFinalEditorRerun.log",
+      "sha256": "b79c69e5659e0016ef1caf743b9d286c4ef50a1180b2e32e272c7f656706b716",
+      "scope": "Fresh session: merged poses, physical movement and corpse/presentation pass; minion check sees no first wave yet."
+    },
+    {
+      "log": "HumanMeshMinionFinal.log",
+      "sha256": "de8b10037805f71f05771fb410ae3fded5c2d159b33c5d4910110117a08da473",
+      "scope": "First-wave readiness corrected: complete merged lane bodies and tower/minion-throw checks pass."
+    }
+  ]
+}

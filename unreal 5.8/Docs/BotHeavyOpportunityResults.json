@@ -1,0 +1,255 @@
+{
+  "date": "2026-10-22",
+  "base": "398636991fdc9aec12d1c69d6b336dc89fd876c9",
+  "build": {
+    "target": "CultUlhuEditor Win64 Development",
+    "engine": "5.8.3",
+    "canonical_validation": true,
+    "success": true,
+    "seconds": 29.42
+  },
+  "baseline": {
+    "log": "BotHeavyOpportunityBaseline.log",
+    "sha256": "a1d1a61dfe0fc32c814ddf17643cc4bbda05ebf3741e66e7cb561bfd5b5d3de3",
+    "tests": [
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotHeavyOpportunity.Domination"
+      },
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotHeavyOpportunity.Moba"
+      }
+    ],
+    "errors": [
+      "[2026.10.22-20.43.55:160][498]LogAutomationController: Error: Test Completed. Result={Fail} Name={Domination} Path={CultUlhu.Menu.BotHeavyOpportunity.Domination}",
+      "[2026.10.22-20.43.55:161][498]LogAutomationController: Error: Expected 'An unreachable melee-heavy target does not consume a committed delivery' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(51)]",
+      "[2026.10.22-20.43.55:161][498]LogAutomationController: Error: Expected 'Solid cover prevents committing a blocked melee-heavy swing' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(61)]",
+      "[2026.10.22-20.43.55:161][498]LogAutomationController: Error: Expected 'Removing cover leaves heavy immediately available' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(63)]",
+      "[2026.10.22-20.43.55:161][498]LogAutomationController: Error: Expected 'Heavy opportunity against a different body produces a real hit' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(70)]",
+      "[2026.10.22-20.43.55:161][498]LogAutomationController: Error: Expected 'An allied body alone does not justify a heavy swing' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(72)]",
+      "[2026.10.22-20.43.56:765][531]LogAutomationController: Error: Test Completed. Result={Fail} Name={Moba} Path={CultUlhu.Menu.BotHeavyOpportunity.Moba}",
+      "[2026.10.22-20.43.56:766][531]LogAutomationController: Error: Expected 'An unreachable melee-heavy target does not consume a committed delivery' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(51)]",
+      "[2026.10.22-20.43.56:766][531]LogAutomationController: Error: Expected 'Solid cover prevents committing a blocked melee-heavy swing' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(61)]",
+      "[2026.10.22-20.43.56:766][531]LogAutomationController: Error: Expected 'Removing cover leaves heavy immediately available' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(63)]",
+      "[2026.10.22-20.43.56:766][531]LogAutomationController: Error: Expected 'Heavy opportunity against a different body produces a real hit' to be true. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(70)]",
+      "[2026.10.22-20.43.56:766][531]LogAutomationController: Error: Expected 'An allied body alone does not justify a heavy swing' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(72)]"
+    ],
+    "observations": [
+      "Heavy opportunity: far deliveries 1; immediate near deliveries 1; real near damage 33.6",
+      "Heavy opportunity: far deliveries 1; immediate near deliveries 1; real near damage 33.6"
+    ],
+    "valid_defect_evidence": [
+      "[2026.10.22-20.43.55:161][498]LogAutomationController: Error: Expected 'An unreachable melee-heavy target does not consume a committed delivery' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(51)]",
+      "[2026.10.22-20.43.55:161][498]LogAutomationController: Error: Expected 'An allied body alone does not justify a heavy swing' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(72)]",
+      "[2026.10.22-20.43.56:766][531]LogAutomationController: Error: Expected 'An unreachable melee-heavy target does not consume a committed delivery' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(51)]",
+      "[2026.10.22-20.43.56:766][531]LogAutomationController: Error: Expected 'An allied body alone does not justify a heavy swing' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(72)]"
+    ],
+    "excluded_fixture_assumptions": [
+      "Initial placement respawned the bot and reset its heavy cooldown, so the initial immediate-near control cannot establish preservation. Final placement relocates the existing bot instead.",
+      "Initial cover plane intersected the giant target: the target could protrude in front. Final cover is closer to the caster.",
+      "Initial alternate minion stood below the actual arc. Final alternate control elevates that minion into the committed sweep. Its original no-hit failure is not a production defect."
+    ]
+  },
+  "initial_batch": {
+    "log": "BotHeavyOpportunityFinal.log",
+    "sha256": "e846ad112f60d7ece55696c936f4a74af5dadaf032b2a7541fd9e20394eb0fdd",
+    "tests": [
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotAbilityOpportunity.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotAbilityOpportunity.Moba"
+      },
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotHeavyOpportunity.Domination"
+      },
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotHeavyOpportunity.Moba"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotMeleeReach.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotMeleeReach.Moba"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.CombatFeel"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.DominationMatch"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.MobaMatch"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.SkillCombat"
+      }
+    ],
+    "errors": [
+      "[2026.10.22-20.47.19:072][596]LogAutomationController: Error: Test Completed. Result={Fail} Name={Domination} Path={CultUlhu.Menu.BotHeavyOpportunity.Domination}",
+      "[2026.10.22-20.47.19:072][596]LogAutomationController: Error: Expected 'Solid cover prevents committing a blocked melee-heavy swing' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(61)]",
+      "[2026.10.22-20.47.19:072][596]LogAutomationController: Error: Expected 'Removing cover leaves heavy immediately available' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(63)]",
+      "[2026.10.22-20.47.20:439][638]LogAutomationController: Error: Test Completed. Result={Fail} Name={Moba} Path={CultUlhu.Menu.BotHeavyOpportunity.Moba}",
+      "[2026.10.22-20.47.20:439][638]LogAutomationController: Error: Expected 'Solid cover prevents committing a blocked melee-heavy swing' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(61)]",
+      "[2026.10.22-20.47.20:439][638]LogAutomationController: Error: Expected 'Removing cover leaves heavy immediately available' to be 1, but it was 0. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(63)]"
+    ],
+    "observations": [
+      "Heavy opportunity: far deliveries 0; immediate near deliveries 1; real near damage 33.6",
+      "Heavy opportunity: far deliveries 0; immediate near deliveries 1; real near damage 33.6"
+    ]
+  },
+  "inner_arc_probe": {
+    "log": "BotHeavyCoverBaseline.log",
+    "sha256": "c51620c2ee02e341bfac3351029463268347c6c230b8d436a2f9f36b8c58f6df",
+    "tests": [
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotHeavyOpportunity.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotHeavyOpportunity.Moba"
+      }
+    ],
+    "errors": [],
+    "observations": [
+      "Heavy opportunity: far deliveries 0; immediate near deliveries 1; real near damage 33.6",
+      "Heavy solid-cover control: target health 100.0; independent deliveries 1",
+      "Heavy opportunity: far deliveries 0; immediate near deliveries 1; real near damage 33.6",
+      "Heavy solid-cover control: target health 100.0; independent deliveries 1"
+    ]
+  },
+  "tip_cover_baseline": {
+    "log": "BotHeavyTipCoverBaseline.log",
+    "sha256": "1e64a607cf7ea65095421bd19c7bc970d6eb5861fb59f4a19a238691805ec159",
+    "tests": [
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotHeavyOpportunity.Domination"
+      },
+      {
+        "result": "Fail",
+        "path": "CultUlhu.Menu.BotHeavyOpportunity.Moba"
+      }
+    ],
+    "errors": [
+      "[2026.10.22-20.55.55:592][513]LogAutomationController: Error: Test Completed. Result={Fail} Name={Domination} Path={CultUlhu.Menu.BotHeavyOpportunity.Domination}",
+      "[2026.10.22-20.55.55:592][513]LogAutomationController: Error: Expected 'A committed arc aimed beyond cover is not a useful bot heavy' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(70)]",
+      "[2026.10.22-20.55.55:592][513]LogAutomationController: Error: Expected 'A physical arm sweep cannot damage a target through solid cover' to be 100.000000, but it was 66.400002 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(76)]",
+      "[2026.10.22-20.55.57:034][545]LogAutomationController: Error: Test Completed. Result={Fail} Name={Moba} Path={CultUlhu.Menu.BotHeavyOpportunity.Moba}",
+      "[2026.10.22-20.55.57:036][545]LogAutomationController: Error: Expected 'A committed arc aimed beyond cover is not a useful bot heavy' to be 0, but it was 1. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(70)]",
+      "[2026.10.22-20.55.57:036][545]LogAutomationController: Error: Expected 'A physical arm sweep cannot damage a target through solid cover' to be 100.000000, but it was 66.400002 and outside tolerance 0.000100. [C:\\Users\\H\\Documents\\CULTHULU\\unreal 5.8\\Source\\CultUlhu\\Private\\CultMatchTest.cpp(76)]"
+    ],
+    "observations": [
+      "Heavy opportunity: far deliveries 0; immediate near deliveries 1; real near damage 33.6",
+      "Heavy solid-cover control: target health 66.4; independent deliveries 1",
+      "Heavy opportunity: far deliveries 0; immediate near deliveries 1; real near damage 33.6",
+      "Heavy solid-cover control: target health 66.4; independent deliveries 1"
+    ]
+  },
+  "final": {
+    "log": "BotHeavyOpportunityVerified.log",
+    "sha256": "1aa270b4b9d465946da46c5beb7cdcdd7095341a95ba78ee1580b40c317e0f8b",
+    "tests": [
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotAbilityOpportunity.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotAbilityOpportunity.Moba"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotHeavyOpportunity.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotHeavyOpportunity.Moba"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotMeleeReach.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotMeleeReach.Moba"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotThreatDecisions.Domination"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.BotThreatDecisions.Moba"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.CombatFeel"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.DominationMatch"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.MobaMatch"
+      },
+      {
+        "result": "Success",
+        "path": "CultUlhu.Menu.SkillCombat"
+      }
+    ],
+    "errors": [],
+    "observations": [
+      "Heavy opportunity: far deliveries 0; immediate near deliveries 1; real near damage 33.6",
+      "Heavy solid-cover control: target health 100.0; independent deliveries 1",
+      "Heavy opportunity: far deliveries 0; immediate near deliveries 1; real near damage 33.6",
+      "Heavy solid-cover control: target health 100.0; independent deliveries 1"
+    ]
+  },
+  "preservation": {
+    "physical_attack_unchanged_except_melee_cover_guard": true,
+    "spatial_launch_unchanged_after_removing_added_helper_and_gate": true,
+    "normalized_original_launch_sha256": "cadccbc1f5fbb37d13b6f3fbe77c9b4304970ff8594ec6038794a16b677a24b4",
+    "backed_up_content_files_byte_identical": 425,
+    "released_definitions_normalized_identical": [
+      "bokrug",
+      "cthulhu_avatar",
+      "dagon",
+      "ghatanothoa",
+      "hastur",
+      "mi_go",
+      "mother_hydra",
+      "nodens",
+      "nug_and_yeb",
+      "nyarlathotep",
+      "rhan_tegoth",
+      "sghllor",
+      "shoggoths",
+      "shub_niggurath",
+      "yig",
+      "yog_sothoth"
+    ]
+  },
+  "scope": "Bot-only melee-heavy preflight over current static bodies, radial traces and tip chords at .012-second sampling. Physical melee contacts additionally require clear cover from the actual arm origin. Source range/power, shape math, windup, duration, cooldown, human cast input and non-sweep contacts remain unchanged.",
+  "limits": [
+    "Not a perfect forecast of movement during windup.",
+    "Additional opportunity scan/query cost has not been benchmarked.",
+    "Integration fixtures include short live windows and scripted transitions, not uninterrupted human matches.",
+    "No all-kit tactical/role coordination, human fun, long-session balance, low-spec frame-rate, multiplayer or fresh standalone certification.",
+    "MCP transport disabled only in the isolated test process; normal project configuration unchanged.",
+    "The full production goal remains open."
+  ]
+}

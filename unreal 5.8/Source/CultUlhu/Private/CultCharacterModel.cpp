@@ -1,0 +1,564 @@
+#include "CultCharacterModel.h"
+#include "CultFluidAnimInstance.h"
+#include "Animation/AnimSingleNodeInstance.h"
+#include "CultUlhuPlayerPawn.h"
+#include "CultCanonicalKit.h"
+#include "CultMovementTuning.h"
+#include "CultPrimaryProfile.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/StaticMesh.h"
+#include "Engine/SkeletalMesh.h"
+#include "Rendering/SkeletalMeshRenderData.h"
+#include "Rendering/SkinWeightVertexBuffer.h"
+#include "Materials/MaterialInterface.h"
+#include "Animation/AnimSequence.h"
+#include "Animation/Skeleton.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
+#if WITH_EDITOR
+#include "SkeletalRenderPublic.h"
+#include "HAL/FileManager.h"
+#endif
+
+namespace {
+const TCHAR* const ImportRoles[]={TEXT("idle"),TEXT("walk"),TEXT("run"),TEXT("jump"),TEXT("land"),TEXT("dash"),
+ TEXT("attack"),TEXT("cast"),TEXT("preview"),TEXT("melee_1"),TEXT("melee_2"),TEXT("melee_3"),
+ TEXT("melee_back_1"),TEXT("melee_back_2"),TEXT("melee_back_3"),TEXT("taunt"),TEXT("hit"),TEXT("death")};
+
+void SeparateDagonTorso(USkeletalMeshComponent& Skin)
+{
+ const auto* Mesh=Skin.GetSkeletalMeshAsset();
+ const auto* Render=Mesh->GetResourceForRendering();
+ if(!Render) return;
+ const int Chest=Skin.GetBoneIndex(TEXT("chest"));
+ if(Chest==INDEX_NONE) return;
+ const FBox Bounds=Mesh->GetBounds().GetBox().TransformBy(FTransform(Skin.GetRelativeRotation()));
+ const FVector Center=Bounds.GetCenter(),Extent=Bounds.GetExtent();
+ for(int LODIndex=0;LODIndex<Render->LODRenderData.Num();++LODIndex) {
+  const auto& LOD=Render->LODRenderData[LODIndex];
+  const auto* Source=LOD.GetSkinWeightVertexBuffer();
+  const auto& Positions=LOD.StaticVertexBuffers.PositionVertexBuffer;
+  if(!Source||!Source->GetNeedsCPUAccess()||!Positions.GetAllowCPUAccess()) continue;
+  TArray<FSkelMeshSkinWeightInfo> Weights;
+  Weights.SetNum(LOD.GetNumVertices());
+  bool Changed=false;
+  for(const auto& Section:LOD.RenderSections) for(uint32 Local=0;Local<Section.NumVertices;++Local) {
+   const uint32 Vertex=Section.BaseVertexIndex+Local;
+   const FVector Position=Skin.GetRelativeRotation().RotateVector(FVector(Positions.VertexPosition(Vertex)));
+   const float Across=FMath::Abs(Position.Y-Center.Y)/FMath::Max(1.,Extent.Y);
+   const float Height=(Position.Z-Bounds.Min.Z)/FMath::Max(1.,Extent.Z*2);
+   const bool Torso=Section.BoneMap.Contains(Chest)&&Across<.43f&&Height>.43f&&Height<.81f;
+   auto& Result=Weights[Vertex];
+   int Count=0;
+   for(uint32 I=0;I<Source->GetMaxBoneInfluences();++I) {
+    const int Weight=FMath::RoundToInt(Source->GetBoneWeight(Vertex,I)/257.f);
+    if(Weight<=0) continue;
+    int Bone=Section.BoneMap[Source->GetBoneIndex(Vertex,I)];
+    const FString Name=Skin.GetBoneName(Bone).ToString();
+    if(Torso&&(Name.StartsWith(TEXT("upperarm"))||Name.StartsWith(TEXT("forearm"))||Name.StartsWith(TEXT("hand"))||Name.StartsWith(TEXT("claw")))) {
+     Bone=Chest;
+     Changed=true;
+    }
+    int Slot=0;
+    while(Slot<Count&&Result.Bones[Slot]!=Bone) ++Slot;
+    if(Slot==Count) ++Count;
+    Result.Bones[Slot]=Bone;
+    Result.Weights[Slot]=FMath::Min(255,Result.Weights[Slot]+Weight);
+   }
+   if(Count) {
+    int Sum=0;
+    for(int Slot=0;Slot<Count;++Slot) Sum+=Result.Weights[Slot];
+    Result.Weights[0]+=255-Sum;
+   }
+  }
+  if(Changed) Skin.SetSkinWeightOverride(LODIndex,Weights);
+ }
+}
+
+TSharedPtr<FJsonObject> Binding(const FString& Id) {
+ // Load once per process. Editor import is followed by a new play session/process.
+ static TSharedPtr<FJsonObject> Registry=[]() {
+  FString Text; TSharedPtr<FJsonObject> Result;
+  if(FFileHelper::LoadFileToString(Text,*(FPaths::ProjectContentDir()/TEXT("CharacterModels/registry.json"))))
+   FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Text),Result);
+  return Result;
+ }();
+ if(!Registry.IsValid()||!CultCanonicalKit::IsReleased(Id)) return nullptr;
+ const TSharedPtr<FJsonObject>* Characters=nullptr; const TSharedPtr<FJsonObject>* Entry=nullptr;
+ if(!Registry->TryGetObjectField(TEXT("characters"),Characters)||!(*Characters)->TryGetObjectField(Id,Entry)) return nullptr;
+ return *Entry;
+}
+}
+ACultCharacterModel::ACultCharacterModel() {
+ PrimaryActorTick.bCanEverTick=true;
+ RootComponent=CreateDefaultSubobject<USceneComponent>(TEXT("ApprovedModel"));
+ Tags.Add(TEXT("CultApprovedCharacterModel"));
+}
+FString ACultCharacterModel::PortraitPath(const FString& Id) {
+ auto B=Binding(Id); FString Path; if(B) B->TryGetStringField(TEXT("portrait"),Path); return Path;
+}
+FString ACultCharacterModel::SourceCredit(const FString& Id) {
+ auto B=Binding(Id); if(!B) return FString(); FString Author,License,Url;
+ B->TryGetStringField(TEXT("author"),Author); B->TryGetStringField(TEXT("license"),License); B->TryGetStringField(TEXT("source_url"),Url);
+ FString Credit=Author+TEXT(" / ")+License+TEXT("\n")+Url;
+ const TArray<TSharedPtr<FJsonValue>>* Sources=nullptr;
+ if(B->TryGetArrayField(TEXT("sources"),Sources)) for(const auto& Source:*Sources) {
+  const auto Entry=Source->AsObject();FString Name,Address;
+  if(Entry&&Entry->TryGetStringField(TEXT("author"),Name)&&Entry->TryGetStringField(TEXT("source_url"),Address)&&Address!=Url) Credit+=TEXT("\n")+Name+TEXT(" / ")+License+TEXT("\n")+Address;
+ }
+ const TSharedPtr<FJsonObject>* Upstream=nullptr;
+ if(B->TryGetObjectField(TEXT("upstream_attribution"),Upstream)) {
+  FString OriginalAuthor,OriginalSource;
+  if((*Upstream)->TryGetStringField(TEXT("author"),OriginalAuthor)&&(*Upstream)->TryGetStringField(TEXT("source_url"),OriginalSource))
+   Credit+=TEXT("\nOriginal model: ")+OriginalAuthor+TEXT("\n")+OriginalSource;
+ }
+ return Credit;
+}
+bool ACultCharacterModel::HasSourceAnimation(const FString& Id) {
+ auto B=Binding(Id); const TArray<TSharedPtr<FJsonValue>>* Clips=nullptr;
+ return B&&B->TryGetArrayField(TEXT("clips"),Clips)&&Clips->Num()>0;
+}
+bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
+ CharacterId_=Id;
+ auto B=Binding(Id); if(!B) return false;
+ B->TryGetBoolField(TEXT("temporary"),bTemporary_);
+ B->TryGetBoolField(TEXT("melee_step_motion"),bMeleeStep_);
+ double Contact=.5; if(B->TryGetNumberField(TEXT("melee_contact_phase"),Contact)) MeleeContactPhase_=FMath::Clamp(float(Contact),.2f,.8f);
+ FString Procedural;
+ if(B->TryGetStringField(TEXT("procedural"),Procedural)&&Id==TEXT("sghllor")&&Procedural==TEXT("sghllor_light_and_mist")) {
+  FString CorePath,MistPath; B->TryGetStringField(TEXT("core_material"),CorePath); B->TryGetStringField(TEXT("mist_material"),MistPath);
+  auto* Core=LoadObject<UMaterialInterface>(nullptr,*CorePath); auto* Mist=LoadObject<UMaterialInterface>(nullptr,*MistPath);
+  if(!Core||!Mist) return false;
+  for(int I=0;I<3;++I) {
+   auto* Part=NewObject<UStaticMeshComponent>(this); Part->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,I?TEXT("/Engine/BasicShapes/Plane"):TEXT("/Engine/BasicShapes/Sphere")));
+   Part->SetupAttachment(RootComponent); Part->SetCollisionEnabled(ECollisionEnabled::NoCollision); Part->SetGenerateOverlapEvents(false); Part->SetCanEverAffectNavigation(false);
+   Part->SetCastShadow(false); Part->SetMaterial(0,I?Mist:Core); Part->ComponentTags.Add(TEXT("CultCorpseBody"));
+   Part->SetRelativeLocation(FVector(0,0,90)); Part->SetRelativeScale3D(I?FVector(1.8,1.8,1):FVector(.7));
+   if(I) Part->SetRelativeRotation(FRotator(90,I==1?0:90,0));
+   Part->RegisterComponent(); Parts_.Add(Part);
+  }
+  bPreview_=Preview; bFloating_=true; bOriginalOrb_=true; PlayRole(TEXT("idle")); return true;
+ }
+ const TArray<TSharedPtr<FJsonValue>>* Meshes=nullptr;
+ if(!B->TryGetArrayField(TEXT("meshes"),Meshes)) return false;
+ bPreview_=Preview; B->TryGetBoolField(TEXT("floating"),bFloating_); FRotator Rotation=FRotator::ZeroRotator;
+ const TArray<TSharedPtr<FJsonValue>>* Angles=nullptr;
+ if(B->TryGetArrayField(TEXT("rotation"),Angles)&&Angles->Num()==3)
+  Rotation=FRotator((*Angles)[0]->AsNumber(),(*Angles)[1]->AsNumber(),(*Angles)[2]->AsNumber());
+ FBox Bounds(ForceInit);
+ for(const auto& Value:*Meshes) {
+  UObject* Asset=StaticLoadObject(UObject::StaticClass(),nullptr,*Value->AsString()); UMeshComponent* Part=nullptr;
+  if(auto* Mesh=Cast<USkeletalMesh>(Asset)) {
+   auto* S=NewObject<USkeletalMeshComponent>(this); S->SetSkeletalMesh(Mesh);
+   S->SetAnimationMode(EAnimationMode::AnimationBlueprint); S->SetAnimInstanceClass(UCultFluidAnimInstance::StaticClass());
+   S->VisibilityBasedAnimTickOption=Preview?EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones:EVisibilityBasedAnimTickOption::AlwaysTickPose;
+   Part=S;
+  } else if(auto* StaticAsset=Cast<UStaticMesh>(Asset)) {
+   auto* S=NewObject<UStaticMeshComponent>(this); S->SetStaticMesh(StaticAsset);
+   double Lod=0; if(B->TryGetNumberField(TEXT("render_lod"),Lod)) S->SetForcedLodModel(int32(Lod)+1);
+   Part=S;
+  }
+  if(!Part) continue;
+  const TSharedPtr<FJsonObject>* MaterialOverrides=nullptr;
+  if(B->TryGetObjectField(TEXT("material_overrides"),MaterialOverrides)) {
+   FString MaterialPath;
+   if((*MaterialOverrides)->TryGetStringField(Value->AsString(),MaterialPath))
+    if(auto* Material=LoadObject<UMaterialInterface>(nullptr,*MaterialPath))
+     for(int32 Slot=0;Slot<Part->GetNumMaterials();++Slot) Part->SetMaterial(Slot,Material);
+  }
+  Part->SetupAttachment(RootComponent); Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+  Part->SetGenerateOverlapEvents(false); Part->SetCanEverAffectNavigation(false);
+  Part->ComponentTags.Add(TEXT("CultCorpseBody"));
+  Part->SetRelativeRotation(Rotation); Part->RegisterComponent(); Part->AddTickPrerequisiteActor(this); Part->UpdateBounds();
+  if(Id==TEXT("dagon")&&GetNetMode()!=NM_DedicatedServer)
+   if(auto* Skin=Cast<USkeletalMeshComponent>(Part)) SeparateDagonTorso(*Skin);
+  // Initialize is called at the origin, before attaching or placing the actor.
+  Bounds+=Part->Bounds.GetBox(); Parts_.Add(Part);
+ }
+ if(Parts_.IsEmpty()||!Bounds.IsValid||Bounds.GetSize().Z<.001f) return false;
+ const TSharedPtr<FJsonObject>* Roles=nullptr;
+ if(B->TryGetObjectField(TEXT("animation_roles"),Roles)) for(const FString ClipRole:ImportRoles) {
+  FString Path;
+  if((*Roles)->TryGetStringField(ClipRole,Path)) if(auto* Clip=LoadObject<UAnimSequence>(nullptr,*Path)) Animations_.Add(ClipRole,Clip);
+ }
+ const TArray<TSharedPtr<FJsonValue>>* Sets=nullptr;
+ if(B->TryGetArrayField(TEXT("animation_sets"),Sets)) for(const auto& Value:*Sets) {
+  auto Set=Value->AsObject(); FString SkeletonPath;
+  if(!Set||!Set->TryGetStringField(TEXT("skeleton"),SkeletonPath)||!Set->TryGetObjectField(TEXT("roles"),Roles)) continue;
+  for(const FString ClipRole:ImportRoles) {
+   FString Path; if((*Roles)->TryGetStringField(ClipRole,Path)) if(auto* Clip=LoadObject<UAnimSequence>(nullptr,*Path)) Animations_.Add(SkeletonPath+TEXT("|")+ClipRole,Clip);
+  }
+ }
+ // Establish an actual supplied first pose before measuring nonhuman rigs.
+ // Imported reference bounds can include exporter transforms absent in the clip.
+ PlayRole(TEXT("preview"));
+ for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) {
+  S->SetPosition(0,false); S->TickAnimation(0,false); S->RefreshBoneTransforms(); S->UpdateBounds();
+ }
+ const TArray<TSharedPtr<FJsonValue>>* Reference=nullptr;
+ if(B->TryGetArrayField(TEXT("reference_bounds"),Reference)&&Reference->Num()==6) {
+  Bounds=FBox(FVector((*Reference)[0]->AsNumber(),(*Reference)[1]->AsNumber(),(*Reference)[2]->AsNumber()),FVector((*Reference)[3]->AsNumber(),(*Reference)[4]->AsNumber(),(*Reference)[5]->AsNumber()));
+ }
+ else if(bTemporary_) {
+  // Imported skins can carry an exporter root transform that the CPU skin
+  // buffer omits. Component bounds include it in both editor and game builds.
+  Bounds=FBox(ForceInit);
+  for(UMeshComponent* Part:Parts_) { Part->UpdateBounds(); Bounds+=Part->Bounds.GetBox(); }
+ }
+#if WITH_EDITOR
+ else {
+  static TMap<FString,FBox> PosedBounds;
+  FString Digest,Profile; B->TryGetStringField(TEXT("source_sha256"),Digest); B->TryGetStringField(TEXT("import_profile"),Profile); const FString CacheKey=Id+Digest+Profile+Rotation.ToString();
+  if(const auto* Cached=PosedBounds.Find(CacheKey)) Bounds=*Cached;
+  else {
+   FBox Actual(ForceInit); bool Skinned=false;
+   for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) {
+    TArray<FFinalSkinVertex> Vertices; S->GetCPUSkinnedVertices(Vertices,0);
+    for(const auto& Vertex:Vertices) Actual+=Rotation.RotateVector(FVector(Vertex.Position));
+    Skinned=true;
+   } else { Part->UpdateBounds(); Actual+=Part->Bounds.GetBox(); }
+   if(Skinned&&Actual.IsValid&&Actual.GetSize().Z>.001f) Bounds=Actual;
+   PosedBounds.Add(CacheKey,Bounds);
+   auto Record=MakeShared<FJsonObject>(); Record->SetStringField(TEXT("id"),Id); Record->SetStringField(TEXT("source_sha256"),Digest);
+   Record->SetStringField(TEXT("import_profile"),Profile.IsEmpty()?TEXT("default"):Profile);
+   TArray<TSharedPtr<FJsonValue>> Values;
+   for(double V:{Bounds.Min.X,Bounds.Min.Y,Bounds.Min.Z,Bounds.Max.X,Bounds.Max.Y,Bounds.Max.Z}) Values.Add(MakeShared<FJsonValueNumber>(V));
+   Record->SetArrayField(TEXT("reference_bounds"),Values);
+   FString Text; FJsonSerializer::Serialize(Record,TJsonWriterFactory<>::Create(&Text));
+   const auto Directory=FPaths::ProjectSavedDir()/TEXT("Reports/CharacterCalibration"); IFileManager::Get().MakeDirectory(*Directory,true);
+   FFileHelper::SaveStringToFile(Text,*(Directory/Id+TEXT(".json")));
+  }
+ }
+#endif
+ if(!Bounds.IsValid||Bounds.GetSize().Z<.001f) return false;
+ // 180 local cm, then the canonical pawn scale applies exactly once.
+ const float Scale=180.f/Bounds.GetSize().Z;
+ const FVector Offset(-Bounds.GetCenter().X*Scale,-Bounds.GetCenter().Y*Scale,-Bounds.Min.Z*Scale);
+ for(UMeshComponent* Part:Parts_) { Part->SetRelativeScale3D(FVector(Scale)); Part->SetRelativeLocation(Offset); }
+ if(Id==TEXT("hastur")) for(const TCHAR* Name:{TEXT("SM_KingMantle")}) {
+  const FString Path=FString(TEXT("/Game/CultUlhu/Characters/HorrorRefresh20261127/hastur/"))+Name;
+  if(auto* Mesh=LoadObject<UStaticMesh>(nullptr,*Path)) {
+   auto* Cloak=NewObject<UStaticMeshComponent>(this);Cloak->SetupAttachment(RootComponent);Cloak->SetStaticMesh(Mesh);
+   Cloak->SetCollisionEnabled(ECollisionEnabled::NoCollision);Cloak->SetGenerateOverlapEvents(false);Cloak->SetCanEverAffectNavigation(false);
+   Cloak->ComponentTags.Add(TEXT("CultCorpseBody"));Cloak->RegisterComponent();Parts_.Add(Cloak);
+  }
+ }
+ if(Id==TEXT("nug_and_yeb")) {
+  TwinPartCount_=Parts_.Num()/2;
+  double Split=0;const bool Distinct=B->TryGetNumberField(TEXT("twin_split"),Split)&&Split>0&&Split<Parts_.Num();
+  if(Distinct) TwinPartCount_=int32(Split);
+  FBox TwinBounds[2]={FBox(ForceInit),FBox(ForceInit)};
+  if(Distinct) for(int32 Index=0;Index<Parts_.Num();++Index) {
+   auto* Part=Parts_[Index].Get();Part->SetRelativeScale3D(FVector(1));Part->SetRelativeLocation(FVector::ZeroVector);Part->UpdateBounds();
+   TwinBounds[Index>=TwinPartCount_]+=Part->Bounds.GetBox();
+  }
+  if(TwinPartCount_>0) for(int32 Index=0;Index<Parts_.Num();++Index) {
+   const bool Upper=Index>=TwinPartCount_;
+   const auto& Box=TwinBounds[Upper];
+   const float BodyScale=Distinct?92.f/FMath::Max(1.f,float(Box.GetSize().Z)):Scale*.57f;
+   const FVector BodyOffset=Distinct?FVector(-Box.GetCenter().X*BodyScale,-Box.GetCenter().Y*BodyScale,-Box.Min.Z*BodyScale):Offset*.57f;
+   Parts_[Index]->SetRelativeScale3D(FVector(BodyScale));
+   Parts_[Index]->SetRelativeLocation(BodyOffset+(Upper?FVector(-30,32,88):FVector(35,-30,0)));
+  }
+ }
+ // Bokrug's body, limbs and eyes share one imported skeleton. Evaluate
+ // its high-bone-count pose once, so the eyes and body cannot drift apart.
+ if(Id==TEXT("bokrug")) {
+  USkeletalMeshComponent* Leader=nullptr;
+  for(UMeshComponent* Part:Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
+   if(!Leader) { Leader=Skin; Leader->SetBoundsScale(3.f); continue; }
+   if(Skin->GetSkeletalMeshAsset()->GetSkeleton()!=Leader->GetSkeletalMeshAsset()->GetSkeleton()) continue;
+   Skin->SetAnimInstanceClass(nullptr);
+   Skin->bUseBoundsFromLeaderPoseComponent=true;
+   Skin->SetLeaderPoseComponent(Leader);
+  }
+ }
+ if(Id==TEXT("yig")) BindYigWeapons();
+ if(!Preview) PlayRole(TEXT("idle"));
+ return true;
+}
+UAnimSequence* ACultCharacterModel::AnimationFor(const USkeletalMeshComponent& Mesh,const FString& ClipRole) const {
+ const auto* Asset=Mesh.GetSkeletalMeshAsset();
+ const auto* Rig=Asset?Asset->GetSkeleton():nullptr;
+ if(!Rig) return nullptr;
+ auto* Clip=Animations_.FindRef(Rig->GetPathName()+TEXT("|")+ClipRole).Get();
+ if(!Clip) Clip=Animations_.FindRef(ClipRole).Get();
+ return Clip&&Clip->GetSkeleton()==Rig?Clip:nullptr;
+}
+
+UAnimSequence* ACultCharacterModel::DeathAnimationFor(const USkeletalMeshComponent& Mesh) const {
+ return AnimationFor(Mesh,TEXT("death"));
+}
+
+void ACultCharacterModel::PlayRole(const FString& ClipRole) {
+ // Missing clips remain visibly unanimated; never substitute unrelated attacks.
+ if(ClipRole==CurrentRole_) return; CurrentRole_=ClipRole; RoleBegan_=Elapsed_;
+ FString SourceRole=ClipRole;
+ // Keep Yig's three skeletal parts on the same authored frame. A grounded
+ // two-arm cut, a cross-cut and the raised threat posture are distinct bases
+ // for Serpent Strike, Father's Bite and Curse of Yig.
+ if(ClipRole==TEXT("yig_lash")) SourceRole=TEXT("melee_1");
+ else if(ClipRole==TEXT("yig_bite")) SourceRole=TEXT("melee_3");
+ else if(ClipRole==TEXT("yig_curse")) SourceRole=TEXT("taunt");
+ for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) {
+  auto* Desired=AnimationFor(*S,SourceRole);
+  if(!Desired&&ClipRole.StartsWith(TEXT("melee_"))) {
+   const FString Forward=TEXT("melee_")+ClipRole.Right(1);
+   Desired=AnimationFor(*S,Forward);
+   if(!Desired) Desired=AnimationFor(*S,TEXT("attack"));
+  }
+  if(auto* Player=S->GetSingleNodeInstance()) {
+   if(Desired) {
+    const bool Loop=ClipRole==TEXT("idle")||ClipRole==TEXT("walk")||ClipRole==TEXT("run")||ClipRole==TEXT("preview");
+    const float Seconds=ClipRole==TEXT("land")?.22f:ActionSeconds_;
+    const float Rate=!Loop&&(ClipRole==ActionRole_||ClipRole==TEXT("land"))&&Seconds>.01f?FMath::Clamp(Desired->GetPlayLength()/Seconds,.1f,8.f):1.f;
+    if(Player->GetCurrentAsset()!=Desired) Player->SetAnimationAsset(Desired,Loop,Rate); else { Player->SetLooping(Loop); Player->SetPlayRate(Rate); }
+    Player->SetPlaying(true);
+   } else Player->SetPlaying(false);
+  }
+ }
+}
+ACultCharacterModel* ACultCharacterModel::AttachToPawn(ACultUlhuPlayerPawn* Pawn,const FString& Id) {
+ if(!Pawn||!Binding(Id)) return nullptr;
+ auto* Model=Pawn->GetWorld()->SpawnActor<ACultCharacterModel>();
+ if(!Model||!Model->Initialize(Id)) { if(Model) Model->Destroy(); return nullptr; }
+ Model->Pawn_=Pawn; Model->WalkSpeed_=Pawn->GetCharacterMovement()->MaxWalkSpeed; Model->SetOwner(Pawn);
+ Model->AddTickPrerequisiteComponent(Pawn->GetCharacterMovement());
+ if(!CultPrimary::Find(Id).Ranged()) {
+  for(UMeshComponent* Part:Model->Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part))
+   Skin->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+ }
+ Model->AttachToComponent(Pawn->GetCapsuleComponent(),FAttachmentTransformRules::KeepRelativeTransform);
+ Model->SetActorRelativeLocation(FVector(0,0,-Pawn->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
+ if(Id==TEXT("bokrug")) for(UMeshComponent* Part:Model->Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
+  if(Skin->GetBoneIndex(TEXT("head_0285"))==INDEX_NONE) continue;
+  Skin->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+  Skin->RegisterOnBoneTransformsFinalizedDelegate(FOnBoneTransformsFinalizedMultiCast::FDelegate::CreateWeakLambda(Model,[Model] {Model->UpdateHeadCamera();}));
+  if(auto* Arm=Pawn->FindComponentByClass<USpringArmComponent>()) Arm->AddTickPrerequisiteComponent(Skin);
+  break;
+ }
+ TArray<UStaticMeshComponent*> Old; Pawn->GetComponents(Old);
+ for(auto* Part:Old) if(Part->ComponentHasTag(TEXT("CultCorpseBody"))||Part->ComponentHasTag(TEXT("VesselEye"))) {
+  Part->SetVisibility(false); Part->ComponentTags.Add(TEXT("CultReplacedVessel"));
+ }
+ return Model;
+}
+void ACultCharacterModel::Tick(float DeltaSeconds) {
+ Super::Tick(DeltaSeconds);
+ if(TwinPartCount_>0) {
+  const float Previous=Elapsed_;
+  Elapsed_+=DeltaSeconds;
+  for(int32 Index=0;Index<Parts_.Num();++Index) {
+   const bool Upper=Index>=TwinPartCount_;
+   const float Phase=Upper?2.1f:0.f,Rate=Upper?1.13f:.91f;
+   const FVector Before(3*FMath::Sin(Previous*Rate+Phase),2*FMath::Cos(Previous*.73f+Phase),4*FMath::Sin(Previous*Rate+Phase));
+   const FVector After(3*FMath::Sin(Elapsed_*Rate+Phase),2*FMath::Cos(Elapsed_*.73f+Phase),4*FMath::Sin(Elapsed_*Rate+Phase));
+   Parts_[Index]->AddRelativeLocation(After-Before);
+  }
+ }
+ else if(bFloating_) { Elapsed_+=DeltaSeconds; const float Next=3.f+FMath::Sin(Elapsed_*1.4f)*2.5f;
+  for(UMeshComponent* Part:Parts_) Part->SetRelativeLocation(Part->GetRelativeLocation()+FVector(0,0,Next-Hover_)); Hover_=Next;
+ }
+ if(Pawn_&&!IsValid(Pawn_)) { Destroy(); return; }
+ if(Pawn_) {
+  SetActorHiddenInGame(Pawn_->IsHidden()||Pawn_->MatchDead());
+  const float Now=GetWorld()->GetTimeSeconds(),Speed=Pawn_->GetVelocity().Size2D();
+  const bool Flying=Pawn_->GetCharacterMovement()->IsFlying();
+  const bool Falling=Pawn_->GetCharacterMovement()->IsFalling();
+  if(ActionRole_==TEXT("taunt")&&(Speed>10||Falling||Pawn_->IsSwinging()||Pawn_->IsDashing())) ActionUntil_=Now;
+  if(WasFalling_&&!Falling) LandingUntil_=Now+.22f; WasFalling_=Falling;
+  if(Pawn_->IsBot()&&Pawn_->GetBotAim()) SetActorRotation(FRotator(0,Pawn_->AimRotation().Yaw,0));
+  const bool Overlay=ActionRole_==TEXT("attack_overlay");
+  bRunning_=Speed>WalkSpeed_*(bRunning_?1.14f:1.27f);
+  FString MotionRole;
+  if(Pawn_->IsDashing()&&!Pawn_->IsSwinging()) MotionRole=TEXT("dash");
+  else if(Now<ActionUntil_&&!Overlay&&!Pawn_->IsIncapacitated()) MotionRole=ActionRole_;
+  else if(Falling||Flying) MotionRole=TEXT("jump");
+  else if(Pawn_->IsSwinging()) MotionRole=TEXT("attack");
+  else if(Now<LandingUntil_) MotionRole=TEXT("land");
+  else if(Now<HitUntil_&&Speed<WalkSpeed_*.55f) MotionRole=TEXT("hit");
+  else if(bRunning_) MotionRole=TEXT("run");
+  else MotionRole=Speed>10?TEXT("walk"):TEXT("idle");
+  const auto& Playback=Pawn_->AttackPlayback();
+  const bool CanUseYigStroke=CharacterId_==TEXT("yig")&&Overlay&&Now<ActionUntil_&&
+                            !Pawn_->IsDashing()&&!Falling&&!Pawn_->IsIncapacitated();
+  if(CanUseYigStroke) {
+   using Move=CultAttackMotion::EMove;
+   if(Playback.Move==Move::Q) MotionRole=TEXT("yig_lash");
+   else if(Playback.Move==Move::Heavy) MotionRole=TEXT("yig_bite");
+   else if(Playback.Move==Move::R) MotionRole=TEXT("yig_curse");
+  }
+  using Move=CultAttackMotion::EMove;
+  const bool BokrugStrike=CharacterId_==TEXT("bokrug")&&Overlay&&Now<ActionUntil_&&
+    !Pawn_->IsDashing()&&!Falling&&!Pawn_->IsIncapacitated()&&Playback.Move>=Move::Primary&&Playback.Move<=Move::R;
+  if(BokrugStrike)
+   MotionRole=Playback.Move==Move::Primary?TEXT("attack"):Playback.Move==Move::R?TEXT("taunt"):TEXT("cast");
+  if(CharacterId_==TEXT("ghatanothoa")&&Overlay&&Now<ActionUntil_&&!Pawn_->IsDashing()&&!Falling)
+   MotionRole=Playback.Move==Move::Primary?TEXT("attack"):TEXT("cast");
+  PlayRole(MotionRole);
+  const bool YigStroke=MotionRole.StartsWith(TEXT("yig_"));
+  if((YigStroke||MotionRole.StartsWith(TEXT("melee_")))&&Now<ActionUntil_&&ActionSeconds_>.01f) {
+   const float Progress=FMath::Clamp(1-(ActionUntil_-Now)/ActionSeconds_,0.f,1.f);
+   float Phase=AuthoredMeleePhase(Progress);
+   if(YigStroke) {
+    const float Contact=FMath::Clamp(Playback.Contact/ActionSeconds_,.05f,.95f);
+    const float Pose=MotionRole==TEXT("yig_curse")?.45f:MeleeContactPhase_;
+    Phase=Progress<=Contact?Pose*Progress/Contact:Pose+(1-Pose)*(Progress-Contact)/(1-Contact);
+   }
+   for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) if(auto* Player=S->GetSingleNodeInstance()) if(auto* Clip=Cast<UAnimSequence>(Player->GetCurrentAsset())) {
+    Player->SetPosition(Clip->GetPlayLength()*Phase,false);Player->SetPlaying(false);
+   }
+  }
+  if(BokrugStrike) {
+   const float Progress=FMath::Clamp((Now-Playback.Began)/Playback.Duration,0.f,1.f);
+   const float Contact=FMath::Clamp(Playback.Contact/Playback.Duration,.12f,.85f);
+   const float PoseContact=Playback.Move==Move::Primary?.49f:.38f;
+   const float Phase=Progress<Contact?PoseContact*Progress/Contact:PoseContact+(1-PoseContact)*(Progress-Contact)/(1-Contact);
+   for(UMeshComponent* Part:Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part))
+    if(auto* Player=Skin->GetSingleNodeInstance()) if(auto* Clip=Cast<UAnimSequence>(Player->GetCurrentAsset())) {
+     Player->SetPosition(Clip->GetPlayLength()*Phase,false);
+     Player->SetPlaying(false);
+    }
+  }
+  if(bMeleeStep_) {
+   float Offset=0;
+   if(MotionRole.StartsWith(TEXT("melee_"))&&Now<ActionUntil_&&ActionSeconds_>.01f) {
+    const float T=AuthoredMeleePhase(FMath::Clamp(1-(ActionUntil_-Now)/ActionSeconds_,0.f,1.f));
+    const float Times[]={0,.14f,.43f,.62f,1},Values[]={0,-.1f,1,.92f,0};
+    float Advance=0;
+    for(int I=0;I<4;++I) if(T<=Times[I+1]) { const float A=FMath::Clamp((T-Times[I])/(Times[I+1]-Times[I]),0.f,1.f); const float E=A*A*A*(10+A*(-15+6*A)); Advance=FMath::Lerp(Values[I],Values[I+1],E); break; }
+    const float Amplitude=MotionRole.EndsWith(TEXT("3"))?.23f:.28f;
+    // Capsule movement owns world travel. Remove the authored global pelvis
+    // offset from the visual actor so that translation is not applied twice.
+    Offset=-90*Amplitude*Advance*(MotionRole.StartsWith(TEXT("melee_back_"))?-1.f:1.f);
+   }
+   FVector LocalOffset=Pawn_->GetActorQuat().UnrotateVector(GetActorForwardVector()*Offset);
+   LocalOffset.Z=-Pawn_->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();SetActorRelativeLocation(LocalOffset);
+  }
+  if(MotionRole==TEXT("walk")||MotionRole==TEXT("run")) {
+   const float Alignment=FVector::DotProduct(Pawn_->GetVelocity().GetSafeNormal2D(),Pawn_->AimRotation().Vector().GetSafeNormal2D());
+   const float Nominal=WalkSpeed_*(bRunning_?CultMovement::SprintRatio:1.f);
+   const float Goal=(Alignment<-.35f?-1.f:1.f)*FMath::Clamp(Speed/FMath::Max(1.f,Nominal),.4f,1.45f);
+   GaitRate_=FMath::FInterpTo(GaitRate_,Goal,DeltaSeconds,12.f);
+   for(UMeshComponent* Part:Parts_) if(auto* S=Cast<USkeletalMeshComponent>(Part)) if(auto* Player=S->GetSingleNodeInstance()) Player->SetPlayRate(GaitRate_);
+  }
+ } else if(!bPreview_&&GetOwner()) Destroy();
+ if(bOriginalOrb_) UpdateOriginalOrb();
+ if(Pawn_) UpdateCombatGesture(DeltaSeconds);
+}
+
+bool ACultCharacterModel::FirstPersonEye(FVector& Eye) const {
+ if(CharacterId_!=TEXT("bokrug")) return false;
+ for(UMeshComponent* Part:Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
+  if(Skin->GetBoneIndex(TEXT("head_0285"))==INDEX_NONE) continue;
+  const FVector Head=Skin->GetBoneLocation(TEXT("head_0285"));
+  const FVector Nose=Skin->GetBoneIndex(TEXT("head_end_0632"))!=INDEX_NONE?Skin->GetBoneLocation(TEXT("head_end_0632")):Head;
+  Eye=FMath::Lerp(Head,Nose,.55f)+GetActorUpVector()*GetActorScale3D().Z*2.5f;
+  return !Eye.ContainsNaN();
+ }
+ return false;
+}
+void ACultCharacterModel::UpdateHeadCamera() {
+ if(!IsValid(Pawn_)||Pawn_->IsThirdPerson()) return;
+ FVector Eye;
+ if(FirstPersonEye(Eye)) if(auto* Arm=Pawn_->FindComponentByClass<USpringArmComponent>()) {
+  const FVector Pivot(Pawn_->GetActorLocation().X,Pawn_->GetActorLocation().Y,Eye.Z);
+  FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(CultHeadCamera),false,Pawn_); Query.AddIgnoredActor(this);
+  const float Probe=FMath::Max(5.f,Pawn_->GetSimpleCollisionRadius()*.04f);
+  if(GetWorld()->SweepSingleByChannel(Hit,Pivot,Eye,FQuat::Identity,ECC_Camera,FCollisionShape::MakeSphere(Probe),Query)) Eye=Hit.Location;
+  Arm->SetWorldLocation(Eye);
+ }
+}
+
+bool ACultCharacterModel::StrikeLimb(int Index,FVector& Elbow,FVector& Hand) const {
+ static const FName Hands[]={TEXT("hand_l"),TEXT("hand_r")};
+ static const FName Forearms[]={TEXT("forearm_l"),TEXT("forearm_r")};
+ static const FName YigHands[]={TEXT("lefthand"),TEXT("righthand"),TEXT("lefthand_001"),TEXT("righthand_001")};
+ static const FName YigForearms[]={TEXT("leftforearm"),TEXT("rightforearm"),TEXT("leftforearm_001"),TEXT("rightforearm_001")};
+ const bool Yig=CharacterId_==TEXT("yig");
+ const bool Crab=CharacterId_==TEXT("rhan_tegoth");
+ if(Index<0||Index>=(Yig?4:2)) return false;
+ for(UMeshComponent* Part:Parts_) if(const auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
+  int HandIndex=Skin->GetBoneIndex(Yig?YigHands[Index]:Hands[Index]);
+  int ElbowIndex=Skin->GetBoneIndex(Yig?YigForearms[Index]:Forearms[Index]);
+  if(Crab) for(int32 Bone=0;Bone<Skin->GetNumBones();++Bone) {
+   const FString Name=Skin->GetBoneName(Bone).ToString().ToLower().Replace(TEXT("."),TEXT("_"));
+   if(Name.StartsWith(Index?TEXT("claw_r_"):TEXT("claw_l_"))) HandIndex=Bone;
+   if(Name.StartsWith(Index?TEXT("forearm_r_"):TEXT("forearm_l_"))) ElbowIndex=Bone;
+  }
+  if(HandIndex==INDEX_NONE||ElbowIndex==INDEX_NONE) continue;
+  Elbow=Skin->GetBoneLocation(Skin->GetBoneName(ElbowIndex));
+  Hand=Skin->GetBoneLocation(Skin->GetBoneName(HandIndex));
+  Hand+=(Hand-Elbow)*.18; // palm centre lies past the wrist joint
+  return true;
+ }
+ return false;
+}
+
+bool ACultCharacterModel::SampleStrikeLimb(int Index,float AttackAge,FVector& Elbow,FVector& Hand) {
+ if(!Pawn_||Pawn_->AttackPlayback().Move!=CultAttackMotion::EMove::Melee||!CurrentRole_.StartsWith(TEXT("melee_"))) return false;
+ const auto& Playback=Pawn_->AttackPlayback();
+ for(UMeshComponent* Part:Parts_) if(auto* Skin=Cast<USkeletalMeshComponent>(Part)) {
+  auto* Player=Skin->GetSingleNodeInstance(); auto* Clip=AnimationFor(*Skin,CurrentRole_);
+  if(!Player||!Clip||Player->GetCurrentAsset()!=Clip) continue;
+  // Evaluate the same authored clip and procedural arm channels at an omitted
+  // contact time, then restore the rendered pose. No broad cone or auto-hit.
+  const float SavedTime=Player->GetCurrentTime();
+  auto* Fluid=Cast<UCultFluidAnimInstance>(Player);
+  const auto SavedAttack=Fluid?Fluid->Attack:CultAttackMotion::FFrame();
+  const float SavedProgress=Fluid?Fluid->MeleeProgress:0;
+  if(Fluid) {
+   Fluid->Attack=CultAttackMotion::Sample(CharacterId_,Playback,Playback.Began+AttackAge);
+   Fluid->MeleeProgress=(AttackAge-Playback.Contact)/.145f;
+  }
+  Player->SetPosition(Clip->GetPlayLength()*AuthoredMeleePhase(FMath::Clamp(AttackAge/FMath::Max(.01f,Playback.Duration),0.f,1.f)),false);
+  Skin->TickAnimation(0,false); Skin->RefreshBoneTransforms();
+  const bool Found=StrikeLimb(Index,Elbow,Hand);
+  if(Fluid) { Fluid->Attack=SavedAttack; Fluid->MeleeProgress=SavedProgress; }
+  Player->SetPosition(SavedTime,false); Skin->TickAnimation(0,false); Skin->RefreshBoneTransforms();
+  if(Found) return true;
+ }
+ return false;
+}
+
+bool ACultCharacterModel::UsesMeleeStep(ACultUlhuPlayerPawn* Pawn) {
+ if(!Pawn) return false; TArray<AActor*> Attached; Pawn->GetAttachedActors(Attached);
+ for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) if(Model->bMeleeStep_) return true;
+ return false;
+}
+
+float ACultCharacterModel::AuthoredMeleePhase(float Progress) const {
+ // Align the authored contact pose with the center of the physical sweep.
+ const auto* Playback=Pawn_?&Pawn_->AttackPlayback():nullptr;
+ const float ContactTime=Playback&&Playback->Move==CultAttackMotion::EMove::Melee
+  ?FMath::Clamp(Playback->Contact/FMath::Max(.01f,Playback->Duration),.05f,.95f):.56f;
+ if(Progress<=ContactTime) {
+  const float Approach=Progress/ContactTime;
+  return MeleeContactPhase_*(Approach*Approach*(1.45f-.45f*Approach));
+ }
+ const float Follow=FMath::Clamp((Progress-ContactTime)/(1-ContactTime),0.f,1.f);
+ return MeleeContactPhase_+(1-MeleeContactPhase_)*Follow*(1.6f-.6f*Follow);
+}
+
+void ACultCharacterModel::Cue(ACultUlhuPlayerPawn* Pawn,const FString& Role,float Seconds,float Age) {
+ if(!Pawn) return; TArray<AActor*> Attached; Pawn->GetAttachedActors(Attached);
+ for(auto* Actor:Attached) if(auto* Model=Cast<ACultCharacterModel>(Actor)) {
+  if(Role==TEXT("hit")) {
+   if(Model->Animations_.Contains(Role)) Model->HitUntil_=Pawn->GetWorld()->GetTimeSeconds()+Seconds;
+   continue;
+  }
+  Model->ActionRole_=Role;
+  Model->ActionSeconds_=Seconds;
+  Model->ActionUntil_=Pawn->GetWorld()->GetTimeSeconds()+Seconds-Age;
+  if(Role!=TEXT("attack_overlay")&&Age<Seconds) {
+   Model->CurrentRole_.Reset();
+   Model->PlayRole(Role);
+  }
+ }
+}
