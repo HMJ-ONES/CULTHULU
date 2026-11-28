@@ -39,6 +39,7 @@ class CULTULHU_API ACultUlhuPlayerPawn : public ACharacter
 	GENERATED_BODY()
 
 public:
+ virtual void CalcCamera(float DeltaTime,FMinimalViewInfo& OutResult) override;
  virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
  void ConfigurePlayer(const FString& Id,int32 Team=0) { CharacterId_=Id; Faction_=Team; bBotControlled_=false; }
  UFUNCTION(Server,Reliable) void ServerCombatInput(uint8 Action,bool Down,FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction);

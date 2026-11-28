@@ -1309,9 +1309,9 @@
     "hastur": {
       "approved": true,
       "temporary": true,
-      "source_url": "https://sketchfab.com/3d-models/low-poly-wizard-rigged-f8c91af65aec4779b0e3d857b1878cc2",
-      "title": "Low Poly Wizard (Rigged)",
-      "author": "Anthony Yanez",
+      "source_url": "https://sketchfab.com/3d-models/grim-reaper-low-poly-c4106291b7454917a909afa37affed08",
+      "title": "Grim Reaper Low Poly",
+      "author": "Emmanuel__Bouvier",
       "author_url": "https://sketchfab.com/paulyanez",
       "license": "CC-BY-4.0",
       "license_url": "https://creativecommons.org/licenses/by/4.0/",
@@ -1319,7 +1319,7 @@
       "rights_cleared": true,
       "verified_date": "2026-11-22",
       "status": "ACQUIRED",
-      "source_file": "Saved/CharacterSources/hastur/Temporary20261122/prepared/source.glb",
+      "source_file": "Saved\\CharacterSources\\HorrorRefresh20261127\\hastur\\prepared.glb",
       "original_source_file": "Saved/CharacterSources/hastur/Temporary20261122/source.glb",
       "original_source_sha256": "6ab6126c6601314f3925262a882ae803ee139746ab6b9e71167633e1f9ba83f4",
       "rotation": [
@@ -1335,59 +1335,46 @@
       ],
       "reviewed_gameplay_binding": {
         "meshes": [
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Armor_08_-_Default_0.Armor_08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Beard_08_-_Default_0.Beard_08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Cape_08_-_Default_0.Cape_08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Hat_08_-_Default_0.Hat_08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Head_03_-_Default_0.Head_03_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Left_arm_08_-_Default_0.Left_arm_08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Left_foot_02_-_Default_0.Left_foot_02_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Left_hand_03_-_Default_0.Left_hand_03_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Left_shoulder__08_-_Default_0.Left_shoulder__08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Leg_Leg_08_-_Default_0.Leg_Leg_08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Lower_body_08_-_Default_0.Lower_body_08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Right_arm_08_-_Default_0.Right_arm_08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Right_foot_02_-_Default_0.Right_foot_02_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Right_hand_03_-_Default_0.Right_hand_03_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Right_leg_08_-_Default_0.Right_leg_08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Right_shoulder__08_-_Default_0.Right_shoulder__08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Skirt_08_-_Default_0.Skirt_08_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Stick_02_-_Default_0.Stick_02_-_Default_0",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Stick_07_-_Default_0.Stick_07_-_Default_0"
+          "/Game/CultUlhu/Characters/HorrorRefresh20261127/hastur/prepared/StaticMeshes/GRIM_0.GRIM_0",
+          "/Game/CultUlhu/Characters/HorrorRefresh20261127/hastur/prepared/StaticMeshes/GRIM_0_9e27daff659b59c32cfd7ecced863f72.GRIM_0_9e27daff659b59c32cfd7ecced863f72",
+          "/Game/CultUlhu/Characters/HorrorRefresh20261127/hastur/prepared/StaticMeshes/GRIM_1.GRIM_1"
         ],
         "skeletal": false,
         "clips": [],
+        "animation_sets": [],
+        "animation_roles": {},
         "rotation": [
           0,
           -90,
           0
         ],
         "bodies": 1,
-        "floating": false,
-        "animation_roles": {},
-        "source_sha256": "f6319d92fbf67cd8abad1cbc916abb1fd403208654d90b3bdff7151f5c063cc3",
-        "import_profile": "default",
-        "status": "IMPORTED_STATIC",
-        "source_url": "https://sketchfab.com/3d-models/low-poly-wizard-rigged-f8c91af65aec4779b0e3d857b1878cc2",
-        "author": "Anthony Yanez",
-        "license": "CC-BY-4.0",
-        "temporary": true,
+        "floating": true,
+        "render_lod": 1,
         "material_overrides": {
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Armor_08_-_Default_0.Armor_08_-_Default_0": "/Game/CultUlhu/Characters/hastur/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Cape_08_-_Default_0.Cape_08_-_Default_0": "/Game/CultUlhu/Characters/hastur/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Hat_08_-_Default_0.Hat_08_-_Default_0": "/Game/CultUlhu/Characters/hastur/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Lower_body_08_-_Default_0.Lower_body_08_-_Default_0": "/Game/CultUlhu/Characters/hastur/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
-          "/Game/CultUlhu/Characters/hastur/Imports/hf6319d92fbf6/source/StaticMeshes/Skirt_08_-_Default_0.Skirt_08_-_Default_0": "/Game/CultUlhu/Characters/hastur/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody"
+          "/Game/CultUlhu/Characters/HorrorRefresh20261127/hastur/prepared/StaticMeshes/GRIM_0.GRIM_0": "/Game/CultUlhu/Characters/HorrorRefresh20261127/hastur/M_KingShroud_0",
+          "/Game/CultUlhu/Characters/HorrorRefresh20261127/hastur/prepared/StaticMeshes/GRIM_0_9e27daff659b59c32cfd7ecced863f72.GRIM_0_9e27daff659b59c32cfd7ecced863f72": "/Game/CultUlhu/Characters/HorrorRefresh20261127/hastur/M_KingShroud_0",
+          "/Game/CultUlhu/Characters/HorrorRefresh20261127/hastur/prepared/StaticMeshes/GRIM_1.GRIM_1": "/Game/CultUlhu/Characters/HorrorRefresh20261127/hastur/M_KingShroud_1"
         },
-        "portrait": "/Game/CultUlhu/Characters/hastur/Portraits/T_Portrait_b9dd124e16b9.T_Portrait_b9dd124e16b9"
-      }
+        "temporary": true,
+        "status": "IMPORTED_STATIC",
+        "source_url": "https://sketchfab.com/3d-models/grim-reaper-low-poly-c4106291b7454917a909afa37affed08",
+        "author": "Emmanuel__Bouvier",
+        "license": "CC-BY-4.0",
+        "source_sha256": "51533dc4ced5ebfd51d61af623e66d1d98fb79a6baa531cebd091b37c133e5a4",
+        "portrait": "/Game/CultUlhu/Characters/hastur/Portraits/T_Portrait_a9077360175c.T_Portrait_a9077360175c"
+      },
+      "key": "hastur",
+      "source_sha256": "51533dc4ced5ebfd51d61af623e66d1d98fb79a6baa531cebd091b37c133e5a4",
+      "original_sha256": "74553ff31abc6347e360176fe822cbf9d43a02e40d298fdc1a6c933e9f78c901",
+      "source_bytes": 24463000
     },
     "nug_and_yeb": {
       "approved": true,
       "temporary": true,
-      "source_url": "https://sketchfab.com/3d-models/simple-moon-jellyfish-baked-animation-3d911c511f2744ec9bfb99d46d2d6e14",
-      "title": "Simple Moon Jellyfish (Baked Animation)",
-      "author": "n-",
+      "source_url": "https://sketchfab.com/3d-models/flesh-blob-b3f5bb51f8144a30b6fa6b22f5d44bf7",
+      "title": "Nug & Yeb \u2014 Flesh Blob + Living Flesh Blob",
+      "author": "ChopperManiac",
       "author_url": "https://sketchfab.com/n-",
       "license": "CC-BY-4.0",
       "license_url": "https://creativecommons.org/licenses/by/4.0/",
@@ -1395,9 +1382,9 @@
       "rights_cleared": true,
       "verified_date": "2026-11-22",
       "status": "ACQUIRED",
-      "source_file": "Saved/CharacterSources/nug_and_yeb/Temporary20261122/source.glb",
-      "original_source_file": "Saved/CharacterSources/nug_and_yeb/Temporary20261122/source.glb",
-      "original_source_sha256": "be67d4ee9fc62ae046d54bcfd10c5fc462d64caa1875da7ecd1bd6ec0f9f71f1",
+      "source_file": "Saved\\CharacterSources\\HorrorRefresh20261127\\nug\\prepared.glb",
+      "original_source_file": "Saved\\CharacterSources\\HorrorRefresh20261127\\nug\\prepared.glb",
+      "original_source_sha256": "bbd7648bab2eb008d4a5d025c16622bf2017e8da0a470314fbf5fbd631936c84",
       "rotation": [
         0,
         0,
@@ -1414,85 +1401,113 @@
       "changes": [],
       "reviewed_gameplay_binding": {
         "meshes": [
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_10.Object_10",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_11.Object_11",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_12.Object_12",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_13.Object_13",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_14.Object_14",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_15.Object_15",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_16.Object_16",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9.Object_9",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_10.Object_10",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_11.Object_11",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_12.Object_12",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_13.Object_13",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_14.Object_14",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_15.Object_15",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_16.Object_16",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9.Object_9"
+          "/Game/CultUlhu/Characters/HorrorRefresh20261127/nug/prepared/SkeletalMeshes/mesh_1.mesh_1",
+          "/Game/CultUlhu/Characters/HorrorRefresh20261127/yeb/prepared/SkeletalMeshes/prepared.prepared"
         ],
         "skeletal": true,
         "clips": [
           {
-            "name": "source_Anim",
-            "asset": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
-            "seconds": 16.66666603088379
+            "name": "prepared_Anim",
+            "asset": "/Game/CultUlhu/Characters/HorrorRefresh20261127/nug/prepared/SkeletalMeshes/prepared_Anim.prepared_Anim",
+            "seconds": 6.0
+          },
+          {
+            "name": "prepared_Anim",
+            "asset": "/Game/CultUlhu/Characters/HorrorRefresh20261127/yeb/prepared/SkeletalMeshes/prepared_Anim.prepared_Anim",
+            "seconds": 2.9583332538604736
           }
         ],
+        "animation_sets": [
+          {
+            "skeleton": "/Game/CultUlhu/Characters/HorrorRefresh20261127/nug/prepared/SkeletalMeshes/mesh_1_Skeleton.mesh_1_Skeleton",
+            "roles": {
+              "idle": "/Game/CultUlhu/Characters/HorrorRefresh20261127/nug/prepared/SkeletalMeshes/prepared_Anim.prepared_Anim",
+              "walk": "/Game/CultUlhu/Characters/HorrorRefresh20261127/nug/prepared/SkeletalMeshes/prepared_Anim.prepared_Anim",
+              "run": "/Game/CultUlhu/Characters/HorrorRefresh20261127/nug/prepared/SkeletalMeshes/prepared_Anim.prepared_Anim",
+              "preview": "/Game/CultUlhu/Characters/HorrorRefresh20261127/nug/prepared/SkeletalMeshes/prepared_Anim.prepared_Anim"
+            }
+          },
+          {
+            "skeleton": "/Game/CultUlhu/Characters/HorrorRefresh20261127/yeb/prepared/SkeletalMeshes/prepared_Skeleton.prepared_Skeleton",
+            "roles": {
+              "idle": "/Game/CultUlhu/Characters/HorrorRefresh20261127/yeb/prepared/SkeletalMeshes/prepared_Anim.prepared_Anim",
+              "walk": "/Game/CultUlhu/Characters/HorrorRefresh20261127/yeb/prepared/SkeletalMeshes/prepared_Anim.prepared_Anim",
+              "run": "/Game/CultUlhu/Characters/HorrorRefresh20261127/yeb/prepared/SkeletalMeshes/prepared_Anim.prepared_Anim",
+              "preview": "/Game/CultUlhu/Characters/HorrorRefresh20261127/yeb/prepared/SkeletalMeshes/prepared_Anim.prepared_Anim"
+            }
+          }
+        ],
+        "animation_roles": {},
         "rotation": [
           0,
           0,
           0
         ],
-        "bodies": 2,
+        "bodies": 1,
         "floating": true,
-        "animation_roles": {
-          "preview": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
-          "idle": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
-          "walk": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
-          "run": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim"
-        },
-        "source_sha256": "be67d4ee9fc62ae046d54bcfd10c5fc462d64caa1875da7ecd1bd6ec0f9f71f1",
-        "import_profile": "default",
-        "skeleton": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
-        "mesh_skeletons": {
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_10.Object_10": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_11.Object_11": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_12.Object_12": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_13.Object_13": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_14.Object_14": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_15.Object_15": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_16.Object_16": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9.Object_9": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton"
-        },
-        "animation_sets": [
+        "twin_split": 1,
+        "distinct_twins": true,
+        "temporary": true,
+        "status": "IMPORTED_ANIMATED",
+        "source_url": "https://sketchfab.com/3d-models/flesh-blob-b3f5bb51f8144a30b6fa6b22f5d44bf7",
+        "author": "ChopperManiac; Yury Misiyuk",
+        "license": "CC-BY-4.0",
+        "source_sha256": "bbd7648bab2eb008d4a5d025c16622bf2017e8da0a470314fbf5fbd631936c84",
+        "sources": [
           {
-            "skeleton": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9_Skeleton.Object_9_Skeleton",
-            "roles": {
-              "preview": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
-              "idle": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
-              "walk": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim",
-              "run": "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/source_Anim.source_Anim"
-            }
+            "key": "nug",
+            "source_file": "Saved\\CharacterSources\\HorrorRefresh20261127\\nug\\prepared.glb",
+            "source_url": "https://sketchfab.com/3d-models/flesh-blob-b3f5bb51f8144a30b6fa6b22f5d44bf7",
+            "title": "Flesh Blob",
+            "author": "ChopperManiac",
+            "license": "CC-BY-4.0",
+            "license_url": "https://creativecommons.org/licenses/by/4.0/",
+            "source_sha256": "bbd7648bab2eb008d4a5d025c16622bf2017e8da0a470314fbf5fbd631936c84",
+            "original_sha256": "bbd7648bab2eb008d4a5d025c16622bf2017e8da0a470314fbf5fbd631936c84",
+            "source_bytes": 17346636
+          },
+          {
+            "key": "yeb",
+            "source_file": "Saved\\CharacterSources\\HorrorRefresh20261127\\yeb\\prepared.glb",
+            "source_url": "https://sketchfab.com/3d-models/living-flesh-blob-free-organic-horror-asset-6357bbc094d54cf5ba150ef2951b3750",
+            "title": "Living Flesh Blob - Free Organic Horror Asset",
+            "author": "Yury Misiyuk",
+            "license": "CC-BY-4.0",
+            "license_url": "https://creativecommons.org/licenses/by/4.0/",
+            "source_sha256": "1522263f4ae6921a5531a91b7164ba3518626d5bbf8725a88f844650c225780f",
+            "original_sha256": "1522263f4ae6921a5531a91b7164ba3518626d5bbf8725a88f844650c225780f",
+            "source_bytes": 3830988
           }
         ],
-        "status": "IMPORTED_ANIMATED",
-        "source_url": "https://sketchfab.com/3d-models/simple-moon-jellyfish-baked-animation-3d911c511f2744ec9bfb99d46d2d6e14",
-        "author": "n-",
-        "license": "CC-BY-4.0",
-        "temporary": true,
-        "material_overrides": {
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_10.Object_10": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_11.Object_11": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_12.Object_12": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_13.Object_13": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_14.Object_14": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_15.Object_15": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_16.Object_16": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody",
-          "/Game/CultUlhu/Characters/nug_and_yeb/Imports/hbe67d4ee9fc6/source/SkeletalMeshes/Object_9.Object_9": "/Game/CultUlhu/Characters/nug_and_yeb/TemporaryMaterials/M_TemporaryBody.M_TemporaryBody"
+        "portrait": "/Game/CultUlhu/Characters/nug_and_yeb/Portraits/T_Portrait_b0756c66e43a.T_Portrait_b0756c66e43a"
+      },
+      "sources": [
+        {
+          "key": "nug",
+          "source_file": "Saved\\CharacterSources\\HorrorRefresh20261127\\nug\\prepared.glb",
+          "source_url": "https://sketchfab.com/3d-models/flesh-blob-b3f5bb51f8144a30b6fa6b22f5d44bf7",
+          "title": "Flesh Blob",
+          "author": "ChopperManiac",
+          "license": "CC-BY-4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "source_sha256": "bbd7648bab2eb008d4a5d025c16622bf2017e8da0a470314fbf5fbd631936c84",
+          "original_sha256": "bbd7648bab2eb008d4a5d025c16622bf2017e8da0a470314fbf5fbd631936c84",
+          "source_bytes": 17346636
         },
-        "portrait": "/Game/CultUlhu/Characters/nug_and_yeb/Portraits/T_Portrait_d159d05f6dc4.T_Portrait_d159d05f6dc4"
-      }
+        {
+          "key": "yeb",
+          "source_file": "Saved\\CharacterSources\\HorrorRefresh20261127\\yeb\\prepared.glb",
+          "source_url": "https://sketchfab.com/3d-models/living-flesh-blob-free-organic-horror-asset-6357bbc094d54cf5ba150ef2951b3750",
+          "title": "Living Flesh Blob - Free Organic Horror Asset",
+          "author": "Yury Misiyuk",
+          "license": "CC-BY-4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "source_sha256": "1522263f4ae6921a5531a91b7164ba3518626d5bbf8725a88f844650c225780f",
+          "original_sha256": "1522263f4ae6921a5531a91b7164ba3518626d5bbf8725a88f844650c225780f",
+          "source_bytes": 3830988
+        }
+      ],
+      "source_sha256": "bbd7648bab2eb008d4a5d025c16622bf2017e8da0a470314fbf5fbd631936c84"
     },
     "rhan_tegoth": {
       "approved": true,
@@ -2199,7 +2214,7 @@
     "ghatanothoa": {
       "approved": true,
       "source_url": "https://sketchfab.com/3d-models/biblical-beast-behemoth-62fa770766524a2e974819b49b4525b4",
-      "title": "Biblical Beast â€” Behemoth",
+      "title": "Biblical Beast \u00e2\u20ac\u201d Behemoth",
       "author": "Lexington Dath",
       "status": "BLOCKED_ACQUISITION",
       "blocked_reason": "Provisional choice. Creator lists the model for viewing only and supplies no commercial game license.",

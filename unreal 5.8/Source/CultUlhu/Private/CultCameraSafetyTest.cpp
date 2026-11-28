@@ -5,6 +5,7 @@
 #include "CultUlhuPlayerController.h"
 #include "CultUlhuPlayerPawn.h"
 #include "CultCharacterModel.h"
+#include "CultFirstPersonView.h"
 #include "CultWorldDirector.h"
 #include "CultMatchDirector.h"
 #include "Components/MeshComponent.h"
@@ -66,7 +67,11 @@ public:
    TArray<UMeshComponent*> Meshes; BodyMeshes(Friend.Get(),Meshes); BodyMeshes(Enemy.Get(),Meshes);
    TSet<FPrimitiveComponentId> Hidden; PC->UpdateHiddenComponents(Eye,Hidden);
    T->TestTrue(TEXT("An ally enclosing the first-person eye cannot black out the view"),AnyHidden(Friend.Get(),Hidden));
-   T->TestFalse(TEXT("The player's own body is visible in first person"),AnyHidden(P,Hidden));
+   T->TestTrue(TEXT("The world body cannot obstruct the first-person camera"),AnyHidden(P,Hidden));
+   auto* Anatomy=P->FindComponentByClass<UCultFirstPersonView>();
+   T->TestTrue(TEXT("The local first-person arms remain visible"),Anatomy&&Anatomy->HasVisibleAnatomy());
+   TArray<UMeshComponent*> Own;P->GetComponents(Own);
+   for(auto* Mesh:Own) if(Mesh->ComponentHasTag(TEXT("CultFirstPersonAnatomy"))) T->TestFalse(TEXT("First-person arms are excluded from the body hiding list"),Hidden.Contains(Mesh->GetPrimitiveSceneId()));
    T->TestFalse(TEXT("First-person occlusion never hides enemy bodies"),AnyHidden(Enemy.Get(),Hidden));
    T->TestTrue(TEXT("The final character capsule retains the canonical height"),FMath::IsNearlyEqual(P->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*2,2933.333f,1.f));
    return true;

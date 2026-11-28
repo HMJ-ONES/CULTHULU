@@ -3,13 +3,15 @@
 #include "CultAbilityFilaments.h"
 #include "CultPrimaryProfile.h"
 #include "CultUlhuPlayerPawn.h"
+#include "CultFirstPersonView.h"
 #include "Camera/CameraComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Components/StaticMeshComponent.h"
 
 void ACultSkillAttack::UpdateFirstPersonSwing() {
  const auto* Pawn=Cast<ACultUlhuPlayerPawn>(GetOwner());
- const bool Show=Pawn&&Pawn->IsLocallyControlled()&&!Pawn->IsThirdPerson()&&!Pawn->IsIncapacitated();
+ const auto* View=Pawn?Pawn->FindComponentByClass<UCultFirstPersonView>():nullptr;
+ const bool Show=Pawn&&Pawn->IsLocallyControlled()&&!Pawn->IsThirdPerson()&&!Pawn->IsIncapacitated()&&!(View&&View->HasVisibleAnatomy());
  if(!Show) { if(FirstPersonSwing) FirstPersonSwing->SetVisibility(false); return; }
  auto* Camera=Pawn->FindComponentByClass<UCameraComponent>();
  if(!Camera) return;
@@ -195,6 +197,16 @@ void ACultSkillAttack::UpdateAbilityFilaments() {
   const float Scale=FMath::Clamp(Radius*.69f,13.f,145.f);
   const bool Straight=Color.Form==EForm::Lance;
   const float Visibility=FlightVisibility();
+  if(Look==ELook::Venom||Look==ELook::Spore||Look==ELook::Tide||Look==ELook::Brood) {
+   // Six short droplet streaks share the existing trail buffer. No actors,
+   // physics bodies, dynamic lights or collision are created for the drips.
+   for(int Drop=0;Drop<6;++Drop) {
+    const float T=FMath::Frac(Age*1.7f+Drop*.167f);
+    const float Angle=Drop*2.39996f;
+    const FVector Start=-Along*(Scale*(.4f+T*1.7f))+Side*(Scale*.65f*FMath::Cos(Angle))+Cross*(Scale*.5f*FMath::Sin(Angle))-Up*(Scale*T*T*1.2f);
+    Lines.Ribbon(Start,Start-Along*Scale*.24f-Up*Scale*.25f,Scale*.065f*(1-T),Scale*.02f,Alpha(Color.Body,.7f*Visibility),Alpha(Color.Tip,.15f*Visibility));
+   }
+  }
   const int32 Strands=Look==ELook::Prism?3:2;
   for(int32 Strand=0;Strand<Strands;++Strand) {
    FVector A=FilamentPath[0]-Head;

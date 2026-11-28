@@ -24,13 +24,14 @@ void ACultUlhuPlayerController::UpdateHiddenComponents(const FVector& Eye,TSet<F
    if(Box.IsInsideOrOn(Eye)||FMath::LineBoxIntersection(Box,Eye,End,End-Eye)) HiddenComponents.Add(Mesh->GetPrimitiveSceneId());
   }
  };
- if(ViewerPawn->GetCharacterId()==TEXT("bokrug")) {
+ if(!ViewerPawn->IsThirdPerson()||ViewerPawn->GetCharacterId()==TEXT("bokrug")) {
   TArray<AActor*> OwnActors; OwnActors.Add(const_cast<ACultUlhuPlayerPawn*>(ViewerPawn));
   TArray<AActor*> Attached; ViewerPawn->GetAttachedActors(Attached); OwnActors.Append(Attached);
   for(auto* Actor:OwnActors) {
+   if(Actor!=ViewerPawn&&!Actor->IsA<ACultCharacterModel>()) continue;
    if(ViewerPawn->IsThirdPerson()) { HideMeshes(Actor); continue; }
    TArray<UMeshComponent*> Meshes; Actor->GetComponents(Meshes);
-   for(auto* Mesh:Meshes) HiddenComponents.Add(Mesh->GetPrimitiveSceneId());
+   for(auto* Mesh:Meshes) if(!Mesh->ComponentHasTag(TEXT("CultFirstPersonAnatomy"))) HiddenComponents.Add(Mesh->GetPrimitiveSceneId());
   }
  }
  for(TActorIterator<AActor> It(GetWorld());It;++It) {

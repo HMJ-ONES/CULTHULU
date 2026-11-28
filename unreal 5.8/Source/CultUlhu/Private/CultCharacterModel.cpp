@@ -107,6 +107,11 @@ FString ACultCharacterModel::SourceCredit(const FString& Id) {
  auto B=Binding(Id); if(!B) return FString(); FString Author,License,Url;
  B->TryGetStringField(TEXT("author"),Author); B->TryGetStringField(TEXT("license"),License); B->TryGetStringField(TEXT("source_url"),Url);
  FString Credit=Author+TEXT(" / ")+License+TEXT("\n")+Url;
+ const TArray<TSharedPtr<FJsonValue>>* Sources=nullptr;
+ if(B->TryGetArrayField(TEXT("sources"),Sources)) for(const auto& Source:*Sources) {
+  const auto Entry=Source->AsObject();FString Name,Address;
+  if(Entry&&Entry->TryGetStringField(TEXT("author"),Name)&&Entry->TryGetStringField(TEXT("source_url"),Address)&&Address!=Url) Credit+=TEXT("\n")+Name+TEXT(" / ")+License+TEXT("\n")+Address;
+ }
  const TSharedPtr<FJsonObject>* Upstream=nullptr;
  if(B->TryGetObjectField(TEXT("upstream_attribution"),Upstream)) {
   FString OriginalAuthor,OriginalSource;
@@ -236,12 +241,30 @@ bool ACultCharacterModel::Initialize(const FString& Id,bool Preview) {
  const float Scale=180.f/Bounds.GetSize().Z;
  const FVector Offset(-Bounds.GetCenter().X*Scale,-Bounds.GetCenter().Y*Scale,-Bounds.Min.Z*Scale);
  for(UMeshComponent* Part:Parts_) { Part->SetRelativeScale3D(FVector(Scale)); Part->SetRelativeLocation(Offset); }
+ if(Id==TEXT("hastur")) for(const TCHAR* Name:{TEXT("SM_KingMantle")}) {
+  const FString Path=FString(TEXT("/Game/CultUlhu/Characters/HorrorRefresh20261127/hastur/"))+Name;
+  if(auto* Mesh=LoadObject<UStaticMesh>(nullptr,*Path)) {
+   auto* Cloak=NewObject<UStaticMeshComponent>(this);Cloak->SetupAttachment(RootComponent);Cloak->SetStaticMesh(Mesh);
+   Cloak->SetCollisionEnabled(ECollisionEnabled::NoCollision);Cloak->SetGenerateOverlapEvents(false);Cloak->SetCanEverAffectNavigation(false);
+   Cloak->ComponentTags.Add(TEXT("CultCorpseBody"));Cloak->RegisterComponent();Parts_.Add(Cloak);
+  }
+ }
  if(Id==TEXT("nug_and_yeb")) {
   TwinPartCount_=Parts_.Num()/2;
+  double Split=0;const bool Distinct=B->TryGetNumberField(TEXT("twin_split"),Split)&&Split>0&&Split<Parts_.Num();
+  if(Distinct) TwinPartCount_=int32(Split);
+  FBox TwinBounds[2]={FBox(ForceInit),FBox(ForceInit)};
+  if(Distinct) for(int32 Index=0;Index<Parts_.Num();++Index) {
+   auto* Part=Parts_[Index].Get();Part->SetRelativeScale3D(FVector(1));Part->SetRelativeLocation(FVector::ZeroVector);Part->UpdateBounds();
+   TwinBounds[Index>=TwinPartCount_]+=Part->Bounds.GetBox();
+  }
   if(TwinPartCount_>0) for(int32 Index=0;Index<Parts_.Num();++Index) {
    const bool Upper=Index>=TwinPartCount_;
-   Parts_[Index]->SetRelativeScale3D(FVector(Scale*.57f));
-   Parts_[Index]->SetRelativeLocation(Offset*.57f+(Upper?FVector(-30,32,88):FVector(35,-30,5)));
+   const auto& Box=TwinBounds[Upper];
+   const float BodyScale=Distinct?92.f/FMath::Max(1.f,float(Box.GetSize().Z)):Scale*.57f;
+   const FVector BodyOffset=Distinct?FVector(-Box.GetCenter().X*BodyScale,-Box.GetCenter().Y*BodyScale,-Box.Min.Z*BodyScale):Offset*.57f;
+   Parts_[Index]->SetRelativeScale3D(FVector(BodyScale));
+   Parts_[Index]->SetRelativeLocation(BodyOffset+(Upper?FVector(-30,32,88):FVector(35,-30,0)));
   }
  }
  // Bokrug's body, limbs and eyes share one imported skeleton. Evaluate

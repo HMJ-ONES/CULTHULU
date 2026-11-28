@@ -6,6 +6,7 @@ registry=json.loads((project/'Content/CharacterModels/registry.json').read_text(
 folders={'/Engine/BasicShapes'}
 for entity,binding in registry['characters'].items():
  for mesh in binding.get('meshes',[]):
+  if mesh.startswith('/Game/'): folders.add(mesh.rsplit('/',1)[0])
   if '/Imports/' in mesh:
    before,after=mesh.split('/Imports/',1); folders.add(before+'/Imports/'+after.split('/')[0])
  for animation_set in binding.get('animation_sets',[]):

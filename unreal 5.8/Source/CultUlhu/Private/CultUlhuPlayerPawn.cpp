@@ -12,6 +12,7 @@ CSV_DECLARE_CATEGORY_EXTERN(CultRuntime);
 #include "CultCombatCredit.h"
 #include "CultVesselSurface.h"
 #include "CultCharacterModel.h"
+#include "CultFirstPersonView.h"
 #include "CultCharacterMovement.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "core/EventBus.h"
@@ -59,6 +60,7 @@ ACultUlhuPlayerPawn::ACultUlhuPlayerPawn(const FObjectInitializer& ObjectInitial
 {
  bReplicates=true; SetReplicateMovement(true); SetNetUpdateFrequency(10.f); SetNetCullDistanceSquared(100000.f*100000.f);
  CreateDefaultSubobject<UCultReplicatedBody>(TEXT("NetworkBody"));
+ CreateDefaultSubobject<UCultFirstPersonView>(TEXT("FirstPersonAnatomy"));
 	PrimaryActorTick.bCanEverTick = true;
 	VesselBody_ = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VesselBody"));
 	VesselBody_->SetupAttachment(GetCapsuleComponent());
@@ -174,6 +176,11 @@ void ACultUlhuPlayerPawn::BeginPlay()
 		}
 	}
  if(!ACultCharacterModel::AttachToPawn(this,CharacterId_)&&!CultPrimary::Find(CharacterId_).Ranged()) CreateVesselArms();
+}
+
+void ACultUlhuPlayerPawn::CalcCamera(float DeltaTime,FMinimalViewInfo& OutResult) {
+ Super::CalcCamera(DeltaTime,OutResult);
+ if(IsLocallyControlled()&&!IsThirdPerson()) OutResult.PerspectiveNearClipPlane=1.f;
 }
 
 bool ACultUlhuPlayerPawn::PlaceOnWalkableGround()

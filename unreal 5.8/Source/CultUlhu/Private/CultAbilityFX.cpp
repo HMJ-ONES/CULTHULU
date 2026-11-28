@@ -51,6 +51,18 @@ struct FBurst {
   }
  }
 
+ void Splatter() {
+  const float Expansion=FMath::SmoothStep(0.f,.55f,Time);
+  for(int32 Index=0;Index<9;++Index) {
+   const FVector D=Radial(Index*2.399963f);
+   const float Gain=.45f+.5f*FMath::Frac(Index*.618f);
+   const FVector Landing=D*Radius*Gain*Expansion+Up*Radius*.025f;
+   const FVector Droplet=Landing+Up*(Radius*.45f*Gain*FMath::Sin(Time*PI));
+   Mesh.Ribbon(Landing,Droplet,Radius*.014f,Radius*.028f,Alpha(Body,Opacity*.12f),Alpha(Tip,Opacity*.8f));
+   Mesh.Arc(Landing,Facing,Right,Radius*.09f*Gain,0,2*PI,Radius*.016f,Alpha(Body,Opacity*.7f),Alpha(Body,Opacity*.35f),6);
+  }
+ }
+
  void Curl(bool Tide) {
   const int32 Arms=Tide?3:Count;
   for(int32 Index=0;Index<Arms;++Index) {
@@ -321,6 +333,7 @@ void ACultAbilityFX::Draw() {
   }
   if(Colors.Form!=EForm::Bloom&&Colors.Form!=EForm::Spiral) Burst.Sparks(.93f,.58f,Burst.Count);
   if(!bFollowsCaster&&Event==EEvent::Contact) {
+   if(Look==ELook::Venom||Look==ELook::Spore||Look==ELook::Tide||Look==ELook::Brood) Burst.Splatter();
    const FVector Lift=FVector::UpVector*Radius*.07;
    Burst.Mesh.Arc(Lift,Axis,Right,Radius*.91f,0,2*PI,Radius*.028f,
     Alpha(Colors.Tip,Opacity*.73f),Alpha(Colors.Body,Opacity*.32f),24);

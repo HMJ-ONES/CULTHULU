@@ -60,6 +60,18 @@ void ACultSkillAttack::BuildPresentation() {
   Core->SetScalarParameterValue(TEXT("Intensity"),1.65f);
   Visual->SetMaterial(0,Core);
  }
+ if(Shape==EShape::Bolt&&!WardLocked&&RockExtents.X<=0) {
+  const auto* Hero=Cast<ACultUlhuPlayerPawn>(GetOwner());const FString Id=Hero?Hero->GetCharacterId():FString();
+  const bool Organic=Id==TEXT("bokrug")||Id==TEXT("mother_hydra")||Id==TEXT("shub_niggurath")||Id==TEXT("mi_go");
+  if(Organic) {
+   const TCHAR* Path=Id==TEXT("mi_go")?TEXT("/Game/CultUlhu/Projectiles/Visceral20261127/SM_ChitinDart"):TEXT("/Game/CultUlhu/Projectiles/Visceral20261127/SM_AcidGlob");
+   if(auto* Mesh=LoadObject<UStaticMesh>(nullptr,Path)) Visual->SetStaticMesh(Mesh);
+   if(auto* Wet=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/CultUlhu/Materials/M_VisceralGlob"))) {
+    auto* Surface=UMaterialInstanceDynamic::Create(Wet,this);
+    Surface->SetVectorParameterValue(TEXT("Color"),Id==TEXT("mother_hydra")||Id==TEXT("bokrug")?FLinearColor(.035f,.24f,.13f):FLinearColor(.26f,.32f,.014f));Visual->SetMaterial(0,Surface);
+   }
+  }
+ }
  Visual->SetVisibility(Shape==EShape::Bolt||Shape==EShape::Beam);
  Telegraph=NewObject<UProceduralMeshComponent>(this,TEXT("CommittedAttackSignal"));
  Telegraph->SetupAttachment(RootComponent); Telegraph->SetAbsolute(true,true,true);

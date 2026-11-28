@@ -35,6 +35,9 @@ bool FCultKitRuntime::LaunchPrimary() {
  Shot->ConfigureProjectileFlight(Primary.Reach,Primary.Delivery==EDelivery::Cannon);
  Shot->SignalStyle = uint8(Primary.Signal);
  if(Def.id=="yog_sothoth") Shot->AbilityLook=uint8(CultAbilityFX::ELook::Gate);
+ else if(Def.id=="bokrug") Shot->AbilityLook=uint8(CultAbilityFX::ELook::Tide);
+ else if(Def.id=="mother_hydra") Shot->AbilityLook=uint8(CultAbilityFX::ELook::Venom);
+ else if(Def.id=="shub_niggurath"||Def.id=="mi_go") Shot->AbilityLook=uint8(CultAbilityFX::ELook::Spore);
  Shot->bTrackMuzzle = true;
  Shot->PrimaryAim = Aim.ImpactPoint;
  const bool Corrosive = Primary.Delivery == EDelivery::CorrosiveArc;

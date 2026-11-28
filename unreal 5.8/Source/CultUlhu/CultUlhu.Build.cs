@@ -14,6 +14,9 @@ public class CultUlhu : ModuleRules
  PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "Sockets", "Networking", "ApplicationCore" });
  RuntimeDependencies.Add("$(ProjectDir)/Content/CharacterModels/registry.json",StagedFileType.NonUFS);
  RuntimeDependencies.Add("$(ProjectDir)/Content/CharacterModels/CREDITS.md",StagedFileType.NonUFS);
+ string ViewFolder=Path.Combine(ModuleDirectory,"..","..","Content","CharacterModels","FirstPerson");
+ if(Directory.Exists(ViewFolder)) foreach(string ViewFile in Directory.GetFiles(ViewFolder,"*.viewmesh"))
+  RuntimeDependencies.Add("$(ProjectDir)/Content/CharacterModels/FirstPerson/"+Path.GetFileName(ViewFile),StagedFileType.NonUFS);
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
